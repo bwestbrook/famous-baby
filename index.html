@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>famous Baby — find your baby's namesake</title>
+  <meta name="description" content="An almanac for naming. Search famous people by anything except their name." />
+
+  <!-- Editorial type stack -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,700;1,800&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- During development: cache-bust on every load so refreshes always get fresh assets. -->
+  <script>
+    document.write('<link rel="stylesheet" href="./styles.css?v=' + Date.now() + '" />');
+  </script>
+  <noscript><link rel="stylesheet" href="./styles.css" /></noscript>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <!-- Error catcher: surfaces module-load and runtime errors to the page so
+       a blank screen never hides what actually went wrong. -->
+  <script>
+    function __famousBabyShowError(label, detail) {
+      var root = document.getElementById('app');
+      if (!root) return;
+      root.removeAttribute('v-cloak');
+      root.style.visibility = 'visible';
+      var pre = document.createElement('pre');
+      pre.style.cssText = 'padding:24px;font:13px/1.5 ui-monospace,monospace;color:#8A2B2B;background:#fff;border:1px solid #E5DFD2;margin:24px;white-space:pre-wrap';
+      pre.textContent = '[' + label + ']\n\n' + detail;
+      root.appendChild(pre);
+    }
+    window.addEventListener('error', function (e) {
+      __famousBabyShowError('error', (e.filename || '') + ':' + (e.lineno || '') + '\n' + (e.message || '') + '\n' + (e.error && e.error.stack ? e.error.stack : ''));
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      var r = e.reason;
+      __famousBabyShowError('unhandled promise rejection', (r && r.stack) ? r.stack : String(r));
+    });
+    // If the page is still cloaked 5s after load, show a hint.
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        var root = document.getElementById('app');
+        if (root && root.hasAttribute('v-cloak')) {
+          __famousBabyShowError('mount timed out', 'Vue did not finish mounting within 5 seconds. Open DevTools console (Cmd+Opt+I) for the underlying error.');
+        }
+      }, 5000);
+    });
+  </script>
+</head>
+<body>
+  <div id="app" v-cloak>
+
+    <!-- ============== MASTHEAD ============== -->
+    <header class="masthead">
+      <div class="container">
+        <div class="masthead__top">
+          <div class="kicker"><span class="kicker__dot"></span>Vol. 01 &nbsp;/&nbsp; Almanac &nbsp;/&nbsp; All-Time Roster</div>
+          <div class="masthead__top-right">
+            <div class="theme-switch" role="group" aria-label="Switch aesthetic">
+              <button
+                class="theme-switch__btn"
+                :class="{ 'is-active': theme === 'sports' }"
+                @click="theme = 'sports'"
+                title="Sports broadcast aesthetic"
+              >Broadcast</button>
+              <button
+                class="theme-switch__btn"
+                :class="{ 'is-active': theme === 'editorial' }"
+                @click="theme = 'editorial'"
+                title="Editorial almanac aesthetic"
+              >Editorial</button>
+            </div>
+            <div class="masthead__date">{{ today }}</div>
+          </div>
+        </div>
+
+        <h1 class="wordmark">
+          <span class="wordmark__small"><em>famous</em></span><span class="wordmark__big">Baby</span>
+        </h1>
+
+        <p class="lede">
+          The starting lineup for parents who want a <strong>story</strong> behind the name.
+          Filter the roster by where they were born, who they played with, what they won, when they lived &mdash;
+          everything except the name itself.
+        </p>
+
+        <!-- Editorial color bar: each field tinted in its accent. -->
+        <div class="colorbar" aria-hidden="true">
+          <span
+            v-for="f in FIELDS"
+            :key="f"
+            class="colorbar__band"
+            :style="{ background: colorForField(f) }"
+            :title="f"
+          ></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============== SEARCH ============== -->
+    <section class="search">
+      <div class="container">
+        <div class="search__label">Ask anything</div>
+        <div class="search__bar">
+          <svg class="search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+          <input
+            class="search__input"
+            type="text"
+            v-model="query"
+            placeholder="e.g. NBA players who played with Michael Jordan…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button v-if="query" class="search__clear" @click="clearAll">Clear</button>
+        </div>
+
+        <div class="search__suggest">
+          Try:
+          <button v-for="s in suggestions" :key="s" @click="applySuggestion(s)">{{ s }}</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== FILTERS ============== -->
+    <section class="filters container">
+     <div class="filters__main">
+      <div class="filters__row">
+        <div class="filters__label">Field</div>
+        <div class="filters__chips filters__chips--fields">
+          <button
+            v-for="f in FIELDS"
+            :key="f"
+            class="chip chip--field"
+            :class="{ 'is-active': isFieldSelected(f) }"
+            :style="{ '--field-color': colorForField(f) }"
+            @click="toggleField(f)"
+          >{{ f }}</button>
+        </div>
+      </div>
+
+      <!-- Subfield drilldown — only appears once a parent field is picked. -->
+      <div v-if="availableSubfields.length" class="filters__row filters__row--sub">
+        <div class="filters__label filters__label--sub">↳ within</div>
+        <div class="filters__chips">
+          <button
+            v-for="sf in availableSubfields"
+            :key="sf"
+            class="chip chip--sub"
+            :class="{ 'is-active': isSubfieldSelected(sf) }"
+            @click="toggleSubfield(sf)"
+          >{{ sf }}</button>
+        </div>
+      </div>
+
+      <div class="filters__row">
+        <div class="filters__label">Gender</div>
+        <div class="filters__chips">
+          <button
+            v-for="g in GENDERS"
+            :key="g"
+            class="chip"
+            :class="{ 'is-active': isGenderSelected(g) }"
+            @click="toggleGender(g)"
+          >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
+        </div>
+      </div>
+
+      <div class="filters__row">
+        <div class="filters__label">Era</div>
+        <div class="filters__chips">
+          <button
+            v-for="era in ERAS"
+            :key="era.label"
+            class="chip"
+            :class="{ 'is-active': selectedEra && selectedEra.label === era.label }"
+            @click="selectEra(era)"
+          >{{ era.label }}</button>
+        </div>
+      </div>
+
+      <div class="filters__row">
+        <div class="filters__label">Born&nbsp;between</div>
+        <div class="filters__chips">
+          <div class="year-range">
+            <input type="number" v-model="yearMin" placeholder="any" min="1500" max="2030" />
+            <span>and</span>
+            <input type="number" v-model="yearMax" placeholder="any" min="1500" max="2030" />
+          </div>
+        </div>
+      </div>
+     </div><!-- /.filters__main -->
+
+     <!-- Letter keyboard — name must contain every selected letter. -->
+     <aside class="filters__keyboard">
+       <div class="filters__keyboard-label">Name&nbsp;contains</div>
+       <div class="keyboard">
+         <div
+           v-for="(row, ri) in KEYBOARD_ROWS"
+           :key="ri"
+           class="keyboard__row"
+           :class="'keyboard__row--' + ri"
+         >
+           <button
+             v-for="L in row"
+             :key="L"
+             class="key"
+             :class="{
+               'is-active': isLetterSelected(L),
+               'is-disabled': !availableLetters[L]
+             }"
+             :disabled="!availableLetters[L] && !isLetterSelected(L)"
+             @click="toggleLetter(L)"
+           >{{ L }}</button>
+         </div>
+         <div class="keyboard__row keyboard__row--actions">
+           <button
+             class="key key--clear"
+             :disabled="selectedLetters.length === 0"
+             @click="clearLetters"
+           >Clear all</button>
+         </div>
+       </div>
+       <div class="filters__keyboard-hint" v-if="selectedLetters.length">
+         Names must contain
+         <strong v-for="L in selectedLetters" :key="L">{{ L.toUpperCase() }}</strong>
+       </div>
+     </aside>
+    </section>
+
+    <!-- ============== RESULTS ============== -->
+    <section class="results container">
+      <div class="results__head">
+        <div class="results__count">
+          <em>{{ filtered.length }}</em>
+          {{ filtered.length === 1 ? 'name' : 'names' }}
+        </div>
+        <div class="results__sort">
+          <button :class="{ 'is-active': sort === 'relevance' }" @click="sort = 'relevance'">Relevance</button>
+          <button :class="{ 'is-active': sort === 'alpha' }"     @click="sort = 'alpha'">A–Z</button>
+          <button :class="{ 'is-active': sort === 'oldest' }"    @click="sort = 'oldest'">Oldest</button>
+          <button :class="{ 'is-active': sort === 'newest' }"    @click="sort = 'newest'">Newest</button>
+        </div>
+      </div>
+
+      <ol v-if="filtered.length" class="entries">
+        <li
+          v-for="(r, i) in filtered"
+          :key="r.person.id"
+          class="entry"
+          :style="{ '--field-color': colorForField(r.person.field) }"
+          @click="openPerson(r.person)"
+        >
+          <div class="entry__num">{{ String(i + 1).padStart(2, '0') }}</div>
+          <div class="entry__body">
+            <h2 class="entry__name">{{ r.person.name }}</h2>
+            <div class="entry__meta">
+              <span v-for="m in metaPills(r.person)" :key="m">{{ m }}</span>
+            </div>
+            <p class="entry__bio">{{ r.person.bio }}</p>
+            <div class="entry__tags">
+              <span
+                v-for="t in tagsFor(r.person, r.matchedParts)"
+                :key="t.label"
+                class="entry__tag"
+                :class="{ 'is-match': t.match }"
+              >{{ t.label }}</span>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <div v-else class="empty">
+        <p class="empty__h">No namesakes match.</p>
+        <p class="empty__p">Try loosening the filters, or rephrase the question.
+          The dataset is small for now — more names are on the way.</p>
+      </div>
+    </section>
+
+    <!-- ============== PERSON CARD MODAL ============== -->
+    <div
+      v-if="selectedPerson"
+      class="modal"
+      @click.self="closePerson"
+      :style="{ '--field-color': colorForField(selectedPerson.field) }"
+    >
+      <article class="modal__card" role="dialog" aria-modal="true">
+        <button class="modal__close" @click="closePerson" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+
+        <div class="modal__photo">
+          <div class="modal__photo-inner">
+            <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="32" cy="24" r="11"/>
+              <path d="M10 56c2-12 12-18 22-18s20 6 22 18"/>
+            </svg>
+            <div class="modal__photo-label">Photo</div>
+          </div>
+          <div class="modal__photo-tag">{{ selectedPerson.field }}</div>
+        </div>
+
+        <div class="modal__body">
+          <div class="modal__eyebrow">
+            <span>b. {{ selectedPerson.birthYear }}</span>
+            <span>{{ selectedPerson.birthPlace }}</span>
+            <span v-if="selectedPerson.subfield">{{ selectedPerson.subfield }}</span>
+          </div>
+          <h2 class="modal__name">{{ selectedPerson.name }}</h2>
+          <p class="modal__bio">{{ selectedPerson.bio }}</p>
+
+          <dl class="modal__facts">
+            <template v-if="selectedPerson.teams && selectedPerson.teams.length">
+              <dt>Teams</dt>
+              <dd>
+                <span v-for="t in selectedPerson.teams" :key="t.name" class="modal__pill">
+                  {{ t.name }}<em v-if="t.years"> &middot; {{ t.years[0] }}&ndash;{{ t.years[1] }}</em>
+                </span>
+              </dd>
+            </template>
+            <template v-if="selectedPerson.awards && selectedPerson.awards.length">
+              <dt>Awards</dt>
+              <dd>
+                <span v-for="a in selectedPerson.awards" :key="a.name + a.year" class="modal__pill">
+                  {{ a.name }}<em v-if="a.year"> &middot; {{ a.year }}</em>
+                </span>
+              </dd>
+            </template>
+            <template v-if="selectedPerson.collaborators && selectedPerson.collaborators.length">
+              <dt>With</dt>
+              <dd>
+                <span v-for="c in selectedPerson.collaborators" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
+              </dd>
+            </template>
+          </dl>
+
+          <!-- Same / similar names -->
+          <div
+            v-if="similarForSelected.exact.length || similarForSelected.similar.length"
+            class="modal__similar"
+          >
+            <div v-if="similarForSelected.exact.length" class="modal__similar-block">
+              <h3 class="modal__similar-h">Same name</h3>
+              <ul class="modal__similar-list">
+                <li v-for="p in similarForSelected.exact" :key="p.id">
+                  <button
+                    class="modal__similar-link"
+                    :style="{ '--field-color': colorForField(p.field) }"
+                    @click="openPerson(p)"
+                  >
+                    <span class="modal__similar-name">{{ p.name }}</span>
+                    <span class="modal__similar-meta">{{ p.field }} &middot; b. {{ p.birthYear }}</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <div v-if="similarForSelected.similar.length" class="modal__similar-block">
+              <h3 class="modal__similar-h">Sounds similar</h3>
+              <ul class="modal__similar-list">
+                <li v-for="p in similarForSelected.similar" :key="p.id">
+                  <button
+                    class="modal__similar-link"
+                    :style="{ '--field-color': colorForField(p.field) }"
+                    @click="openPerson(p)"
+                  >
+                    <span class="modal__similar-name">{{ p.name }}</span>
+                    <span class="modal__similar-meta">{{ p.field }} &middot; b. {{ p.birthYear }}</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============== FOOTER ============== -->
+    <footer class="foot">
+      <div class="container foot__inner">
+        <div class="foot__brand"><em>famous</em>BABY</div>
+        <div>Prototype &middot; {{ today }}</div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Cache-bust app.js (which itself imports data.js with a cache-buster)
+    var s = document.createElement('script');
+    s.type = 'module';
+    s.src = './app.js?v=' + Date.now();
+    document.body.appendChild(s);
+  </script>
+</body>
+</html>

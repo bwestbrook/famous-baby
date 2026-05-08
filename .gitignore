@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Node (if you ever add tooling)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Local environment / secrets
+.env
+.env.local
+*.pem
+
+# Build / cache artifacts
+dist/
+build/
+.cache/
+
+# Logs
+*.log
+
+# Local backup / scratch files
+*.bak
+*~
