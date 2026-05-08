@@ -28,3 +28,5 @@ build/
 # Local backup / scratch files
 *.bak
 *~
+data_Bk.js
+data_Enhanced_*.js
