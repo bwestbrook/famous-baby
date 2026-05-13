@@ -2326,6 +2326,25 @@ export const PEOPLE = [
     collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:"King Kohei — Japanese gymnast who won six straight all-around world titles before back-to-back Olympic golds." },
 
+  // =====================================================================
+  //  PRE-1900 WOMEN AUTHORS — added 2026-05-13 (rotation: themed batch)
+  //  Five canonical 19th-century women novelists and poets writing in English.
+  // =====================================================================
+  { id:'jane-austen', name:'Jane Austen', middleName:'', homophones:[], similarSpellings:['Austin','Awsten','Osten','Jaine','Jayne'], gender:'female', birthYear:1775, birthMonth:12, birthDay:16, birthPlace:'Steventon, England', country:'UK', field:'Literature', subfield:'Novelist',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Pride and Prejudice, Emma; English novelist whose wit dissected Regency manners with surgical precision.' },
+
+  { id:'emily-dickinson', name:'Emily Dickinson', middleName:'Elizabeth', homophones:[], similarSpellings:['Dickenson','Dikinson','Dickinsen','Emilie','Emely'], gender:'female', birthYear:1830, birthMonth:12, birthDay:10, birthPlace:'Amherst, Massachusetts', country:'USA', field:'Literature', subfield:'Poet',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Amherst recluse whose nearly 1,800 dash-laced poems — mostly unpublished in her lifetime — reinvented American verse.' },
+
+  { id:'charlotte-bronte', name:'Charlotte Brontë', middleName:'', homophones:[], similarSpellings:['Bronte','Brontey','Charlot','Sharlott','Charlott'], gender:'female', birthYear:1816, birthMonth:4, birthDay:21, birthPlace:'Thornton, England', country:'UK', field:'Literature', subfield:'Novelist',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Jane Eyre under the pen name Currer Bell; eldest surviving Brontë and Yorkshire parsonage prodigy.' },
+
+  { id:'george-eliot', name:'George Eliot', middleName:'', homophones:['Elliot','Elliott'], similarSpellings:['Elliot','Elliott','Eliyot','Mary Ann Evans','Marian Evans'], gender:'female', birthYear:1819, birthMonth:11, birthDay:22, birthPlace:'Nuneaton, England', country:'UK', field:'Literature', subfield:'Novelist',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Middlemarch; Mary Ann Evans took a man\'s name to be taken seriously and wrote one of English literature\'s greatest novels.' },
+
+  { id:'louisa-may-alcott', name:'Louisa May Alcott', middleName:'May', homophones:[], similarSpellings:['Alcot','Allcott','Luisa','Lousia','Louiza'], gender:'female', birthYear:1832, birthMonth:11, birthDay:29, birthPlace:'Germantown, Pennsylvania', country:'USA', field:'Literature', subfield:'Novelist',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Little Women; American novelist who turned her Concord sisters and Transcendentalist childhood into the template for American girlhood.' },
+
 ].filter(p => p.field !== '__skip__');  // drop placeholder rows used during editing
 
 // Convenience: distinct values for filter chips.
