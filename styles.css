@@ -5344,10 +5344,75 @@ body::after { border: 0 !important; }
   .modal { padding: 8px; }
   .modal__card { max-width: 100%; }
 
-  /* Entry rows: 64px num column can push past the edge with long
-     names. Tighten gutter, allow content to ellipsize. */
-  .entry { grid-template-columns: 48px 1fr !important; gap: 10px !important; }
-  .entry__name { word-break: break-word; }
+  /* Entry rows: the desktop 3-column grid (num | fav | body) breaks
+     on narrow widths — content gets crammed into too little space and
+     the heart button competes with the name. On mobile we drop the
+     grid entirely and stack the parts: small "No. NN" label on top,
+     full-width body underneath, heart absolutely positioned in the
+     top-right corner. */
+  .entry,
+  [data-theme="mag"] .entry {
+    display: block !important;
+    grid-template-columns: none !important;
+    position: relative;
+    padding: 18px 0 22px !important;
+    gap: 0 !important;
+  }
+  .entry__num,
+  [data-theme="mag"] .entry__num {
+    padding-top: 0 !important;
+    margin: 0 0 6px 0 !important;
+    font-size: 9px !important;
+    letter-spacing: 0.18em !important;
+    color: var(--ink-3);
+    display: block;
+  }
+  .entry__fav,
+  [data-theme="mag"] .entry__fav {
+    position: absolute !important;
+    top: 14px !important;
+    right: 0 !important;
+    margin: 0 !important;
+    padding: 6px 4px !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    background: transparent;
+  }
+  .entry__body,
+  [data-theme="mag"] .entry__body {
+    margin-right: 32px;   /* clear the fav button */
+    min-width: 0;
+  }
+  .entry__name,
+  [data-theme="mag"] .entry__name {
+    font-size: clamp(22px, 6.5vw, 28px) !important;
+    line-height: 1.1 !important;
+    word-break: break-word;
+    display: inline;
+  }
+  .entry__meta,
+  [data-theme="mag"] .entry__meta {
+    font-size: 10px;
+    margin-top: 6px;
+  }
+  .entry__bio,
+  [data-theme="mag"] .entry__bio {
+    font-size: 14px;
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+  .entry__tags,
+  [data-theme="mag"] .entry__tags {
+    margin-top: 8px;
+    gap: 6px;
+  }
+  /* The accent line ::before that sits at the left of each entry in the
+     desktop design is positioned for the wide grid — push it to where
+     the new mobile layout starts. */
+  [data-theme="mag"] .entry::before {
+    top: 0 !important;
+    width: 28px !important;
+  }
 
   /* Masthead top row (kicker + date) — let it wrap if cramped. */
   .masthead__top { flex-wrap: wrap; gap: 8px; }
@@ -5364,13 +5429,11 @@ body::after { border: 0 !important; }
     align-items: flex-start;
     gap: 10px;
   }
-  [data-theme="mag"] .entry {
-    grid-template-columns: 44px 22px 1fr;
-    gap: 10px;
-    padding: 22px 0;
-  }
-  [data-theme="mag"] .entry__num { padding-top: 18px; }
-  [data-theme="mag"] .entry__fav { margin-top: 16px; }
+  /* The desktop 3-column entry grid is replaced by a stacked layout
+     in the main mobile block above. Keep only properties unrelated to
+     that layout here. */
+  /* .entry__fav is repositioned absolute top-right in the main mobile
+     block — no margin-top needed here. */
   [data-theme="mag"] .keyboard__main { width: 100%; }
   [data-theme="mag"] .key {
     width: auto;
