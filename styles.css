@@ -5200,19 +5200,21 @@ body {
    so they stay visible no matter how narrow the screen gets. */
 
 html, body {
-  position: relative;
-  /* Hard clip horizontal overflow at the document root. `clip` (rather
-     than `hidden`) does NOT create a new scroll container, so fixed
-     pseudo-elements like the vertical frame keep working. */
-  overflow-x: clip;
+  /* Older `hidden` rather than `clip` — better iOS Safari compatibility
+     when there are position:fixed descendants (modals etc.) below. */
+  overflow-x: hidden;
   max-width: 100vw;
 }
-#app { max-width: 100%; overflow-x: clip; }
+#app { max-width: 100%; overflow-x: hidden; }
 
+/* Vertical frame: bars stay at the viewport edges during scroll. Using
+   `position: fixed` (not absolute on body) means we don't need body to
+   be a positioning context — which was breaking the modal's fixed
+   positioning on iOS Safari. */
 body::before,
 body::after {
   content: '';
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   width: 2px;
@@ -5340,9 +5342,19 @@ body::after { border: 0 !important; }
   .results__head, .results__sort { flex-wrap: wrap; gap: 6px; }
   .results__sort button { font-size: 10px; padding: 4px 8px; }
 
-  /* Modal: full-bleed on small screens with internal scroll. */
-  .modal { padding: 8px; }
-  .modal__card { max-width: 100%; }
+  /* Modal: full-bleed on small screens with internal scroll. Bump
+     z-index above the vertical frame and force the card to scroll
+     inside the viewport on iOS. */
+  .modal {
+    padding: 8px !important;
+    z-index: 9999 !important;
+  }
+  .modal__card {
+    max-width: 100% !important;
+    max-height: calc(100vh - 16px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
 
   /* Entry rows: the desktop 3-column grid (num | fav | body) breaks
      on narrow widths — content gets crammed into too little space and
