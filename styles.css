@@ -5420,10 +5420,17 @@ body::after { border: 0 !important; }
   }
   /* The accent line ::before that sits at the left of each entry in the
      desktop design is positioned for the wide grid — push it to where
-     the new mobile layout starts. */
+     the new mobile layout starts. Pointer-events:none so it can't eat
+     taps near the top-left of an entry. */
   [data-theme="mag"] .entry::before {
     top: 0 !important;
     width: 28px !important;
+    pointer-events: none !important;
+  }
+  /* Belt-and-suspenders: make absolutely sure entry rows are tappable. */
+  .entry, .entry__body, .entry__name, .entry__num {
+    pointer-events: auto !important;
+    cursor: pointer !important;
   }
 
   /* Masthead top row (kicker + date) — let it wrap if cramped. */

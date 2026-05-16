@@ -228,7 +228,7 @@
           :style="{ '--field-color': colorForField(r.person.field) }"
           @click="openPerson(r.person)"
         >
-          <div class="entry__num">{{ String(i + 1).padStart(2, '0') }}</div>
+          <div class="entry__num" @click="openPerson(r.person)">{{ String(i + 1).padStart(2, '0') }}</div>
           <button
             class="entry__fav"
             :class="{ 'is-on': isFavorite(r.person) }"
@@ -236,8 +236,8 @@
             :aria-label="isFavorite(r.person) ? 'Unfavorite' : 'Favorite'"
             :title="isFavorite(r.person) ? 'Remove from favorites' : 'Save to favorites'"
           >{{ isFavorite(r.person) ? '♥' : '♡' }}</button>
-          <div class="entry__body">
-            <h2 class="entry__name">
+          <div class="entry__body" @click="openPerson(r.person)">
+            <h2 class="entry__name" @click="openPerson(r.person)">
               <template v-if="fullNameParts(r.person)">
                 {{ fullNameParts(r.person).first }}
                 <em class="entry__middle">{{ fullNameParts(r.person).middle }}</em>

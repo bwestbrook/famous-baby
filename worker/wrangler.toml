@@ -1,0 +1,13 @@
+name = "famous-baby-qa"
+main = "qa-worker.js"
+compatibility_date = "2025-04-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Logs (handy while iterating, free)
+[observability]
+enabled = true
+
+# Secrets are NOT stored here — set them with:
+#   wrangler secret put ANTHROPIC_API_KEY
+#
+# Vars (non-secret) can go here under [vars] if needed later.

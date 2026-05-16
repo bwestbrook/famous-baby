@@ -1203,7 +1203,7 @@ export const PEOPLE = [
     teams:[], awards:[], collaborators:['Diego Rivera'], contemporaries:['Diego Rivera','David Alfaro Siqueiros','José Clemente Orozco'], friends:['Diego Rivera','André Breton'], foes:[], bio:'Mexican painter of pain, identity, and unflinching self-portraiture.' },
   { id:'picasso', name:'Pablo Picasso', middleName:'Ruiz', homophones:[], similarSpellings:['Pablo','Pablito','Paolo'], gender:'male', birthYear:1881, birthMonth:10, birthDay:25, birthPlace:'Málaga, Spain', country:'Spain', field:'Visual Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Georges Braque'], contemporaries:[], friends:[], foes:[], bio:'Co-founder of Cubism; reshaped twentieth-century art.' },
-  { id:'okeeffe', name:"Georgia O'Keeffe", middleName:'Totto', homophones:[], similarSpellings:['Georgea','Jorja','Georgina','Georgiana'], gender:'female', birthYear:1887, birthPlace:'Sun Prairie, Wisconsin', country:'USA', field:'Visual Arts', subfield:'Painter',
+  { id:'okeeffe', name:"Georgia O'Keeffe", middleName:'Totto', homophones:[], similarSpellings:['Georgea','Jorja','Georgina','Georgiana'], gender:'female', birthYear:1887, birthMonth:11, birthDay:15, birthPlace:'Sun Prairie, Wisconsin', country:'USA', field:'Visual Arts', subfield:'Painter',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:1977}], collaborators:['Alfred Stieglitz'], contemporaries:[], friends:[], foes:[], bio:'Mother of American modernism; flowers, bones, and the desert at scale.' },
   { id:'kusama', name:'Yayoi Kusama', middleName:'', homophones:[], similarSpellings:['Yayoy','Yaiyoi','Yayoie'], gender:'female', birthYear:1929, birthMonth:3, birthDay:22, birthPlace:'Matsumoto, Japan', country:'Japan', field:'Visual Arts', subfield:'Conceptual Artist',
     teams:[], awards:[{name:'Praemium Imperiale',year:2006}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Polka dots and infinity rooms — the most-attended contemporary artist on earth.' },
@@ -1299,7 +1299,7 @@ export const PEOPLE = [
     teams:[], awards:[], collaborators:['Dolores Huerta'], contemporaries:[], friends:[], foes:[], bio:'Co-founded the United Farm Workers; led the grape boycott.' },
   { id:'dolores-huerta', name:'Dolores Huerta', middleName:'Clara', homophones:[], similarSpellings:['Doloras','Delores','Dolorez','Doloris'], gender:'female', birthYear:1930, birthMonth:4, birthDay:10, birthPlace:'Dawson, New Mexico', country:'USA', field:'Activism', subfield:'Labor',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:2012}], collaborators:['Cesar Chavez'], contemporaries:[], friends:[], foes:[], bio:'Co-founded the United Farm Workers; coined "Sí, se puede."' },
-  { id:'berta', name:'Berta Cáceres', middleName:'Isabel', homophones:[], similarSpellings:['Bertah','Berthah','Bertta'], gender:'female', birthYear:1971, birthPlace:'La Esperanza, Honduras', country:'Honduras', field:'Activism', subfield:'Indigenous Rights',
+  { id:'berta', name:'Berta Cáceres', middleName:'Isabel', homophones:[], similarSpellings:['Bertah','Berthah','Bertta'], gender:'female', birthYear:1971, birthMonth:3, birthDay:4, birthPlace:'La Esperanza, Honduras', country:'Honduras', field:'Activism', subfield:'Indigenous Rights',
     teams:[], awards:[{name:'Goldman Environmental Prize',year:2015}], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:'Lenca leader who organized against the Agua Zarca dam; assassinated in 2016.' },
   { id:'aung-san', name:'Aung San Suu Kyi', middleName:'', homophones:[], similarSpellings:['Ong','Aong'], gender:'female', birthYear:1945, birthMonth:6, birthDay:19, birthPlace:'Yangon, Myanmar', country:'Myanmar', field:'Activism', subfield:'Pro-Democracy',
@@ -1600,7 +1600,7 @@ export const PEOPLE = [
     teams:[], awards:[], collaborators:['Martina Navratilova'], contemporaries:[], friends:[], foes:[], bio:'Won a 1977 court case to play pro tennis as a woman.' },
   { id:'christine-jorgensen', name:'Christine Jorgensen', middleName:'', homophones:['Cristine','Kristine','Christeen'], similarSpellings:['Cristine','Kristine','Christeen','Christen'], gender:'female', birthYear:1926, birthMonth:5, birthDay:30, birthPlace:'New York, New York', country:'USA', field:'Activism', subfield:'LGBTQ+',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'First widely known American to undergo gender-affirming surgery (1952).' },
-  { id:'vladimir-luxuria', name:'Vladimir Luxuria', middleName:'', homophones:[], similarSpellings:['Wladimir','Vladymyr','Vlademir'], gender:'female', birthYear:1965, birthPlace:'Foggia, Italy', country:'Italy', field:'Politics', subfield:'Member of Parliament',
+  { id:'vladimir-luxuria', name:'Vladimir Luxuria', middleName:'', homophones:[], similarSpellings:['Wladimir','Vladymyr','Vlademir'], gender:'female', birthYear:1965, birthMonth:6, birthDay:24, birthPlace:'Foggia, Italy', country:'Italy', field:'Politics', subfield:'Member of Parliament',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'First openly trans member of any European parliament (Italy, 2006).' },
 
   // =====================================================================
@@ -1612,10 +1612,10 @@ export const PEOPLE = [
     teams:[], awards:[{name:'Academy Award for Best Original Song',year:2016}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'British singer; came out as non-binary in 2019.' },
   // (Demi Lovato and Janelle Monáe exist earlier under Music/Pop — gender
   //  field on those originals is updated in place to 'nonbinary'.)
-  { id:'asia-kate-dillon', name:'Asia Kate Dillon', middleName:'', homophones:['Aisha','Aja'], similarSpellings:['Aisha','Aja','Asya','Asiah'], gender:'nonbinary', birthYear:1984, birthPlace:'Ithaca, New York', country:'USA', field:'Film', subfield:'Actor',
+  { id:'asia-kate-dillon', name:'Asia Kate Dillon', middleName:'', homophones:['Aisha','Aja'], similarSpellings:['Aisha','Aja','Asya','Asiah'], gender:'nonbinary', birthYear:1984, birthMonth:11, birthDay:15, birthPlace:'Ithaca, New York', country:'USA', field:'Film', subfield:'Actor',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:'Billions; first openly non-binary actor on a major TV series.' },
-  { id:'alok', name:'Alok Vaid-Menon', middleName:'', homophones:[], similarSpellings:['Allok','Aloke','Alocke'], gender:'nonbinary', birthYear:1991, birthPlace:'College Station, Texas', country:'USA', field:'Literature', subfield:'Poet',
+  { id:'alok', name:'Alok Vaid-Menon', middleName:'', homophones:[], similarSpellings:['Allok','Aloke','Alocke'], gender:'nonbinary', birthYear:1991, birthMonth:7, birthDay:13, birthPlace:'College Station, Texas', country:'USA', field:'Literature', subfield:'Poet',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:'Poet, performer, and gender non-conformity advocate.' },
   { id:'travis-alabanza', name:'Travis Alabanza', middleName:'', homophones:[], similarSpellings:['Travus','Travys','Travas'], gender:'nonbinary', birthYear:1995, birthPlace:'Bristol, England', country:'UK', field:'Literature', subfield:'Performer',
@@ -1759,7 +1759,7 @@ export const PEOPLE = [
     teams:[], awards:[],
     collaborators:['Joni Mitchell'], contemporaries:[], friends:[], foes:[], bio:'Crystal soprano whose 1967 cover of Both Sides Now beat Joni Mitchell to the airwaves and made the song a standard.' },
 
-  { id:'teilhard-de-chardin', name:'Pierre Teilhard de Chardin', middleName:'', homophones:[], similarSpellings:['Pyotr','Pieter','Petr','Pietro'], gender:'male', birthYear:1881, birthPlace:'Orcines, France', country:'France', field:'Religion', subfield:'Jesuit',
+  { id:'teilhard-de-chardin', name:'Pierre Teilhard de Chardin', middleName:'', homophones:[], similarSpellings:['Pyotr','Pieter','Petr','Pietro'], gender:'male', birthYear:1881, birthMonth:5, birthDay:1, birthPlace:'Orcines, France', country:'France', field:'Religion', subfield:'Jesuit',
     teams:[], awards:[],
     collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Jesuit paleontologist who tried to fuse evolution and Catholic theology — silenced by Rome, posthumously canonical anyway.' },
 
@@ -2221,7 +2221,7 @@ export const PEOPLE = [
     collaborators:['BBC Natural History Unit'], contemporaries:[], friends:[], foes:[],
     bio:"Hush-voiced BBC naturalist who has narrated planet earth across nine decades and every biome." },
 
-  { id:'maurice-strong', name:'Maurice Strong', middleName:'Frederick', homophones:[], similarSpellings:['Morris','Moris','Maurise','Mauriece'], gender:'male', birthYear:1929, birthPlace:'Oak Lake, Manitoba', country:'Canada', field:'Politics', subfield:'Diplomat',
+  { id:'maurice-strong', name:'Maurice Strong', middleName:'Frederick', homophones:[], similarSpellings:['Morris','Moris','Maurise','Mauriece'], gender:'male', birthYear:1929, birthMonth:4, birthDay:29, birthPlace:'Oak Lake, Manitoba', country:'Canada', field:'Politics', subfield:'Diplomat',
     teams:[], awards:[],
     collaborators:['Kofi Annan'], contemporaries:[], friends:[], foes:[],
     bio:"Canadian environmentalist who organized the first Earth Summit and shaped global climate policy." },
@@ -2304,7 +2304,7 @@ export const PEOPLE = [
   { id:'olga-korbut', name:'Olga Korbut', middleName:'Valentinovna', homophones:[], similarSpellings:['Olgha','Olja','Olka','Olgua'], gender:'female', birthYear:1955, birthMonth:5, birthDay:16, birthPlace:'Grodno, Belarus', country:'Belarus', field:'Sports', subfield:'Gymnastics',
     teams:[{name:'Soviet Union',years:[1972,1976]}], awards:[{name:'Olympic Gold Medal',year:1972}],
     collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"Sparrow of Minsk whose smile and Korbut Flip melted Cold War television in 1972 Munich." },
+    bio:"Sparrow of Minsk whose smile and Korbut Flip melted Cold War television in 1972 Munich.", featuredEditorial:"On May 16, 1955, in Grodno, a future revolution was born small enough to fit under a balance beam. At seventeen, Korbut walked into Munich 1972 and left an Olympic legend — three golds, a tearful uneven bars stumble that won over Cold War television, and the back-flip release later named after her and rewritten out of the rulebook. Gymnastics never went back to grown-up serenity. The pixies took over." },
 
   { id:'larisa-latynina', name:'Larisa Latynina', middleName:'Semyonovna', homophones:[], similarSpellings:['Larissa','Larysa','Larisah','Lareesa'], gender:'female', birthYear:1934, birthMonth:12, birthDay:27, birthPlace:'Kherson, Soviet Union', country:'Ukraine', field:'Sports', subfield:'Gymnastics',
     teams:[{name:'Soviet Union',years:[1956,1964]}], awards:[{name:'Olympic Gold Medal',year:1956}],
@@ -2344,6 +2344,22 @@ export const PEOPLE = [
 
   { id:'louisa-may-alcott', name:'Louisa May Alcott', middleName:'May', homophones:[], similarSpellings:['Alcot','Allcott','Luisa','Lousia','Louiza'], gender:'female', birthYear:1832, birthMonth:11, birthDay:29, birthPlace:'Germantown, Pennsylvania', country:'USA', field:'Literature', subfield:'Novelist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Little Women; American novelist who turned her Concord sisters and Transcendentalist childhood into the template for American girlhood.' },
+
+  // ---- 2026-05-15 nightly: 20th-century architecture pioneers ----
+  { id:'julia-morgan', name:'Julia Morgan', middleName:'', homophones:[], similarSpellings:['Julie','Juliana','Giulia','Yulia'], gender:'female', birthYear:1872, birthMonth:1, birthDay:20, birthPlace:'San Francisco, California', country:'USA', field:'Architecture', subfield:'Beaux-Arts',
+    teams:[], awards:[{name:'AIA Gold Medal',year:2014}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'First woman licensed as an architect in California; designed Hearst Castle and roughly 700 other buildings.' },
+
+  { id:'eileen-gray', name:'Eileen Gray', middleName:'Moray', homophones:['Grey'], similarSpellings:['Aileen','Ailene','Eileene','Eilean','Grey'], gender:'female', birthYear:1878, birthMonth:8, birthDay:9, birthPlace:'Enniscorthy, Ireland', country:'Ireland', field:'Architecture', subfield:'Modernist',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Irish-born modernist and furniture designer; her 1929 villa E-1027 is now regarded as one of modernism\'s quiet masterpieces.' },
+
+  { id:'walter-gropius', name:'Walter Gropius', middleName:'Adolph', homophones:[], similarSpellings:['Walther','Valter','Gropious'], gender:'male', birthYear:1883, birthMonth:5, birthDay:18, birthPlace:'Berlin, Germany', country:'Germany', field:'Architecture', subfield:'Bauhaus',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Founded the Bauhaus in 1919 and exported its art-meets-industry creed to Harvard after fleeing the Nazis.' },
+
+  { id:'alvar-aalto', name:'Alvar Aalto', middleName:'Henrik', homophones:[], similarSpellings:['Alvaro','Alvah','Aalvar','Aalto'], gender:'male', birthYear:1898, birthMonth:2, birthDay:3, birthPlace:'Kuortane, Finland', country:'Finland', field:'Architecture', subfield:'Modernist',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Finnish humanist of modernism — bentwood chairs, the curving Savoy vase, and buildings warm with daylight and birch.' },
+
+  { id:'lina-bo-bardi', name:'Lina Bo Bardi', middleName:'', homophones:[], similarSpellings:['Lena','Leena','Linna','Achillina'], gender:'female', birthYear:1914, birthMonth:12, birthDay:5, birthPlace:'Rome, Italy', country:'Brazil', field:'Architecture', subfield:'Modernist',
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Italian-born Brazilian modernist behind São Paulo\'s red-stilted MASP and the radical SESC Pompéia cultural center.' },
 
 ].filter(p => p.field !== '__skip__');  // drop placeholder rows used during editing
 
