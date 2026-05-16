@@ -5270,6 +5270,17 @@ input, textarea, select, button,
 body::before,
 body::after { border: 0 !important; }
 
+/* The generic `#app > *:not(.world-backdrop) { position: relative; z-index: 1 }`
+   rule has higher specificity than `.modal { position: fixed; z-index: 1000 }`,
+   so without this the modal renders as a static inline block in the document
+   flow (below all content, invisible to the user). Force the overlay positioning
+   back. Same fix for the world-backdrop, which is also positioned. */
+.modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+}
+
 /* Mobile tightening: the gutter already clamps to 20px on narrow
    widths, so the vertical bars sit ~20px from each edge. Bump touch
    targets and keep content inside the frame. */
@@ -5342,13 +5353,7 @@ body::after { border: 0 !important; }
   .results__head, .results__sort { flex-wrap: wrap; gap: 6px; }
   .results__sort button { font-size: 10px; padding: 4px 8px; }
 
-  /* Modal: full-bleed on small screens with internal scroll. Bump
-     z-index above the vertical frame and force the card to scroll
-     inside the viewport on iOS. */
-  .modal {
-    padding: 8px !important;
-    z-index: 9999 !important;
-  }
+  /* Modal: full-bleed on small screens with internal scroll. */
   .modal__card {
     max-width: 100% !important;
     max-height: calc(100vh - 16px) !important;
