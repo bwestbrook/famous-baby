@@ -52,7 +52,63 @@
   </script>
 </head>
 <body>
+  <!-- Q&A endpoint — set after deploying ./worker (see worker/README.md).
+       Uncomment and paste the URL Cloudflare Wrangler prints after `npm run deploy`. -->
+  <script>
+    // window.FAMOUS_BABY_QA_ENDPOINT = 'https://famous-baby-qa.<your-subdomain>.workers.dev';
+  </script>
   <div id="app" v-cloak>
+
+    <!-- ============== WORLD-MAP BACKDROP ==============
+         Fixed full-viewport, very low opacity, themed via currentColor.
+         Sits behind all content (z-index 0). Stylized continent silhouettes
+         + faint lat/lng grid — reads as an atlas page, not realistic
+         cartography. -->
+    <div class="world-backdrop" aria-hidden="true">
+      <svg viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
+        <g class="world-backdrop__grid">
+          <line x1="0" y1="83"  x2="1000" y2="83"  />
+          <line x1="0" y1="167" x2="1000" y2="167" />
+          <line x1="0" y1="250" x2="1000" y2="250" />
+          <line x1="0" y1="333" x2="1000" y2="333" />
+          <line x1="0" y1="417" x2="1000" y2="417" />
+          <line x1="125"  y1="0" x2="125"  y2="500" />
+          <line x1="250"  y1="0" x2="250"  y2="500" />
+          <line x1="375"  y1="0" x2="375"  y2="500" />
+          <line x1="500"  y1="0" x2="500"  y2="500" />
+          <line x1="625"  y1="0" x2="625"  y2="500" />
+          <line x1="750"  y1="0" x2="750"  y2="500" />
+          <line x1="875"  y1="0" x2="875"  y2="500" />
+        </g>
+        <g class="world-backdrop__land">
+          <!-- North America -->
+          <path d="M155 90 Q90 130 80 220 Q105 285 175 295 Q255 285 290 220 Q295 145 245 105 Q200 75 155 90 Z M120 295 Q140 320 175 320 Q200 315 210 305 L180 300 Q150 300 120 295 Z" />
+          <!-- South America -->
+          <path d="M265 295 Q235 335 248 410 Q272 465 312 475 Q345 455 354 380 Q344 308 304 295 Q283 290 265 295 Z" />
+          <!-- Europe -->
+          <path d="M470 95 Q438 125 460 175 Q505 180 545 165 Q565 135 545 100 Q505 78 470 95 Z" />
+          <!-- Africa -->
+          <path d="M470 195 Q447 260 472 355 Q505 405 553 385 Q583 320 580 240 Q570 192 528 178 Q490 178 470 195 Z" />
+          <!-- Asia (mainland + India + SEA) -->
+          <path d="M545 75 Q518 115 542 175 Q575 205 660 198 Q790 182 855 130 Q865 80 800 52 Q700 42 600 50 Q555 58 545 75 Z M620 200 Q610 240 630 280 Q655 295 685 280 Q695 245 680 215 Q650 198 620 200 Z M760 200 Q740 220 745 245 Q770 258 800 250 Q820 230 808 210 Q780 198 760 200 Z" />
+          <!-- Australia -->
+          <path d="M775 345 Q745 365 762 405 Q802 428 855 412 Q892 380 870 350 Q830 332 800 338 Q782 340 775 345 Z" />
+          <!-- Antarctica strip -->
+          <path d="M0 462 Q200 482 500 472 Q800 482 1000 462 L1000 500 L0 500 Z" />
+          <!-- Greenland -->
+          <path d="M340 50 Q318 80 332 130 Q360 145 388 130 Q400 95 380 65 Q358 48 340 50 Z" />
+          <!-- UK + Ireland (tiny) -->
+          <path d="M445 105 Q438 118 446 130 Q458 132 462 120 Q458 105 445 105 Z" />
+          <!-- Japan (tiny) -->
+          <path d="M848 175 Q842 190 850 205 Q862 207 866 195 Q862 178 848 175 Z" />
+          <!-- Madagascar -->
+          <path d="M600 358 Q595 378 605 395 Q615 395 618 378 Q614 358 600 358 Z" />
+          <!-- New Zealand (tiny) -->
+          <path d="M905 405 Q900 418 908 430 Q918 430 920 418 Q918 405 905 405 Z" />
+        </g>
+      </svg>
+    </div>
+
 
     <!-- ============== MASTHEAD ============== -->
     <header class="masthead">
@@ -60,20 +116,6 @@
         <div class="masthead__top">
           <div class="kicker"><span class="kicker__dot"></span>Vol. 01 &nbsp;/&nbsp; Almanac &nbsp;/&nbsp; All-Time Roster</div>
           <div class="masthead__top-right">
-            <div class="theme-switch" role="group" aria-label="Switch aesthetic">
-              <button
-                class="theme-switch__btn"
-                :class="{ 'is-active': theme === 'sports' }"
-                @click="theme = 'sports'"
-                title="Sports broadcast aesthetic"
-              >Broadcast</button>
-              <button
-                class="theme-switch__btn"
-                :class="{ 'is-active': theme === 'editorial' }"
-                @click="theme = 'editorial'"
-                title="Editorial almanac aesthetic"
-              >Editorial</button>
-            </div>
             <div class="masthead__date">{{ today }}</div>
           </div>
         </div>
@@ -81,12 +123,6 @@
         <h1 class="wordmark">
           <span class="wordmark__small"><em>famous</em></span><span class="wordmark__big">Baby</span>
         </h1>
-
-        <p class="lede">
-          The starting lineup for parents who want a <strong>story</strong> behind the name.
-          Filter the roster by where they were born, who they played with, what they won, when they lived &mdash;
-          everything except the name itself.
-        </p>
 
         <!-- Editorial color bar: each field tinted in its accent. -->
         <div class="colorbar" aria-hidden="true">
@@ -120,118 +156,134 @@
           />
           <button v-if="query" class="search__clear" @click="clearAll">Clear</button>
         </div>
+      </div>
+    </section>
 
-        <div class="search__suggest">
-          Try:
-          <button v-for="s in suggestions" :key="s" @click="applySuggestion(s)">{{ s }}</button>
+    <!-- ============== LOCATION (globe) ============== -->
+    <section class="band band--location container">
+      <div class="band__head">
+        <span class="band__num">01</span>
+        <h2 class="band__title">Location</h2>
+        <span class="band__sub">country of birth</span>
+      </div>
+      <div v-if="selectedCountry" class="band__place">
+        <button
+          class="chip chip--country is-active"
+          @click="clearCountry"
+          :title="'Clear ' + selectedCountry"
+        >{{ selectedCountry }} <span class="chip__close">×</span></button>
+      </div>
+      <div class="band__globe-wrap">
+        <div id="globe-canvas" class="band__globe"></div>
+        <div class="band__globe-zoom" aria-label="Zoom globe">
+          <button class="band__globe-zoombtn" @click="zoomGlobe(-1)" title="Zoom in">+</button>
+          <button class="band__globe-zoombtn" @click="zoomGlobe(1)" title="Zoom out">−</button>
+        </div>
+        <div class="band__globe-status">
+          <span v-if="globeRotating" class="band__globe-state band__globe-state--spin">
+            <span class="band__globe-dot"></span>spinning — click globe to stop
+          </span>
+          <span v-else class="band__globe-state band__globe-state--stopped">
+            <span class="band__globe-dot"></span>tap a marker to filter — click globe to spin
+          </span>
+          <button class="band__globe-btn" @click="toggleGlobeRotation">
+            {{ globeRotating ? 'Stop spin' : 'Resume spin' }}
+          </button>
         </div>
       </div>
     </section>
 
-    <!-- ============== FILTERS ============== -->
-    <section class="filters container">
-     <div class="filters__main">
-      <div class="filters__row">
-        <div class="filters__label">Field</div>
-        <div class="filters__chips filters__chips--fields">
-          <button
-            v-for="f in FIELDS"
-            :key="f"
-            class="chip chip--field"
-            :class="{ 'is-active': isFieldSelected(f) }"
-            :style="{ '--field-color': colorForField(f) }"
-            @click="toggleField(f)"
-          >{{ f }}</button>
-        </div>
+    <!-- ============== TIME (year slider + born on) ============== -->
+    <section class="band band--time container">
+      <div class="band__head">
+        <span class="band__num">02</span>
+        <h2 class="band__title">Time</h2>
+        <span class="band__sub">year · birthday</span>
       </div>
-
-      <!-- Subfield drilldown — only appears once a parent field is picked. -->
-      <div v-if="availableSubfields.length" class="filters__row filters__row--sub">
-        <div class="filters__label filters__label--sub">↳ within</div>
-        <div class="filters__chips">
-          <button
-            v-for="sf in availableSubfields"
-            :key="sf"
-            class="chip chip--sub"
-            :class="{ 'is-active': isSubfieldSelected(sf) }"
-            @click="toggleSubfield(sf)"
-          >{{ sf }}</button>
-        </div>
-      </div>
-
-      <div class="filters__row">
-        <div class="filters__label">Gender</div>
-        <div class="filters__chips">
-          <button
-            v-for="g in GENDERS"
-            :key="g"
-            class="chip"
-            :class="{ 'is-active': isGenderSelected(g) }"
-            @click="toggleGender(g)"
-          >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
-        </div>
-      </div>
-
-      <div class="filters__row">
-        <div class="filters__label">Era</div>
-        <div class="filters__chips">
-          <button
-            v-for="era in ERAS"
-            :key="era.label"
-            class="chip"
-            :class="{ 'is-active': selectedEra && selectedEra.label === era.label }"
-            @click="selectEra(era)"
-          >{{ era.label }}</button>
-        </div>
-      </div>
-
-      <div class="filters__row">
-        <div class="filters__label">Born&nbsp;between</div>
-        <div class="filters__chips">
-          <div class="year-range">
-            <input type="number" v-model="yearMin" placeholder="any" min="1500" max="2030" />
-            <span>and</span>
-            <input type="number" v-model="yearMax" placeholder="any" min="1500" max="2030" />
+      <div class="band__row">
+        <div class="band__label">Born&nbsp;between</div>
+        <div class="band__control">
+          <div class="year-slider year-slider--full">
+            <div class="year-slider__values">
+              <span class="year-slider__value">{{ yearMin }}</span>
+              <span class="year-slider__sep">→</span>
+              <span class="year-slider__value">{{ yearMax }}</span>
+            </div>
+            <div class="year-slider__rail">
+              <div
+                class="year-slider__fill"
+                :style="{ left: yearMinPct + '%', width: (yearMaxPct - yearMinPct) + '%' }"
+              ></div>
+              <input
+                type="range"
+                class="year-slider__input year-slider__input--min"
+                :min="YEAR_FLOOR"
+                :max="YEAR_CEIL"
+                step="1"
+                :value="yearMin"
+                @input="setYearMin($event.target.value)"
+                aria-label="Earliest birth year"
+              />
+              <input
+                type="range"
+                class="year-slider__input year-slider__input--max"
+                :min="YEAR_FLOOR"
+                :max="YEAR_CEIL"
+                step="1"
+                :value="yearMax"
+                @input="setYearMax($event.target.value)"
+                aria-label="Latest birth year"
+              />
+            </div>
           </div>
         </div>
       </div>
-     </div><!-- /.filters__main -->
 
-     <!-- Letter keyboard — name must contain every selected letter. -->
-     <aside class="filters__keyboard">
-       <div class="filters__keyboard-label">Name&nbsp;contains</div>
-       <div class="keyboard">
-         <div
-           v-for="(row, ri) in KEYBOARD_ROWS"
-           :key="ri"
-           class="keyboard__row"
-           :class="'keyboard__row--' + ri"
-         >
-           <button
-             v-for="L in row"
-             :key="L"
-             class="key"
-             :class="{
-               'is-active': isLetterSelected(L),
-               'is-disabled': !availableLetters[L]
-             }"
-             :disabled="!availableLetters[L] && !isLetterSelected(L)"
-             @click="toggleLetter(L)"
-           >{{ L }}</button>
-         </div>
-         <div class="keyboard__row keyboard__row--actions">
-           <button
-             class="key key--clear"
-             :disabled="selectedLetters.length === 0"
-             @click="clearLetters"
-           >Clear all</button>
-         </div>
-       </div>
-       <div class="filters__keyboard-hint" v-if="selectedLetters.length">
-         Names must contain
-         <strong v-for="L in selectedLetters" :key="L">{{ L.toUpperCase() }}</strong>
-       </div>
-     </aside>
+      <div class="band__row">
+        <div class="band__label">Born&nbsp;on</div>
+        <div class="band__control">
+          <div class="band__chips">
+            <button
+              v-for="m in 12"
+              :key="'m'+m"
+              class="chip chip--month"
+              :class="{ 'is-active': selectedBornMonth === m }"
+              @click="setBornMonth(m)"
+            >{{ MONTH_NAMES[m].slice(0,3) }}</button>
+            <div class="day-select" v-if="selectedBornMonth > 0">
+              <label class="day-select__label" :for="'day-of-' + selectedBornMonth">Day:</label>
+              <select
+                :id="'day-of-' + selectedBornMonth"
+                class="day-select__input"
+                v-model.number="selectedBornDay"
+                :title="'Day of ' + MONTH_NAMES[selectedBornMonth]"
+              >
+                <option :value="0">any</option>
+                <option v-for="d in daysInMonth(selectedBornMonth)" :key="d" :value="d">{{ d }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== ACTIVE FILTER PILLS ============== -->
+    <section v-if="hasActiveFilters" class="active-filters-band container">
+      <div class="active-filters">
+        <span class="active-filters__label">Filtering by:</span>
+        <button
+          v-for="f in activeFilters"
+          :key="f.key"
+          class="active-filter"
+          @click="f.clear"
+          :title="'Remove ' + f.group + ': ' + f.label"
+        >
+          <span class="active-filter__group">{{ f.group }}</span>
+          <span class="active-filter__label">{{ f.label }}</span>
+          <span class="active-filter__x">×</span>
+        </button>
+        <button class="active-filters__clear" @click="clearAll">Clear all</button>
+      </div>
     </section>
 
     <!-- ============== RESULTS ============== -->
@@ -241,6 +293,26 @@
           <em>{{ filtered.length }}</em>
           {{ filtered.length === 1 ? 'name' : 'names' }}
         </div>
+        <div class="results__actions">
+          <button
+            class="results__surprise"
+            @click="surpriseMe"
+            :disabled="filtered.length === 0"
+            title="Open a random person from the current results"
+          >Surprise me</button>
+          <button
+            class="results__toggle"
+            :class="{ 'is-active': onlyFavorites }"
+            @click="toggleOnlyFavorites"
+            :title="favorites.size ? `${favorites.size} saved` : 'No favorites yet'"
+          >♥ Favorites <span v-if="favorites.size">· {{ favorites.size }}</span></button>
+          <button
+            class="results__toggle"
+            :class="{ 'is-active': bornTodayActive }"
+            @click="toggleBornToday"
+            title="Show only people born on today's calendar day"
+          >Born today</button>
+        </div>
         <div class="results__sort">
           <button :class="{ 'is-active': sort === 'relevance' }" @click="sort = 'relevance'">Relevance</button>
           <button :class="{ 'is-active': sort === 'alpha' }"     @click="sort = 'alpha'">A–Z</button>
@@ -249,7 +321,14 @@
         </div>
       </div>
 
-      <ol v-if="filtered.length" class="entries">
+      <!-- Empty (no filters yet) -->
+      <div v-if="!hasActiveFilters" class="empty empty--start">
+        <p class="empty__h">Start searching.</p>
+        <p class="empty__p">Pick a country on the globe, drag the year slider, search a name, or choose a field below — we'll surface the matching namesakes here.</p>
+      </div>
+
+      <!-- Results window (fixed-height; scroll inside) -->
+      <ol v-else-if="filtered.length" class="entries entries--window">
         <li
           v-for="(r, i) in filtered"
           :key="r.person.id"
@@ -258,8 +337,22 @@
           @click="openPerson(r.person)"
         >
           <div class="entry__num">{{ String(i + 1).padStart(2, '0') }}</div>
+          <button
+            class="entry__fav"
+            :class="{ 'is-on': isFavorite(r.person) }"
+            @click.stop="toggleFavorite(r.person)"
+            :aria-label="isFavorite(r.person) ? 'Unfavorite' : 'Favorite'"
+            :title="isFavorite(r.person) ? 'Remove from favorites' : 'Save to favorites'"
+          >{{ isFavorite(r.person) ? '♥' : '♡' }}</button>
           <div class="entry__body">
-            <h2 class="entry__name">{{ r.person.name }}</h2>
+            <h2 class="entry__name">
+              <template v-if="fullNameParts(r.person)">
+                {{ fullNameParts(r.person).first }}
+                <em class="entry__middle">{{ fullNameParts(r.person).middle }}</em>
+                {{ fullNameParts(r.person).last }}
+              </template>
+              <template v-else>{{ r.person.name }}</template>
+            </h2>
             <div class="entry__meta">
               <span v-for="m in metaPills(r.person)" :key="m">{{ m }}</span>
             </div>
@@ -281,6 +374,58 @@
         <p class="empty__p">Try loosening the filters, or rephrase the question.
           The dataset is small for now — more names are on the way.</p>
       </div>
+    </section><!-- /.results -->
+
+    <!-- ============== WHO (filters below results) ============== -->
+    <section class="band band--who container">
+      <div class="band__head">
+        <span class="band__num">03</span>
+        <h2 class="band__title">Who</h2>
+        <span class="band__sub">field · gender</span>
+      </div>
+      <div class="band__row">
+        <div class="band__label">Field</div>
+        <div class="band__control">
+          <div class="band__chips band__chips--fields">
+            <button
+              v-for="f in FIELDS"
+              :key="f"
+              class="chip chip--field"
+              :class="{ 'is-active': isFieldSelected(f) }"
+              :style="{ '--field-color': colorForField(f) }"
+              @click="toggleField(f)"
+            >{{ f }}</button>
+          </div>
+        </div>
+      </div>
+      <div v-if="availableSubfields.length" class="band__row">
+        <div class="band__label band__label--sub">↳ within</div>
+        <div class="band__control">
+          <div class="band__chips">
+            <button
+              v-for="sf in availableSubfields"
+              :key="sf"
+              class="chip chip--sub"
+              :class="{ 'is-active': isSubfieldSelected(sf) }"
+              @click="toggleSubfield(sf)"
+            >{{ sf }}</button>
+          </div>
+        </div>
+      </div>
+      <div class="band__row">
+        <div class="band__label">Gender</div>
+        <div class="band__control">
+          <div class="band__chips">
+            <button
+              v-for="g in GENDERS"
+              :key="g"
+              class="chip"
+              :class="{ 'is-active': isGenderSelected(g) }"
+              @click="toggleGender(g)"
+            >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ============== PERSON CARD MODAL ============== -->
@@ -298,24 +443,78 @@
         </button>
 
         <div class="modal__photo">
+          <img
+            class="modal__photo-img"
+            :src="'./photos/' + selectedPerson.id + '.jpg'"
+            :alt="selectedPerson.name"
+            @load="$event.target.classList.add('is-loaded')"
+            @error="$event.target.classList.add('is-broken')"
+          />
           <div class="modal__photo-inner">
             <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="32" cy="24" r="11"/>
               <path d="M10 56c2-12 12-18 22-18s20 6 22 18"/>
             </svg>
-            <div class="modal__photo-label">Photo</div>
+            <div class="modal__photo-label">No photo yet</div>
           </div>
           <div class="modal__photo-tag">{{ selectedPerson.field }}</div>
         </div>
 
         <div class="modal__body">
           <div class="modal__eyebrow">
-            <span>b. {{ selectedPerson.birthYear }}</span>
+            <span>{{ formatBirthDate(selectedPerson) }}</span>
             <span>{{ selectedPerson.birthPlace }}</span>
+            <span v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)" class="modal__eyebrow-zodiac">
+              {{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
+            </span>
             <span v-if="selectedPerson.subfield">{{ selectedPerson.subfield }}</span>
           </div>
           <h2 class="modal__name">{{ selectedPerson.name }}</h2>
+          <div v-if="fullNameParts(selectedPerson)" class="modal__given">
+            <span class="modal__given-label">Full name</span>
+            <span class="modal__given-name">
+              {{ fullNameParts(selectedPerson).first }}
+              <em class="modal__given-middle">{{ fullNameParts(selectedPerson).middle }}</em>
+              {{ fullNameParts(selectedPerson).last }}
+            </span>
+          </div>
           <p class="modal__bio">{{ selectedPerson.bio }}</p>
+
+          <!-- Ask a question -->
+          <div class="modal__ask">
+            <button
+              type="button"
+              class="modal__ask-toggle"
+              :class="{ 'is-open': askOpen }"
+              @click="toggleAsk"
+              :aria-expanded="askOpen ? 'true' : 'false'"
+            >
+              <span v-if="!askOpen">Ask a question about {{ selectedPerson.name.split(' ')[0] }}</span>
+              <span v-else>Cancel</span>
+            </button>
+
+            <div v-if="askOpen" class="modal__ask-panel">
+              <form class="modal__ask-form" @submit.prevent="submitAsk">
+                <input
+                  type="text"
+                  class="modal__ask-input"
+                  v-model="askInput"
+                  :placeholder="'e.g. What was their biggest moment?'"
+                  :disabled="askLoading"
+                  maxlength="200"
+                />
+                <button
+                  type="submit"
+                  class="modal__ask-submit"
+                  :disabled="askLoading || !askInput.trim()"
+                >
+                  {{ askLoading ? '…' : 'Ask' }}
+                </button>
+              </form>
+              <p v-if="askError" class="modal__ask-error">{{ askError }}</p>
+              <p v-if="askAnswer" class="modal__ask-answer">{{ askAnswer }}</p>
+            </div>
+          </div>
 
           <dl class="modal__facts">
             <template v-if="selectedPerson.teams && selectedPerson.teams.length">
@@ -338,6 +537,24 @@
               <dt>With</dt>
               <dd>
                 <span v-for="c in selectedPerson.collaborators" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
+              </dd>
+            </template>
+            <template v-if="selectedPerson.contemporaries && selectedPerson.contemporaries.length">
+              <dt>Contemporaries</dt>
+              <dd>
+                <span v-for="c in selectedPerson.contemporaries" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
+              </dd>
+            </template>
+            <template v-if="selectedPerson.friends && selectedPerson.friends.length">
+              <dt>Friends</dt>
+              <dd>
+                <span v-for="c in selectedPerson.friends" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
+              </dd>
+            </template>
+            <template v-if="selectedPerson.foes && selectedPerson.foes.length">
+              <dt>Foes</dt>
+              <dd>
+                <span v-for="c in selectedPerson.foes" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
               </dd>
             </template>
           </dl>
@@ -391,6 +608,9 @@
     </footer>
 
   </div>
+
+  <!-- 3D globe library — UMD bundle, exposes window.Globe. ~280KB minified. -->
+  <script src="https://unpkg.com/globe.gl@2.34.6"></script>
 
   <script>
     // Cache-bust app.js (which itself imports data.js with a cache-buster)
