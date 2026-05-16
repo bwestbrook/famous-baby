@@ -272,7 +272,10 @@ const app = createApp({
     // We use plain arrays for multi-select state because Vue 3's reactivity
     // tracks array reassignment cleanly and templates can call helpers
     // without surprising auto-unwrap behavior on collection types.
-    const query             = ref('');
+    // Pre-seeded query so first-time visitors land on a meaningful result
+     // set instead of an empty page. Acts like a soft default — the user can
+     // edit/clear the input at any time, same as any other typed query.
+    const query             = ref('women scientists');
     const selectedFields    = ref([]);
     const selectedSubfields = ref([]);          // genres/leagues/etc. inside a field
     const selectedGenders   = ref([]);

@@ -159,114 +159,6 @@
       </div>
     </section>
 
-    <!-- ============== LOCATION (globe) ============== -->
-    <section class="band band--location container">
-      <div class="band__head">
-        <span class="band__num">01</span>
-        <h2 class="band__title">Location</h2>
-        <span class="band__sub">country of birth</span>
-      </div>
-      <div v-if="selectedCountry" class="band__place">
-        <button
-          class="chip chip--country is-active"
-          @click="clearCountry"
-          :title="'Clear ' + selectedCountry"
-        >{{ selectedCountry }} <span class="chip__close">×</span></button>
-      </div>
-      <div class="band__globe-wrap">
-        <div id="globe-canvas" class="band__globe"></div>
-        <div class="band__globe-zoom" aria-label="Zoom globe">
-          <button class="band__globe-zoombtn" @click="zoomGlobe(-1)" title="Zoom in">+</button>
-          <button class="band__globe-zoombtn" @click="zoomGlobe(1)" title="Zoom out">−</button>
-        </div>
-        <div class="band__globe-status">
-          <span v-if="globeRotating" class="band__globe-state band__globe-state--spin">
-            <span class="band__globe-dot"></span>spinning — click globe to stop
-          </span>
-          <span v-else class="band__globe-state band__globe-state--stopped">
-            <span class="band__globe-dot"></span>tap a marker to filter — click globe to spin
-          </span>
-          <button class="band__globe-btn" @click="toggleGlobeRotation">
-            {{ globeRotating ? 'Stop spin' : 'Resume spin' }}
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== TIME (year slider + born on) ============== -->
-    <section class="band band--time container">
-      <div class="band__head">
-        <span class="band__num">02</span>
-        <h2 class="band__title">Time</h2>
-        <span class="band__sub">year · birthday</span>
-      </div>
-      <div class="band__row">
-        <div class="band__label">Born&nbsp;between</div>
-        <div class="band__control">
-          <div class="year-slider year-slider--full">
-            <div class="year-slider__values">
-              <span class="year-slider__value">{{ yearMin }}</span>
-              <span class="year-slider__sep">→</span>
-              <span class="year-slider__value">{{ yearMax }}</span>
-            </div>
-            <div class="year-slider__rail">
-              <div
-                class="year-slider__fill"
-                :style="{ left: yearMinPct + '%', width: (yearMaxPct - yearMinPct) + '%' }"
-              ></div>
-              <input
-                type="range"
-                class="year-slider__input year-slider__input--min"
-                :min="YEAR_FLOOR"
-                :max="YEAR_CEIL"
-                step="1"
-                :value="yearMin"
-                @input="setYearMin($event.target.value)"
-                aria-label="Earliest birth year"
-              />
-              <input
-                type="range"
-                class="year-slider__input year-slider__input--max"
-                :min="YEAR_FLOOR"
-                :max="YEAR_CEIL"
-                step="1"
-                :value="yearMax"
-                @input="setYearMax($event.target.value)"
-                aria-label="Latest birth year"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="band__row">
-        <div class="band__label">Born&nbsp;on</div>
-        <div class="band__control">
-          <div class="band__chips">
-            <button
-              v-for="m in 12"
-              :key="'m'+m"
-              class="chip chip--month"
-              :class="{ 'is-active': selectedBornMonth === m }"
-              @click="setBornMonth(m)"
-            >{{ MONTH_NAMES[m].slice(0,3) }}</button>
-            <div class="day-select" v-if="selectedBornMonth > 0">
-              <label class="day-select__label" :for="'day-of-' + selectedBornMonth">Day:</label>
-              <select
-                :id="'day-of-' + selectedBornMonth"
-                class="day-select__input"
-                v-model.number="selectedBornDay"
-                :title="'Day of ' + MONTH_NAMES[selectedBornMonth]"
-              >
-                <option :value="0">any</option>
-                <option v-for="d in daysInMonth(selectedBornMonth)" :key="d" :value="d">{{ d }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ============== ACTIVE FILTER PILLS ============== -->
     <section v-if="hasActiveFilters" class="active-filters-band container">
       <div class="active-filters">
@@ -375,6 +267,114 @@
           The dataset is small for now — more names are on the way.</p>
       </div>
     </section><!-- /.results -->
+
+    <!-- ============== LOCATION (globe) ============== -->
+    <section class="band band--location container">
+      <div class="band__head">
+        <span class="band__num">01</span>
+        <h2 class="band__title">Location</h2>
+        <span class="band__sub">country of birth</span>
+      </div>
+      <div v-if="selectedCountry" class="band__place">
+        <button
+          class="chip chip--country is-active"
+          @click="clearCountry"
+          :title="'Clear ' + selectedCountry"
+        >{{ selectedCountry }} <span class="chip__close">×</span></button>
+      </div>
+      <div class="band__globe-wrap">
+        <div id="globe-canvas" class="band__globe"></div>
+        <div class="band__globe-zoom" aria-label="Zoom globe">
+          <button class="band__globe-zoombtn" @click="zoomGlobe(-1)" title="Zoom in">+</button>
+          <button class="band__globe-zoombtn" @click="zoomGlobe(1)" title="Zoom out">−</button>
+        </div>
+        <div class="band__globe-status">
+          <span v-if="globeRotating" class="band__globe-state band__globe-state--spin">
+            <span class="band__globe-dot"></span>spinning — click globe to stop
+          </span>
+          <span v-else class="band__globe-state band__globe-state--stopped">
+            <span class="band__globe-dot"></span>tap a marker to filter — click globe to spin
+          </span>
+          <button class="band__globe-btn" @click="toggleGlobeRotation">
+            {{ globeRotating ? 'Stop spin' : 'Resume spin' }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== TIME (year slider + born on) ============== -->
+    <section class="band band--time container">
+      <div class="band__head">
+        <span class="band__num">02</span>
+        <h2 class="band__title">Time</h2>
+        <span class="band__sub">year · birthday</span>
+      </div>
+      <div class="band__row">
+        <div class="band__label">Born&nbsp;between</div>
+        <div class="band__control">
+          <div class="year-slider year-slider--full">
+            <div class="year-slider__values">
+              <span class="year-slider__value">{{ yearMin }}</span>
+              <span class="year-slider__sep">→</span>
+              <span class="year-slider__value">{{ yearMax }}</span>
+            </div>
+            <div class="year-slider__rail">
+              <div
+                class="year-slider__fill"
+                :style="{ left: yearMinPct + '%', width: (yearMaxPct - yearMinPct) + '%' }"
+              ></div>
+              <input
+                type="range"
+                class="year-slider__input year-slider__input--min"
+                :min="YEAR_FLOOR"
+                :max="YEAR_CEIL"
+                step="1"
+                :value="yearMin"
+                @input="setYearMin($event.target.value)"
+                aria-label="Earliest birth year"
+              />
+              <input
+                type="range"
+                class="year-slider__input year-slider__input--max"
+                :min="YEAR_FLOOR"
+                :max="YEAR_CEIL"
+                step="1"
+                :value="yearMax"
+                @input="setYearMax($event.target.value)"
+                aria-label="Latest birth year"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="band__row">
+        <div class="band__label">Born&nbsp;on</div>
+        <div class="band__control">
+          <div class="band__chips">
+            <button
+              v-for="m in 12"
+              :key="'m'+m"
+              class="chip chip--month"
+              :class="{ 'is-active': selectedBornMonth === m }"
+              @click="setBornMonth(m)"
+            >{{ MONTH_NAMES[m].slice(0,3) }}</button>
+            <div class="day-select" v-if="selectedBornMonth > 0">
+              <label class="day-select__label" :for="'day-of-' + selectedBornMonth">Day:</label>
+              <select
+                :id="'day-of-' + selectedBornMonth"
+                class="day-select__input"
+                v-model.number="selectedBornDay"
+                :title="'Day of ' + MONTH_NAMES[selectedBornMonth]"
+              >
+                <option :value="0">any</option>
+                <option v-for="d in daysInMonth(selectedBornMonth)" :key="d" :value="d">{{ d }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- ============== WHO (filters below results) ============== -->
     <section class="band band--who container">
