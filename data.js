@@ -58,7 +58,7 @@ export const PEOPLE = [
 
   { id:'rick-barry', name:'Rick Barry', gender:'male', birthYear:1944, birthPlace:'Elizabeth, New Jersey', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'San Francisco Warriors',years:[1965,1967]},{name:'Golden State Warriors',years:[1972,1978]}], awards:[{name:'NBA Finals MVP',year:1975}],
-    collaborators:['Nate Thurmond','Jamaal Wilkes'], bio:'Underhand free-throw shooter and a 1975 Finals MVP.' },
+    collaborators:['Nate Thurmond','Jamaal Wilkes'], bio:"Underhand free-throw shooter and a 1975 Finals MVP. A sharpshooting forward, he led the Golden State Warriors to a stunning sweep of the favored Washington Bullets in the 1975 NBA Finals, earning Finals MVP. He remains famous for his unorthodox underhand \"granny-style\" free throws, with which he shot near 90 percent for his career. He is the only player to lead the NCAA, ABA, and NBA in scoring, and he was inducted into the Basketball Hall of Fame in 1987." },
 
   { id:'pete-maravich', name:'Pete Maravich', gender:'male', birthYear:1947, birthPlace:'Aliquippa, Pennsylvania', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Atlanta Hawks',years:[1970,1974]},{name:'New Orleans Jazz',years:[1974,1979]}], awards:[],
@@ -67,7 +67,7 @@ export const PEOPLE = [
   { id:'kareem-abdul-jabbar', name:'Kareem Abdul-Jabbar', gender:'male', birthYear:1947, birthPlace:'New York, New York', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Milwaukee Bucks',years:[1969,1975]},{name:'Los Angeles Lakers',years:[1975,1989]}],
     awards:[{name:'NBA MVP',year:1971},{name:'NBA Champion',year:1971},{name:'NBA Champion',year:1985}],
-    collaborators:['Magic Johnson','Oscar Robertson','James Worthy'], bio:'Six-time MVP and master of the unblockable skyhook.' },
+    collaborators:['Magic Johnson','Oscar Robertson','James Worthy'], bio:"Six-time MVP and master of the unblockable skyhook. Born Lew Alcindor in New York City, he won three straight NCAA titles at UCLA before converting to Islam and changing his name. Over twenty NBA seasons with the Milwaukee Bucks and Los Angeles Lakers he won six championships and retired as the league's all-time leading scorer, a record that stood until 2023. His signature skyhook remains one of the most unstoppable shots in basketball history, and in retirement he became a prolific author and cultural commentator." },
 
   { id:'julius-erving', name:'Julius Erving', gender:'male', birthYear:1950, birthPlace:'East Meadow, New York', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Philadelphia 76ers',years:[1976,1987]}], awards:[{name:'NBA MVP',year:1981},{name:'NBA Champion',year:1983}],
@@ -80,7 +80,7 @@ export const PEOPLE = [
   { id:'moses-malone', name:'Moses Malone', gender:'male', birthYear:1955, birthPlace:'Petersburg, Virginia', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Houston Rockets',years:[1976,1982]},{name:'Philadelphia 76ers',years:[1982,1986]}],
     awards:[{name:'NBA MVP',year:1979},{name:'NBA Champion',year:1983}],
-    collaborators:['Julius Erving','Maurice Cheeks'], bio:'Three-time MVP and the original prep-to-pro big man.' },
+    collaborators:['Julius Erving','Maurice Cheeks'], bio:"Three-time MVP and the original prep-to-pro big man. Born in Petersburg, Virginia, he jumped straight from high school to the ABA's Utah Stars in 1974, blazing a trail later followed by stars like Kevin Garnett and LeBron James. He won the MVP award with the Houston Rockets in 1979 and 1982, then joined the Philadelphia 76ers and earned a third MVP while carrying them to the 1983 title with both league and Finals MVP honors. A relentless rebounder, he led the NBA on the glass six times and finished his nineteen-year career with over 27,000 points and 16,000 rebounds." },
 
   { id:'larry-bird', name:'Larry Bird', gender:'male', birthYear:1956, birthPlace:'West Baden Springs, Indiana', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Boston Celtics',years:[1979,1992]}], awards:[{name:'NBA MVP',year:1984},{name:'NBA Champion',year:1981}],
@@ -134,7 +134,7 @@ export const PEOPLE = [
 
   { id:'joe-dumars', name:'Joe Dumars', gender:'male', birthYear:1963, birthPlace:'Shreveport, Louisiana', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Detroit Pistons',years:[1985,1999]}], awards:[{name:'NBA Finals MVP',year:1989}],
-    collaborators:['Isiah Thomas','Bill Laimbeer'], bio:'Pistons backcourt sentinel and 1989 Finals MVP.' },
+    collaborators:['Isiah Thomas','Bill Laimbeer'], bio:"Pistons backcourt sentinel and 1989 Finals MVP. A McNeese State product taken 18th overall in the 1985 draft, he spent all 14 of his seasons in Detroit and won back-to-back championships with the Bad Boy Pistons in 1989 and 1990. A six-time All-Star, he was famous for guarding Michael Jordan one-on-one and for his quiet, unflappable temperament. The NBA's annual sportsmanship award was renamed the Joe Dumars Trophy in 1996, and he was elected to the Naismith Memorial Basketball Hall of Fame in 2006. As Pistons general manager he later assembled the team that won the 2004 NBA championship over the favored Lakers." },
 
   { id:'karl-malone', name:'Karl Malone', gender:'male', birthYear:1963, birthPlace:'Summerfield, Louisiana', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Utah Jazz',years:[1985,2003]},{name:'Los Angeles Lakers',years:[2003,2004]}],
@@ -179,7 +179,7 @@ export const PEOPLE = [
 
   { id:'penny-hardaway', name:'Penny Hardaway', gender:'male', birthYear:1971, birthPlace:'Memphis, Tennessee', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Orlando Magic',years:[1993,1999]},{name:'Phoenix Suns',years:[1999,2004]}], awards:[],
-    collaborators:['Shaquille O\'Neal','Nick Anderson'], bio:'Lithe Magic point guard and 90s sneaker icon.' },
+    collaborators:['Shaquille O\'Neal','Nick Anderson'], bio:"Lithe Magic point guard and 90s sneaker icon. Born Anfernee Hardaway and raised by his grandmother in Memphis, he starred at Memphis State before going third overall in the 1993 NBA Draft and being traded to Orlando for Chris Webber. Pairing with Shaquille O'Neal, he made four straight All-Star teams and led the Magic to the 1995 NBA Finals as a 23-year-old. His Nike Air Penny line, fronted by the puppet \"Lil' Penny\" voiced by Chris Rock, made him one of the era's defining sneaker pitchmen. After injuries cut his playing career short, he returned to his alma mater and was hired as head coach of the Memphis Tigers in 2018." },
 
   { id:'shaquille-oneal', name:"Shaquille O'Neal", gender:'male', birthYear:1972, birthPlace:'Newark, New Jersey', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Orlando Magic',years:[1992,1996]},{name:'Los Angeles Lakers',years:[1996,2004]},{name:'Miami Heat',years:[2004,2008]}],
@@ -192,7 +192,7 @@ export const PEOPLE = [
 
   { id:'chris-webber', name:'Chris Webber', gender:'male', birthYear:1973, birthPlace:'Detroit, Michigan', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Sacramento Kings',years:[1998,2005]},{name:'Golden State Warriors',years:[1993,1994]},{name:'Washington Bullets',years:[1994,1998]}],
-    awards:[{name:'NBA Rookie of the Year',year:1994}], collaborators:['Mike Bibby','Vlade Divac'], bio:'Fab Five forward and face of the early-2000s Kings.' },
+    awards:[{name:'NBA Rookie of the Year',year:1994}], collaborators:['Mike Bibby','Vlade Divac'], bio:"Fab Five forward and face of the early-2000s Kings. A star at the University of Michigan, he anchored the freshman \"Fab Five\" that reached two NCAA championship games in the early 1990s. Drafted first overall in 1993, he became a five-time NBA All-Star and the centerpiece of the high-flying Sacramento Kings teams that nearly reached the Finals in 2002. Prized for his passing and versatility as a power forward, he was inducted into the Basketball Hall of Fame in 2021." },
 
   { id:'jason-kidd', name:'Jason Kidd', gender:'male', birthYear:1973, birthPlace:'San Francisco, California', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Dallas Mavericks',years:[1994,1996]},{name:'Phoenix Suns',years:[1996,2001]},{name:'New Jersey Nets',years:[2001,2008]},{name:'Dallas Mavericks',years:[2008,2012]}],
@@ -201,7 +201,7 @@ export const PEOPLE = [
   { id:'steve-nash', name:'Steve Nash', gender:'male', birthYear:1974, birthPlace:'Johannesburg, South Africa', country:'Canada', field:'Sports', subfield:'NBA',
     teams:[{name:'Phoenix Suns',years:[1996,1998]},{name:'Dallas Mavericks',years:[1998,2004]},{name:'Phoenix Suns',years:[2004,2012]}],
     awards:[{name:'NBA MVP',year:2005},{name:'NBA MVP',year:2006}], collaborators:['Amar\'e Stoudemire','Dirk Nowitzki','Grant Hill'],
-    bio:'Two-time MVP born in Johannesburg, raised in Canada.' },
+    bio:"Two-time MVP born in Johannesburg, raised in Canada. Raised in Victoria, British Columbia, he starred at Santa Clara University before a long NBA career as one of the game's finest passers. He won back-to-back MVP awards with the Phoenix Suns in 2005 and 2006, orchestrating Mike D'Antoni's fast-paced \"seven seconds or less\" offense. An eight-time All-Star, he led the league in assists five times and shot efficiently enough to join the rare 50-40-90 club in multiple seasons. He was inducted into the Basketball Hall of Fame in 2018." },
 
   { id:'allen-iverson', name:'Allen Iverson', gender:'male', birthYear:1975, birthPlace:'Hampton, Virginia', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Philadelphia 76ers',years:[1996,2006]},{name:'Denver Nuggets',years:[2006,2008]}], awards:[{name:'NBA MVP',year:2001}],
@@ -210,7 +210,7 @@ export const PEOPLE = [
   { id:'ray-allen', name:'Ray Allen', gender:'male', birthYear:1975, birthPlace:'Merced, California', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Milwaukee Bucks',years:[1996,2003]},{name:'Seattle SuperSonics',years:[2003,2007]},{name:'Boston Celtics',years:[2007,2012]},{name:'Miami Heat',years:[2012,2014]}],
     awards:[{name:'NBA Champion',year:2008},{name:'NBA Champion',year:2013}],
-    collaborators:['Paul Pierce','Kevin Garnett','LeBron James','Dwyane Wade'], bio:'Author of the most clutch corner three in NBA history.' },
+    collaborators:['Paul Pierce','Kevin Garnett','LeBron James','Dwyane Wade'], bio:"Author of the most clutch corner three in NBA history — the buzzer-beating dagger that saved Miami in Game 6 of the 2013 Finals. He retired as the league's all-time leader in three-pointers made with 2,973, a mark later passed by Stephen Curry. Drafted by Milwaukee, he reached stardom in Seattle before joining Kevin Garnett and Paul Pierce to form a Boston Big Three that won the 2008 title, then captured a second ring with the Heat in 2013. Off the court he starred as Jesus Shuttlesworth opposite Denzel Washington in Spike Lee's 1998 film He Got Game and won Olympic gold in 2000." },
 
   { id:'kevin-garnett', name:'Kevin Garnett', gender:'male', birthYear:1976, birthPlace:'Mauldin, South Carolina', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Minnesota Timberwolves',years:[1995,2007]},{name:'Boston Celtics',years:[2007,2013]},{name:'Brooklyn Nets',years:[2013,2015]}],
@@ -280,7 +280,7 @@ export const PEOPLE = [
   { id:'dwight-howard', name:'Dwight Howard', gender:'male', birthYear:1985, birthPlace:'Atlanta, Georgia', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Orlando Magic',years:[2004,2012]},{name:'Los Angeles Lakers',years:[2012,2013]},{name:'Los Angeles Lakers',years:[2019,2020]}],
     awards:[{name:'NBA Champion',year:2020}], collaborators:['LeBron James','Anthony Davis'],
-    bio:'Superman of the late 2000s; champion in the bubble.' },
+    bio:"Superman of the late 2000s; champion in the bubble. A three-time Defensive Player of the Year, he led the Orlando Magic to the 2009 NBA Finals as one of the most dominant centers of his era. He famously won the 2008 Slam Dunk Contest wearing a Superman cape. After stops with several franchises, he won his lone championship with the Los Angeles Lakers in the 2020 Florida \"bubble.\" He ranks among the NBA's all-time leaders in both rebounds and blocked shots." },
 
   { id:'derrick-rose', name:'Derrick Rose', gender:'male', birthYear:1988, birthPlace:'Chicago, Illinois', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Chicago Bulls',years:[2008,2016]},{name:'New York Knicks',years:[2016,2017]}], awards:[{name:'NBA MVP',year:2011}],
@@ -359,7 +359,7 @@ export const PEOPLE = [
 
   { id:'pascal-siakam', name:'Pascal Siakam', gender:'male', birthYear:1994, birthPlace:'Douala, Cameroon', country:'Cameroon', field:'Sports', subfield:'NBA',
     teams:[{name:'Toronto Raptors',years:[2016,2024]},{name:'Indiana Pacers',years:[2024,2025]}], awards:[{name:'NBA Champion',year:2019}],
-    collaborators:['Kawhi Leonard','Kyle Lowry'], bio:'Cameroonian forward and 2019 Raptors champion.' },
+    collaborators:['Kawhi Leonard','Kyle Lowry'], bio:"Cameroonian forward and 2019 Raptors champion. He grew up in Douala as the youngest of four basketball-playing brothers and arrived in the United States as a teenager through the Basketball Without Borders program. After two seasons at New Mexico State he was selected 27th overall by Toronto in the 2016 NBA Draft, and broke out three years later as the Raptors' starting power forward when they beat Golden State for the franchise's first championship. Named 2019 NBA Most Improved Player and a three-time All-Star, he was traded to the Indiana Pacers in January 2024 and helped lead them to the 2024 Eastern Conference Finals." },
 
   { id:'karl-anthony-towns', name:'Karl-Anthony Towns', gender:'male', birthYear:1995, birthPlace:'Edison, New Jersey', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Minnesota Timberwolves',years:[2015,2024]},{name:'New York Knicks',years:[2024,2025]}], awards:[{name:'NBA Rookie of the Year',year:2016}],
@@ -379,11 +379,11 @@ export const PEOPLE = [
 
   { id:'bam-adebayo', name:'Bam Adebayo', gender:'male', birthYear:1997, birthPlace:'Newark, New Jersey', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Miami Heat',years:[2017,2025]}], awards:[],
-    collaborators:['Jimmy Butler'], bio:'Switchable Heat anchor and engine of two Finals runs.' },
+    collaborators:['Jimmy Butler'], bio:"Switchable Heat anchor and engine of two Finals runs. A versatile center out of Kentucky, he became the defensive backbone of the Miami Heat after they drafted him in 2017. Prized for his ability to guard all five positions, he helped lead Miami to the NBA Finals in 2020 and again in 2023 as a surprise lower seed. He is a multiple-time NBA All-Star and All-Defensive selection, and he won Olympic gold with Team USA in 2024. His passing and playmaking from the center spot anchor the Heat's modern style." },
 
   { id:'jayson-tatum', name:'Jayson Tatum', gender:'male', birthYear:1998, birthPlace:'St. Louis, Missouri', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Boston Celtics',years:[2017,2025]}], awards:[{name:'NBA Champion',year:2024}],
-    collaborators:['Jaylen Brown'], bio:'Smooth-shouldered Celtics wing and 2024 NBA champion.' },
+    collaborators:['Jaylen Brown'], bio:'Smooth-shouldered Celtics wing and 2024 NBA champion. Drafted third overall out of Duke in 2017, he quickly became the franchise cornerstone of the Boston Celtics. A multiple-time All-NBA selection, he led Boston to the 2024 championship after years of deep playoff runs. He set a record for the most points scored in a single NBA All-Star Game in 2023 and won Olympic gold with Team USA in 2021 and 2024. Known for his scoring and shot-making, he ranks among the premier wings of his generation.' },
 
   { id:'trae-young', name:'Trae Young', gender:'male', birthYear:1998, birthPlace:'Lubbock, Texas', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Atlanta Hawks',years:[2018,2025]}], awards:[],
@@ -411,7 +411,7 @@ export const PEOPLE = [
 
   { id:'lamelo-ball', name:'LaMelo Ball', gender:'male', birthYear:2001, birthPlace:'Anaheim, California', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Charlotte Hornets',years:[2020,2025]}], awards:[{name:'NBA Rookie of the Year',year:2021}],
-    collaborators:['Brandon Miller'], bio:'Youngest of the Ball brothers and Hornets cornerstone.' },
+    collaborators:['Brandon Miller'], bio:"Youngest of the Ball brothers and Hornets cornerstone. The son of the outspoken LaVar Ball and younger brother of NBA guard Lonzo, he bypassed college basketball entirely, playing professionally in Lithuania and then for the Illawarra Hawks in Australia's NBL before turning pro. Charlotte selected him third overall in the 2020 draft, and he made an immediate impact with his flashy passing, deep range, and tempo-pushing flair. He became an All-Star in just his second season in 2022, one of the youngest players ever named to the game." },
 
   { id:'anthony-edwards', name:'Anthony Edwards', gender:'male', birthYear:2001, birthPlace:'Atlanta, Georgia', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Minnesota Timberwolves',years:[2020,2025]}], awards:[],
@@ -431,7 +431,7 @@ export const PEOPLE = [
 
   { id:'dennis-rodman', name:'Dennis Rodman', gender:'male', birthYear:1961, birthPlace:'Trenton, New Jersey', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Detroit Pistons',years:[1986,1993]},{name:'Chicago Bulls',years:[1995,1998]}], awards:[{name:'NBA Champion',year:1996}],
-    collaborators:['Michael Jordan','Scottie Pippen','Isiah Thomas'], bio:'Five-time NBA champion and rebounding savant.' },
+    collaborators:['Michael Jordan','Scottie Pippen','Isiah Thomas'], bio:"Five-time NBA champion and rebounding savant. Born in Trenton and raised in Dallas, he only made his high-school varsity after a late growth spurt, played college ball at Division II Southeastern Oklahoma State, and was drafted 27th overall in 1986 by the Detroit Pistons, winning back-to-back titles as a Bad Boy in 1989 and 1990. He led the NBA in rebounding seven straight seasons, was twice named Defensive Player of the Year, and after a stint in San Antonio joined the Chicago Bulls for the 1995-96 season and helped deliver three more championships. Known for his ever-changing hair color, tattoos, and tabloid life, he was inducted into the Naismith Memorial Basketball Hall of Fame in 2011." },
 
   { id:'jrue-holiday', name:'Jrue Holiday', gender:'male', birthYear:1990, birthPlace:'Mission Hills, California', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Philadelphia 76ers',years:[2009,2013]},{name:'New Orleans Pelicans',years:[2013,2020]},{name:'Milwaukee Bucks',years:[2020,2023]},{name:'Boston Celtics',years:[2023,2025]}],
@@ -444,7 +444,7 @@ export const PEOPLE = [
 
   { id:'blake-griffin', name:'Blake Griffin', gender:'male', birthYear:1989, birthPlace:'Oklahoma City, Oklahoma', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Los Angeles Clippers',years:[2010,2018]},{name:'Detroit Pistons',years:[2018,2021]}], awards:[{name:'NBA Rookie of the Year',year:2011}],
-    collaborators:['Chris Paul','DeAndre Jordan'], bio:'Lob-City headliner who once pogoed clean over a sedan.' },
+    collaborators:['Chris Paul','DeAndre Jordan'], bio:"Lob-City headliner who once pogoed clean over a sedan to win the 2011 Slam Dunk Contest. A college star at Oklahoma, he went first overall to the Clippers in 2009 but missed his entire first season to injury before exploding into Rookie of the Year form. Alongside Chris Paul and DeAndre Jordan he turned the Clippers into the alley-oop spectacle known as Lob City, then remade himself as a passing, three-point-shooting forward after a 2018 trade to Detroit. A noted wit, he also pursued stand-up comedy and producing during his playing days." },
 
   { id:'deron-williams', name:'Deron Williams', gender:'male', birthYear:1984, birthPlace:'Parkersburg, West Virginia', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Utah Jazz',years:[2005,2011]},{name:'Brooklyn Nets',years:[2011,2015]}], awards:[],
@@ -585,7 +585,7 @@ export const PEOPLE = [
 
   { id:'sheryl-crow', name:'Sheryl Crow', gender:'female', birthYear:1962, birthPlace:'Kennett, Missouri', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Record of the Year',year:1995}],
-    collaborators:['Stevie Nicks'], bio:'Sun-roof-down Americana pop and nine Grammys deep.' },
+    collaborators:['Stevie Nicks'], bio:"Sun-roof-down Americana pop and nine Grammys deep. Raised in Kennett, Missouri, she sang backing vocals on Michael Jackson's Bad tour before releasing her 1993 debut Tuesday Night Music Club. Its single \"All I Wanna Do\" topped charts and won the Grammy for Record of the Year, and she also took Best New Artist. Hits like \"If It Makes You Happy,\" \"Everyday Is a Winding Road,\" and \"Soak Up the Sun\" followed across the next decade. A breast cancer survivor, she was inducted into the Rock and Roll Hall of Fame in 2023." },
 
   { id:'whitney-houston', name:'Whitney Houston', gender:'female', birthYear:1963, birthPlace:'Newark, New Jersey', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Album of the Year',year:1994}],
@@ -601,7 +601,7 @@ export const PEOPLE = [
 
   { id:'shania-twain', name:'Shania Twain', gender:'female', birthYear:1965, birthPlace:'Windsor, Ontario', country:'Canada', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Country Album',year:1999}],
-    collaborators:['Robert John "Mutt" Lange'], bio:'Best-selling country-pop crossover act of all time.' },
+    collaborators:['Robert John "Mutt" Lange'], bio:"Best-selling country-pop crossover act of all time. Born Eilleen Edwards in Windsor, Ontario, she endured a hard childhood before partnering with producer Robert \"Mutt\" Lange on a run of blockbuster albums. Her 1997 record Come On Over became the best-selling studio album ever by a female artist, powered by hits like \"Man! I Feel Like a Woman!\" and \"You're Still the One.\" She has won five Grammy Awards and is widely credited with breaking down the wall between country and pop. After Lyme disease affected her voice, she mounted a comeback that included successful Las Vegas residencies." },
 
   { id:'janet-jackson', name:'Janet Jackson', gender:'female', birthYear:1966, birthPlace:'Gary, Indiana', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Long Form Music Video',year:1990}],
@@ -609,7 +609,7 @@ export const PEOPLE = [
 
   { id:'toni-braxton', name:'Toni Braxton', gender:'female', birthYear:1967, birthPlace:'Severn, Maryland', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best New Artist',year:1994}],
-    collaborators:['Babyface'], bio:'Smoke-and-velvet contralto behind "Un-Break My Heart."' },
+    collaborators:['Babyface'], bio:"Smoke-and-velvet contralto behind \"Un-Break My Heart.\" A Maryland pastor's daughter who first sang in church, she was discovered by L.A. Reid and Babyface and signed to their LaFace label, breaking through with her 1993 debut and its hits \"Another Sad Love Song\" and \"Breathe Again.\" Her 1996 album Secrets spawned \"Un-Break My Heart,\" a Diane Warren ballad that topped the Billboard Hot 100 for eleven weeks and became one of the best-selling singles of the decade. She later headlined the Broadway musical Aida and starred with her sisters in the reality series Braxton Family Values." },
 
   { id:'faith-hill', name:'Faith Hill', gender:'female', birthYear:1967, birthPlace:'Ridgeland, Mississippi', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Female Country Vocal Performance',year:2001}],
@@ -625,11 +625,11 @@ export const PEOPLE = [
 
   { id:'mary-j-blige', name:'Mary J. Blige', gender:'female', birthYear:1971, birthPlace:'New York, New York', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best R&B Album',year:2007}],
-    collaborators:['Diddy','Jay-Z'], bio:'Queen of Hip-Hop Soul; voice of the New York 90s.' },
+    collaborators:['Diddy','Jay-Z'], bio:"Queen of Hip-Hop Soul; voice of the New York 90s. Born in the Bronx and raised in Yonkers, she was discovered through a karaoke tape and signed to Uptown Records, where her 1992 debut What's the 411? — overseen by a young Sean \"Puffy\" Combs — fused hip-hop beats with raw R&B vocals and effectively launched a genre. Her 2005 album The Breakthrough debuted at number one on the Billboard 200 and earned her a Grammy for Best Contemporary R&B Album. She performed at the Super Bowl LVI halftime show in 2022 alongside Dr. Dre, Snoop Dogg, Eminem, and Kendrick Lamar, and was inducted into the Rock and Roll Hall of Fame in 2024." },
 
   { id:'thalia', name:'Thalía', gender:'female', birthYear:1971, birthPlace:'Mexico City, Mexico', country:'Mexico', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Billboard Latin Music Award',year:2002}],
-    collaborators:['Tony Bennett'], bio:'Queen of Latin Pop and former Timbiriche kid star.' },
+    collaborators:['Tony Bennett'], bio:"Queen of Latin Pop and former Timbiriche kid star. Born Ariadna Thalía Sodi Miranda in Mexico City, she rose through the teen pop group Timbiriche before launching a solo career. She became one of the most successful telenovela stars of the 1990s with leading roles in Marimar, María la del Barrio, and Rosalinda. Her albums sold millions across Latin America, Europe, and Asia, cementing her \"Queen of Latin Pop\" reputation. In 2000 she married music executive Tommy Mottola." },
 
   { id:'selena-quintanilla', name:'Selena Quintanilla', gender:'female', birthYear:1971, birthPlace:'Lake Jackson, Texas', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Mexican-American Album',year:1994}],
@@ -689,7 +689,7 @@ export const PEOPLE = [
 
   { id:'robyn', name:'Robyn', gender:'female', birthYear:1979, birthPlace:'Stockholm, Sweden', country:'Sweden', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Dance Recording',year:2010}],
-    collaborators:['Röyksopp'], bio:'Swedish queen of crying-in-the-club electro-pop.' },
+    collaborators:['Röyksopp'], bio:"Swedish queen of crying-in-the-club electro-pop. Born Robin Carlsson in Stockholm, she scored a teenage international hit with 1997's \"Show Me Love\" before walking away from her major-label deal and founding her own imprint, Konichiwa Records, in 2005. Her 2010 Body Talk trilogy reinvented her as a fiercely independent dancefloor auteur, and \"Dancing on My Own\" — released that summer — has been covered, sampled, and routinely named one of the great pop songs of its decade. After an eight-year gap from full-length albums she returned with Honey in 2018, an LP that placed near the top of many critics' year-end lists. Her catalogue has openly inspired a generation of pop artists from Lorde to Carly Rae Jepsen." },
 
   { id:'sara-bareilles', name:'Sara Bareilles', gender:'female', birthYear:1979, birthPlace:'Eureka, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[],
@@ -697,7 +697,7 @@ export const PEOPLE = [
 
   { id:'monica', name:'Monica', gender:'female', birthYear:1980, birthPlace:'College Park, Georgia', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best R&B Performance by a Duo or Group',year:1999}],
-    collaborators:['Brandy'], bio:'The Boy Is Mine — R&B-pop teen queen alongside Brandy.' },
+    collaborators:['Brandy'], bio:"The Boy Is Mine — R&B-pop teen queen alongside Brandy. An Atlanta native signed as a young teenager, she released her debut Miss Thang at fourteen in 1995, scoring early hits with \"Don't Take It Personal\" and \"Before You Walk Out of My Life.\" Her 1998 duet with Brandy, \"The Boy Is Mine,\" ruled the Billboard Hot 100 for thirteen weeks and won a Grammy, and she followed it with the chart-topping \"Angel of Mine.\" She sustained a long career in R&B with later staples like \"So Gone\" in 2003, becoming a fixture of the genre across three decades." },
 
   { id:'christina-aguilera', name:'Christina Aguilera', gender:'female', birthYear:1980, birthPlace:'Staten Island, New York', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Pop Vocal Album',year:2007}],
@@ -745,7 +745,7 @@ export const PEOPLE = [
 
   { id:'avril-lavigne', name:'Avril Lavigne', gender:'female', birthYear:1984, birthPlace:'Belleville, Ontario', country:'Canada', field:'Music', subfield:'Pop',
     teams:[], awards:[],
-    collaborators:[], bio:'Sk8er Boi pop-punk patron saint and Canadian export.' },
+    collaborators:[], bio:"Sk8er Boi pop-punk patron saint and Canadian export. Born in Belleville, Ontario, she broke through at seventeen with her 2002 debut Let Go and its hits \"Complicated\" and \"Sk8er Boi.\" Her tomboyish image and skate-punk sound made her one of the defining pop stars of the early 2000s, selling tens of millions of albums worldwide. Later singles such as \"Girlfriend\" topped charts internationally. She has earned multiple Grammy nominations and continued recording through a public battle with Lyme disease." },
 
   { id:'rosalia', name:'Rosalía', gender:'female', birthYear:1992, birthPlace:'Sant Esteve Sesrovires, Spain', country:'Spain', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Latin Rock or Alternative Album',year:2019}],
@@ -897,7 +897,7 @@ export const PEOPLE = [
 
   { id:'tate-mcrae', name:'Tate McRae', gender:'female', birthYear:2003, birthPlace:'Calgary, Alberta', country:'Canada', field:'Music', subfield:'Pop',
     teams:[], awards:[],
-    collaborators:[], bio:'Canadian dancer-turned-pop-star behind "greedy."' },
+    collaborators:[], bio:"Canadian dancer-turned-pop-star behind \"greedy.\" She placed third on the 2016 season of So You Think You Can Dance: The Next Generation as its youngest-ever finalist, then built a YouTube following with original choreography videos and signed with RCA Records in 2019 at age fifteen. Her 2020 single \"you broke me first\" became a global TikTok hit and signaled her shift toward dance-leaning electropop. Her 2023 album Think Later debuted at number four on the Billboard 200, propelled by \"greedy,\" which topped the U.K. Singles Chart and reached the top three in the United States." },
 
   // =====================================================================
   //  NFL (preserved from earlier dataset)
@@ -905,7 +905,7 @@ export const PEOPLE = [
   { id:'walter-payton', name:'Walter Payton', gender:'male', birthYear:1953, birthPlace:'Columbia, Mississippi', country:'USA', field:'Sports', subfield:'NFL',
     teams:[{name:'Chicago Bears',years:[1975,1987]}],
     awards:[{name:'NFL MVP',year:1977},{name:'Super Bowl Champion',year:1986}],
-    collaborators:['Mike Ditka','Jim McMahon'], bio:'Hall of Fame running back known as "Sweetness."' },
+    collaborators:['Mike Ditka','Jim McMahon'], bio:"Hall of Fame running back known as \"Sweetness.\" A Mississippi-raised tailback out of Jackson State, he was drafted fourth overall by the Bears in 1975 and spent his entire 13-season career in Chicago. When he retired after the 1987 season he held the NFL record for career rushing yards with 16,726, a mark that stood until Emmitt Smith broke it in 2002, and he was selected to nine Pro Bowls along the way. He was the offensive face of the dominant 1985 Bears, who finished 15-1 and crushed the Patriots 46-10 in Super Bowl XX. He died of bile-duct cancer at 45 in 1999, and the NFL renamed its Man of the Year award the Walter Payton NFL Man of the Year Award in his honor." },
 
   { id:'donovan-mcnabb', name:'Donovan McNabb', gender:'male', birthYear:1976, birthPlace:'Chicago, Illinois', country:'USA', field:'Sports', subfield:'NFL',
     teams:[{name:'Philadelphia Eagles',years:[1999,2009]},{name:'Washington Redskins',years:[2010,2010]}],
@@ -919,12 +919,12 @@ export const PEOPLE = [
 
   { id:'tony-romo', name:'Tony Romo', gender:'male', birthYear:1980, birthPlace:'San Diego, California', country:'USA', field:'Sports', subfield:'NFL',
     teams:[{name:'Dallas Cowboys',years:[2003,2016]}], awards:[{name:'Pro Bowl',year:2007}],
-    collaborators:['Jason Witten','DeMarco Murray'], bio:'Cowboys quarterback turned lead NFL broadcaster.' },
+    collaborators:['Jason Witten','DeMarco Murray'], bio:"Cowboys quarterback turned lead NFL broadcaster. He went undrafted out of Division I-AA Eastern Illinois in 2003 and signed with Dallas as a free agent, taking over as starter midway through the 2006 season. He became the franchise's all-time leader in passing yards and touchdowns and made four Pro Bowls, though the Cowboys never advanced past the divisional round during his tenure. He retired in 2017 and immediately joined CBS as the network's lead NFL color analyst alongside Jim Nantz, where his habit of correctly predicting plays before the snap quickly turned him into the league's most popular broadcaster." },
 
   { id:'odell-beckham-jr', name:'Odell Beckham Jr.', gender:'male', birthYear:1992, birthPlace:'Baton Rouge, Louisiana', country:'USA', field:'Sports', subfield:'NFL',
     teams:[{name:'New York Giants',years:[2014,2018]},{name:'Cleveland Browns',years:[2019,2021]},{name:'Los Angeles Rams',years:[2021,2021]}],
     awards:[{name:'Super Bowl Champion',year:2022}], collaborators:['Eli Manning','Matthew Stafford'],
-    bio:'Wide receiver famed for the one-handed catch.' },
+    bio:"Wide receiver famed for the one-handed catch. Born in Baton Rouge to athlete parents — his father played football at LSU and his mother was a track standout — he stayed home to play for the Tigers and was drafted twelfth overall by the Giants in 2014. As a rookie he was named NFL Offensive Rookie of the Year, and his diving, three-fingered touchdown reception against the Cowboys on Sunday Night Football in November 2014 became one of the most replayed plays in league history. He made the Pro Bowl in each of his first three seasons before injuries and team turbulence slowed his career. He earned a championship with the Rams in Super Bowl LVI, catching a touchdown before tearing his ACL in the second quarter of the win over Cincinnati." },
 
   { id:'jameis-winston', name:'Jameis Winston', gender:'male', birthYear:1994, birthPlace:'Bessemer, Alabama', country:'USA', field:'Sports', subfield:'NFL',
     teams:[{name:'Tampa Bay Buccaneers',years:[2015,2019]},{name:'New Orleans Saints',years:[2020,2023]}],
@@ -937,7 +937,7 @@ export const PEOPLE = [
 
   { id:'matt-forte', name:'Matt Forté', gender:'male', birthYear:1985, birthPlace:'Lake Charles, Louisiana', country:'USA', field:'Sports', subfield:'NFL',
     teams:[{name:'Chicago Bears',years:[2008,2015]},{name:'New York Jets',years:[2016,2017]}],
-    awards:[{name:'Pro Bowl',year:2011}], collaborators:['Jay Cutler'], bio:"Bears' all-purpose running back of the 2010s." },
+    awards:[{name:'Pro Bowl',year:2011}], collaborators:['Jay Cutler'], bio:"Bears' all-purpose running back of the 2010s. A Tulane product taken 44th overall in the 2008 draft, he started immediately and spent eight seasons in Chicago, finishing his Bears career second in franchise history in rushing yards behind Walter Payton. A two-time Pro Bowler, he was equally dangerous as a receiver out of the backfield and racked up a career-high 102 catches in 2014. He spent his last two seasons with the Jets before retiring in 2018, and is widely regarded as one of the most consistently productive dual-threat backs of his era." },
 
   // =====================================================================
   //  Acting / Film (preserved)
@@ -948,11 +948,11 @@ export const PEOPLE = [
 
   { id:'mary-pickford', name:'Mary Pickford', gender:'female', birthYear:1892, birthPlace:'Toronto, Ontario', country:'Canada', field:'Film', subfield:'Actress',
     teams:[], awards:[{name:'Academy Award for Best Actress',year:1930}],
-    collaborators:['Douglas Fairbanks','D. W. Griffith'], bio:'Silent film superstar; co-founded United Artists.' },
+    collaborators:['Douglas Fairbanks','D. W. Griffith'], bio:"Silent film superstar; co-founded United Artists. Born Gladys Smith in Toronto, she was supporting her family on the stage by age seven and signed with D. W. Griffith's Biograph Studios at sixteen, becoming so popular at her peak that she was the highest-paid actress in the world. In 1919 she joined Charlie Chaplin, Douglas Fairbanks, and Griffith in founding United Artists to give film stars control over their own work, and a year later she married Fairbanks; their estate Pickfair was Hollywood's de facto social capital throughout the 1920s. She was a founding member of the Academy of Motion Picture Arts and Sciences in 1927, and the Academy gave her an honorary Oscar in 1976 for her contributions to film." },
 
   { id:'meryl-streep', name:'Meryl Streep', gender:'female', birthYear:1949, birthPlace:'Summit, New Jersey', country:'USA', field:'Film', subfield:'Actress',
     teams:[], awards:[{name:'Academy Award for Best Actress',year:1983},{name:'Academy Award for Best Actress',year:2012}],
-    collaborators:['Robert De Niro','Mike Nichols'], bio:'Most-nominated actor in Academy Awards history.' },
+    collaborators:['Robert De Niro','Mike Nichols'], bio:"Most-nominated actor in Academy Awards history. A Vassar undergraduate who completed her training at the Yale School of Drama, she broke through with The Deer Hunter and Kramer vs. Kramer in the late 1970s and has racked up 21 Oscar nominations across drama, comedy, and musicals — more than any other performer. She has won three competitive Oscars: Supporting Actress for Kramer vs. Kramer in 1980, and Best Actress for Sophie's Choice in 1983 and The Iron Lady in 2012. Frequent collaborators include Mike Nichols, Robert De Niro, and Nora Ephron, and her late-career run took her from musicals (Mamma Mia!) to fashion satire (The Devil Wears Prada) to prestige TV (Big Little Lies). She received the Presidential Medal of Freedom in 2014 and the Cecil B. DeMille Award at the 2017 Golden Globes." },
 
   { id:'denzel-washington', name:'Denzel Washington', gender:'male', birthYear:1954, birthPlace:'Mount Vernon, New York', country:'USA', field:'Film', subfield:'Actor',
     teams:[], awards:[{name:'Academy Award for Best Supporting Actor',year:1990},{name:'Academy Award for Best Actor',year:2002}],
@@ -1041,17 +1041,17 @@ export const PEOPLE = [
   { id:'leonardo-da-vinci', name:'Leonardo da Vinci', gender:'male', birthYear:1452, birthPlace:'Vinci, Italy', country:'Italy', field:'Visual Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Andrea del Verrocchio'], bio:'Painter, anatomist, engineer — the archetypal Renaissance polymath.' },
   { id:'michelangelo', name:'Michelangelo', gender:'male', birthYear:1475, birthPlace:'Caprese, Italy', country:'Italy', field:'Visual Arts', subfield:'Sculptor',
-    teams:[], awards:[], collaborators:['Pope Julius II'], bio:'Sculptor of David, painter of the Sistine ceiling.' },
+    teams:[], awards:[], collaborators:['Pope Julius II'], bio:"Sculptor of David, painter of the Sistine ceiling. Born in Caprese, Tuscany, in 1475, Michelangelo Buonarroti carved the Pietà in St. Peter's Basilica before he turned twenty-five and completed his towering marble David in 1504. Between 1508 and 1512 he painted the Sistine Chapel ceiling for Pope Julius II, and decades later added The Last Judgment to its altar wall. As an architect he designed the dome of St. Peter's Basilica, a defining feature of the Roman skyline. His surviving poetry and letters make him one of the best-documented artists of the Renaissance." },
   { id:'rembrandt', name:'Rembrandt van Rijn', gender:'male', birthYear:1606, birthPlace:'Leiden, Netherlands', country:'Netherlands', field:'Visual Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:[], bio:'Dutch master of light, shadow, and the unflinching self-portrait.' },
   { id:'hokusai', name:'Katsushika Hokusai', gender:'male', birthYear:1760, birthPlace:'Edo, Japan', country:'Japan', field:'Visual Arts', subfield:'Printmaker',
-    teams:[], awards:[], collaborators:[], bio:'Ukiyo-e printmaker behind The Great Wave off Kanagawa.' },
+    teams:[], awards:[], collaborators:[], bio:"Ukiyo-e printmaker behind The Great Wave off Kanagawa. That towering blue wave is one image from his series Thirty-Six Views of Mount Fuji, produced around 1831, and it became among the most reproduced artworks in history. Restlessly experimental, he adopted some thirty different artist names across his life and worked obsessively into his late eighties, declaring that nothing he made before seventy was worth counting and that he hoped to keep improving past one hundred. His prints helped ignite the Japonisme craze in Europe, shaping the Impressionists and inspiring artists like Van Gogh and Monet." },
   { id:'van-gogh', name:'Vincent van Gogh', gender:'male', birthYear:1853, birthPlace:'Zundert, Netherlands', country:'Netherlands', field:'Visual Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Paul Gauguin'], bio:'Sold one painting in his lifetime; reshaped modern painting after his death.' },
   { id:'frida-kahlo', name:'Frida Kahlo', gender:'female', birthYear:1907, birthPlace:'Coyoacán, Mexico', country:'Mexico', field:'Visual Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Diego Rivera'], bio:'Mexican painter of pain, identity, and unflinching self-portraiture.' },
   { id:'picasso', name:'Pablo Picasso', gender:'male', birthYear:1881, birthPlace:'Málaga, Spain', country:'Spain', field:'Visual Arts', subfield:'Painter',
-    teams:[], awards:[], collaborators:['Georges Braque'], bio:'Co-founder of Cubism; reshaped twentieth-century art.' },
+    teams:[], awards:[], collaborators:['Georges Braque'], bio:"Co-founder of Cubism; reshaped twentieth-century art. A prodigy from Málaga trained by his painter father, he moved through a melancholy Blue Period and a warmer Rose Period before shattering perspective with Les Demoiselles d'Avignon in 1907. Working alongside Georges Braque, he pioneered Cubism, and his 1937 mural Guernica became the century's most searing protest against the horrors of war. Across a seven-decade career he produced tens of thousands of works spanning painting, sculpture, ceramics, and printmaking, and helped invent collage and constructed sculpture along the way." },
   { id:'okeeffe', name:"Georgia O'Keeffe", gender:'female', birthYear:1887, birthPlace:'Sun Prairie, Wisconsin', country:'USA', field:'Visual Arts', subfield:'Painter',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:1977}], collaborators:['Alfred Stieglitz'], bio:'Mother of American modernism; flowers, bones, and the desert at scale.' },
   { id:'kusama', name:'Yayoi Kusama', gender:'female', birthYear:1929, birthPlace:'Matsumoto, Japan', country:'Japan', field:'Visual Arts', subfield:'Conceptual Artist',
@@ -1123,7 +1123,7 @@ export const PEOPLE = [
   { id:'zaha-hadid', name:'Zaha Hadid', gender:'female', birthYear:1950, birthPlace:'Baghdad, Iraq', country:'Iraq', field:'Architecture', subfield:'Deconstructivist',
     teams:[], awards:[{name:'Pritzker Prize',year:2004}], collaborators:[], bio:'First woman to win the Pritzker Prize; sweeping, futurist forms.' },
   { id:'tadao-ando', name:'Tadao Ando', gender:'male', birthYear:1941, birthPlace:'Osaka, Japan', country:'Japan', field:'Architecture', subfield:'Minimalist',
-    teams:[], awards:[{name:'Pritzker Prize',year:1995}], collaborators:[], bio:'Self-taught architect of austere, light-cut concrete.' },
+    teams:[], awards:[{name:'Pritzker Prize',year:1995}], collaborators:[], bio:"Self-taught architect of austere, light-cut concrete. A former professional boxer with no formal architectural training, he learned the craft by traveling and studying buildings across Japan, Europe, and the United States. His signature smooth, board-formed concrete, spare geometry, and choreographed daylight define works like the 1976 Row House in Sumiyoshi and the 1989 Church of the Light, where a cruciform slit floods the sanctuary. He later shaped the art island of Naoshima with a series of partly buried museums that fold galleries into the landscape." },
   { id:'maya-lin', name:'Maya Lin', gender:'female', birthYear:1959, birthPlace:'Athens, Ohio', country:'USA', field:'Architecture', subfield:'Memorial',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:2016}], collaborators:[], bio:'Designed the Vietnam Veterans Memorial as an undergraduate at Yale.' },
 
@@ -1155,7 +1155,7 @@ export const PEOPLE = [
   { id:'rei-kawakubo', name:'Rei Kawakubo', gender:'female', birthYear:1942, birthPlace:'Tokyo, Japan', country:'Japan', field:'Fashion', subfield:'Designer',
     teams:[], awards:[], collaborators:[], bio:'Founder of Comme des Garçons; deconstruction as wardrobe.' },
   { id:'iris-apfel', name:'Iris Apfel', gender:'female', birthYear:1921, birthPlace:'Astoria, New York', country:'USA', field:'Fashion', subfield:'Stylist',
-    teams:[], awards:[], collaborators:[], bio:'Style icon who became a model in her late eighties.' },
+    teams:[], awards:[], collaborators:[], bio:"Style icon who became a model in her late eighties. An interior designer and textile entrepreneur, she ran the firm Old World Weavers with her husband Carl and consulted on White House restoration projects spanning nine presidential administrations. A 2005 exhibition of her flamboyant clothing and jewelry at the Met's Costume Institute turned her into an unexpected fashion celebrity. Albert Maysles directed the 2014 documentary Iris about her life, and in 2019 she signed with IMG Models at age 97. She remained a vibrant presence in fashion until her death in 2024 at age 102." },
   { id:'mcqueen', name:'Alexander McQueen', gender:'male', birthYear:1969, birthPlace:'London, England', country:'UK', field:'Fashion', subfield:'Designer',
     teams:[], awards:[], collaborators:['Isabella Blow'], bio:'British couturier of dark theatricality; bumster trousers and the bird-feather show.' },
 
@@ -1185,7 +1185,7 @@ export const PEOPLE = [
   { id:'fanon', name:'Frantz Fanon', gender:'male', birthYear:1925, birthPlace:'Fort-de-France, Martinique', country:'Martinique', field:'Philosophy', subfield:'Postcolonial',
     teams:[], awards:[], collaborators:[], bio:'Psychiatrist whose Black Skin, White Masks reframed colonialism and race.' },
   { id:'marx', name:'Karl Marx', gender:'male', birthYear:1818, birthPlace:'Trier, Germany', country:'Germany', field:'Philosophy', subfield:'Political Economy',
-    teams:[], awards:[], collaborators:['Friedrich Engels'], bio:'Author of Das Kapital and The Communist Manifesto.' },
+    teams:[], awards:[], collaborators:['Friedrich Engels'], bio:'Author of Das Kapital and The Communist Manifesto. Born in Trier, in the Kingdom of Prussia, in 1818, Karl Marx studied law and philosophy before turning to radical journalism and political economy. He co-wrote The Communist Manifesto with Friedrich Engels in 1848 amid a wave of European revolutions. Exiled for his politics, he settled in London, where he spent years in the British Museum reading room composing Das Kapital, the first volume of which appeared in 1867. His theories of class struggle and historical materialism shaped socialist movements worldwide long after his death in 1883.' },
 
   // =====================================================================
   //  ROCK MUSIC — global
@@ -1195,7 +1195,7 @@ export const PEOPLE = [
   { id:'bowie', name:'David Bowie', gender:'male', birthYear:1947, birthPlace:'Brixton, England', country:'UK', field:'Music', subfield:'Rock',
     teams:[], awards:[{name:'Grammy Lifetime Achievement Award',year:2006}], collaborators:['Brian Eno','Iggy Pop'], bio:'Ziggy, the Thin White Duke, the Blackstar — pop music\'s shape-shifter.' },
   { id:'mick-jagger', name:'Mick Jagger', gender:'male', birthYear:1943, birthPlace:'Dartford, England', country:'UK', field:'Music', subfield:'Rock',
-    teams:[{name:'The Rolling Stones',years:[1962,2025]}], awards:[], collaborators:['Keith Richards'], bio:'Stones frontman, still strutting six decades on.' },
+    teams:[{name:'The Rolling Stones',years:[1962,2025]}], awards:[], collaborators:['Keith Richards'], bio:"Stones frontman, still strutting six decades on. Born Sir Michael Philip Jagger in Dartford, southeast of London, he met Keith Richards at primary school and reconnected with him on a train platform in 1961 over a stack of blues records. With Richards, Brian Jones, and Charlie Watts he founded the Rolling Stones in 1962, and the Jagger-Richards songbook went on to include \"(I Can't Get No) Satisfaction,\" \"Sympathy for the Devil,\" \"Gimme Shelter,\" and \"Wild Horses.\" He was knighted in 2003 for services to popular music. The Stones have toured almost continuously into the 21st century, and their 2023 album Hackney Diamonds — written and recorded after the death of Watts — debuted at number one on the U.K. Albums Chart." },
   { id:'joan-jett', name:'Joan Jett', gender:'female', birthYear:1958, birthPlace:'Wynnewood, Pennsylvania', country:'USA', field:'Music', subfield:'Rock',
     teams:[{name:'The Runaways',years:[1975,1979]},{name:'The Blackhearts',years:[1979,2025]}], awards:[], collaborators:['Lita Ford'], bio:'Riot-grrrl godmother; "I Love Rock \'n\' Roll" still rattles every dive bar.' },
   { id:'patti-smith', name:'Patti Smith', gender:'female', birthYear:1946, birthPlace:'Chicago, Illinois', country:'USA', field:'Music', subfield:'Rock',
@@ -1226,7 +1226,7 @@ export const PEOPLE = [
   { id:'mozart', name:'Wolfgang Amadeus Mozart', gender:'male', birthYear:1756, birthPlace:'Salzburg, Austria', country:'Austria', field:'Music', subfield:'Classical',
     teams:[], awards:[], collaborators:[], bio:'Composed his first symphony at eight; six hundred works by thirty-five.' },
   { id:'beethoven', name:'Ludwig van Beethoven', gender:'male', birthYear:1770, birthPlace:'Bonn, Germany', country:'Germany', field:'Music', subfield:'Classical',
-    teams:[], awards:[], collaborators:[], bio:'Wrote the Ninth Symphony after he had gone deaf.' },
+    teams:[], awards:[], collaborators:[], bio:"Wrote the Ninth Symphony after he had gone deaf. Born in Bonn into a family of court musicians, he moved to Vienna in 1792 to study with Haydn and quickly built a reputation as a thrilling pianist before refocusing on composition. He began losing his hearing in his late twenties and confessed his despair in the 1802 Heiligenstadt Testament, but continued to write almost every major instrumental work of his career, including nine symphonies, 32 piano sonatas, sixteen string quartets, and the opera Fidelio. At the 1824 premiere of the Ninth, with its choral \"Ode to Joy\" finale, he was so deaf that one of the soloists had to physically turn him around so he could see the ovation. He died in Vienna in 1827, and his funeral procession reportedly drew an estimated twenty thousand mourners." },
   { id:'yo-yo-ma', name:'Yo-Yo Ma', gender:'male', birthYear:1955, birthPlace:'Paris, France', country:'France', field:'Music', subfield:'Classical',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:2011}], collaborators:[], bio:'Cellist; eighteen Grammys; Bach Suites by candlelight.' },
   { id:'hilary-hahn', name:'Hilary Hahn', gender:'female', birthYear:1979, birthPlace:'Lexington, Virginia', country:'USA', field:'Music', subfield:'Classical',
@@ -1248,7 +1248,7 @@ export const PEOPLE = [
   { id:'nina-simone', name:'Nina Simone', gender:'female', birthYear:1933, birthPlace:'Tryon, North Carolina', country:'USA', field:'Music', subfield:'Jazz',
     teams:[], awards:[], collaborators:[], bio:'High Priestess of Soul; classically trained, civil-rights-charged.' },
   { id:'duke-ellington', name:'Duke Ellington', gender:'male', birthYear:1899, birthPlace:'Washington, D.C.', country:'USA', field:'Music', subfield:'Jazz',
-    teams:[], awards:[{name:'Presidential Medal of Freedom',year:1969}], collaborators:['Billy Strayhorn'], bio:'Bandleader, composer, and jazz\'s most prolific pen.' },
+    teams:[], awards:[{name:'Presidential Medal of Freedom',year:1969}], collaborators:['Billy Strayhorn'], bio:"Bandleader, composer, and jazz's most prolific pen. Born in Washington, D.C., in 1899, Edward Kennedy \"Duke\" Ellington led his orchestra for nearly half a century, much of it anchored at Harlem's Cotton Club. He composed thousands of works, from three-minute standards like \"Mood Indigo\" to ambitious extended suites. With collaborator Billy Strayhorn he produced enduring pieces including the band's theme \"Take the 'A' Train.\" He received the Presidential Medal of Freedom in 1969 and a posthumous Pulitzer Prize special citation in 1999." },
 
   // =====================================================================
   //  R&B / SOUL
@@ -1256,13 +1256,13 @@ export const PEOPLE = [
   { id:'marvin-gaye', name:'Marvin Gaye', gender:'male', birthYear:1939, birthPlace:'Washington, D.C.', country:'USA', field:'Music', subfield:'R&B',
     teams:[], awards:[], collaborators:['Tammi Terrell'], bio:'Prince of Motown; What\'s Going On rewrote the political album.' },
   { id:'stevie-wonder', name:'Stevie Wonder', gender:'male', birthYear:1950, birthPlace:'Saginaw, Michigan', country:'USA', field:'Music', subfield:'R&B',
-    teams:[], awards:[{name:'Presidential Medal of Freedom',year:2014}], collaborators:[], bio:'Twenty-five Grammys; Songs in the Key of Life.' },
+    teams:[], awards:[{name:'Presidential Medal of Freedom',year:2014}], collaborators:[], bio:"Twenty-five Grammys; Songs in the Key of Life. Born Stevland Hardaway Judkins in Saginaw, Michigan, and blinded shortly after his premature birth, he signed with Motown's Tamla label at age eleven and scored his first U.S. number-one single, \"Fingertips, Pt. 2,\" two years later. His mid-1970s run of Talking Book, Innervisions, Fulfillingness' First Finale, and Songs in the Key of Life remains one of the most lauded streaks in popular music, and Songs in the Key of Life alone won four Grammys including Album of the Year. He wrote and performed \"Happy Birthday\" to campaign for a national holiday honoring Martin Luther King Jr., a holiday signed into law in 1983. He was inducted into the Rock and Roll Hall of Fame in 1989." },
   { id:'sade', name:'Sade Adu', gender:'female', birthYear:1959, birthPlace:'Ibadan, Nigeria', country:'Nigeria', field:'Music', subfield:'R&B',
     teams:[], awards:[], collaborators:[], bio:'Smooth-operator voice and decade-spaced records you can set a mood by.' },
   { id:'sam-cooke', name:'Sam Cooke', gender:'male', birthYear:1931, birthPlace:'Clarksdale, Mississippi', country:'USA', field:'Music', subfield:'R&B',
     teams:[], awards:[], collaborators:[], bio:'Father of soul; "A Change Is Gonna Come" arrived weeks before he was killed.' },
   { id:'anita-baker', name:'Anita Baker', gender:'female', birthYear:1958, birthPlace:'Toledo, Ohio', country:'USA', field:'Music', subfield:'R&B',
-    teams:[], awards:[{name:'Grammy Award',year:1987}], collaborators:[], bio:'Eight Grammys; the velvet alto behind Rapture.' },
+    teams:[], awards:[{name:'Grammy Award',year:1987}], collaborators:[], bio:"Eight Grammys; the velvet alto behind Rapture. Born in Toledo and raised in Detroit, she sang in church and toured with the funk band Chapter 8 before launching a solo career with 1983's The Songstress. Her 1986 album Rapture, anchored by the slow-burn ballad \"Sweet Love,\" sold more than five million copies in the United States and earned her two Grammy Awards. She followed it with Giving You the Best That I Got in 1988, which debuted at number one on the Billboard 200 and yielded another Grammy for Best R&B Vocal Performance, Female. She stepped away from full-time recording in the mid-1990s and spent more than a decade in semi-retirement before returning to the road with sold-out residencies in the 2010s and 2020s." },
 
   // =====================================================================
   //  WORLD MUSIC
@@ -1274,7 +1274,7 @@ export const PEOPLE = [
   { id:'ravi-shankar', name:'Ravi Shankar', gender:'male', birthYear:1920, birthPlace:'Varanasi, India', country:'India', field:'Music', subfield:'Indian Classical',
     teams:[], awards:[], collaborators:['George Harrison'], bio:'Brought the sitar and Hindustani classical music to the global pop conversation.' },
   { id:'edith-piaf', name:'Édith Piaf', gender:'female', birthYear:1915, birthPlace:'Paris, France', country:'France', field:'Music', subfield:'Chanson',
-    teams:[], awards:[], collaborators:[], bio:'Little Sparrow of Paris; "Non, je ne regrette rien."' },
+    teams:[], awards:[], collaborators:[], bio:"Little Sparrow of Paris; \"Non, je ne regrette rien.\" Born Édith Giovanna Gassion in 1915 and raised partly in her grandmother's brothel, she was discovered singing on the streets of Paris in her teens. She became France's most beloved chanteuse, immortalizing songs like \"La Vie en rose,\" which she co-wrote, and \"Non, je ne regrette rien.\" Her tumultuous life included the loss of her great love, the boxer Marcel Cerdan, in a 1949 plane crash. She died in 1963 at just 47, and tens of thousands lined the streets of Paris for her funeral." },
   { id:'caetano-veloso', name:'Caetano Veloso', gender:'male', birthYear:1942, birthPlace:'Santo Amaro, Brazil', country:'Brazil', field:'Music', subfield:'Tropicália',
     teams:[], awards:[], collaborators:['Gilberto Gil'], bio:'Tropicália founder who fused bossa, rock, and Brazilian poetry.' },
 
@@ -1292,7 +1292,7 @@ export const PEOPLE = [
   { id:'almodovar', name:'Pedro Almodóvar', gender:'male', birthYear:1949, birthPlace:'Calzada de Calatrava, Spain', country:'Spain', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Award for Best Original Screenplay',year:2003}], collaborators:['Penélope Cruz'], bio:'Spanish auteur of bold color and stranger family ties.' },
   { id:'agnes-varda', name:'Agnès Varda', gender:'female', birthYear:1928, birthPlace:'Ixelles, Belgium', country:'Belgium', field:'Film', subfield:'Director',
-    teams:[], awards:[{name:'Academy Honorary Award',year:2017}], collaborators:[], bio:'Grandmother of the French New Wave; Cléo from 5 to 7.' },
+    teams:[], awards:[{name:'Academy Honorary Award',year:2017}], collaborators:[], bio:"Grandmother of the French New Wave; her 1962 Cléo from 5 to 7 follows a singer in near real time as she awaits a medical result. Trained first as a photographer, she announced the movement early with her 1955 debut La Pointe Courte, and her marriage to fellow director Jacques Demy linked two of French cinema's great careers. In a restless late period she reinvented herself as a documentarian, roaming France for The Gleaners and I in 2000 and teaming with the street artist JR for the Oscar-nominated Faces Places in 2017. She remained an impish, wool-capped presence on screen and behind the camera until her death at ninety." },
   { id:'bong', name:'Bong Joon-ho', gender:'male', birthYear:1969, birthPlace:'Daegu, South Korea', country:'South Korea', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Award for Best Director',year:2020}], collaborators:['Song Kang-ho'], bio:'Parasite swept the Oscars; first non-English-language Best Picture winner.' },
   { id:'chloe-zhao', name:'Chloé Zhao', gender:'female', birthYear:1982, birthPlace:'Beijing, China', country:'China', field:'Film', subfield:'Director',
@@ -1302,7 +1302,7 @@ export const PEOPLE = [
   { id:'gerwig', name:'Greta Gerwig', gender:'female', birthYear:1983, birthPlace:'Sacramento, California', country:'USA', field:'Film', subfield:'Director',
     teams:[], awards:[], collaborators:['Noah Baumbach'], bio:'Lady Bird, Little Women, Barbie — the most commercially powerful woman director in history.' },
   { id:'spike-lee', name:'Spike Lee', gender:'male', birthYear:1957, birthPlace:'Atlanta, Georgia', country:'USA', field:'Film', subfield:'Director',
-    teams:[], awards:[{name:'Academy Award for Best Adapted Screenplay',year:2019}], collaborators:['Denzel Washington'], bio:'Do the Right Thing, Malcolm X, BlacKkKlansman.' },
+    teams:[], awards:[{name:'Academy Award for Best Adapted Screenplay',year:2019}], collaborators:['Denzel Washington'], bio:"Do the Right Thing, Malcolm X, BlacKkKlansman. Born Shelton Jackson Lee in Atlanta and raised in the Fort Greene neighborhood of Brooklyn, he studied at Morehouse College and NYU's Tisch School of the Arts before breaking out in 1986 with the indie-budgeted She's Gotta Have It. Across forty years of filmmaking he has built one of American cinema's most distinct catalogues, including the racially incendiary Do the Right Thing in 1989, the Denzel Washington-led epic Malcolm X in 1992, and the Oscar-winning BlacKkKlansman in 2018. The Academy gave him an honorary Oscar in 2015 for his contributions to cinema, and in 2021 he became the first Black filmmaker to head the jury at the Cannes Film Festival." },
   { id:'sofia-coppola', name:'Sofia Coppola', gender:'female', birthYear:1971, birthPlace:'New York, New York', country:'USA', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Award for Best Original Screenplay',year:2004}], collaborators:[], bio:'Lost in Translation, The Virgin Suicides; languid, observational moods.' },
 
@@ -1324,7 +1324,7 @@ export const PEOPLE = [
   { id:'bette-davis', name:'Bette Davis', gender:'female', birthYear:1908, birthPlace:'Lowell, Massachusetts', country:'USA', field:'Film', subfield:'Actress',
     teams:[], awards:[{name:'Academy Award for Best Actress',year:1936}], collaborators:[], bio:'Two Oscars and a third-act renaissance with What Ever Happened to Baby Jane?' },
   { id:'kate-hepburn', name:'Katharine Hepburn', gender:'female', birthYear:1907, birthPlace:'Hartford, Connecticut', country:'USA', field:'Film', subfield:'Actress',
-    teams:[], awards:[{name:'Academy Award for Best Actress',year:1934}], collaborators:['Spencer Tracy'], bio:'Four Best Actress Oscars — still the all-time record.' },
+    teams:[], awards:[{name:'Academy Award for Best Actress',year:1934}], collaborators:['Spencer Tracy'], bio:"Four Best Actress Oscars — still the all-time record. Raised in Hartford by progressive parents, she carried a flinty New England independence into Hollywood, wearing trousers and refusing its publicity rituals. After being branded \"box-office poison\" she engineered her own comeback with The Philadelphia Story in 1940, then formed one of cinema's great on- and off-screen partnerships with Spencer Tracy across nine films. Her winning roles spanned five decades, from Morning Glory in 1933 to Guess Who's Coming to Dinner, The Lion in Winter, and On Golden Pond in 1981." },
 
   // =====================================================================
   //  INTERNATIONAL ACTORS
@@ -1344,7 +1344,7 @@ export const PEOPLE = [
   { id:'lea-seydoux', name:'Léa Seydoux', gender:'female', birthYear:1985, birthPlace:'Paris, France', country:'France', field:'Film', subfield:'Actress',
     teams:[], awards:[], collaborators:[], bio:'Blue Is the Warmest Color; the new Bond girl who outacts the franchise.' },
   { id:'daniel-day-lewis', name:'Daniel Day-Lewis', gender:'male', birthYear:1957, birthPlace:'London, England', country:'UK', field:'Film', subfield:'Actor',
-    teams:[], awards:[{name:'Academy Award for Best Actor',year:2013}], collaborators:[], bio:'Three Best Actor Oscars — the only man to do so.' },
+    teams:[], awards:[{name:'Academy Award for Best Actor',year:2013}], collaborators:[], bio:"Three Best Actor Oscars — the only man to do so. Born in London to the British poet laureate Cecil Day-Lewis and the actress Jill Balcon, he trained at the Bristol Old Vic Theatre School and broke through internationally with My Beautiful Laundrette and A Room with a View in 1985. His Best Actor Oscars came for Jim Sheridan's My Left Foot in 1990, Paul Thomas Anderson's There Will Be Blood in 2008, and Steven Spielberg's Lincoln in 2013. His commitment to total immersion — staying in character on and off set, learning a craft for each role, conversing only in dialect — became the defining example of contemporary method acting. He was knighted in 2014 for services to drama and announced his retirement from acting after Phantom Thread in 2017." },
 
   // =====================================================================
   //  COMEDIANS
@@ -1358,7 +1358,7 @@ export const PEOPLE = [
   { id:'robin-williams', name:'Robin Williams', gender:'male', birthYear:1951, birthPlace:'Chicago, Illinois', country:'USA', field:'Film', subfield:'Comedian',
     teams:[], awards:[{name:'Academy Award for Best Supporting Actor',year:1998}], collaborators:[], bio:'Improvisational genius — Mork, Mrs. Doubtfire, Sean Maguire.' },
   { id:'tina-fey', name:'Tina Fey', gender:'female', birthYear:1970, birthPlace:'Upper Darby, Pennsylvania', country:'USA', field:'Film', subfield:'Comedian',
-    teams:[], awards:[], collaborators:['Amy Poehler'], bio:'First female head writer of SNL; created 30 Rock.' },
+    teams:[], awards:[], collaborators:['Amy Poehler'], bio:'First female head writer of SNL; created 30 Rock. Born in Upper Darby, Pennsylvania, she joined Saturday Night Live in 1997 and co-anchored Weekend Update for six seasons. Her impression of Sarah Palin during the 2008 campaign became a national sensation. She wrote the 2004 film Mean Girls and starred as Liz Lemon on 30 Rock, which she created and ran. In 2010 she became the youngest recipient of the Mark Twain Prize for American Humor, and she later co-hosted the Golden Globes three times with Amy Poehler.' },
   { id:'gervais', name:'Ricky Gervais', gender:'male', birthYear:1961, birthPlace:'Reading, England', country:'UK', field:'Film', subfield:'Comedian',
     teams:[], awards:[], collaborators:['Stephen Merchant'], bio:'Co-created The Office (UK) — the format the world has now remade fifteen ways.' },
   { id:'phoebe-waller-bridge', name:'Phoebe Waller-Bridge', gender:'female', birthYear:1985, birthPlace:'London, England', country:'UK', field:'Film', subfield:'Comedian',
@@ -1386,7 +1386,7 @@ export const PEOPLE = [
   { id:'wendy-carlos', name:'Wendy Carlos', gender:'female', birthYear:1939, birthPlace:'Pawtucket, Rhode Island', country:'USA', field:'Music', subfield:'Electronic',
     teams:[], awards:[{name:'Grammy Award',year:1969}], collaborators:['Stanley Kubrick'], bio:'Switched-On Bach; scored A Clockwork Orange and TRON; trans pioneer in music.' },
   { id:'renee-richards', name:'Renée Richards', gender:'female', birthYear:1934, birthPlace:'New York, New York', country:'USA', field:'Sports', subfield:'Tennis',
-    teams:[], awards:[], collaborators:['Martina Navratilova'], bio:'Won a 1977 court case to play pro tennis as a woman.' },
+    teams:[], awards:[], collaborators:['Martina Navratilova'], bio:"Won a 1977 court case to play pro tennis as a woman. A successful ophthalmologist and former collegiate player, she underwent gender reassignment surgery in 1975 and was barred from the women's tour. She challenged the U.S. Tennis Association's mandatory chromosome test, and the New York Supreme Court ruled in her favor in 1977, allowing her to compete at the U.S. Open. She reached the women's doubles final there that year and later coached Martina Navratilova to two Wimbledon titles. Her case became a landmark in the history of transgender athletes in sports." },
   { id:'christine-jorgensen', name:'Christine Jorgensen', gender:'female', birthYear:1926, birthPlace:'New York, New York', country:'USA', field:'Activism', subfield:'LGBTQ+',
     teams:[], awards:[], collaborators:[], bio:'First widely known American to undergo gender-affirming surgery (1952).' },
   { id:'vladimir-luxuria', name:'Vladimir Luxuria', gender:'female', birthYear:1965, birthPlace:'Foggia, Italy', country:'Italy', field:'Politics', subfield:'Member of Parliament',
@@ -1398,13 +1398,13 @@ export const PEOPLE = [
   { id:'indya-moore', name:'Indya Moore', gender:'nonbinary', birthYear:1995, birthPlace:'New York, New York', country:'USA', field:'Film', subfield:'Actor',
     teams:[], awards:[], collaborators:[], bio:'Pose; one of the first openly non-binary cover stars on a major fashion magazine.' },
   { id:'sam-smith', name:'Sam Smith', gender:'nonbinary', birthYear:1992, birthPlace:'London, England', country:'UK', field:'Music', subfield:'Pop',
-    teams:[], awards:[{name:'Academy Award for Best Original Song',year:2016}], collaborators:[], bio:'British singer; came out as non-binary in 2019.' },
+    teams:[], awards:[{name:'Academy Award for Best Original Song',year:2016}], collaborators:[], bio:"British singer; came out as non-binary in 2019. Born in London and raised in Cambridgeshire, they broke through as the featured vocalist on Disclosure's \"Latch\" in 2012 before releasing their own debut In the Lonely Hour in 2014, an album anchored by the ballad \"Stay With Me\" that earned four Grammys at the 2015 ceremony, including Best New Artist and Record of the Year. Their theme for the 2015 James Bond film Spectre, \"Writing's on the Wall,\" became the first Bond theme to top the U.K. Singles Chart and won the Academy Award for Best Original Song. They came out as non-binary in 2019 and adopted they/them pronouns, and in 2022 their single \"Unholy\" with the trans pop artist Kim Petras became the first U.S. number-one single by an openly nonbinary lead artist." },
   // (Demi Lovato and Janelle Monáe exist earlier under Music/Pop — gender
   //  field on those originals is updated in place to 'nonbinary'.)
   { id:'asia-kate-dillon', name:'Asia Kate Dillon', gender:'nonbinary', birthYear:1984, birthPlace:'Ithaca, New York', country:'USA', field:'Film', subfield:'Actor',
     teams:[], awards:[], collaborators:[], bio:'Billions; first openly non-binary actor on a major TV series.' },
   { id:'alok', name:'Alok Vaid-Menon', gender:'nonbinary', birthYear:1991, birthPlace:'College Station, Texas', country:'USA', field:'Literature', subfield:'Poet',
-    teams:[], awards:[], collaborators:[], bio:'Poet, performer, and gender non-conformity advocate.' },
+    teams:[], awards:[], collaborators:[], bio:'Poet, performer, and gender non-conformity advocate. Alok Vaid-Menon is an Indian-American writer and performance artist who blends poetry, comedy, and fashion in work centered on gender. They are the author of the books Femme in Public and Beyond the Gender Binary, the latter widely used in classrooms. A prominent voice for gender-nonconforming people, they have toured internationally with stand-up and spoken-word shows. Their bold, colorful style has made them a recognizable figure in both fashion and social media.' },
   { id:'travis-alabanza', name:'Travis Alabanza', gender:'nonbinary', birthYear:1995, birthPlace:'Bristol, England', country:'UK', field:'Literature', subfield:'Performer',
     teams:[], awards:[], collaborators:[], bio:'British playwright and performance artist; author of None of the Above.' },
   { id:'rebecca-sugar', name:'Rebecca Sugar', gender:'nonbinary', birthYear:1987, birthPlace:'Silver Spring, Maryland', country:'USA', field:'Film', subfield:'Animator',
@@ -1542,6 +1542,136 @@ export const PEOPLE = [
   { id:'maya-angelou', name:'Maya Angelou', gender:'female', birthYear:1928, birthPlace:'St. Louis, Missouri', country:'USA', field:'Literature', subfield:'Memoirist',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:2011}],
     collaborators:['James Baldwin'], bio:'Caged-bird memoirist who fry-cooked, danced calypso, and read at Clinton\'s inauguration before turning sixty-five.' },
+
+  // =====================================================================
+  //  STRENGTHEN-THE-GRAPH — added 2026-05-09 (rotation: "Strengthen the graph")
+  //  10 connectors whose collaborator arrays reach into existing entries.
+  // =====================================================================
+  { id:'john-lennon', name:'John Lennon', gender:'male', birthYear:1940, birthPlace:'Liverpool, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[{name:'The Beatles',years:[1960,1970]}], awards:[{name:'Grammy Award for Album of the Year',year:1982}],
+    collaborators:['Paul McCartney','George Harrison','Yoko Ono','Phil Spector'], bio:'Beatle who married Yoko Ono, recorded Imagine in his Tittenhurst home, and was shot outside the Dakota at forty.' },
+
+  { id:'paul-mccartney', name:'Paul McCartney', gender:'male', birthYear:1942, birthPlace:'Liverpool, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[{name:'The Beatles',years:[1960,1970]},{name:'Wings',years:[1971,1981]}], awards:[{name:'Grammy Lifetime Achievement Award',year:1990}],
+    collaborators:['John Lennon','George Harrison','Linda McCartney','George Martin'], bio:'Wrote Yesterday in his sleep at twenty-two; still touring stadiums six decades later as the most-covered songwriter of the rock era.' },
+
+  { id:'george-harrison', name:'George Harrison', gender:'male', birthYear:1943, birthPlace:'Liverpool, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[{name:'The Beatles',years:[1960,1970]},{name:'Traveling Wilburys',years:[1988,1990]}], awards:[{name:'Grammy Award for Album of the Year',year:1973}],
+    collaborators:['John Lennon','Paul McCartney','Ravi Shankar','Bob Dylan'], bio:'Quiet Beatle who learned sitar from Ravi Shankar and organized the first benefit-rock supershow, the 1971 Concert for Bangladesh.' },
+
+  { id:'burt-bacharach', name:'Burt Bacharach', gender:'male', birthYear:1928, birthPlace:'Kansas City, Missouri', country:'USA', field:'Music', subfield:'Composer',
+    teams:[], awards:[{name:'Academy Award for Best Original Song',year:1970},{name:'Academy Award for Best Original Score',year:1970}],
+    collaborators:['Hal David','Dionne Warwick','Dusty Springfield','Elvis Costello'], bio:'Half of the Bacharach-David songbook — Walk On By, I Say a Little Prayer — and a lifetime of unusual time signatures.' },
+
+  { id:'michael-jackson', name:'Michael Jackson', gender:'male', birthYear:1958, birthPlace:'Gary, Indiana', country:'USA', field:'Music', subfield:'Pop',
+    teams:[{name:'The Jackson 5',years:[1965,1984]}], awards:[{name:'Grammy Award for Album of the Year',year:1984}],
+    collaborators:['Quincy Jones','Janet Jackson','Diana Ross'], bio:'Eighth child of the Jackson 5 who out-sold them all; Thriller still sits atop the all-time best-selling album list four decades on.' },
+
+  { id:'lou-reed', name:'Lou Reed', gender:'male', birthYear:1942, birthPlace:'Brooklyn, New York', country:'USA', field:'Music', subfield:'Rock',
+    teams:[{name:'The Velvet Underground',years:[1965,1970]}], awards:[{name:'Rock and Roll Hall of Fame',year:1996}],
+    collaborators:['Andy Warhol','John Cale','David Bowie'], bio:'Long Island English major whose Velvet Underground became Warhol\'s house band; Walk on the Wild Side snuck a transgender chorus past 1972 radio.' },
+
+  { id:'tammi-terrell', name:'Tammi Terrell', gender:'female', birthYear:1945, birthPlace:'Philadelphia, Pennsylvania', country:'USA', field:'Music', subfield:'R&B',
+    teams:[], awards:[],
+    collaborators:['Marvin Gaye','Ashford & Simpson'], bio:'Motown duet partner of Marvin Gaye; collapsed into his arms onstage at twenty-two and died of a brain tumor three years later.' },
+
+  { id:'emmylou-harris', name:'Emmylou Harris', gender:'female', birthYear:1947, birthPlace:'Birmingham, Alabama', country:'USA', field:'Music', subfield:'Country',
+    teams:[], awards:[{name:'Grammy Award for Best Female Country Vocal Performance',year:1980}],
+    collaborators:['Gram Parsons','Linda Ronstadt','Dolly Parton'], bio:'Folkie turned country harmony queen; the Trio album with Ronstadt and Parton went four-times platinum while Nashville wasn\'t looking.' },
+
+  { id:'mahalia-jackson', name:'Mahalia Jackson', gender:'female', birthYear:1911, birthPlace:'New Orleans, Louisiana', country:'USA', field:'Music', subfield:'Gospel',
+    teams:[], awards:[{name:'Grammy Lifetime Achievement Award',year:1972}],
+    collaborators:['Aretha Franklin','Thomas A. Dorsey','Martin Luther King Jr.'], bio:'Queen of Gospel who urged Dr. King to "tell them about the dream" at the March on Washington and sang Take My Hand at his funeral.' },
+
+  { id:'mary-wilson', name:'Mary Wilson', gender:'female', birthYear:1944, birthPlace:'Greenville, Mississippi', country:'USA', field:'Music', subfield:'Pop',
+    teams:[{name:'The Supremes',years:[1959,1977]}], awards:[{name:'Rock and Roll Hall of Fame',year:1988}],
+    collaborators:['Diana Ross','Florence Ballard','Berry Gordy'], bio:'Founding Supreme who outlasted every lineup change by eighteen years and later wrote the band\'s tell-all from the road.' },
+
+  // =====================================================================
+  //  2026-06-27 — "Strengthen the graph" rotation (Saturday)
+  //  10 entries whose collaborators tie back to existing dataset nodes.
+  // =====================================================================
+
+  { id:'ringo-starr', name:'Ringo Starr', gender:'male', birthYear:1940, birthPlace:'Liverpool, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[{name:'The Beatles',years:[1962,1970]}], awards:[{name:'Rock and Roll Hall of Fame',year:2015}],
+    collaborators:['John Lennon','Paul McCartney','George Harrison'], bio:"Steady backbeat of the Beatles and their most reluctant frontman, singing 'Yellow Submarine' and 'With a Little Help from My Friends.'" },
+
+  { id:'keith-richards', name:'Keith Richards', gender:'male', birthYear:1943, birthPlace:'Dartford, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[{name:'The Rolling Stones',years:[1962,2025]}], awards:[{name:'Rock and Roll Hall of Fame',year:1989}],
+    collaborators:['Mick Jagger'], bio:"Riff machine of the Rolling Stones, co-author of 'Satisfaction,' and rock's most durable survivor of every excess he ever sang about." },
+
+  { id:'christine-mcvie', name:'Christine McVie', gender:'female', birthYear:1943, birthPlace:'Bouth, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[{name:'Fleetwood Mac',years:[1970,2022]}], awards:[{name:'Rock and Roll Hall of Fame',year:1998}],
+    collaborators:['Stevie Nicks','Lindsey Buckingham'], bio:"Fleetwood Mac's warm contralto and hit factory — 'Don't Stop,' 'Songbird,' 'Everywhere' — the steady center of 'Rumours'-era chaos." },
+
+  { id:'dizzy-gillespie', name:'Dizzy Gillespie', gender:'male', birthYear:1917, birthPlace:'Cheraw, South Carolina', country:'USA', field:'Music', subfield:'Jazz',
+    teams:[], awards:[{name:'Grammy Lifetime Achievement Award',year:1989}],
+    collaborators:['Charlie Parker','Miles Davis'], bio:"Bent-bell trumpeter who invented bebop alongside Charlie Parker and brought Afro-Cuban fire and balloon cheeks to the bandstand." },
+
+  { id:'thelonious-monk', name:'Thelonious Monk', gender:'male', birthYear:1917, birthPlace:'Rocky Mount, North Carolina', country:'USA', field:'Music', subfield:'Jazz',
+    teams:[], awards:[{name:'Pulitzer Prize Special Citation',year:2006}],
+    collaborators:['John Coltrane','Charlie Parker'], bio:"High priest of bebop whose angular, dissonant piano made 'Round Midnight' a standard and baffled critics until they caught up." },
+
+  { id:'florence-ballard', name:'Florence Ballard', gender:'female', birthYear:1943, birthPlace:'Detroit, Michigan', country:'USA', field:'Music', subfield:'Pop',
+    teams:[{name:'The Supremes',years:[1959,1967]}], awards:[{name:'Rock and Roll Hall of Fame',year:1988}],
+    collaborators:['Diana Ross','Mary Wilson'], bio:"Founding Supreme with the biggest voice in the group, eased out of Motown by 1967 and gone by 32 — the trio's tragic heart." },
+
+  { id:'keith-haring', name:'Keith Haring', gender:'male', birthYear:1958, birthPlace:'Reading, Pennsylvania', country:'USA', field:'Visual Arts', subfield:'Pop Artist',
+    teams:[], awards:[],
+    collaborators:['Andy Warhol','Jean-Michel Basquiat'], bio:"Subway-chalk prodigy whose radiant babies and barking dogs turned 1980s downtown New York into a public canvas before AIDS took him at 31." },
+
+  { id:'max-von-sydow', name:'Max von Sydow', gender:'male', birthYear:1929, birthPlace:'Lund, Sweden', country:'Sweden', field:'Film', subfield:'Actor',
+    teams:[], awards:[],
+    collaborators:['Ingmar Bergman','Liv Ullmann'], bio:"Bergman's gaunt leading man who played chess with Death, then became Hollywood's go-to European from 'The Exorcist' to 'Star Wars.'" },
+
+  { id:'irene-joliot-curie', name:'Irène Joliot-Curie', gender:'female', birthYear:1897, birthPlace:'Paris, France', country:'France', field:'Science', subfield:'Chemistry',
+    teams:[], awards:[{name:'Nobel Prize in Chemistry',year:1935}],
+    collaborators:['Marie Curie','Pierre Curie'], bio:"Won her own Nobel for artificial radioactivity, matching her mother Marie's legend a lab bench away in the family business of the atom." },
+
+  { id:'garrincha', name:'Garrincha', gender:'male', birthYear:1933, birthPlace:'Magé, Brazil', country:'Brazil', field:'Sports', subfield:'Soccer',
+    teams:[{name:'Botafogo',years:[1953,1965]},{name:'Brazil',years:[1955,1966]}], awards:[{name:'FIFA World Cup Champion',year:1958},{name:'FIFA World Cup Champion',year:1962}],
+    collaborators:['Pelé'], bio:"Bow-legged dribbling genius who won two World Cups beside Pelé; Brazil called him 'Joy of the People' and mourned when joy ran out." },
+
+  // --- 2026-06-28 · Strengthen the graph (collaborators/contemporaries of existing entries) ---
+  { id:'venus-williams', name:'Venus Williams', gender:'female', birthYear:1980, birthPlace:'Lynwood, USA', country:'United States', field:'Sports', subfield:'Tennis',
+    teams:[], awards:[{name:'Wimbledon Champion',year:2005},{name:'Olympic Gold (Singles)',year:2000}],
+    collaborators:['Serena Williams'], bio:"Older Williams sister who stormed Wimbledon five times and won Olympic gold beside Serena — the doubles partner she also beat in finals." },
+
+  { id:'abby-wambach', name:'Abby Wambach', gender:'female', birthYear:1980, birthPlace:'Rochester, USA', country:'United States', field:'Sports', subfield:'Soccer',
+    teams:[{name:'United States',years:[2003,2015]}], awards:[{name:"FIFA Women's World Cup Champion",year:2015},{name:'Olympic Gold',year:2012},{name:'FIFA World Player of the Year',year:2012}],
+    collaborators:['Mia Hamm','Megan Rapinoe'], bio:"Headed in more international goals than any soccer player alive, she powered the U.S. women to the 2015 World Cup beside Rapinoe." },
+
+  { id:'olga-korbut', name:'Olga Korbut', gender:'female', birthYear:1955, birthPlace:'Grodno, Soviet Union', country:'Belarus', field:'Sports', subfield:'Gymnastics',
+    teams:[{name:'Soviet Union',years:[1972,1976]}], awards:[{name:'Olympic Gold',year:1972},{name:'Olympic Gold',year:1976}],
+    collaborators:['Nadia Comăneci'], bio:"The pixie 'Sparrow from Minsk' whose backflips and tears at Munich '72 made gymnastics must-see TV and lit the path Comăneci would perfect." },
+
+  { id:'mario-zagallo', name:'Mário Zagallo', gender:'male', birthYear:1931, birthPlace:'Maceió, Brazil', country:'Brazil', field:'Sports', subfield:'Soccer',
+    teams:[{name:'Botafogo',years:[1950,1965]},{name:'Brazil',years:[1958,1962]}], awards:[{name:'FIFA World Cup Champion',year:1958},{name:'FIFA World Cup Champion',year:1962},{name:'FIFA World Cup Champion (as coach)',year:1970}],
+    collaborators:['Pelé','Garrincha'], bio:"Won the World Cup as a player beside Pelé and Garrincha, then again from the bench in 1970 — the first to lift football's prize both ways." },
+
+  { id:'frederic-joliot-curie', name:'Frédéric Joliot-Curie', gender:'male', birthYear:1900, birthPlace:'Paris, France', country:'France', field:'Science', subfield:'Chemistry',
+    teams:[], awards:[{name:'Nobel Prize in Chemistry',year:1935}],
+    collaborators:['Irène Joliot-Curie'], bio:"Married into the most radioactive family in science and shared a 1935 Nobel with wife Irène for forging elements nature never made." },
+
+  { id:'george-martin', name:'George Martin', gender:'male', birthYear:1926, birthPlace:'London, England', country:'United Kingdom', field:'Music', subfield:'Producer',
+    teams:[], awards:[{name:'Knighted',year:1996},{name:'Rock and Roll Hall of Fame',year:1999}],
+    collaborators:['John Lennon','Paul McCartney','George Harrison','Ringo Starr'], bio:"The 'Fifth Beatle' in the producer's chair, he scored the strings and spliced the tape that turned four Liverpool lads into studio gods." },
+
+  { id:'berry-gordy', name:'Berry Gordy', gender:'male', birthYear:1929, birthPlace:'Detroit, USA', country:'United States', field:'Music', subfield:'Soul',
+    teams:[], awards:[{name:'Rock and Roll Hall of Fame',year:1988}],
+    collaborators:['Diana Ross','Marvin Gaye','Stevie Wonder','Michael Jackson'], bio:"Detroit assembly-line worker who built Motown into a hit factory, polishing Diana Ross and a young Michael Jackson into crossover gold." },
+
+  { id:'bill-evans', name:'Bill Evans', gender:'male', birthYear:1929, birthPlace:'Plainfield, USA', country:'United States', field:'Music', subfield:'Jazz',
+    teams:[], awards:[{name:'Grammy Award',year:1971}],
+    collaborators:['Miles Davis'], bio:"Impressionist pianist whose hushed, blue voicings shaped Miles Davis's 'Kind of Blue,' then haunted jazz with the most lyrical touch on the keys." },
+
+  { id:'gal-costa', name:'Gal Costa', gender:'female', birthYear:1945, birthPlace:'Salvador, Brazil', country:'Brazil', field:'Music', subfield:'Tropicália',
+    teams:[], awards:[],
+    collaborators:['Caetano Veloso'], bio:"Tropicália's fearless voice, she sang down Brazil's dictatorship beside Caetano Veloso with a sound as bold as her notorious album covers." },
+
+  { id:'david-alfaro-siqueiros', name:'David Alfaro Siqueiros', gender:'male', birthYear:1896, birthPlace:'Camargo, Mexico', country:'Mexico', field:'Visual Arts', subfield:'Muralist',
+    teams:[], awards:[],
+    collaborators:['Diego Rivera'], bio:"Most militant of Mexico's mural masters, he painted revolution at monumental scale beside Diego Rivera — and took up a rifle for his politics." },
 
 ].filter(p => p.field !== '__skip__');  // drop placeholder rows used during editing
 
