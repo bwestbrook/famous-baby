@@ -107,8 +107,13 @@
     <main class="map">
       <div id="globe-canvas" class="map__globe"></div>
 
-      <!-- ---------- TOP STACK — categories, timeline, map controls ---------- -->
+      <!-- ---------- TOP STACK — wordmark, categories, map controls ---------- -->
       <div class="topstack">
+
+      <!-- Wordmark, centred at the very top -->
+      <div class="titlebar">
+        <span class="titlebar__mark"><em>famous</em>Baby</span>
+      </div>
 
       <!-- Clear the category strip; only present when something is picked. -->
       <div v-if="selectedFields.length || selectedSubfields.length" class="qclear-row">
@@ -151,41 +156,10 @@
         </button>
       </div>
 
-      <!-- ---------- TIMELINE ----------
-           Quiet at rest, full strength on approach or while a range is set. -->
-      <div class="tl-wrap">
-        <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
-          <span v-if="selectedPerson" class="tl__label">Born</span>
-          <div class="tl__track">
-            <div class="tl__ticks">
-              <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }">
-                <b v-if="t.label">{{ t.y }}</b>
-              </i>
-            </div>
-            <div class="tl__rail">
-              <div class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
-              <i v-if="selectedPerson" class="tl__pin" :style="{ left: tlBirthPct + '%' }"></i>
-              <input
-                type="range" class="tl__in"
-                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMin"
-                @input="setYearMin($event.target.value)" aria-label="Earliest birth year"
-              />
-              <input
-                type="range" class="tl__in"
-                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMax"
-                @input="setYearMax($event.target.value)" aria-label="Latest birth year"
-              />
-            </div>
-          </div>
-          <span class="tl__val">{{ tlLabel }}</span>
-          <button v-if="!selectedPerson" class="tl__x" :class="{ 'is-vis': yearsActive }" @click="clearYears" title="Reset years">
-            <svg class="ico ico--14"><use href="#i-close"/></svg>
-          </button>
-        </div>
-      </div>
+      </div><!-- /.topstack -->
 
-      <!-- Map controls — one horizontal row, right under the timeline -->
-      <div class="mapctl">
+      <!-- Map controls — vertical column, right edge, centred -->
+      <div class="mapctl" v-show="!selectedPerson">
         <button class="mapctl__btn" @click="toggleGlobeRotation" :title="globeRotating ? 'Stop rotation' : 'Rotate globe'">
           <svg class="ico ico--16"><use :href="globeRotating ? '#i-pause' : '#i-play'"/></svg>
         </button>
@@ -193,16 +167,14 @@
           <svg class="ico ico--16"><use href="#i-compass"/></svg>
         </button>
         <div class="mapctl__stack">
-          <button class="mapctl__btn mapctl__btn--l" @click="zoomGlobe(1)" title="Zoom out">
+          <button class="mapctl__btn mapctl__btn--t" @click="zoomGlobe(1)" title="Zoom out">
             <svg class="ico ico--16"><use href="#i-minus"/></svg>
           </button>
-          <button class="mapctl__btn mapctl__btn--r" @click="zoomGlobe(-1)" title="Zoom in">
+          <button class="mapctl__btn mapctl__btn--b" @click="zoomGlobe(-1)" title="Zoom in">
             <svg class="ico ico--16"><use href="#i-plus"/></svg>
           </button>
         </div>
       </div>
-
-      </div><!-- /.topstack -->
     </main>
 
     <!-- ============== BOTTOM DOCK ==============
@@ -282,20 +254,63 @@
         role="dialog"
         aria-modal="false"
       >
+        <!-- Face and birthplace, two portrait tiles side by side. -->
         <div class="pop__hero">
-          <!-- Stands in until (or unless) a photo loads. -->
-          <div class="pop__ph">
-            <svg class="ico pop__ph-ico"><use href="#i-avatar"/></svg>
-            <span class="pop__ph-label">No photo yet</span>
+          <div class="pop__media" :class="{ 'is-solo': !miniView }">
+            <div class="pop__shot">
+              <!-- Stands in until (or unless) a photo loads. -->
+              <div class="pop__ph">
+                <svg class="ico pop__ph-ico"><use href="#i-avatar"/></svg>
+                <span class="pop__ph-label">No photo yet</span>
+              </div>
+              <img
+                class="pop__img"
+                :src="'./photos/' + selectedPerson.id + '.jpg'"
+                :alt="selectedPerson.name"
+                @load="$event.target.classList.add('is-loaded')"
+                @error="$event.target.classList.add('is-broken')"
+              />
+              <div class="pop__scrim"></div>
+            </div>
+
+            <!-- Where they're from, at a glance -->
+            <button
+              v-if="miniView"
+              class="minimap"
+              @click="pickCountry(selectedPerson.country)"
+              :title="'See names from ' + selectedPerson.country"
+            >
+              <!-- .camel is required: this is an in-DOM template, so the HTML
+                   parser would lowercase :viewBox into an attribute SVG ignores. -->
+              <svg class="minimap__svg" :view-box.camel="miniView.box" preserveAspectRatio="xMidYMid meet">
+                <path
+                  class="minimap__hl"
+                  :d="miniOutline"
+                  :stroke-width="miniView.unit * 0.7"
+                />
+                <path v-if="miniAdmin" class="minimap__admin" :d="miniAdmin"/>
+                <g v-if="miniMarker">
+                  <circle
+                    class="minimap__halo"
+                    :cx="miniMarker.x" :cy="miniMarker.y"
+                    :r="miniView.unit * 3.4"
+                  />
+                  <circle
+                    class="minimap__dot"
+                    :cx="miniMarker.x" :cy="miniMarker.y"
+                    :r="miniView.unit * 1.3"
+                    :stroke-width="miniView.unit * 0.35"
+                  />
+                </g>
+              </svg>
+              <span class="minimap__cap">
+                <svg class="ico ico--12"><use href="#i-public"/></svg>
+                <span class="minimap__place">{{ selectedPerson.birthPlace }}</span>
+                <em v-if="miniMarker && !miniMarker.exact">approx.</em>
+              </span>
+            </button>
           </div>
-          <img
-            class="pop__img"
-            :src="'./photos/' + selectedPerson.id + '.jpg'"
-            :alt="selectedPerson.name"
-            @load="$event.target.classList.add('is-loaded')"
-            @error="$event.target.classList.add('is-broken')"
-          />
-          <div class="pop__scrim"></div>
+
           <button class="pop__back" @click="closePerson" title="Back to results">
             <svg class="ico ico--18"><use href="#i-back"/></svg>
           </button>
@@ -323,27 +338,6 @@
               <svg class="ico ico--14"><use href="#i-star"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
             </span>
           </div>
-
-          <!-- Where they're from, at a glance -->
-          <button
-            v-if="miniLand"
-            class="minimap"
-            @click="pickCountry(selectedPerson.country)"
-            :title="'See names from ' + selectedPerson.country"
-          >
-            <svg class="minimap__svg" viewBox="0 0 360 180" preserveAspectRatio="xMidYMid meet">
-              <path class="minimap__land" :d="miniLand"/>
-              <path v-if="miniHighlight" class="minimap__hl" :d="miniHighlight"/>
-              <g v-if="miniMarker">
-                <circle class="minimap__halo" :cx="miniMarker.x" :cy="miniMarker.y" r="7"/>
-                <circle class="minimap__dot" :cx="miniMarker.x" :cy="miniMarker.y" r="2.6"/>
-              </g>
-            </svg>
-            <span class="minimap__cap">
-              <svg class="ico ico--12"><use href="#i-public"/></svg>
-              {{ selectedPerson.birthPlace }}
-            </span>
-          </button>
 
           <div v-if="fullNameParts(selectedPerson)" class="kgiven">
             <span class="kgiven__l">Full name</span>
@@ -424,6 +418,40 @@
           </div>
         </div>
       </article>
+
+      <!-- ---------- TIMELINE ----------
+           Quiet at rest, full strength on approach or while a range is set. -->
+      <div class="tl-wrap">
+        <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
+          <span v-if="selectedPerson" class="tl__label">Born</span>
+          <span v-else class="tl__val tl__val--min">{{ yearMin }}</span>
+          <div class="tl__track">
+            <div class="tl__ticks">
+              <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }">
+                <b v-if="t.label">{{ t.y }}</b>
+              </i>
+            </div>
+            <div class="tl__rail">
+              <div class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
+              <i v-if="selectedPerson" class="tl__pin" :style="{ left: tlBirthPct + '%' }"></i>
+              <input
+                type="range" class="tl__in"
+                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMin"
+                @input="setYearMin($event.target.value)" aria-label="Earliest birth year"
+              />
+              <input
+                type="range" class="tl__in"
+                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMax"
+                @input="setYearMax($event.target.value)" aria-label="Latest birth year"
+              />
+            </div>
+          </div>
+          <span class="tl__val">{{ selectedPerson ? tlLabel : yearMax }}</span>
+          <button v-if="!selectedPerson" class="tl__x" :class="{ 'is-vis': yearsActive }" @click="clearYears" title="Reset years">
+            <svg class="ico ico--14"><use href="#i-close"/></svg>
+          </button>
+        </div>
+      </div>
 
       <!-- ---------- SEARCH LINE — the last thing on screen ---------- -->
       <div class="sbar">

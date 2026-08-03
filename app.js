@@ -6,6 +6,13 @@
 console.log('[famous Baby] app.js loaded, importing modules…');
 
 import { createApp, ref, computed, watch, onMounted, onUnmounted, nextTick } from 'https://unpkg.com/vue@3.4.27/dist/vue.esm-browser.js';
+import { MAJOR_CITIES, CITY_COORDS, REGION_COORDS } from './geo.js';
+import { ADMIN1_LINES } from './admin1.js';
+
+// State / province borders, flattened for globe.gl's path layer.
+const ADMIN1_PATHS = Object.entries(ADMIN1_LINES).flatMap(([country, lines]) =>
+  lines.map(coords => ({ country, coords }))
+);
 
 // Country centroids (decimal degrees: lat, lng). Covers every `country` value
 // currently in data.js. Add more as the dataset grows.
@@ -438,6 +445,32 @@ const app = createApp({
       countryList.value.reduce((m, c) => Math.max(m, c.count), 1)
     );
 
+    // ---- City labels ----
+    // Labels are 3-D objects measured in globe radii, so a fixed size reads as
+    // a speck from orbit and swallows the map up close. Scaling with the
+    // camera's altitude keeps a label about the same size on screen at any
+    // zoom — it just gains legibility as you come down.
+    const LABEL_K = 0.26;              // ≈0.88 at the default altitude of 2.4
+    let labelSizeApplied = 0;
+    function labelSizeFor(altitude) {
+      const size = LABEL_K * ((Number(altitude) || 0) + 1);
+      return Math.max(0.14, Math.min(1.5, size));
+    }
+    // Re-sizing rebuilds every label mesh, so ignore the noise: pans and the
+    // auto-rotate fire the same event without changing altitude.
+    function syncLabelScale(altitude) {
+      if (!globeInstance) return;
+      const size = labelSizeFor(altitude);
+      if (Math.abs(size - labelSizeApplied) < 0.02) return;
+      labelSizeApplied = size;
+      try { globeInstance.labelSize(size).labelDotRadius(size * 0.32); } catch {}
+    }
+    // pointOfView() tweens the camera without emitting zoom events, so callers
+    // that fly somewhere hand us the altitude they're heading to.
+    function syncLabelScaleTo(altitude) {
+      setTimeout(() => syncLabelScale(altitude), 60);
+    }
+
     // Fly the camera to a country the way Earth does: stop the spin, ease in.
     function flyToCountry(country, altitude = 0.85) {
       const coords = COUNTRY_COORDS[country];
@@ -445,6 +478,7 @@ const app = createApp({
       globeRotating.value = false;
       try {
         globeInstance.pointOfView({ lat: coords[0], lng: coords[1], altitude }, 900);
+        syncLabelScaleTo(altitude);
       } catch {}
     }
 
@@ -461,7 +495,10 @@ const app = createApp({
     // Pull the camera back out to the whole-globe view.
     function resetGlobeView() {
       if (!globeInstance) return;
-      try { globeInstance.pointOfView({ lat: 20, lng: 0, altitude: 2.4 }, 700); } catch {}
+      try {
+        globeInstance.pointOfView({ lat: 20, lng: 0, altitude: 2.4 }, 700);
+        syncLabelScaleTo(2.4);
+      } catch {}
     }
 
     // Step zoom for the +/− buttons. dir = -1 zooms in (camera moves closer),
@@ -473,6 +510,7 @@ const app = createApp({
         const pov = globeInstance.pointOfView();
         const altitude = Math.max(0.05, Math.min(4.0, pov.altitude * (dir > 0 ? 1.35 : 0.74)));
         globeInstance.pointOfView({ lat: pov.lat, lng: pov.lng, altitude }, 350);
+        syncLabelScaleTo(altitude);
       } catch {}
     }
 
@@ -516,46 +554,124 @@ const app = createApp({
       pickCountry(entry.country);
     }
 
+    // ---- Where a birthplace actually is ----
+    // Exact city string, else the trailing region token (US state, home
+    // nation, province), else the country centroid. `exact` tells the card
+    // whether the dot is a real city or an approximation.
+    function birthLocation(person) {
+      if (!person) return null;
+      const place = person.birthPlace || '';
+      const city = CITY_COORDS[place];
+      if (city) return { lat: city[0], lng: city[1], exact: true };
+      const tail = place.split(',').map(s => s.trim()).pop();
+      const region = REGION_COORDS[tail];
+      if (region) return { lat: region[0], lng: region[1], exact: false };
+      const country = COUNTRY_COORDS[person.country];
+      if (country) return { lat: country[0], lng: country[1], exact: false };
+      return null;
+    }
+
     // ---- Mini-map (person card) ----
-    // Same outlines the globe uses, flattened to an equirectangular SVG so a
-    // card can show where its person is from without a second dataset.
-    const MINI_W = 360, MINI_H = 180;
+    // Same outlines the globe uses, projected to SVG and framed on the one
+    // country — no world map, just where this person is from.
     const worldFeatures = ref([]);
-    const miniProject = (lng, lat) => [
-      (lng + 180) / 360 * MINI_W,
-      (90 - lat) / 180 * MINI_H,
-    ];
+    // Equirectangular degrees→SVG units. 1 unit = 1 degree, so the viewBox can
+    // be expressed directly in lng/lat and simply cropped to the country.
+    const projX = (lng) => lng + 180;
+    const projY = (lat) => 90 - lat;
+
     function ringPath(ring) {
       let d = '';
       for (let i = 0; i < ring.length; i++) {
-        const [x, y] = miniProject(ring[i][0], ring[i][1]);
-        d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+        d += (i ? 'L' : 'M') + projX(ring[i][0]).toFixed(2) + ' ' + projY(ring[i][1]).toFixed(2);
       }
       return d + 'Z';
     }
-    function featurePath(f) {
+    function polysOf(f) {
       const g = f && f.geometry;
-      if (!g) return '';
-      const polys = g.type === 'Polygon' ? [g.coordinates]
-                  : g.type === 'MultiPolygon' ? g.coordinates
-                  : [];
-      return polys.map(poly => poly.map(ringPath).join('')).join('');
+      if (!g) return [];
+      return g.type === 'Polygon' ? [g.coordinates]
+           : g.type === 'MultiPolygon' ? g.coordinates
+           : [];
     }
-    // All land as one path — computed once, then cached by Vue.
-    const miniLand = computed(() => worldFeatures.value.map(featurePath).join(''));
-    const miniHighlight = computed(() => {
-      const p = selectedPerson.value;
-      if (!p) return '';
-      const f = worldFeatures.value.find(ft => geoCountryName(ft) === p.country);
-      return f ? featurePath(f) : '';
-    });
-    const miniMarker = computed(() => {
+    function featurePath(f) {
+      return polysOf(f).map(poly => poly.map(ringPath).join('')).join('');
+    }
+
+    // The feature for the open person's country, if we have an outline for it.
+    const miniFeature = computed(() => {
       const p = selectedPerson.value;
       if (!p) return null;
-      const c = COUNTRY_COORDS[p.country];
-      if (!c) return null;
-      const [x, y] = miniProject(c[1], c[0]);
-      return { x, y };
+      return worldFeatures.value.find(ft => geoCountryName(ft) === p.country) || null;
+    });
+    const miniOutline = computed(() => {
+      const f = miniFeature.value;
+      return f ? featurePath(f) : '';
+    });
+
+    // Internal state / province borders for the framed country, when we have
+    // them (USA, Canada, Brazil, Russia, India, China, Australia, Indonesia,
+    // South Africa).
+    const miniAdmin = computed(() => {
+      const p = selectedPerson.value;
+      if (!p) return '';
+      const lines = ADMIN1_LINES[p.country];
+      if (!lines) return '';
+      return lines.map(line =>
+        line.map(([lng, lat], i) =>
+          (i ? 'L' : 'M') + projX(lng).toFixed(2) + ' ' + projY(lat).toFixed(2)
+        ).join('')
+      ).join('');
+    });
+
+    // Frame on the country's largest landmass, so Alaska (or an overseas
+    // territory) doesn't zoom the view back out to the whole hemisphere.
+    const miniView = computed(() => {
+      const f = miniFeature.value;
+      if (!f) return null;
+      const polys = polysOf(f);
+      if (!polys.length) return null;
+      let main = polys[0][0];
+      for (const poly of polys) if (poly[0].length > main.length) main = poly[0];
+      let minLng = 180, maxLng = -180, minLat = 90, maxLat = -90;
+      for (const [lng, lat] of main) {
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+      }
+      // Keep the birth marker inside the frame even if it sits on a smaller
+      // island or just outside the main polygon.
+      const loc = birthLocation(selectedPerson.value);
+      if (loc) {
+        minLng = Math.min(minLng, loc.lng); maxLng = Math.max(maxLng, loc.lng);
+        minLat = Math.min(minLat, loc.lat); maxLat = Math.max(maxLat, loc.lat);
+      }
+      // Everything below is built around the centre, so a country that hits
+      // the size floor stays in the middle of the frame instead of sliding
+      // into a corner.
+      const cx = projX((minLng + maxLng) / 2);
+      const cy = projY((minLat + maxLat) / 2);
+      // Pad, and hold a floor so tiny countries don't magnify to mush.
+      let w = Math.max(maxLng - minLng, 3) * 1.28;
+      let h = Math.max(maxLat - minLat, 3) * 1.28;
+      // The tile is portrait, so give the viewBox the same shape — otherwise
+      // `meet` letterboxes the outline down to a thin band.
+      const TILE_ASPECT = 3 / 4;
+      if (w / h > TILE_ASPECT) h = w / TILE_ASPECT;
+      else w = h * TILE_ASPECT;
+      return {
+        box: `${(cx - w / 2).toFixed(2)} ${(cy - h / 2).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)}`,
+        // Stroke and marker sizes are in user units, so they have to scale
+        // with how far the view is zoomed in.
+        unit: Math.max(w, h) / 100,
+      };
+    });
+
+    const miniMarker = computed(() => {
+      const loc = birthLocation(selectedPerson.value);
+      if (!loc) return null;
+      return { x: projX(loc.lng), y: projY(loc.lat), exact: loc.exact };
     });
 
     // Fetch + attach the outlines. Failure is non-fatal: the globe still
@@ -644,7 +760,31 @@ const app = createApp({
         .bumpImageUrl(BUMP_URL)
         .showAtmosphere(true)
         .atmosphereColor('#7FB2F0')
-        .atmosphereAltitude(0.18);
+        .atmosphereAltitude(0.18)
+        // Major cities, the way Earth labels the ground beneath you.
+        .labelsData(MAJOR_CITIES)
+        .labelLat('lat')
+        .labelLng('lng')
+        .labelText('name')
+        // Both are re-set by syncLabelScale() as the camera moves.
+        .labelSize(labelSizeFor(2.4))
+        .labelDotRadius(labelSizeFor(2.4) * 0.32)
+        .labelColor(() => 'rgba(255,255,255,0.82)')
+        .labelAltitude(0.012)
+        .labelResolution(2)
+        // State / province lines for the countries Natural Earth carries them
+        // for — drawn fainter than national borders so the hierarchy reads.
+        .pathsData(ADMIN1_PATHS)
+        .pathPoints('coords')
+        .pathPointLat(p => p[1])
+        .pathPointLng(p => p[0])
+        .pathPointAlt(0.006)
+        .pathColor(() => 'rgba(255,255,255,0.26)')
+        .pathStroke(0.5)
+        .pathTransitionDuration(0)
+        // Wheel/pinch zoom: keep the city labels legible on the way down.
+        .onZoom(pov => syncLabelScale(pov && pov.altitude));
+      labelSizeApplied = labelSizeFor(2.4);
       try {
         const c = globeInstance.controls();
         c.autoRotate = globeRotating.value;
@@ -1231,7 +1371,7 @@ const app = createApp({
       bornTodayActive, toggleBornToday,
       selectedCountry, clearCountry, globeData, globeRotating, toggleGlobeRotation, zoomGlobe,
       pickCountry, flyToCountry, resetGlobeView,
-      miniLand, miniHighlight, miniMarker,
+      miniOutline, miniAdmin, miniView, miniMarker,
       selectedBornMonth, selectedBornDay,
       setBornMonth, clearBornFilters,
       MONTH_NAMES, zodiacFor, formatBirthDate, daysInMonth,
