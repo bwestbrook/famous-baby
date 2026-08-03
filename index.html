@@ -112,9 +112,18 @@
         <button class="qbar__arrow" @click="catPage(-1)" :disabled="!canCatPrev" title="Previous categories">
           <svg class="ico ico--16"><use href="#i-chev-left"/></svg>
         </button>
-        <div class="qbar__track">
+        <div
+          class="qbar__track"
+          ref="catTrack"
+          @scroll.passive="syncCatArrows"
+          @pointerdown="catPointerDown"
+          @pointermove="catPointerMove"
+          @pointerup="catPointerUp"
+          @pointercancel="catPointerUp"
+          @pointerleave="catPointerUp"
+        >
           <button
-            v-for="f in visibleFields"
+            v-for="f in FIELDS"
             :key="f"
             class="qcat"
             :class="{ 'is-on': isFieldSelected(f) }"
@@ -133,8 +142,8 @@
       <!-- ---------- TIMELINE ----------
            Quiet at rest, full strength on approach or while a range is set. -->
       <div class="tl-wrap">
-        <div class="tl" :class="{ 'is-on': yearsActive }">
-          <span class="tl__label">Timeline</span>
+        <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
+          <span class="tl__label">{{ selectedPerson ? 'Born' : 'Timeline' }}</span>
           <div class="tl__track">
             <div class="tl__ticks">
               <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }">
@@ -142,21 +151,22 @@
               </i>
             </div>
             <div class="tl__rail">
-              <div class="tl__fill" :style="{ left: yearMinPct + '%', width: (yearMaxPct - yearMinPct) + '%' }"></div>
+              <div class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
+              <i v-if="selectedPerson" class="tl__pin" :style="{ left: tlBirthPct + '%' }"></i>
               <input
                 type="range" class="tl__in"
-                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="yearMin"
+                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMin"
                 @input="setYearMin($event.target.value)" aria-label="Earliest birth year"
               />
               <input
                 type="range" class="tl__in"
-                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="yearMax"
+                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMax"
                 @input="setYearMax($event.target.value)" aria-label="Latest birth year"
               />
             </div>
           </div>
-          <span class="tl__val">{{ yearMin }} – {{ yearMax }}</span>
-          <button class="tl__x" :class="{ 'is-vis': yearsActive }" @click="clearYears" title="Reset years">
+          <span class="tl__val">{{ tlLabel }}</span>
+          <button v-if="!selectedPerson" class="tl__x" :class="{ 'is-vis': yearsActive }" @click="clearYears" title="Reset years">
             <svg class="ico ico--14"><use href="#i-close"/></svg>
           </button>
         </div>

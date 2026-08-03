@@ -111,9 +111,24 @@ body {
 .qbar__arrow:hover { background: rgba(40,42,48,.85); }
 .qbar__arrow:disabled { opacity: .25; cursor: default; }
 
-.qbar__track { flex: 1; min-width: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; }
+/* Swipeable track: five fit across, the rest scroll in from the side. */
+.qbar__track {
+  flex: 1; min-width: 0;
+  display: flex; gap: 4px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  cursor: grab;
+}
+.qbar__track::-webkit-scrollbar { display: none; }
+.qbar__track:active { cursor: grabbing; }
 
 .qcat {
+  flex: 0 0 calc((100% - 16px) / 5);
+  scroll-snap-align: start;
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   padding: 6px 2px 5px;
   min-width: 0;
@@ -162,7 +177,7 @@ body {
    ========================================================================= */
 .dock {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
+  left: 0; right: 0; top: 0; bottom: 0;
   z-index: 20;
   display: flex; flex-direction: column; justify-content: flex-end;
   gap: 8px;
@@ -374,11 +389,31 @@ body {
 .tl__in:focus { outline: none; }
 .tl__in:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(138,180,248,.6); }
 
-.tl__val {
-  flex: none; min-width: 78px; text-align: right;
-  font-size: 10.5px; font-variant-numeric: tabular-nums;
-  color: rgba(255,255,255,.85);
+/* Birth-year marker, shown while a person is open. */
+.tl__pin {
+  position: absolute; top: 50%;
+  width: 3px; height: 16px; margin-left: -1.5px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: #FDD663;
+  box-shadow: 0 0 0 3px rgba(253,214,99,.25), 0 1px 4px rgba(0,0,0,.5);
+  pointer-events: none;
 }
+
+.tl__val {
+  flex: none; text-align: right;
+  min-width: 84px;
+  font-size: 12px; font-weight: 500; letter-spacing: .01em;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+/* Date-of-birth mode: the readout is the point of the bar, so it leads. */
+.tl.is-dob { opacity: 1; background: rgba(18,19,22,.78); border-color: rgba(253,214,99,.35); }
+.tl.is-dob .tl__label { color: #FDD663; }
+.tl.is-dob .tl__val { min-width: 118px; font-size: 13px; color: #FDD663; }
+.tl.is-dob .tl__in { pointer-events: none; }
+.tl.is-dob .tl__in::-webkit-slider-thumb { background: #FDD663; }
+.tl.is-dob .tl__in::-moz-range-thumb { background: #FDD663; }
 .tl__x {
   flex: none;
   width: 22px; height: 22px; display: grid; place-items: center;
@@ -390,26 +425,37 @@ body {
 .tl__x:hover { background: rgba(255,255,255,.14); color: #fff; }
 
 /* =========================================================================
-   PERSON POPUP — opens in the dock, right where the list was
+   PERSON POPUP — opens in the dock, right where the list was.
+   Smoked glass: the globe stays legible behind it.
    ========================================================================= */
 .pop {
-  background: var(--panel);
-  border-radius: 14px;
-  box-shadow: var(--sh-2);
+  background: rgba(16,18,24,.62);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255,255,255,.14);
+  color: #f1f3f4;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.45), 0 12px 36px rgba(0,0,0,.5);
   overflow: hidden;
   display: flex; flex-direction: column;
-  max-height: 68vh;
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 82%;
   animation: pop-in .18s var(--ease);
 }
 @keyframes pop-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
-.pop__hero { position: relative; height: 132px; flex: none; background: var(--field-color, var(--chrome)); overflow: hidden; }
+.pop__hero {
+  position: relative; height: 168px; flex: none;
+  background: color-mix(in srgb, var(--field-color, #202124) 45%, transparent);
+  overflow: hidden;
+}
 .pop__img {
   position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover;
   opacity: 0; transition: opacity .25s var(--ease);
 }
-.pop__img.is-loaded { opacity: 1; }
+.pop__img.is-loaded { opacity: .92; }
 .pop__img.is-broken { display: none; }
 .pop__scrim {
   position: absolute; inset: 0;
@@ -435,10 +481,60 @@ body {
 .pop__body {
   flex: 1; min-height: 0; overflow-y: auto;
   padding: 12px 14px 18px;
-  scrollbar-width: thin; scrollbar-color: #cdd1d5 transparent;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.28) transparent;
 }
 .pop__body::-webkit-scrollbar { width: 7px; }
-.pop__body::-webkit-scrollbar-thumb { background: #cdd1d5; border-radius: 4px; }
+.pop__body::-webkit-scrollbar-thumb { background: rgba(255,255,255,.28); border-radius: 4px; }
+
+/* ---------- glass-surface treatment for everything inside the popup ---------- */
+.pop .kfact {
+  background: rgba(255,255,255,.10);
+  color: rgba(255,255,255,.82);
+  font-size: 11.5px;
+}
+.pop .kfact .ico { color: rgba(255,255,255,.6); }
+/* The birth date is the headline fact — give it the weight to match. */
+.pop .kfact:first-child {
+  background: rgba(253,214,99,.16);
+  border: 1px solid rgba(253,214,99,.35);
+  color: #FDD663;
+  font-size: 12.5px; font-weight: 500;
+  padding: 5px 12px;
+}
+.pop .kfact:first-child .ico { color: #FDD663; }
+.pop .kfact--link { color: var(--blue-dark); }
+.pop .kfact--link .ico { color: var(--blue-dark); }
+.pop .kfact--link:hover { background: rgba(138,180,248,.2); }
+
+.pop .kgiven { background: rgba(255,255,255,.07); }
+.pop .kgiven__l { color: rgba(255,255,255,.5); }
+.pop .kgiven__n { color: #f1f3f4; }
+
+.pop .kcard__bio { color: rgba(255,255,255,.86); }
+
+.pop .btn--out { border-color: rgba(255,255,255,.25); color: var(--blue-dark); }
+.pop .btn--out:hover { background: rgba(138,180,248,.16); }
+.pop .kask__input {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.2);
+  color: #fff;
+}
+.pop .kask__input::placeholder { color: rgba(255,255,255,.45); }
+.pop .kask__input:focus { border-color: var(--blue-dark); }
+.pop .kask__err { color: rgba(255,255,255,.6); }
+.pop .kask__ans { background: rgba(255,255,255,.08); color: rgba(255,255,255,.9); }
+
+.pop .kdl dt { color: rgba(255,255,255,.5); }
+.pop .tag { background: rgba(255,255,255,.11); color: rgba(255,255,255,.9); }
+.pop .tag em { color: rgba(255,255,255,.55); }
+.pop .tag--ghost { background: rgba(255,255,255,.06); color: rgba(255,255,255,.7); }
+
+.pop .ksim { border-top-color: rgba(255,255,255,.14); }
+.pop .ksim__h { color: rgba(255,255,255,.5); }
+.pop .ksim__row:hover { background: rgba(255,255,255,.08); }
+.pop .ksim__n { color: rgba(255,255,255,.9); }
+.pop .ksim__row:hover .ksim__n { color: var(--blue-dark); }
+.pop .ksim__m { color: rgba(255,255,255,.5); }
 
 .kcard__facts { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
 .kfact {
@@ -613,8 +709,8 @@ body {
 
 /* Short canvases: trim the popup so the search line never gets pushed off. */
 @media (max-height: 620px) {
-  .pop { max-height: 60vh; }
-  .pop__hero { height: 108px; }
+  .pop { max-height: 78%; }
+  .pop__hero { height: 120px; }
   .attrib { display: none; }
 }
 

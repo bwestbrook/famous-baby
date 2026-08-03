@@ -647,19 +647,52 @@ const app = createApp({
     const refineCount = computed(() => typeFilterCount.value + timeFilterCount.value);
 
     // ---- Quick-category strip (top of the map) ----
-    // Five field shortcuts visible at a time; arrows page through the rest.
-    const CATS_PER_PAGE = 5;
-    const catStart = ref(0);
-    const catMaxStart = Math.max(0, FIELDS.length - CATS_PER_PAGE);
-    const visibleFields = computed(() => FIELDS.slice(catStart.value, catStart.value + CATS_PER_PAGE));
-    const canCatPrev = computed(() => catStart.value > 0);
-    const canCatNext = computed(() => catStart.value < catMaxStart);
+    // All fields live in one horizontally scrolling track — five fit at a
+    // time. Touch/trackpad swipes it natively; the arrows page it; a mouse
+    // can drag it since there's no swipe gesture on a desktop pointer.
+    const catTrack = ref(null);
+    const canCatPrev = ref(false);
+    const canCatNext = ref(true);
+    function syncCatArrows() {
+      const el = catTrack.value;
+      if (!el) return;
+      canCatPrev.value = el.scrollLeft > 4;
+      canCatNext.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
+    }
     function catPage(dir) {
-      catStart.value = Math.max(0, Math.min(catStart.value + dir * CATS_PER_PAGE, catMaxStart));
+      const el = catTrack.value;
+      if (!el) return;
+      el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
+    }
+
+    // Mouse drag-to-scroll. Touch is left to the browser so momentum and
+    // scroll-snap behave natively.
+    let catDragging = false, catDownX = 0, catDownScroll = 0, catMoved = false;
+    let suppressCatClick = false;
+    function catPointerDown(e) {
+      if (e.pointerType === 'touch' || !catTrack.value) return;
+      catDragging = true;
+      catMoved = false;
+      catDownX = e.clientX;
+      catDownScroll = catTrack.value.scrollLeft;
+    }
+    function catPointerMove(e) {
+      if (!catDragging || !catTrack.value) return;
+      const dx = e.clientX - catDownX;
+      if (Math.abs(dx) > 4) catMoved = true;
+      catTrack.value.scrollLeft = catDownScroll - dx;
+    }
+    function catPointerUp() {
+      if (!catDragging) return;
+      catDragging = false;
+      // A drag shouldn't also select whatever chip was under the cursor.
+      suppressCatClick = catMoved;
+      setTimeout(() => { suppressCatClick = false; }, 0);
     }
     // Tapping a category filters by that field; the hits appear above the
     // search line on their own.
     function quickPick(f) {
+      if (suppressCatClick) return;
       toggleField(f);
       hitsExpanded.value = false;
     }
@@ -676,7 +709,12 @@ const app = createApp({
       };
       tick();
     }
-    onMounted(() => nextTick(() => ensureGlobe()));
+    onMounted(() => nextTick(() => {
+      ensureGlobe();
+      syncCatArrows();
+    }));
+    window.addEventListener('resize', syncCatArrows);
+    onUnmounted(() => window.removeEventListener('resize', syncCatArrows));
 
     function clearType() {
       selectedFields.value = [];
@@ -723,10 +761,10 @@ const app = createApp({
     const selectedPerson = ref(null);
     function openPerson(p) {
       selectedPerson.value = p;
-      // The camera follows the person to their birthplace — the Earth
-      // "knowledge card" gesture.
+      // The camera drops in on their birth country and the spin stops, so the
+      // globe holds still while the card is up.
       refineOpen.value = false;
-      if (p && p.country) flyToCountry(p.country, 1.1);
+      if (p && p.country) flyToCountry(p.country, 0.55);
       // Reset the per-person Q&A state whenever a different person opens.
       askOpen.value = false;
       askInput.value = '';
@@ -734,7 +772,14 @@ const app = createApp({
       askError.value = '';
       askLoading.value = false;
     }
-    function closePerson() { selectedPerson.value = null; }
+    // Closing undoes the whole arrival: pull back out to the full globe, start
+    // it spinning again, and let the timeline off the birth year.
+    function closePerson() {
+      selectedPerson.value = null;
+      clearYears();
+      resetGlobeView();
+      globeRotating.value = true;
+    }
 
     // Touching any filter — typing, a category, the timeline, a country, the
     // heart — puts the three-name list back in front of the user. If a card
@@ -1011,6 +1056,24 @@ const app = createApp({
       yearMin.value = YEAR_FLOOR;
       yearMax.value = YEAR_CEIL;
     }
+    // While a person is open the scrubber stops reporting the filter range and
+    // snaps to their date of birth instead — both handles collapse onto the
+    // year and the readout shows the full date. It's a display state: the
+    // underlying year filter is untouched until the user drags a handle.
+    const pctForYear = (y) => ((y - YEAR_FLOOR) / (YEAR_CEIL - YEAR_FLOOR)) * 100;
+    const tlMin = computed(() => selectedPerson.value ? selectedPerson.value.birthYear : yearMin.value);
+    const tlMax = computed(() => selectedPerson.value ? selectedPerson.value.birthYear : yearMax.value);
+    const tlMinPct = computed(() => pctForYear(tlMin.value));
+    const tlMaxPct = computed(() => pctForYear(tlMax.value));
+    const tlBirthPct = computed(() =>
+      selectedPerson.value ? pctForYear(selectedPerson.value.birthYear) : 0
+    );
+    const tlLabel = computed(() =>
+      selectedPerson.value
+        ? (formatBirthDate(selectedPerson.value) || 'b. ' + selectedPerson.value.birthYear)
+        : `${yearMin.value} – ${yearMax.value}`
+    );
+
     // Century ticks across the rail; every other one carries a label so the
     // scale reads without crowding.
     const YEAR_TICKS = (() => {
@@ -1090,11 +1153,13 @@ const app = createApp({
       FIELDS, GENDERS, FIELD_COLORS, today, PEOPLE_COUNT: PEOPLE.length, HITS_LIMIT,
       colorForField, iconForField,
       // quick categories
-      visibleFields, canCatPrev, canCatNext, catPage, quickPick,
+      catTrack, canCatPrev, canCatNext, catPage, quickPick, syncCatArrows,
+      catPointerDown, catPointerMove, catPointerUp,
       // computed
       filtered, availableSubfields, similarForSelected,
       favoritePeople, countryList, countryMax,
       showResults, yearsActive, clearYears, YEAR_TICKS,
+      tlMin, tlMax, tlMinPct, tlMaxPct, tlBirthPct, tlLabel,
       activeFilters, hasActiveFilters,
       // selection helpers (templates)
       isFieldSelected, isSubfieldSelected, isGenderSelected,
