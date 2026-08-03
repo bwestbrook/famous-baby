@@ -7,6 +7,9 @@
   <meta name="description" content="An almanac for naming. Search famous people by anything except their name." />
   <meta name="theme-color" content="#202124" />
 
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./favicon.svg" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -93,6 +96,7 @@
       <symbol id="i-spark" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25z"/></symbol>
       <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></symbol>
       <symbol id="i-food" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></symbol>
+      <symbol id="i-avatar" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-3.33 0-8 1.67-8 4v2h16v-2c0-2.33-4.67-4-8-4z"/></symbol>
       <symbol id="i-info" viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></symbol>
     </defs>
   </svg>
@@ -131,12 +135,12 @@
           @pointerleave="catPointerUp"
         >
           <button
-            v-for="f in FIELDS"
+            v-for="f in orderedFields"
             :key="f"
             class="qcat"
             :class="{ 'is-on': isFieldSelected(f) }"
             @click="quickPick(f)"
-            :title="f"
+            :title="f + ' — ' + countForField(f) + ' names'"
           >
             <svg class="ico ico--18 qcat__ico"><use :href="'#' + iconForField(f)"/></svg>
             <span class="qcat__label">{{ f }}</span>
@@ -151,7 +155,7 @@
            Quiet at rest, full strength on approach or while a range is set. -->
       <div class="tl-wrap">
         <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
-          <span class="tl__label">{{ selectedPerson ? 'Born' : 'Timeline' }}</span>
+          <span v-if="selectedPerson" class="tl__label">Born</span>
           <div class="tl__track">
             <div class="tl__ticks">
               <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }">
@@ -187,9 +191,6 @@
         </button>
         <button class="mapctl__btn" @click="resetGlobeView" title="Reset view">
           <svg class="ico ico--16"><use href="#i-compass"/></svg>
-        </button>
-        <button class="mapctl__btn" @click="surpriseMe" :disabled="!filtered.length" title="Open a random name">
-          <svg class="ico ico--16"><use href="#i-dice"/></svg>
         </button>
         <div class="mapctl__stack">
           <button class="mapctl__btn mapctl__btn--l" @click="zoomGlobe(1)" title="Zoom out">
@@ -282,6 +283,11 @@
         aria-modal="false"
       >
         <div class="pop__hero">
+          <!-- Stands in until (or unless) a photo loads. -->
+          <div class="pop__ph">
+            <svg class="ico pop__ph-ico"><use href="#i-avatar"/></svg>
+            <span class="pop__ph-label">No photo yet</span>
+          </div>
           <img
             class="pop__img"
             :src="'./photos/' + selectedPerson.id + '.jpg'"
@@ -317,6 +323,27 @@
               <svg class="ico ico--14"><use href="#i-star"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
             </span>
           </div>
+
+          <!-- Where they're from, at a glance -->
+          <button
+            v-if="miniLand"
+            class="minimap"
+            @click="pickCountry(selectedPerson.country)"
+            :title="'See names from ' + selectedPerson.country"
+          >
+            <svg class="minimap__svg" viewBox="0 0 360 180" preserveAspectRatio="xMidYMid meet">
+              <path class="minimap__land" :d="miniLand"/>
+              <path v-if="miniHighlight" class="minimap__hl" :d="miniHighlight"/>
+              <g v-if="miniMarker">
+                <circle class="minimap__halo" :cx="miniMarker.x" :cy="miniMarker.y" r="7"/>
+                <circle class="minimap__dot" :cx="miniMarker.x" :cy="miniMarker.y" r="2.6"/>
+              </g>
+            </svg>
+            <span class="minimap__cap">
+              <svg class="ico ico--12"><use href="#i-public"/></svg>
+              {{ selectedPerson.birthPlace }}
+            </span>
+          </button>
 
           <div v-if="fullNameParts(selectedPerson)" class="kgiven">
             <span class="kgiven__l">Full name</span>
@@ -400,6 +427,14 @@
 
       <!-- ---------- SEARCH LINE — the last thing on screen ---------- -->
       <div class="sbar">
+        <button
+          class="sbar__btn sbar__btn--lucky"
+          @click="surpriseMe"
+          :disabled="!filtered.length"
+          title="Open a random name"
+        >
+          <svg class="ico ico--18"><use href="#i-dice"/></svg>
+        </button>
         <svg class="ico ico--18 sbar__ico"><use href="#i-search"/></svg>
         <input
           class="sbar__input"

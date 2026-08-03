@@ -516,6 +516,48 @@ const app = createApp({
       pickCountry(entry.country);
     }
 
+    // ---- Mini-map (person card) ----
+    // Same outlines the globe uses, flattened to an equirectangular SVG so a
+    // card can show where its person is from without a second dataset.
+    const MINI_W = 360, MINI_H = 180;
+    const worldFeatures = ref([]);
+    const miniProject = (lng, lat) => [
+      (lng + 180) / 360 * MINI_W,
+      (90 - lat) / 180 * MINI_H,
+    ];
+    function ringPath(ring) {
+      let d = '';
+      for (let i = 0; i < ring.length; i++) {
+        const [x, y] = miniProject(ring[i][0], ring[i][1]);
+        d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+      }
+      return d + 'Z';
+    }
+    function featurePath(f) {
+      const g = f && f.geometry;
+      if (!g) return '';
+      const polys = g.type === 'Polygon' ? [g.coordinates]
+                  : g.type === 'MultiPolygon' ? g.coordinates
+                  : [];
+      return polys.map(poly => poly.map(ringPath).join('')).join('');
+    }
+    // All land as one path — computed once, then cached by Vue.
+    const miniLand = computed(() => worldFeatures.value.map(featurePath).join(''));
+    const miniHighlight = computed(() => {
+      const p = selectedPerson.value;
+      if (!p) return '';
+      const f = worldFeatures.value.find(ft => geoCountryName(ft) === p.country);
+      return f ? featurePath(f) : '';
+    });
+    const miniMarker = computed(() => {
+      const p = selectedPerson.value;
+      if (!p) return null;
+      const c = COUNTRY_COORDS[p.country];
+      if (!c) return null;
+      const [x, y] = miniProject(c[1], c[0]);
+      return { x, y };
+    });
+
     // Fetch + attach the outlines. Failure is non-fatal: the globe still
     // renders, just without borders.
     async function loadCountryPolygons() {
@@ -524,6 +566,7 @@ const app = createApp({
         const topo = await res.json();
         if (!window.topojson) throw new Error('topojson-client did not load');
         const features = window.topojson.feature(topo, topo.objects.countries).features;
+        worldFeatures.value = features;   // also feeds the card's mini-map
         if (!globeInstance) return;
         globeInstance
           .polygonsData(features)
@@ -650,6 +693,18 @@ const app = createApp({
     // All fields live in one horizontally scrolling track — five fit at a
     // time. Touch/trackpad swipes it natively; the arrows page it; a mouse
     // can drag it since there's no swipe gesture on a desktop pointer.
+    // Strip order follows depth of coverage — the fields with the most names
+    // lead, so the first screen is the richest.
+    const fieldCounts = (() => {
+      const m = new Map(FIELDS.map(f => [f, 0]));
+      for (const p of PEOPLE) if (m.has(p.field)) m.set(p.field, m.get(p.field) + 1);
+      return m;
+    })();
+    const countForField = (f) => fieldCounts.get(f) || 0;
+    const orderedFields = [...FIELDS].sort(
+      (a, b) => countForField(b) - countForField(a) || a.localeCompare(b)
+    );
+
     const catTrack = ref(null);
     const canCatPrev = ref(false);
     const canCatNext = ref(true);
@@ -1159,6 +1214,7 @@ const app = createApp({
       colorForField, iconForField,
       // quick categories
       catTrack, canCatPrev, canCatNext, catPage, quickPick, syncCatArrows,
+      orderedFields, countForField,
       catPointerDown, catPointerMove, catPointerUp,
       // computed
       filtered, availableSubfields, similarForSelected,
@@ -1175,6 +1231,7 @@ const app = createApp({
       bornTodayActive, toggleBornToday,
       selectedCountry, clearCountry, globeData, globeRotating, toggleGlobeRotation, zoomGlobe,
       pickCountry, flyToCountry, resetGlobeView,
+      miniLand, miniHighlight, miniMarker,
       selectedBornMonth, selectedBornDay,
       setBornMonth, clearBornFilters,
       MONTH_NAMES, zodiacFor, formatBirthDate, daysInMonth,
