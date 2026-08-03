@@ -716,6 +716,11 @@ const app = createApp({
     window.addEventListener('resize', syncCatArrows);
     onUnmounted(() => window.removeEventListener('resize', syncCatArrows));
 
+    // Just the category strip's selections — genders and everything else stay.
+    function clearCategories() {
+      selectedFields.value = [];
+      selectedSubfields.value = [];
+    }
     function clearType() {
       selectedFields.value = [];
       selectedSubfields.value = [];
@@ -1176,7 +1181,7 @@ const app = createApp({
       surpriseMe,
       // dock
       hitsExpanded, visibleHits, refineOpen, refineCount,
-      clearType, clearTime, typeFilterCount, timeFilterCount,
+      clearType, clearTime, clearCategories, typeFilterCount, timeFilterCount,
       toggleField, toggleSubfield, toggleGender,
       openPerson, closePerson, toggleTheme,
       // ask-a-question

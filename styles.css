@@ -148,14 +148,25 @@ body {
 .qcat.is-on { background: var(--blue); color: #fff; }
 .qcat.is-on .qcat__ico { color: #fff; }
 
-/* ---------- map controls, top-right ---------- */
-.mapctl {
-  position: absolute;
-  right: 10px; top: 132px;
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
-  z-index: 3;
+/* ---------- clear-categories row ---------- */
+.qclear-row { display: flex; justify-content: flex-end; }
+.qclear {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 12px;
+  background: rgba(18,19,22,.62);
+  border: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(6px);
+  color: #d7e3ff;
+  font-size: 11px; font-weight: 500;
 }
-.mapctl__stack { display: flex; flex-direction: column; gap: 1px; }
+.qclear:hover { background: rgba(40,42,48,.88); color: #fff; }
+
+/* ---------- map controls — horizontal row under the timeline ---------- */
+.mapctl {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+}
+.mapctl__stack { display: flex; gap: 1px; }
 .mapctl__btn {
   width: 32px; height: 32px;
   display: grid; place-items: center;
@@ -168,8 +179,8 @@ body {
 }
 .mapctl__btn:hover { background: rgba(48,49,52,.92); color: #fff; }
 .mapctl__btn:disabled { opacity: .4; cursor: default; }
-.mapctl__btn--top    { border-radius: 16px 16px 4px 4px; }
-.mapctl__btn--bottom { border-radius: 4px 4px 16px 16px; }
+.mapctl__btn--l { border-radius: 16px 4px 4px 16px; }
+.mapctl__btn--r { border-radius: 4px 16px 16px 4px; }
 
 /* =========================================================================
    DOCK — the bottom stack. Nothing here is fixed-height; it grows upward
@@ -185,16 +196,6 @@ body {
   pointer-events: none;
 }
 .dock > * { pointer-events: auto; }
-
-.attrib {
-  display: flex; gap: 10px;
-  padding-left: 6px;
-  font-size: 10px; letter-spacing: .02em;
-  color: rgba(255,255,255,.5);
-  text-shadow: 0 1px 2px rgba(0,0,0,.8);
-  pointer-events: none;
-}
-.attrib span + span::before { content: '·'; margin-right: 10px; }
 
 /* ---------- search line — last thing on screen ---------- */
 .sbar {
@@ -711,7 +712,6 @@ body {
 @media (max-height: 620px) {
   .pop { max-height: 78%; }
   .pop__hero { height: 120px; }
-  .attrib { display: none; }
 }
 
 [v-cloak] { visibility: hidden; }

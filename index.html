@@ -103,8 +103,16 @@
     <main class="map">
       <div id="globe-canvas" class="map__globe"></div>
 
-      <!-- ---------- TOP STACK — categories, then the timeline ---------- -->
+      <!-- ---------- TOP STACK — categories, timeline, map controls ---------- -->
       <div class="topstack">
+
+      <!-- Clear the category strip; only present when something is picked. -->
+      <div v-if="selectedFields.length || selectedSubfields.length" class="qclear-row">
+        <button class="qclear" @click="clearCategories">
+          <svg class="ico ico--12"><use href="#i-close"/></svg>
+          Clear {{ selectedFields.length + selectedSubfields.length }} {{ (selectedFields.length + selectedSubfields.length) === 1 ? 'category' : 'categories' }}
+        </button>
+      </div>
 
       <!-- Five field shortcuts at a time; the arrows page through the rest so
            the strip never has to wrap or scroll on a narrow canvas. -->
@@ -172,9 +180,7 @@
         </div>
       </div>
 
-      </div><!-- /.topstack -->
-
-      <!-- Map controls, top-right under the top stack -->
+      <!-- Map controls — one horizontal row, right under the timeline -->
       <div class="mapctl">
         <button class="mapctl__btn" @click="toggleGlobeRotation" :title="globeRotating ? 'Stop rotation' : 'Rotate globe'">
           <svg class="ico ico--16"><use :href="globeRotating ? '#i-pause' : '#i-play'"/></svg>
@@ -186,27 +192,23 @@
           <svg class="ico ico--16"><use href="#i-dice"/></svg>
         </button>
         <div class="mapctl__stack">
-          <button class="mapctl__btn mapctl__btn--top" @click="zoomGlobe(-1)" title="Zoom in">
+          <button class="mapctl__btn mapctl__btn--l" @click="zoomGlobe(-1)" title="Zoom in">
             <svg class="ico ico--16"><use href="#i-plus"/></svg>
           </button>
-          <button class="mapctl__btn mapctl__btn--bottom" @click="zoomGlobe(1)" title="Zoom out">
+          <button class="mapctl__btn mapctl__btn--r" @click="zoomGlobe(1)" title="Zoom out">
             <svg class="ico ico--16"><use href="#i-minus"/></svg>
           </button>
         </div>
       </div>
+
+      </div><!-- /.topstack -->
     </main>
 
     <!-- ============== BOTTOM DOCK ==============
          Everything the user drives sits here, stacked upward from the bottom
-         edge: attribution, timeline, results (3 at a time) or the person
-         popup, and the search line pinned last. -->
+         edge: filter chips, results (3 at a time) or the person popup, and
+         the search line pinned last. -->
     <div class="dock">
-
-      <div class="attrib">
-        <span>{{ PEOPLE_COUNT }} names</span>
-        <span v-if="selectedCountry">{{ selectedCountry }}</span>
-        <span>NASA Blue Marble</span>
-      </div>
 
       <!-- ---------- ACTIVE FILTERS ---------- -->
       <div v-if="hasActiveFilters && !selectedPerson" class="chiprow">
