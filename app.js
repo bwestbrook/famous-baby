@@ -828,19 +828,9 @@ const app = createApp({
           .polygonCapColor(polyCapColor)
           .polygonAltitude(polyAltitude)
           .polygonsTransitionDuration(200)
-          .polygonLabel(d => {
-            const e = polyEntry(d);
-            const title = geoCountryName(d);
-            const line = e
-              ? `<span style="color:#5f6368">${e.count} ${e.count === 1 ? 'name' : 'names'}</span>` +
-                `<br/><span style="color:#80868b;font-size:11px">${e.sample.slice(0,3).join(' · ')}` +
-                `${e.count > 3 ? ` · +${e.count - 3} more` : ''}</span>`
-              : `<span style="color:#80868b">no names yet</span>`;
-            return `<div style="background:#fff;color:#202124;padding:7px 10px;border-radius:8px;` +
-              `box-shadow:0 1px 3px rgba(0,0,0,.3),0 4px 8px 3px rgba(0,0,0,.15);` +
-              `font-family:Roboto,sans-serif;font-size:12px;line-height:1.35;max-width:220px">` +
-              `<strong style="font-weight:500">${title}</strong><br/>${line}</div>`;
-          })
+          // No hover tooltip: the country lights up under the cursor, which is
+          // all the feedback the globe needs.
+          .polygonLabel(() => '')
           .onPolygonClick(handlePolygonClick)
           .onPolygonHover(d => {
             hoveredPoly.value = d || null;
@@ -983,11 +973,20 @@ const app = createApp({
     const STORAGE_NAMEMODE = 'fb-namemode-v1';
     const nameMode = ref((() => {
       try { return localStorage.getItem(STORAGE_NAMEMODE) || 'first'; } catch { return 'first'; }
-    })());                                   // 'first' | 'last'
+    })());                                   // 'first' | 'middle' | 'last'
     watch(nameMode, (v) => { try { localStorage.setItem(STORAGE_NAMEMODE, v); } catch {} });
+    function middleNameOf(person) {
+      return String((person && person.middleName) || '').trim();
+    }
     function nameKey(person) {
       const full = String((person && person.name) || '');
-      return (nameMode.value === 'last' ? surnameOf(person) + ' ' + full : full).toLowerCase();
+      if (nameMode.value === 'last') return (surnameOf(person) + ' ' + full).toLowerCase();
+      if (nameMode.value === 'middle') {
+        // \uffff sorts after every letter, so the many people we have no
+        // middle name for collect at the end instead of salting the A\u2013Z run.
+        return ((middleNameOf(person) || '\uffff') + ' ' + full).toLowerCase();
+      }
+      return full.toLowerCase();
     }
     // Strip accents before bucketing, so Ángel files under A and not somewhere
     // past Z. Anything that still isn't a letter goes to '#'.
@@ -1015,9 +1014,9 @@ const app = createApp({
     });
 
     // ---- Letter dial ----
-    // A combination-lock dial rather than a row of 26 tap targets: swipe it
-    // left or right and whichever letter lands under the notch is the one the
-    // list jumps to. Letters nobody files under still ride past, greyed, so
+    // A combination-lock dial rather than 26 tap targets: it rides down the
+    // right edge of the list like a scrollbar, and whichever letter lands in
+    // the notch is the one the list jumps to. Letters nobody files under still ride past, greyed, so
     // the alphabet never changes length under your thumb.
     const dialTrack = ref(null);
     const dialLetter = ref('A');
@@ -1027,15 +1026,15 @@ const app = createApp({
       const el = dialTrack.value;
       if (!el) return 0;
       const first = el.querySelector('.dial__l');
-      return first ? first.getBoundingClientRect().width : 0;
+      return first ? first.getBoundingClientRect().height : 0;
     }
-    // The pads either side are exactly half a viewport minus half a cell, so
-    // the centred index falls out as scrollLeft / cellWidth.
+    // The pads above and below are half a viewport minus half a cell, so
+    // the centred index falls out as scrollTop / cellHeight.
     function onDialScroll() {
       const el = dialTrack.value;
       const cell = dialCell();
       if (!el || !cell) return;
-      const i = Math.max(0, Math.min(AZ.length - 1, Math.round(el.scrollLeft / cell)));
+      const i = Math.max(0, Math.min(AZ.length - 1, Math.round(el.scrollTop / cell)));
       dialLetter.value = AZ[i];
       clearTimeout(dialSettle);
       dialSettle = setTimeout(() => {
@@ -1046,7 +1045,7 @@ const app = createApp({
       const el = dialTrack.value;
       const cell = dialCell();
       if (!el || !cell) return;
-      el.scrollTo({ left: AZ.indexOf(L) * cell, behavior });
+      el.scrollTo({ top: AZ.indexOf(L) * cell, behavior });
     }
 
     // A new filter is a new alphabet: park the dial on the first letter the
@@ -1067,19 +1066,19 @@ const app = createApp({
     }
 
     // A mouse has no swipe, so it drags the dial instead.
-    let dialDrag = false, dialDownX = 0, dialDownScroll = 0, dialMoved = false;
+    let dialDrag = false, dialDownY = 0, dialDownScroll = 0, dialMoved = false;
     let suppressDialClick = false;
     function dialPointerDown(e) {
       if (e.pointerType === 'touch' || !dialTrack.value) return;
       dialDrag = true; dialMoved = false;
-      dialDownX = e.clientX;
-      dialDownScroll = dialTrack.value.scrollLeft;
+      dialDownY = e.clientY;
+      dialDownScroll = dialTrack.value.scrollTop;
     }
     function dialPointerMove(e) {
       if (!dialDrag || !dialTrack.value) return;
-      const dx = e.clientX - dialDownX;
-      if (Math.abs(dx) > 4) dialMoved = true;
-      dialTrack.value.scrollLeft = dialDownScroll - dx;
+      const dy = e.clientY - dialDownY;
+      if (Math.abs(dy) > 4) dialMoved = true;
+      dialTrack.value.scrollTop = dialDownScroll - dy;
     }
     function dialPointerUp() {
       if (!dialDrag) return;
@@ -1792,12 +1791,12 @@ const app = createApp({
       clearType, clearTime, clearCategories, typeFilterCount, timeFilterCount,
       toggleField, toggleSubfield, toggleGender,
       openPerson, closePerson, toggleTheme,
-      hasPerson, openOrSearch, searchFor, filterZodiac,
+      hasPerson, personByName, openOrSearch, searchFor, filterZodiac,
       // ask-a-question
       askOpen, askInput, askAnswer, askError, askLoading,
       toggleAsk, submitAsk,
       // display helpers
-      metaPills, tagsFor, fullNameParts, fullNameOf, rowMeta,
+      metaPills, tagsFor, fullNameParts, fullNameOf, middleNameOf, rowMeta,
     };
   },
 });

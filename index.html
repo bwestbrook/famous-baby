@@ -67,7 +67,7 @@
       <symbol id="i-public" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41C17.92 5.77 20 8.65 20 12c0 2.08-.8 3.97-2.1 5.39z"/></symbol>
       <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol>
       <!-- Crossing arrows — the universal "random", clearer than a die. -->
-      <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></symbol>
+      <symbol id="i-face" viewBox="0 0 24 24"><path d="M9 11.75a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5zm6 0a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-.29.02-.58.05-.86 2.36-1.05 4.23-2.98 5.21-5.37C11.07 8.33 14.05 10 17.42 10c.78 0 1.53-.09 2.25-.26.21.71.33 1.47.33 2.26 0 4.41-3.59 8-8 8z"/></symbol>
       <symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
       <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></symbol>
       <symbol id="i-plus" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></symbol>
@@ -262,38 +262,17 @@
       <div v-if="showResults && !selectedPerson" class="hits" :class="{ 'is-expanded': hitsExpanded }">
         <!-- Name order + A–Z jump. Only earns its space once the list scrolls. -->
         <div v-if="filtered.length > HITS_LIMIT" class="hitbar">
+          <!-- Three names now, so the labels drop the word "name" to leave the
+               dial its room. -->
           <div class="hitbar__mode">
-            <button :class="{ 'is-on': nameMode === 'first' }" @click="setNameMode('first')">First name</button>
-            <button :class="{ 'is-on': nameMode === 'last' }" @click="setNameMode('last')">Last name</button>
-          </div>
-          <!-- Letter dial: swipe it, and whatever stops under the notch wins. -->
-          <div class="dialwrap">
-            <div
-              class="dial"
-              ref="dialTrack"
-              @scroll.passive="onDialScroll"
-              @pointerdown="dialPointerDown"
-              @pointermove="dialPointerMove"
-              @pointerup="dialPointerUp"
-              @pointercancel="dialPointerUp"
-              @pointerleave="dialPointerUp"
-            >
-              <span class="dial__pad" aria-hidden="true"></span>
-              <button
-                v-for="L in AZ"
-                :key="L"
-                class="dial__l"
-                :class="{ 'is-off': !hitLetters.has(L), 'is-sel': dialLetter === L }"
-                :title="'Jump to ' + L"
-                @click="onDialClick(L)"
-              >{{ L }}</button>
-              <span class="dial__pad" aria-hidden="true"></span>
-            </div>
-            <span class="dial__notch" aria-hidden="true"></span>
+            <button :class="{ 'is-on': nameMode === 'first' }" @click="setNameMode('first')" title="Sort by first name">First</button>
+            <button :class="{ 'is-on': nameMode === 'middle' }" @click="setNameMode('middle')" title="Sort by middle name">Middle</button>
+            <button :class="{ 'is-on': nameMode === 'last' }" @click="setNameMode('last')" title="Sort by last name">Last</button>
           </div>
         </div>
 
-        <ol v-if="filtered.length" class="hits__list" ref="hitsList">
+        <div v-if="filtered.length" class="hitsbody">
+        <ol class="hits__list" ref="hitsList">
           <li
             v-for="r in visibleHits"
             :key="r.person.id"
@@ -326,6 +305,32 @@
             </button>
           </li>
         </ol>
+          <!-- Letter dial: swipe it, and whatever stops under the notch wins. -->
+          <div class="dialwrap">
+            <div
+              class="dial"
+              ref="dialTrack"
+              @scroll.passive="onDialScroll"
+              @pointerdown="dialPointerDown"
+              @pointermove="dialPointerMove"
+              @pointerup="dialPointerUp"
+              @pointercancel="dialPointerUp"
+              @pointerleave="dialPointerUp"
+            >
+              <span class="dial__pad" aria-hidden="true"></span>
+              <button
+                v-for="L in AZ"
+                :key="L"
+                class="dial__l"
+                :class="{ 'is-off': !hitLetters.has(L), 'is-sel': dialLetter === L }"
+                :title="'Jump to ' + L"
+                @click="onDialClick(L)"
+              >{{ L }}</button>
+              <span class="dial__pad" aria-hidden="true"></span>
+            </div>
+            <span class="dial__notch" aria-hidden="true"></span>
+          </div>
+        </div>
 
         <div v-else class="hits__none">
           <span>No matches</span>
@@ -451,11 +456,11 @@
             <svg class="ico ico--18"><use :href="isFavorite(selectedPerson) ? '#i-heart' : '#i-heart-o'"/></svg>
           </button>
           <div class="pop__titles">
-            <h2 class="pop__name">{{ fullNameOf(selectedPerson) }}</h2>
-            <div v-if="selectedPerson.stageName" class="pop__alias">known as {{ selectedPerson.stageName }}</div>
-            <div class="pop__sub">
-              <span>{{ formatBirthDate(selectedPerson) }}</span>
-              <!-- Sign sits with the date and filters the roster to itself. -->
+            <!-- Name, middle name, birth date and sign all on one line. -->
+            <div class="pop__line">
+              <h2 class="pop__name">{{ selectedPerson.name }}</h2>
+              <span v-if="middleNameOf(selectedPerson)" class="pop__middle">{{ middleNameOf(selectedPerson) }}</span>
+              <span class="pop__date">{{ formatBirthDate(selectedPerson) }}</span>
               <button
                 v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
                 class="pop__sign"
@@ -465,113 +470,7 @@
                 <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
               </button>
             </div>
-          </div>
-        </div>
-
-        <div class="pop__body">
-          <p class="kcard__bio">{{ selectedPerson.bio }}</p>
-
-          <div class="kask">
-            <button class="btn btn--out" @click="toggleAsk" :aria-expanded="askOpen ? 'true' : 'false'">
-              {{ askOpen ? 'Cancel' : 'Ask about ' + selectedPerson.name.split(' ')[0] }}
-            </button>
-            <div v-if="askOpen" class="kask__panel">
-              <form class="kask__form" @submit.prevent="submitAsk">
-                <input type="text" class="kask__input" v-model="askInput"
-                       placeholder="e.g. What was their biggest moment?" :disabled="askLoading" maxlength="200" />
-                <button type="submit" class="btn btn--fill" :disabled="askLoading || !askInput.trim()">
-                  {{ askLoading ? '…' : 'Ask' }}
-                </button>
-              </form>
-              <p v-if="askError" class="kask__err">{{ askError }}</p>
-              <p v-if="askAnswer" class="kask__ans">{{ askAnswer }}</p>
-            </div>
-          </div>
-
-          <dl class="kdl">
-            <template v-if="selectedPerson.teams && selectedPerson.teams.length">
-              <dt>Teams</dt>
-              <dd><button
-                v-for="t in selectedPerson.teams"
-                :key="t.name"
-                class="tag"
-                @click="searchFor(t.name)"
-                :title="'Search ' + t.name"
-              >{{ t.name }}<em v-if="t.years"> · {{ t.years[0] }}–{{ t.years[1] }}</em></button></dd>
-            </template>
-            <template v-if="selectedPerson.awards && selectedPerson.awards.length">
-              <dt>Awards</dt>
-              <dd><button
-                v-for="a in selectedPerson.awards"
-                :key="a.name + a.year"
-                class="tag"
-                @click="searchFor(a.name)"
-                :title="'Search ' + a.name"
-              >{{ a.name }}<em v-if="a.year"> · {{ a.year }}</em></button></dd>
-            </template>
-            <template v-if="selectedPerson.collaborators && selectedPerson.collaborators.length">
-              <dt>With</dt>
-              <dd><button
-                v-for="c in selectedPerson.collaborators"
-                :key="c"
-                class="tag tag--ghost"
-                :class="{ 'is-linked': hasPerson(c) }"
-                @click="openOrSearch(c)"
-                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
-              >{{ c }}</button></dd>
-            </template>
-            <template v-if="selectedPerson.contemporaries && selectedPerson.contemporaries.length">
-              <dt>Contemporaries</dt>
-              <dd><button
-                v-for="c in selectedPerson.contemporaries"
-                :key="c"
-                class="tag tag--ghost"
-                :class="{ 'is-linked': hasPerson(c) }"
-                @click="openOrSearch(c)"
-                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
-              >{{ c }}</button></dd>
-            </template>
-            <template v-if="selectedPerson.friends && selectedPerson.friends.length">
-              <dt>Friends</dt>
-              <dd><button
-                v-for="c in selectedPerson.friends"
-                :key="c"
-                class="tag tag--ghost"
-                :class="{ 'is-linked': hasPerson(c) }"
-                @click="openOrSearch(c)"
-                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
-              >{{ c }}</button></dd>
-            </template>
-            <template v-if="selectedPerson.foes && selectedPerson.foes.length">
-              <dt>Foes</dt>
-              <dd><button
-                v-for="c in selectedPerson.foes"
-                :key="c"
-                class="tag tag--ghost"
-                :class="{ 'is-linked': hasPerson(c) }"
-                @click="openOrSearch(c)"
-                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
-              >{{ c }}</button></dd>
-            </template>
-          </dl>
-
-          <div v-if="similarForSelected.exact.length || similarForSelected.similar.length" class="ksim">
-            <div v-if="similarForSelected.exact.length">
-              <h3 class="ksim__h">Same first name</h3>
-              <button v-for="p in similarForSelected.exact" :key="p.id" class="ksim__row" @click="openPerson(p)">
-                <i class="ksim__dot" :style="{ background: colorForField(p.field) }"></i>
-                <span class="ksim__n">{{ p.name }}</span>
-                <span class="ksim__m">{{ p.field }} · b. {{ p.birthYear }}</span>
-              </button>
-            </div>
-            <div v-if="similarForSelected.similar.length">
-              <h3 class="ksim__h">Sounds similar</h3>
-              <button v-for="p in similarForSelected.similar" :key="p.id" class="ksim__row" @click="openPerson(p)">
-                <i class="ksim__dot" :style="{ background: colorForField(p.field) }"></i>
-                <span class="ksim__n">{{ p.name }}</span>
-                <span class="ksim__m">{{ p.field }} · b. {{ p.birthYear }}</span>
-              </button>
-            </div>
+            <div v-if="selectedPerson.stageName" class="pop__alias">known as {{ selectedPerson.stageName }}</div>
           </div>
         </div>
       </article>
@@ -635,7 +534,7 @@
           :disabled="!filtered.length"
           title="Open a random name"
         >
-          <svg class="ico ico--18"><use href="#i-shuffle"/></svg>
+          <svg class="ico ico--18"><use href="#i-face"/></svg>
         </button>
         <button
           class="sbar__btn"

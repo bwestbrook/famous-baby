@@ -357,53 +357,63 @@ body {
    settles under it is the jump target. Snap points keep it landing cleanly. */
 .dialwrap {
   position: relative;
-  flex: 1; min-width: 0;
-  height: var(--hitbar-h);
-  border-radius: 8px;
+  flex: none;
+  width: 26px;
+  border-radius: 0;
   background: rgba(255,255,255,.06);
   box-shadow: inset 0 1px 2px rgba(0,0,0,.5);
   overflow: hidden;
 }
 .dial {
-  display: flex; align-items: stretch;
+  display: flex; flex-direction: column; align-items: stretch;
   height: 100%;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
+  overflow-y: auto; overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
   scrollbar-width: none;
-  touch-action: pan-x;
+  touch-action: pan-y;
   cursor: grab;
   /* the faces at the rim curve away, like a real dial */
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent);
-          mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 26%, #000 74%, transparent);
+          mask-image: linear-gradient(to bottom, transparent, #000 26%, #000 74%, transparent);
 }
 .dial::-webkit-scrollbar { display: none; }
 .dial:active { cursor: grabbing; }
-/* Half a viewport each side, so the first and last letters can reach centre. */
-.dial__pad { flex: 0 0 calc(50% - 13px); }
+/* Half a viewport top and bottom, so A and Z can reach the notch. */
+.dial__pad { flex: 0 0 calc(50% - 8px); }
 
 .dial__l {
-  flex: 0 0 26px;
+  flex: 0 0 16px;                 /* one letter's pitch — matches dialCell() */
   scroll-snap-align: center;
   display: grid; place-items: center;
-  height: 100%; padding: 0;
-  font-size: 10px; font-weight: 300; line-height: 1.3;
+  width: 100%; padding: 0;
+  font-size: 9px; font-weight: 300; line-height: 1;
   font-variant-numeric: tabular-nums;
   color: rgba(255,255,255,.45);
   transition: color .12s var(--ease), transform .12s var(--ease), opacity .12s var(--ease);
 }
 .dial__l.is-off { color: rgba(255,255,255,.16); }
 /* Under the notch: bigger, brighter, and it stays legible even when empty. */
-.dial__l.is-sel { color: #fff; font-weight: 500; font-size: 13px; transform: scale(1.05); }
+.dial__l.is-sel { color: #fff; font-weight: 500; font-size: 11.5px; }
 .dial__l.is-sel.is-off { color: rgba(255,255,255,.35); }
 
 .dial__notch {
-  position: absolute; left: 50%; top: 0; bottom: 0;
-  width: 26px; margin-left: -13px;
-  border-left: 1px solid rgba(255,255,255,.28);
-  border-right: 1px solid rgba(255,255,255,.28);
+  position: absolute; top: 50%; left: 0; right: 0;
+  height: 16px; margin-top: -8px;
+  border-top: 1px solid rgba(255,255,255,.28);
+  border-bottom: 1px solid rgba(255,255,255,.28);
   background: rgba(255,255,255,.07);
   pointer-events: none;
+}
+
+/* List and its letter rail, side by side. */
+.hitsbody { display: flex; align-items: stretch; min-height: 0; }
+.hitsbody .hits__list { flex: 1; min-width: 0; }
+.hitsbody .dialwrap {
+  background: rgba(255,255,255,.05);
+  border-left: 1px solid rgba(255,255,255,.12);
+  box-shadow: none;
+  overflow: hidden;
 }
 
 .row {
@@ -655,16 +665,17 @@ body {
   color: #fff;
   background: linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.42));
 }
-.pop__name { margin: 0; font-size: 19px; font-weight: 500; line-height: 1.15; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
-.pop__sub {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+/* One line: name, middle name, date, sign — wrapping only if it must. */
+.pop__line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
+.pop__name { margin: 0; font-size: 18px; font-weight: 500; line-height: 1.15; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.pop__date {
   font-size: 12px; font-weight: 300; letter-spacing: .01em;
   color: #FDD663;
-  margin-top: 3px;
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
 }
 /* The sign rides beside the date, and filters to itself when tapped. */
 .pop__sign {
+  align-self: center;
   display: inline-flex; align-items: center; gap: 4px;
   padding: 2px 8px;
   border-radius: 11px;
@@ -776,7 +787,6 @@ body {
   border-radius: 6px; padding: 0 4px;
 }
 
-.pop .pop .pop 
 .pop .kcard__bio { color: #f1f3f4; }
 
 .pop .btn--out { border-color: rgba(255,255,255,.25); color: var(--blue-dark); }
@@ -796,13 +806,6 @@ body {
 .pop .tag em { color: rgba(255,255,255,.55); }
 .pop .tag--ghost { background: rgba(255,255,255,.06); color: rgba(255,255,255,.7); }
 
-.pop .ksim { border-top-color: rgba(255,255,255,.14); }
-.pop .ksim__h { color: rgba(255,255,255,.5); }
-.pop .ksim__row:hover { background: rgba(255,255,255,.08); }
-.pop .ksim__n { color: rgba(255,255,255,.9); }
-.pop .ksim__row:hover .ksim__n { color: var(--blue-dark); }
-.pop .ksim__m { color: rgba(255,255,255,.5); }
-
 .kcard__facts { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
 .kfact {
   display: inline-flex; align-items: center; gap: 5px;
@@ -818,7 +821,7 @@ body {
 
 .kcard__bio { margin: 0 0 12px; font-size: 12.5px; line-height: 1.6; color: #3c4043; }
 
-.kask { margin-bottom: 14px; }
+.kask { margin-top: 16px; margin-bottom: 0; }
 .kask__panel { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
 .kask__form { display: flex; gap: 6px; }
 .kask__input {
@@ -840,20 +843,6 @@ body {
 .tag { font-size: 10.5px; padding: 3px 8px; border-radius: 10px; background: var(--panel-2); color: var(--text); }
 .tag em { font-style: normal; color: var(--text-3); }
 .tag--ghost { background: var(--panel-3); color: var(--text-2); }
-
-.ksim { border-top: 1px solid var(--line-2); padding-top: 10px; display: grid; gap: 12px; }
-.ksim__h { margin: 0 0 4px; font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); }
-.ksim__row {
-  width: 100%;
-  display: grid; grid-template-columns: 7px minmax(0,1fr) auto;
-  align-items: center; gap: 8px;
-  padding: 5px 6px; border-radius: 6px; text-align: left;
-}
-.ksim__row:hover { background: var(--panel-3); }
-.ksim__dot { width: 7px; height: 7px; border-radius: 50%; }
-.ksim__n { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ksim__row:hover .ksim__n { color: var(--blue); }
-.ksim__m { font-size: 10px; color: var(--text-3); white-space: nowrap; }
 
 /* =========================================================================
    REFINE OVERLAY — everything that isn't text search
@@ -1064,6 +1053,12 @@ button.mrow:disabled { opacity: .4; cursor: default; background: none; }
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
   margin-top: 1px;
 }
+/* The middle name, unlabelled — it reads as part of the name block. */
+.pop__middle {
+  font-size: 13px; font-weight: 300; font-style: italic; letter-spacing: .015em;
+  color: rgba(255,255,255,.9);
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+}
 
 /* =========================================================================
    CALENDAR + STAR SIGNS (Advanced search)
@@ -1179,3 +1174,12 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
 }
 .mconfirm__q { margin: 0 0 10px; font-size: 12px; font-weight: 300; line-height: 1.5; color: rgba(255,255,255,.85); }
 .mconfirm__row { display: flex; justify-content: flex-end; gap: 6px; }
+
+/* A credited name is always a button to that person's card. Greyed and inert
+   when the roster doesn't have them yet. */
+.pop .tag:disabled {
+  color: rgba(255,255,255,.3);
+  background: rgba(255,255,255,.04);
+  cursor: default;
+}
+.pop .tag:disabled:hover { background: rgba(255,255,255,.04); color: rgba(255,255,255,.3); }
