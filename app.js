@@ -156,6 +156,16 @@ function zodiacFor(month, day) {
   if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return 'Sagittarius';
   return null;
 }
+// Each sign draws its own glyph from the sprite (#z-aries … #z-pisces).
+function zodiacIcon(sign) {
+  return sign ? '#z-' + sign.toLowerCase() : '#i-star';
+}
+// Wikipedia keeps every sign at "<Sign>_(astrology)" — the bare title is the
+// constellation, which isn't what a birth chip means.
+function zodiacWiki(sign) {
+  return sign ? 'https://en.wikipedia.org/wiki/' + sign + '_(astrology)' : '';
+}
+
 // How many days are in a given month (defaults to 31 for "any" pickers).
 // Doesn't need leap-year awareness — for a birthday picker, Feb 29 is valid.
 function daysInMonth(month) {
@@ -263,13 +273,13 @@ function buildHaystack(person) {
   const collabText = person.collaborators.join(' ');
   return {
     full: [
-      person.name, person.birthPlace, person.country,
+      person.name, person.stageName || '', person.birthPlace, person.country,
       person.field, person.subfield,
       teamText, awardText, collabText, person.bio,
       String(person.birthYear),
     ].join(' ').toLowerCase(),
     parts: {
-      name: person.name.toLowerCase(),
+      name: (person.name + ' ' + (person.stageName || '')).toLowerCase(),
       place: (person.birthPlace + ' ' + person.country).toLowerCase(),
       field: (person.field + ' ' + person.subfield).toLowerCase(),
       teams: teamText.toLowerCase(),
@@ -281,6 +291,18 @@ function buildHaystack(person) {
 }
 
 const HAYSTACKS = new Map(PEOPLE.map(p => [p.id, buildHaystack(p)]));
+
+// Name → person, so a credit on one card can open another. Stage names are
+// indexed too: a collaborator listed as "Fergie" still resolves.
+const PERSON_BY_NAME = (() => {
+  const m = new Map();
+  for (const p of PEOPLE) {
+    m.set(p.name.toLowerCase(), p);
+    if (p.stageName) m.set(p.stageName.toLowerCase(), p);
+  }
+  return m;
+})();
+const personByName = (n) => PERSON_BY_NAME.get(String(n || '').trim().toLowerCase()) || null;
 
 // Tokenize a query: lowercase, strip punctuation, drop stop words.
 function tokenize(q) {
@@ -354,10 +376,23 @@ const app = createApp({
 
     // ---- Favorites — heart-bookmark a person; persisted to localStorage ----
     const STORAGE_FAVS = 'fb-favorites-v1';
+    // Temporary: a first-time visitor gets three random names already saved,
+    // so the heart isn't an empty room. Persisted, so it stays put on reload.
+    // Drop this seed once the shortlist has real use.
+    function seedFavs() {
+      const picks = new Set();
+      const pool = PEOPLE.filter(p => p.id && p.id !== '__skip__');
+      while (picks.size < 3 && picks.size < pool.length) {
+        picks.add(pool[Math.floor(Math.random() * pool.length)].id);
+      }
+      try { localStorage.setItem(STORAGE_FAVS, JSON.stringify([...picks])); } catch {}
+      return picks;
+    }
     function loadFavs() {
       try {
         const raw = localStorage.getItem(STORAGE_FAVS);
-        return raw ? new Set(JSON.parse(raw)) : new Set();
+        if (raw === null) return seedFavs();
+        return new Set(JSON.parse(raw));
       } catch { return new Set(); }
     }
     const favorites = ref(loadFavs());
@@ -385,26 +420,35 @@ const app = createApp({
     }
 
     // ---- Born-on-day / born-in-month filters ----
-    // selectedBornMonth: 0 means "any", 1-12 picks a calendar month.
-    // selectedBornDay: 0 means "any", 1-31 picks a day-of-month (refines month).
-    const selectedBornMonth = ref(0);
-    const selectedBornDay = ref(0);
-    function setBornMonth(m) {
-      selectedBornMonth.value = selectedBornMonth.value === m ? 0 : m;
-      if (selectedBornMonth.value === 0) selectedBornDay.value = 0;
-    }
+    // Everything in Advanced search is multi-select: pick as many months,
+    // days or signs as you like, and an empty list means "any".
+    const selectedBornMonths = ref([]);
+    const selectedBornDays = ref([]);
+    const selectedZodiacs = ref([]);
+    const ZODIACS = [
+      'Capricorn','Aquarius','Pisces','Aries','Taurus','Gemini',
+      'Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius',
+    ];
+    const toggleBornMonth = (m) => toggleArrayItem(selectedBornMonths, m);
+    const toggleBornDay   = (d) => toggleArrayItem(selectedBornDays, d);
+    const toggleZodiac    = (z) => toggleArrayItem(selectedZodiacs, z);
+    const isBornMonthSelected = (m) => selectedBornMonths.value.includes(m);
+    const isBornDaySelected   = (d) => selectedBornDays.value.includes(d);
+    const isZodiacSelected    = (z) => selectedZodiacs.value.includes(z);
+
     function clearBornFilters() {
-      selectedBornMonth.value = 0;
-      selectedBornDay.value = 0;
+      selectedBornMonths.value = [];
+      selectedBornDays.value = [];
+      selectedZodiacs.value = [];
       bornTodayActive.value = false;
     }
     function passBornFilters(person) {
-      if (selectedBornMonth.value > 0) {
-        if (person.birthMonth !== selectedBornMonth.value) return false;
-      }
-      if (selectedBornDay.value > 0) {
-        if (person.birthDay !== selectedBornDay.value) return false;
-      }
+      const months = selectedBornMonths.value;
+      const days = selectedBornDays.value;
+      const signs = selectedZodiacs.value;
+      if (months.length && !months.includes(person.birthMonth)) return false;
+      if (days.length && !days.includes(person.birthDay)) return false;
+      if (signs.length && !signs.includes(zodiacFor(person.birthMonth, person.birthDay))) return false;
       return true;
     }
 
@@ -664,16 +708,31 @@ const app = createApp({
     });
 
     // ---- Card map zoom ----
-    // 1 = the country fits the tile. Zooming in closes on the birthplace;
-    // zooming out pulls back to the neighbours. Resets with each new card.
-    const miniZoom = ref(1);
+    // 1 = the whole country fits the tile. For a country the size of the USA
+    // or Russia that leaves the birthplace an unreadable speck, so the card
+    // opens part-way zoomed: enough to frame a region around the city while
+    // still reading as somewhere inside the country. Small countries open at 1.
     const MINI_ZOOM_MIN = 0.35, MINI_ZOOM_MAX = 24;
+    const MINI_TARGET_SPAN = 26;   // degrees across — comfortable for a city
+    const miniAutoZoom = computed(() => {
+      const v = miniView.value;
+      if (!v) return 1;
+      const span = Math.max(v.w, v.h);
+      return Math.min(4, Math.max(1, span / MINI_TARGET_SPAN));
+    });
+    // Null until the user touches the buttons, so a card that opens before the
+    // outlines finish loading still picks up the right default afterwards.
+    const miniZoomOverride = ref(null);
+    const miniZoom = computed(() =>
+      miniZoomOverride.value === null ? miniAutoZoom.value : miniZoomOverride.value
+    );
     function zoomMini(dir) {
       const next = miniZoom.value * (dir > 0 ? 1.6 : 1 / 1.6);
-      miniZoom.value = Math.min(MINI_ZOOM_MAX, Math.max(MINI_ZOOM_MIN, next));
+      miniZoomOverride.value = Math.min(MINI_ZOOM_MAX, Math.max(MINI_ZOOM_MIN, next));
     }
-    // (the watch that resets this per card lives with selectedPerson, which is
-    // declared further down — watch() runs immediately, so it can't sit here)
+    // (the watch that clears the override per card lives with selectedPerson,
+    // which is declared further down — watch() runs immediately, so it can't
+    // sit here)
 
     // The frame actually rendered: the fitted box, scaled by the zoom and
     // centred on the birthplace so zooming in dives toward the person.
@@ -703,20 +762,27 @@ const app = createApp({
     const miniCities = computed(() => {
       const f = miniFrame.value;
       if (!f) return [];
-      const inFrame = (x, y) => x >= f.x && x <= f.x + f.w && y >= f.y && y <= f.y + f.h;
+      const inFrame = (x, y, mx = 0, my = 0) =>
+        x >= f.x + mx && x <= f.x + f.w - mx && y >= f.y + my && y <= f.y + f.h - my;
       const out = [];
       const seen = new Set();
       const person = selectedPerson.value;
       const own = birthLocation(person);
-      if (own && own.exact) {
-        const name = (person.birthPlace || '').split(',')[0].trim();
-        out.push({ name, x: projX(own.lng), y: projY(own.lat), own: true });
-        seen.add(name);
+      // Name the birthplace even when we only know it roughly — the dot is
+      // already drawn there, and an unlabelled dot says less than an
+      // approximate name does. The caption carries the "approx." caveat.
+      const ownName = ((person && person.birthPlace) || '').split(',')[0].trim();
+      if (own && ownName) {
+        out.push({ name: ownName, x: projX(own.lng), y: projY(own.lat), own: true });
+        seen.add(ownName);
       }
+      // Keep neighbours a margin in from the edge so their type isn't sliced
+      // in half by the frame.
+      const mx = f.w * 0.1, my = f.h * 0.08;
       for (const c of MAJOR_CITIES) {
         if (seen.has(c.name)) continue;
         const x = projX(c.lng), y = projY(c.lat);
-        if (!inFrame(x, y)) continue;
+        if (!inFrame(x, y, mx, my)) continue;
         out.push({ name: c.name, x, y, own: false });
         if (out.length >= 12) break;
       }
@@ -872,13 +938,70 @@ const app = createApp({
     }
 
     // ---- Bottom dock ----
-    // The search line owns the bottom edge; hits stack directly above it,
-    // three at a time, and expand in place when there are more.
-    const HITS_LIMIT = 3;
+    // The search line owns the bottom edge; hits stack directly above it. The
+    // box is three rows tall and everything past that scrolls inside it, so a
+    // long list never pushes the search line off the screen.
+    const HITS_LIMIT = 3;      // rows visible at once — the box's height
+    const HITS_MAX = 400;      // rows actually rendered; the rest need a filter
     const hitsExpanded = ref(false);
-    const visibleHits = computed(() =>
-      hitsExpanded.value ? filtered.value.slice(0, 60) : filtered.value.slice(0, HITS_LIMIT)
-    );
+
+    // ---- Name order ----
+    // Sorting and the A–Z jump read the same key, so the letter someone files
+    // under is always the letter they're found at.
+    const NAME_SUFFIXES = new Set(['jr', 'jr.', 'sr', 'sr.', 'ii', 'iii', 'iv']);
+    function surnameOf(person) {
+      const parts = String((person && person.name) || '').trim().split(/\s+/);
+      while (parts.length > 1 && NAME_SUFFIXES.has(parts[parts.length - 1].toLowerCase())) parts.pop();
+      return parts[parts.length - 1] || '';
+    }
+    const nameMode = ref('first');           // 'first' | 'last'
+    function nameKey(person) {
+      const full = String((person && person.name) || '');
+      return (nameMode.value === 'last' ? surnameOf(person) + ' ' + full : full).toLowerCase();
+    }
+    // Strip accents before bucketing, so Ángel files under A and not somewhere
+    // past Z. Anything that still isn't a letter goes to '#'.
+    const deburr = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    function letterOf(person) {
+      const c = deburr(nameKey(person)).charAt(0).toUpperCase();
+      return c >= 'A' && c <= 'Z' ? c : '#';
+    }
+    const AZ = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+    const visibleHits = computed(() => {
+      let prev = null;
+      return filtered.value.slice(0, HITS_MAX).map(r => {
+        const letter = letterOf(r.person);
+        const head = letter !== prev;      // first row of its letter — the jump target
+        prev = letter;
+        return { person: r.person, letter, head };
+      });
+    });
+    // Which letters the current filter actually has anyone under.
+    const hitLetters = computed(() => {
+      const set = new Set();
+      for (const r of filtered.value) set.add(letterOf(r.person));
+      return set;
+    });
+
+    const hitsList = ref(null);
+    // Jumping is only meaningful in alphabetical order, so a jump switches the
+    // list into it rather than scrolling to an arbitrary spot.
+    function jumpToLetter(letter) {
+      if (!hitLetters.value.has(letter)) return;
+      if (sort.value !== 'alpha') sort.value = 'alpha';
+      nextTick(() => {
+        const box = hitsList.value;
+        if (!box) return;
+        const el = box.querySelector('[data-letter="' + letter + '"]');
+        if (el) box.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
+      });
+    }
+    function setNameMode(mode) {
+      nameMode.value = mode;
+      sort.value = 'alpha';                // ordering has to follow the key
+      if (hitsList.value) hitsList.value.scrollTop = 0;
+    }
 
     // Refine lives in an overlay sheet behind the tune icon on the search line.
     const refineOpen = ref(false);
@@ -988,7 +1111,9 @@ const app = createApp({
     );
     const timeFilterCount = computed(() =>
       (yearMin.value !== YEAR_FLOOR || yearMax.value !== YEAR_CEIL ? 1 : 0)
-      + (selectedBornMonth.value > 0 ? 1 : 0)
+      + selectedBornMonths.value.length
+      + selectedBornDays.value.length
+      + selectedZodiacs.value.length
       + (bornTodayActive.value ? 1 : 0)
     );
     onUnmounted(disposeGlobe);
@@ -1017,7 +1142,7 @@ const app = createApp({
     // ---- Person info modal ----
     const selectedPerson = ref(null);
     // Each card opens at the country-fits-the-tile zoom.
-    watch(selectedPerson, () => { miniZoom.value = 1; });
+    watch(selectedPerson, () => { miniZoomOverride.value = null; });
     function openPerson(p) {
       selectedPerson.value = p;
       // The camera drops in on their birth country and the spin stops, so the
@@ -1031,6 +1156,21 @@ const app = createApp({
       askError.value = '';
       askLoading.value = false;
     }
+    // A credit that names someone in the roster opens their card; anyone else
+    // becomes a search, so the tag always leads somewhere.
+    const hasPerson = (n) => !!personByName(n);
+    function openOrSearch(n) {
+      const p = personByName(n);
+      if (p) { openPerson(p); return; }
+      query.value = n;
+    }
+    // Teams, awards and the like search on their own text.
+    function searchFor(term) { query.value = term; }
+    // The sign filters in place rather than leaving for Wikipedia.
+    function filterZodiac(sign) {
+      if (sign) selectedZodiacs.value = [sign];
+    }
+
     // Closing undoes the whole arrival: pull back out to the full globe, start
     // it spinning again, and let the timeline off the birth year.
     function closePerson() {
@@ -1045,8 +1185,8 @@ const app = createApp({
     // was open it steps aside so the new result set is visible.
     watch(
       [query, selectedFields, selectedSubfields, selectedGenders,
-       yearMin, yearMax, selectedCountry, selectedBornMonth, selectedBornDay,
-       onlyFavorites, bornTodayActive],
+       yearMin, yearMax, selectedCountry, selectedBornMonths, selectedBornDays,
+       selectedZodiacs, onlyFavorites, bornTodayActive],
       () => {
         if (selectedPerson.value) selectedPerson.value = null;
         hitsExpanded.value = false;
@@ -1245,7 +1385,7 @@ const app = createApp({
       // Sort
       switch (sort.value) {
         case 'alpha':
-          out.sort((a, b) => a.person.name.localeCompare(b.person.name));
+          out.sort((a, b) => nameKey(a.person).localeCompare(nameKey(b.person)));
           break;
         case 'oldest':
           out.sort((a, b) => a.person.birthYear - b.person.birthYear);
@@ -1284,10 +1424,14 @@ const app = createApp({
           clear: () => { yearMin.value = YEAR_FLOOR; yearMax.value = YEAR_CEIL; },
         });
       }
-      if (selectedBornMonth.value > 0) {
-        const monthName = MONTH_NAMES[selectedBornMonth.value];
-        const label = selectedBornDay.value > 0 ? `${monthName} ${selectedBornDay.value}` : monthName;
-        out.push({ key: 'bm', group: 'Born', label, clear: () => { selectedBornMonth.value = 0; selectedBornDay.value = 0; } });
+      for (const m of selectedBornMonths.value) {
+        out.push({ key: 'bm:' + m, group: 'Born', label: MONTH_NAMES[m], clear: () => toggleBornMonth(m) });
+      }
+      for (const d of selectedBornDays.value) {
+        out.push({ key: 'bd:' + d, group: 'Day', label: String(d), clear: () => toggleBornDay(d) });
+      }
+      for (const z of selectedZodiacs.value) {
+        out.push({ key: 'z:' + z, group: 'Sign', label: z, clear: () => toggleZodiac(z) });
       }
       if (bornTodayActive.value) {
         out.push({ key: 'bt', group: 'Born', label: 'Today', clear: () => { bornTodayActive.value = false; } });
@@ -1433,15 +1577,20 @@ const app = createApp({
       pickCountry, flyToCountry, resetGlobeView,
       miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
       miniCities, miniZoom, zoomMini,
-      selectedBornMonth, selectedBornDay,
-      setBornMonth, clearBornFilters,
-      MONTH_NAMES, zodiacFor, formatBirthDate, daysInMonth,
+      selectedBornMonths, selectedBornDays, selectedZodiacs, ZODIACS,
+      toggleBornMonth, toggleBornDay, toggleZodiac,
+      isBornMonthSelected, isBornDaySelected, isZodiacSelected,
+      clearBornFilters,
+      MONTH_NAMES, zodiacFor, zodiacIcon, zodiacWiki, formatBirthDate, daysInMonth,
       surpriseMe,
       // dock
       hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen,
+      // hits list: A–Z jump and first/last name order
+      AZ, hitLetters, hitsList, jumpToLetter, nameMode, setNameMode,
       clearType, clearTime, clearCategories, typeFilterCount, timeFilterCount,
       toggleField, toggleSubfield, toggleGender,
       openPerson, closePerson, toggleTheme,
+      hasPerson, openOrSearch, searchFor, filterZodiac,
       // ask-a-question
       askOpen, askInput, askAnswer, askError, askLoading,
       toggleAsk, submitAsk,

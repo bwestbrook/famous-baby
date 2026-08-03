@@ -76,6 +76,8 @@ body {
 .ico--16 { width: 16px; height: 16px; }
 .ico--18 { width: 18px; height: 18px; }
 .ico--20 { width: 20px; height: 20px; }
+/* Stroke-drawn icons (the zodiac glyphs) — the sprite default is filled. */
+.ico--stroke { fill: none; stroke: currentColor; }
 
 /* =========================================================================
    MAP
@@ -98,14 +100,15 @@ body {
 
 /* ---------- wordmark + account controls, right-aligned ---------- */
 .titlebar {
-  display: flex; align-items: center; justify-content: flex-end; gap: 2px;
+  display: flex; align-items: center; gap: 2px;
   padding: 1px 0 3px;
 }
 .titlebar__mark {
   font-size: 14px; font-weight: 500; letter-spacing: .01em;
   color: #fff;
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
-  margin-right: 6px;
+  margin-right: auto;      /* pins the mark left, controls stay right */
+  padding-left: 4px;
 }
 .titlebar__mark em {
   font-style: normal; font-weight: 300;
@@ -196,20 +199,6 @@ body {
   .qcat__ico { width: 16px; height: 16px; }
   .qcat__label { font-size: 8px; letter-spacing: .015em; }
 }
-
-/* ---------- clear-categories row ---------- */
-.qclear-row { display: flex; justify-content: flex-end; }
-.qclear {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 10px 3px 8px;
-  border-radius: 12px;
-  background: rgba(18,19,22,.62);
-  border: 1px solid rgba(255,255,255,.14);
-  backdrop-filter: blur(6px);
-  color: #d7e3ff;
-  font-size: 11px; font-weight: 500;
-}
-.qclear:hover { background: rgba(40,42,48,.88); color: #fff; }
 
 /* ---------- map controls — vertical column, right edge, centred ---------- */
 .mapctl {
@@ -311,32 +300,77 @@ body {
 
 /* ---------- hits — three names above the search line ---------- */
 .hits {
-  background: var(--panel);
+  background: #000;
+  border: 1px solid rgba(255,255,255,.4);
+  color: #e8eaed;
   border-radius: 14px;
-  box-shadow: var(--sh-2);
+  box-shadow: 0 2px 10px rgba(0,0,0,.55);
   overflow: hidden;
 }
+/* Three rows tall, always. A fourth name doesn't grow the box — it scrolls,
+   and the bar on the right is what says so. --row-h must match .row's height. */
 .hits__list {
+  --row-h: 52px;
+  position: relative;
   list-style: none; margin: 0; padding: 0;
-  max-height: none;
-}
-.hits.is-expanded .hits__list {
-  max-height: 42vh;
+  max-height: calc(var(--row-h) * 3 + 2px);   /* + the two dividers between */
   overflow-y: auto;
-  scrollbar-width: thin; scrollbar-color: #cdd1d5 transparent;
+  scroll-snap-type: y proximity;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.34) rgba(255,255,255,.07);
+  overscroll-behavior: contain;
 }
-.hits__list::-webkit-scrollbar { width: 7px; }
-.hits__list::-webkit-scrollbar-thumb { background: #cdd1d5; border-radius: 4px; }
+.hits.is-expanded .hits__list { max-height: 42vh; }
+/* Styling the track opts out of macOS overlay scrollbars, so it's visible
+   before the list is touched rather than only while scrolling. */
+.hits__list::-webkit-scrollbar { width: 8px; -webkit-appearance: none; }
+.hits__list::-webkit-scrollbar-track { background: rgba(255,255,255,.07); }
+.hits__list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.34); border-radius: 4px;
+  border: 2px solid transparent; background-clip: content-box;
+}
+.hits__list::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.5); background-clip: content-box; }
+
+/* ---------- name order + A–Z jump ---------- */
+.hitbar {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 5px 8px 4px;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+.hitbar__mode { display: flex; gap: 2px; align-self: flex-start; }
+.hitbar__mode button {
+  padding: 2px 9px;
+  border-radius: 9px;
+  font-size: 9.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase;
+  color: rgba(255,255,255,.5);
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.hitbar__mode button:hover { color: #fff; }
+.hitbar__mode button.is-on { background: rgba(255,255,255,.16); color: #fff; }
+
+/* One column per letter, so the strip always spans the list exactly. */
+.hitbar__az { display: grid; grid-template-columns: repeat(26, 1fr); }
+.az {
+  padding: 1px 0;
+  font-size: 9px; font-weight: 400; line-height: 1.4;
+  color: rgba(255,255,255,.72);
+  border-radius: 3px;
+  transition: background .1s var(--ease), color .1s var(--ease);
+}
+.az:hover { background: rgba(255,255,255,.18); color: #fff; }
+.az.is-off { color: rgba(255,255,255,.18); cursor: default; }
+.az.is-off:hover { background: none; color: rgba(255,255,255,.18); }
 
 .row {
   display: grid;
   grid-template-columns: 36px minmax(0,1fr) 26px;
   align-items: center; gap: 10px;
+  height: 52px;              /* fixed, so three of them is a knowable height */
   padding: 8px 8px 8px 12px;
+  scroll-snap-align: start;
   cursor: pointer;
 }
-.row + .row { border-top: 1px solid var(--line-2); }
-.row:hover { background: var(--panel-3); }
+.row + .row { border-top: 1px solid rgba(255,255,255,.12); }
+.row:hover { background: rgba(255,255,255,.08); }
 
 .row__thumb {
   position: relative;
@@ -355,34 +389,34 @@ body {
 
 .row__main { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .row__name {
-  font-size: 13.5px; font-weight: 500; color: var(--text);
+  font-size: 13.5px; font-weight: 400; color: #f1f3f4;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.row:hover .row__name { color: var(--blue); }
+.row:hover .row__name { color: #fff; }
 .row__meta {
-  font-size: 11px; color: var(--text-3);
+  font-size: 11px; color: rgba(255,255,255,.5);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .row__fav {
   width: 26px; height: 26px; display: grid; place-items: center;
-  border-radius: 50%; color: #bdc1c6;
+  border-radius: 50%; color: rgba(255,255,255,.45);
 }
-.row__fav:hover { background: rgba(234,67,53,.1); color: var(--red); }
-.row__fav.is-on { color: var(--red); }
+.row__fav:hover { background: rgba(255,109,96,.16); color: #ff6d60; }
+.row__fav.is-on { color: #ff6d60; }
 
 .hits__none {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 10px 12px 14px;
-  font-size: 12.5px; color: var(--text-2);
+  font-size: 12.5px; color: rgba(255,255,255,.6);
 }
 .hits__more {
   width: 100%;
   display: flex; align-items: center; justify-content: center; gap: 4px;
   padding: 8px;
-  border-top: 1px solid var(--line-2);
-  font-size: 11.5px; font-weight: 500; color: var(--blue);
+  border-top: 1px solid rgba(255,255,255,.12);
+  font-size: 11.5px; font-weight: 400; color: rgba(255,255,255,.8);
 }
-.hits__more:hover { background: var(--blue-tint); }
+.hits__more:hover { background: rgba(255,255,255,.1); color: #fff; }
 .hits__chev { transform: rotate(90deg); transition: transform .15s var(--ease); }
 .hits__chev.is-up { transform: rotate(-90deg); }
 
@@ -410,7 +444,7 @@ body {
    rather than with the row as a whole. */
 .tl__label, .tl__val, .tl__x {
   position: relative;
-  top: 8px;               /* (track padding-top 16 + rail 3) / 2 − track/2 */
+  top: 3px;               /* half the tick strip above the rail */
   line-height: 1;
 }
 
@@ -421,15 +455,9 @@ body {
 }
 .tl:hover .tl__label, .tl.is-on .tl__label { color: rgba(255,255,255,.8); }
 
-.tl__track { flex: 1; min-width: 0; position: relative; padding-top: 16px; }
-.tl__ticks { position: absolute; left: 0; right: 0; top: 0; height: 16px; }
+.tl__track { flex: 1; min-width: 0; position: relative; padding-top: 6px; }
+.tl__ticks { position: absolute; left: 0; right: 0; top: 0; height: 6px; }
 .tl__tick { position: absolute; bottom: 1px; width: 1px; height: 4px; background: rgba(255,255,255,.22); }
-.tl__tick b {
-  position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%);
-  font-size: 9px; font-weight: 400; letter-spacing: .04em;
-  color: rgba(255,255,255,.38);
-  font-variant-numeric: tabular-nums;
-}
 .tl__rail { position: relative; height: 3px; border-radius: 2px; background: rgba(255,255,255,.2); }
 .tl__fill { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--blue-dark); pointer-events: none; }
 .tl__in {
@@ -590,7 +618,12 @@ body {
   background: linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.42));
 }
 .pop__name { margin: 0; font-size: 19px; font-weight: 500; line-height: 1.15; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
-.pop__sub { font-size: 11px; opacity: .85; margin-top: 2px; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+.pop__sub {
+  font-size: 12px; font-weight: 300; letter-spacing: .01em;
+  color: #FDD663;
+  margin-top: 3px;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+}
 
 .pop__body {
   flex: 1; min-height: 0; overflow-y: auto;
@@ -607,15 +640,12 @@ body {
   font-size: 11.5px;
 }
 .pop .kfact .ico { color: rgba(255,255,255,.6); }
-/* The birth date is the headline fact — give it the weight to match. */
-.pop .kfact:first-child {
-  background: rgba(253,214,99,.16);
-  border: 1px solid rgba(253,214,99,.35);
-  color: #FDD663;
-  font-size: 12.5px; font-weight: 500;
-  padding: 5px 12px;
-}
-.pop .kfact:first-child .ico { color: #FDD663; }
+/* The zodiac chip leaves the app, so it reads as a link and carries the
+   sign's own glyph rather than the generic star. */
+.kfact--zodiac { text-decoration: none; }
+.pop .kfact--zodiac { color: rgba(255,255,255,.86); }
+.pop .kfact--zodiac .ico { color: #FDD663; }
+.pop .kfact--zodiac:hover { background: rgba(253,214,99,.18); color: #fff; }
 .pop .kfact--link { color: var(--blue-dark); }
 .pop .kfact--link .ico { color: var(--blue-dark); }
 .pop .kfact--link:hover { background: rgba(138,180,248,.2); }
@@ -980,3 +1010,74 @@ button.mrow:disabled { opacity: .4; cursor: default; background: none; }
   font-size: 11.5px; font-weight: 300; line-height: 1.5;
   color: rgba(255,255,255,.5);
 }
+
+/* Stage names — the real name leads, the name they're known by rides along. */
+.row__alias {
+  font-style: normal; font-weight: 300;
+  color: rgba(255,255,255,.5);
+  margin-left: 3px;
+}
+.pop__alias {
+  font-size: 11.5px; font-weight: 300; letter-spacing: .01em;
+  color: rgba(255,255,255,.82);
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  margin-top: 1px;
+}
+
+/* =========================================================================
+   CALENDAR + STAR SIGNS (Advanced search)
+   Months above, days below, both multi-select — an empty row means "any".
+   ========================================================================= */
+.cal {
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.cal__months {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid rgba(255,255,255,.16);
+}
+.cal__days { display: grid; grid-template-columns: repeat(7, 1fr); }
+
+.cal__cell {
+  min-height: 30px;
+  display: grid; place-items: center;
+  font-size: 11.5px; font-weight: 300;
+  color: #e8eaed;
+  border-right: 1px solid rgba(255,255,255,.09);
+  border-bottom: 1px solid rgba(255,255,255,.09);
+  transition: background .1s var(--ease), color .1s var(--ease);
+}
+.cal__cell--day { font-variant-numeric: tabular-nums; font-size: 11px; min-height: 26px; }
+.cal__months .cal__cell:nth-child(4n) { border-right: none; }
+.cal__months .cal__cell:nth-child(n+9) { border-bottom: none; }
+.cal__days .cal__cell:nth-child(7n) { border-right: none; }
+.cal__days .cal__cell:nth-child(n+29) { border-bottom: none; }
+.cal__cell:hover { background: rgba(255,255,255,.1); color: #fff; }
+.cal__cell.is-on { background: #fff; color: #000; font-weight: 500; }
+
+.zgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.zbtn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 2px 6px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 10px;
+  color: #e8eaed;
+  transition: border-color .12s var(--ease), background .12s var(--ease), color .12s var(--ease);
+}
+.zbtn:hover { border-color: rgba(255,255,255,.7); color: #fff; }
+.zbtn__label { font-size: 9.5px; font-weight: 300; letter-spacing: .01em; }
+.zbtn.is-on {
+  border-color: #fff;
+  background: rgba(255,255,255,.14);
+  color: #fff;
+}
+.zbtn.is-on .zbtn__label { font-weight: 500; }
+
+/* Fact tags are actions: teams and awards run a search, a credited name opens
+   that person's card when the roster has them. */
+.tag { cursor: pointer; text-align: left; transition: background .12s var(--ease), color .12s var(--ease); }
+.pop .tag:hover { background: rgba(255,255,255,.2); color: #fff; }
+/* A name we can actually open reads as a link. */
+.pop .tag.is-linked { color: var(--blue-dark); }
+.pop .tag.is-linked:hover { background: rgba(138,180,248,.22); color: #fff; }
