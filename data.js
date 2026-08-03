@@ -1189,70 +1189,70 @@ export const PEOPLE = [
   // =====================================================================
   //  VISUAL ARTS — global, era-diverse
   // =====================================================================
-  { id:'leonardo-da-vinci', name:'Leonardo da Vinci', middleName:'', homophones:[], similarSpellings:['Leonardoh','Lionardo','Leonard'], gender:'male', birthYear:1452, birthMonth:4, birthDay:15, birthPlace:'Vinci, Italy', country:'Italy', field:'Visual Arts', subfield:'Painter',
+  { id:'leonardo-da-vinci', name:'Leonardo da Vinci', middleName:'', homophones:[], similarSpellings:['Leonardoh','Lionardo','Leonard'], gender:'male', birthYear:1452, birthMonth:4, birthDay:15, birthPlace:'Vinci, Italy', country:'Italy', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Andrea del Verrocchio'], contemporaries:['Michelangelo','Raphael','Sandro Botticelli'], friends:['Lorenzo de\' Medici'], foes:['Michelangelo'], bio:'Painter, anatomist, engineer — the archetypal Renaissance polymath.' },
-  { id:'michelangelo', name:'Michelangelo', middleName:'', homophones:[], similarSpellings:['Michaelangelo','Michelangello','Michellangelo'], gender:'male', birthYear:1475, birthMonth:3, birthDay:6, birthPlace:'Caprese, Italy', country:'Italy', field:'Visual Arts', subfield:'Sculptor',
+  { id:'michelangelo', name:'Michelangelo', middleName:'', homophones:[], similarSpellings:['Michaelangelo','Michelangello','Michellangelo'], gender:'male', birthYear:1475, birthMonth:3, birthDay:6, birthPlace:'Caprese, Italy', country:'Italy', field:'Arts', subfield:'Sculptor',
     teams:[], awards:[], collaborators:['Pope Julius II'], contemporaries:['Leonardo da Vinci','Raphael','Donato Bramante'], friends:['Vittoria Colonna'], foes:['Leonardo da Vinci','Raphael'], bio:"Sculptor of David, painter of the Sistine ceiling. Born in Caprese, Tuscany, in 1475, Michelangelo Buonarroti carved the Pietà in St. Peter's Basilica before he turned twenty-five and completed his towering marble David in 1504. Between 1508 and 1512 he painted the Sistine Chapel ceiling for Pope Julius II, and decades later added The Last Judgment to its altar wall. As an architect he designed the dome of St. Peter's Basilica, a defining feature of the Roman skyline. His surviving poetry and letters make him one of the best-documented artists of the Renaissance." },
-  { id:'rembrandt', name:'Rembrandt van Rijn', middleName:'Harmenszoon', homophones:[], similarSpellings:['Rembrant','Rembrandtt','Rembrandte'], gender:'male', birthYear:1606, birthMonth:7, birthDay:15, birthPlace:'Leiden, Netherlands', country:'Netherlands', field:'Visual Arts', subfield:'Painter',
+  { id:'rembrandt', name:'Rembrandt van Rijn', middleName:'Harmenszoon', homophones:[], similarSpellings:['Rembrant','Rembrandtt','Rembrandte'], gender:'male', birthYear:1606, birthMonth:7, birthDay:15, birthPlace:'Leiden, Netherlands', country:'Netherlands', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Dutch master of light, shadow, and the unflinching self-portrait.' },
-  { id:'hokusai', name:'Katsushika Hokusai', middleName:'', homophones:[], similarSpellings:['Hokusay','Hocusai'], gender:'male', birthYear:1760, birthMonth:10, birthDay:31, birthPlace:'Edo, Japan', country:'Japan', field:'Visual Arts', subfield:'Printmaker',
+  { id:'hokusai', name:'Katsushika Hokusai', middleName:'', homophones:[], similarSpellings:['Hokusay','Hocusai'], gender:'male', birthYear:1760, birthMonth:10, birthDay:31, birthPlace:'Edo, Japan', country:'Japan', field:'Arts', subfield:'Printmaker',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Ukiyo-e printmaker behind The Great Wave off Kanagawa. That towering blue wave is one image from his series Thirty-Six Views of Mount Fuji, produced around 1831, and it became among the most reproduced artworks in history. Restlessly experimental, he adopted some thirty different artist names across his life and worked obsessively into his late eighties, declaring that nothing he made before seventy was worth counting and that he hoped to keep improving past one hundred. His prints helped ignite the Japonisme craze in Europe, shaping the Impressionists and inspiring artists like Van Gogh and Monet." },
-  { id:'van-gogh', name:'Vincent van Gogh', middleName:'Willem', homophones:[], similarSpellings:['Vinsent','Vincente','Vinncent','Vincenzo'], gender:'male', birthYear:1853, birthMonth:3, birthDay:30, birthPlace:'Zundert, Netherlands', country:'Netherlands', field:'Visual Arts', subfield:'Painter',
+  { id:'van-gogh', name:'Vincent van Gogh', middleName:'Willem', homophones:[], similarSpellings:['Vinsent','Vincente','Vinncent','Vincenzo'], gender:'male', birthYear:1853, birthMonth:3, birthDay:30, birthPlace:'Zundert, Netherlands', country:'Netherlands', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Paul Gauguin'], contemporaries:[], friends:[], foes:[], bio:'Sold one painting in his lifetime; reshaped modern painting after his death.' },
-  { id:'frida-kahlo', name:'Frida Kahlo', middleName:'', homophones:[], similarSpellings:['Freda','Frieda','Fryda','Fridah'], gender:'female', birthYear:1907, birthMonth:7, birthDay:6, birthPlace:'Coyoacán, Mexico', country:'Mexico', field:'Visual Arts', subfield:'Painter',
+  { id:'frida-kahlo', name:'Frida Kahlo', middleName:'', homophones:[], similarSpellings:['Freda','Frieda','Fryda','Fridah'], gender:'female', birthYear:1907, birthMonth:7, birthDay:6, birthPlace:'Coyoacán, Mexico', country:'Mexico', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Diego Rivera'], contemporaries:['Diego Rivera','David Alfaro Siqueiros','José Clemente Orozco'], friends:['Diego Rivera','André Breton'], foes:[], bio:'Mexican painter of pain, identity, and unflinching self-portraiture.' },
-  { id:'picasso', name:'Pablo Picasso', middleName:'Ruiz', homophones:[], similarSpellings:['Pablo','Pablito','Paolo'], gender:'male', birthYear:1881, birthMonth:10, birthDay:25, birthPlace:'Málaga, Spain', country:'Spain', field:'Visual Arts', subfield:'Painter',
+  { id:'picasso', name:'Pablo Picasso', middleName:'Ruiz', homophones:[], similarSpellings:['Pablo','Pablito','Paolo'], gender:'male', birthYear:1881, birthMonth:10, birthDay:25, birthPlace:'Málaga, Spain', country:'Spain', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Georges Braque'], contemporaries:[], friends:[], foes:[], bio:"Co-founder of Cubism; reshaped twentieth-century art. A prodigy from Málaga trained by his painter father, he moved through a melancholy Blue Period and a warmer Rose Period before shattering perspective with Les Demoiselles d'Avignon in 1907. Working alongside Georges Braque, he pioneered Cubism, and his 1937 mural Guernica became the century's most searing protest against the horrors of war. Across a seven-decade career he produced tens of thousands of works spanning painting, sculpture, ceramics, and printmaking, and helped invent collage and constructed sculpture along the way." },
-  { id:'okeeffe', name:"Georgia O'Keeffe", middleName:'Totto', homophones:[], similarSpellings:['Georgea','Jorja','Georgina','Georgiana'], gender:'female', birthYear:1887, birthMonth:11, birthDay:15, birthPlace:'Sun Prairie, Wisconsin', country:'USA', field:'Visual Arts', subfield:'Painter',
+  { id:'okeeffe', name:"Georgia O'Keeffe", middleName:'Totto', homophones:[], similarSpellings:['Georgea','Jorja','Georgina','Georgiana'], gender:'female', birthYear:1887, birthMonth:11, birthDay:15, birthPlace:'Sun Prairie, Wisconsin', country:'USA', field:'Arts', subfield:'Painter',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:1977}], collaborators:['Alfred Stieglitz'], contemporaries:[], friends:[], foes:[], bio:'Mother of American modernism; flowers, bones, and the desert at scale.' },
-  { id:'kusama', name:'Yayoi Kusama', middleName:'', homophones:[], similarSpellings:['Yayoy','Yaiyoi','Yayoie'], gender:'female', birthYear:1929, birthMonth:3, birthDay:22, birthPlace:'Matsumoto, Japan', country:'Japan', field:'Visual Arts', subfield:'Conceptual Artist',
+  { id:'kusama', name:'Yayoi Kusama', middleName:'', homophones:[], similarSpellings:['Yayoy','Yaiyoi','Yayoie'], gender:'female', birthYear:1929, birthMonth:3, birthDay:22, birthPlace:'Matsumoto, Japan', country:'Japan', field:'Arts', subfield:'Conceptual Artist',
     teams:[], awards:[{name:'Praemium Imperiale',year:2006}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Polka dots and infinity rooms — the most-attended contemporary artist on earth.' },
-  { id:'basquiat', name:'Jean-Michel Basquiat', middleName:'', homophones:[], similarSpellings:['Jean Michel','Jean','Jhon','Jon'], gender:'male', birthYear:1960, birthMonth:12, birthDay:22, birthPlace:'Brooklyn, New York', country:'USA', field:'Visual Arts', subfield:'Painter',
+  { id:'basquiat', name:'Jean-Michel Basquiat', middleName:'', homophones:[], similarSpellings:['Jean Michel','Jean','Jhon','Jon'], gender:'male', birthYear:1960, birthMonth:12, birthDay:22, birthPlace:'Brooklyn, New York', country:'USA', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Andy Warhol'], contemporaries:[], friends:[], foes:[], bio:'Brooklyn-born neo-expressionist who broke the gallery world by 22.' },
-  { id:'ai-weiwei', name:'Ai Weiwei', middleName:'', homophones:[], similarSpellings:['Aii','Ay','Ae'], gender:'male', birthYear:1957, birthMonth:8, birthDay:28, birthPlace:'Beijing, China', country:'China', field:'Visual Arts', subfield:'Conceptual Artist',
+  { id:'ai-weiwei', name:'Ai Weiwei', middleName:'', homophones:[], similarSpellings:['Aii','Ay','Ae'], gender:'male', birthYear:1957, birthMonth:8, birthDay:28, birthPlace:'Beijing, China', country:'China', field:'Arts', subfield:'Conceptual Artist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:'Conceptual artist and dissident; sunflower seeds, smashed urns, and a state on edge.' },
-  { id:'abramovic', name:'Marina Abramović', middleName:'', homophones:[], similarSpellings:['Marinah','Maryna','Maryna'], gender:'female', birthYear:1946, birthMonth:11, birthDay:30, birthPlace:'Belgrade, Serbia', country:'Serbia', field:'Visual Arts', subfield:'Performance Artist',
+  { id:'abramovic', name:'Marina Abramović', middleName:'', homophones:[], similarSpellings:['Marinah','Maryna','Maryna'], gender:'female', birthYear:1946, birthMonth:11, birthDay:30, birthPlace:'Belgrade, Serbia', country:'Serbia', field:'Arts', subfield:'Performance Artist',
     teams:[], awards:[], collaborators:['Ulay'], contemporaries:[], friends:[], foes:[], bio:'Pioneer of performance art; sat silent across from strangers for 736 hours.' },
 
   // ----- 10 artists from Latin America -----
-  { id:'orozco-jose', name:'José Clemente Orozco', middleName:'Clemente', homophones:['Jose'], similarSpellings:['Jose','Josè','Jozé','Joze'], gender:'male', birthYear:1883, birthMonth:11, birthDay:23, birthPlace:'Ciudad Guzmán, Mexico', country:'Mexico', field:'Visual Arts', subfield:'Muralist',
+  { id:'orozco-jose', name:'José Clemente Orozco', middleName:'Clemente', homophones:['Jose'], similarSpellings:['Jose','Josè','Jozé','Joze'], gender:'male', birthYear:1883, birthMonth:11, birthDay:23, birthPlace:'Ciudad Guzmán, Mexico', country:'Mexico', field:'Arts', subfield:'Muralist',
     teams:[], awards:[], collaborators:['Diego Rivera','David Alfaro Siqueiros'], contemporaries:[], friends:[], foes:[],
     bio:'One of Los Tres Grandes of Mexican muralism; political frescoes from Guadalajara to Dartmouth.' },
 
-  { id:'tarsila-do-amaral', name:'Tarsila do Amaral', middleName:'de Aguiar', homophones:[], similarSpellings:['Tarcila','Tarsilla','Tarcilla'], gender:'female', birthYear:1886, birthMonth:9, birthDay:1, birthPlace:'Capivari, Brazil', country:'Brazil', field:'Visual Arts', subfield:'Painter',
+  { id:'tarsila-do-amaral', name:'Tarsila do Amaral', middleName:'de Aguiar', homophones:[], similarSpellings:['Tarcila','Tarsilla','Tarcilla'], gender:'female', birthYear:1886, birthMonth:9, birthDay:1, birthPlace:'Capivari, Brazil', country:'Brazil', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Oswald de Andrade'], contemporaries:[], friends:[], foes:[],
     bio:'Matriarch of Brazilian modernism; her 1928 canvas Abaporu set off the Antropofagia movement.' },
 
-  { id:'siqueiros', name:'David Alfaro Siqueiros', middleName:'Alfaro', homophones:[], similarSpellings:['Davyd','Davide','Dawid','Daved'], gender:'male', birthYear:1896, birthMonth:12, birthDay:29, birthPlace:'Camargo, Mexico', country:'Mexico', field:'Visual Arts', subfield:'Muralist',
+  { id:'siqueiros', name:'David Alfaro Siqueiros', middleName:'Alfaro', homophones:[], similarSpellings:['Davyd','Davide','Dawid','Daved'], gender:'male', birthYear:1896, birthMonth:12, birthDay:29, birthPlace:'Camargo, Mexico', country:'Mexico', field:'Arts', subfield:'Muralist',
     teams:[], awards:[], collaborators:['Diego Rivera','José Clemente Orozco'], contemporaries:[], friends:[], foes:[],
     bio:'Third of Los Tres Grandes; revolutionary muralist who briefly held the young Jackson Pollock as a studio assistant.' },
 
-  { id:'wifredo-lam', name:'Wifredo Lam', middleName:'', homophones:['Wilfredo','Wilfred'], similarSpellings:['Wilfredo','Wilfred','Wifred','Wifreddo'], gender:'male', birthYear:1902, birthMonth:12, birthDay:8, birthPlace:'Sagua La Grande, Cuba', country:'Cuba', field:'Visual Arts', subfield:'Painter',
+  { id:'wifredo-lam', name:'Wifredo Lam', middleName:'', homophones:['Wilfredo','Wilfred'], similarSpellings:['Wilfredo','Wilfred','Wifred','Wifreddo'], gender:'male', birthYear:1902, birthMonth:12, birthDay:8, birthPlace:'Sagua La Grande, Cuba', country:'Cuba', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['Pablo Picasso','André Breton'], contemporaries:[], friends:[], foes:[],
     bio:'Afro-Chinese-Cuban surrealist who fused Caribbean Santería iconography with European modernism.' },
 
-  { id:'roberto-matta', name:'Roberto Matta', middleName:'Sebastián', homophones:[], similarSpellings:['Roberto','Robertto','Roberte','Ruberto'], gender:'male', birthYear:1911, birthMonth:11, birthDay:11, birthPlace:'Santiago, Chile', country:'Chile', field:'Visual Arts', subfield:'Painter',
+  { id:'roberto-matta', name:'Roberto Matta', middleName:'Sebastián', homophones:[], similarSpellings:['Roberto','Robertto','Roberte','Ruberto'], gender:'male', birthYear:1911, birthMonth:11, birthDay:11, birthPlace:'Santiago, Chile', country:'Chile', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:['André Breton','Marcel Duchamp'], contemporaries:[], friends:[], foes:[],
     bio:'Chilean surrealist whose cosmic "inscapes" bridged European Surrealism and American Abstract Expressionism.' },
 
-  { id:'lygia-clark', name:'Lygia Clark', middleName:'Pimentel Lins', homophones:['Ligia'], similarSpellings:['Ligia','Lygiah','Lijia','Liigia'], gender:'female', birthYear:1920, birthMonth:10, birthDay:23, birthPlace:'Belo Horizonte, Brazil', country:'Brazil', field:'Visual Arts', subfield:'Sculptor',
+  { id:'lygia-clark', name:'Lygia Clark', middleName:'Pimentel Lins', homophones:['Ligia'], similarSpellings:['Ligia','Lygiah','Lijia','Liigia'], gender:'female', birthYear:1920, birthMonth:10, birthDay:23, birthPlace:'Belo Horizonte, Brazil', country:'Brazil', field:'Arts', subfield:'Sculptor',
     teams:[], awards:[], collaborators:['Hélio Oiticica'], contemporaries:[], friends:[], foes:[],
     bio:'Founder of the Brazilian Neo-Concrete movement; her hinged metal Bichos were sculptures meant to be handled.' },
 
-  { id:'fernando-botero', name:'Fernando Botero', middleName:'Angulo', homophones:[], similarSpellings:['Fernanddo','Ferdinand','Fernandoh'], gender:'male', birthYear:1932, birthMonth:4, birthDay:19, birthPlace:'Medellín, Colombia', country:'Colombia', field:'Visual Arts', subfield:'Painter',
+  { id:'fernando-botero', name:'Fernando Botero', middleName:'Angulo', homophones:[], similarSpellings:['Fernanddo','Ferdinand','Fernandoh'], gender:'male', birthYear:1932, birthMonth:4, birthDay:19, birthPlace:'Medellín, Colombia', country:'Colombia', field:'Arts', subfield:'Painter',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:'Colombian master of voluminous figures — the Boterismo style — equally at home in paint and bronze.' },
 
-  { id:'helio-oiticica', name:'Hélio Oiticica', middleName:'', homophones:['Helio'], similarSpellings:['Helio','Heelio','Hèlio','Heliyo'], gender:'male', birthYear:1937, birthMonth:7, birthDay:26, birthPlace:'Rio de Janeiro, Brazil', country:'Brazil', field:'Visual Arts', subfield:'Conceptual Artist',
+  { id:'helio-oiticica', name:'Hélio Oiticica', middleName:'', homophones:['Helio'], similarSpellings:['Helio','Heelio','Hèlio','Heliyo'], gender:'male', birthYear:1937, birthMonth:7, birthDay:26, birthPlace:'Rio de Janeiro, Brazil', country:'Brazil', field:'Arts', subfield:'Conceptual Artist',
     teams:[], awards:[], collaborators:['Lygia Clark','Caetano Veloso'], contemporaries:[], friends:[], foes:[],
     bio:'Carioca pioneer of immersive installation; his Parangolés were wearable paintings danced through favela samba schools.' },
 
-  { id:'doris-salcedo', name:'Doris Salcedo', middleName:'', homophones:[], similarSpellings:['Dorris','Doryss','Doriss','Dorisse'], gender:'female', birthYear:1958, birthPlace:'Bogotá, Colombia', country:'Colombia', field:'Visual Arts', subfield:'Sculptor',
+  { id:'doris-salcedo', name:'Doris Salcedo', middleName:'', homophones:[], similarSpellings:['Dorris','Doryss','Doriss','Dorisse'], gender:'female', birthYear:1958, birthPlace:'Bogotá, Colombia', country:'Colombia', field:'Arts', subfield:'Sculptor',
     teams:[], awards:[{name:'Hiroshima Art Prize',year:2014}], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:'Colombian sculptor of political grief; opened a 548-foot crack across Tate Modern\'s floor in 2007\'s Shibboleth.' },
 
-  { id:'gabriel-orozco', name:'Gabriel Orozco', middleName:'', homophones:[], similarSpellings:['Gabriell','Gabriele','Gavriel','Gabryel'], gender:'male', birthYear:1962, birthMonth:4, birthDay:27, birthPlace:'Jalapa, Mexico', country:'Mexico', field:'Visual Arts', subfield:'Conceptual Artist',
+  { id:'gabriel-orozco', name:'Gabriel Orozco', middleName:'', homophones:[], similarSpellings:['Gabriell','Gabriele','Gavriel','Gabryel'], gender:'male', birthYear:1962, birthMonth:4, birthDay:27, birthPlace:'Jalapa, Mexico', country:'Mexico', field:'Arts', subfield:'Conceptual Artist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:'Mexican conceptualist; turned a Citroën DS into the sliced sculpture La DS by removing its middle third.' },
 
@@ -1797,11 +1797,11 @@ export const PEOPLE = [
     collaborators:['Cary Grant','Ingrid Bergman','Grace Kelly'], contemporaries:['John Ford','Howard Hawks','Frank Capra','Orson Welles'], friends:['François Truffaut','Cary Grant'], foes:[],
     bio:'London cockney who turned suspense into its own grammar — Rear Window, Vertigo, Psycho — and never won Best Director.' },
 
-  { id:'diego-rivera', name:'Diego Rivera', middleName:'María', homophones:[], similarSpellings:['Diago','Diegoo','Dieggo','Diiego'], gender:'male', birthYear:1886, birthMonth:12, birthDay:8, birthPlace:'Guanajuato, Mexico', country:'Mexico', field:'Visual Arts', subfield:'Muralist',
+  { id:'diego-rivera', name:'Diego Rivera', middleName:'María', homophones:[], similarSpellings:['Diago','Diegoo','Dieggo','Diiego'], gender:'male', birthYear:1886, birthMonth:12, birthDay:8, birthPlace:'Guanajuato, Mexico', country:'Mexico', field:'Arts', subfield:'Muralist',
     teams:[], awards:[],
     collaborators:['Frida Kahlo'], contemporaries:['Frida Kahlo','José Clemente Orozco','David Alfaro Siqueiros'], friends:['Frida Kahlo','Leon Trotsky'], foes:['David Alfaro Siqueiros'], bio:'Mexican muralist who married Frida Kahlo twice; in 1934 Rockefeller had his Lenin fresco chiseled off the wall.' },
 
-  { id:'andy-warhol', name:'Andy Warhol', middleName:'', homophones:['Andi','Andie'], similarSpellings:['Andi','Andie','Andee','Andey'], gender:'male', birthYear:1928, birthMonth:8, birthDay:6, birthPlace:'Pittsburgh, Pennsylvania', country:'USA', field:'Visual Arts', subfield:'Pop Artist',
+  { id:'andy-warhol', name:'Andy Warhol', middleName:'', homophones:['Andi','Andie'], similarSpellings:['Andi','Andie','Andee','Andey'], gender:'male', birthYear:1928, birthMonth:8, birthDay:6, birthPlace:'Pittsburgh, Pennsylvania', country:'USA', field:'Arts', subfield:'Pop Artist',
     teams:[], awards:[],
     collaborators:['Jean-Michel Basquiat','Lou Reed','Edie Sedgwick'], contemporaries:['Jean-Michel Basquiat','Roy Lichtenstein','Keith Haring'], friends:['Jean-Michel Basquiat','Lou Reed','Edie Sedgwick'], foes:[],
     bio:'Soup cans, silkscreen Marilyns, and an eight-hour film of the Empire State Building; survived a 1968 shooting at The Factory.' },
@@ -1810,7 +1810,7 @@ export const PEOPLE = [
     teams:[], awards:[{name:'Jean Hersholt Humanitarian Award',year:1995}],
     collaborators:['Michael Jackson','Frank Sinatra','Ella Fitzgerald','Miles Davis'], contemporaries:[], friends:[], foes:[], bio:'Arranged for Sinatra and Basie, scored In the Heat of the Night at thirty-four, produced Thriller at forty-nine.' },
 
-  { id:'yoko-ono', name:'Yoko Ono', middleName:'', homophones:[], similarSpellings:['Yokoh','Yoco','Joko'], gender:'female', birthYear:1933, birthMonth:2, birthDay:18, birthPlace:'Tokyo, Japan', country:'Japan', field:'Visual Arts', subfield:'Conceptual Artist',
+  { id:'yoko-ono', name:'Yoko Ono', middleName:'', homophones:[], similarSpellings:['Yokoh','Yoco','Joko'], gender:'female', birthYear:1933, birthMonth:2, birthDay:18, birthPlace:'Tokyo, Japan', country:'Japan', field:'Arts', subfield:'Conceptual Artist',
     teams:[], awards:[],
     collaborators:['John Lennon','John Cage'], contemporaries:[], friends:[], foes:[], bio:'Tokyo-born Fluxus artist whose Cut Piece predated her Beatle marriage by five years; co-credited on Imagine since 2017.' },
 
@@ -1921,32 +1921,32 @@ export const PEOPLE = [
     collaborators:['Robert Wilson','Ravi Shankar'], contemporaries:[], friends:[], foes:[],
     bio:"Minimalist composer of Einstein on the Beach who turned arpeggios into a musical philosophy." },
 
-  { id:'martha-graham', name:'Martha Graham', middleName:'', homophones:[], similarSpellings:['Marta','Marthe','Marther','Mortha'], gender:'female', birthYear:1894, birthMonth:5, birthDay:11, birthPlace:'Allegheny, Pennsylvania', country:'USA', field:'Visual Arts', subfield:'Choreographer',
+  { id:'martha-graham', name:'Martha Graham', middleName:'', homophones:[], similarSpellings:['Marta','Marthe','Marther','Mortha'], gender:'female', birthYear:1894, birthMonth:5, birthDay:11, birthPlace:'Allegheny, Pennsylvania', country:'USA', field:'Arts', subfield:'Choreographer',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:1976}],
     collaborators:['Aaron Copland','Isamu Noguchi'], contemporaries:[], friends:[], foes:[],
     bio:"Mother of modern dance whose contractions and releases re-mapped how the human body could speak." },
 
-  { id:'merce-cunningham', name:'Merce Cunningham', middleName:'', homophones:[], similarSpellings:['Mercy','Merse','Merci','Merze'], gender:'male', birthYear:1919, birthMonth:4, birthDay:16, birthPlace:'Centralia, Washington', country:'USA', field:'Visual Arts', subfield:'Choreographer',
+  { id:'merce-cunningham', name:'Merce Cunningham', middleName:'', homophones:[], similarSpellings:['Mercy','Merse','Merci','Merze'], gender:'male', birthYear:1919, birthMonth:4, birthDay:16, birthPlace:'Centralia, Washington', country:'USA', field:'Arts', subfield:'Choreographer',
     teams:[], awards:[{name:'Kennedy Center Honors',year:1985}],
     collaborators:['John Cage','Robert Rauschenberg'], contemporaries:[], friends:[], foes:[],
     bio:"Avant-garde choreographer who split movement from music and danced into his ninth decade." },
 
-  { id:'alvin-ailey', name:'Alvin Ailey', middleName:'', homophones:[], similarSpellings:['Alvyn','Alven','Alvinn','Alvine'], gender:'male', birthYear:1931, birthMonth:1, birthDay:5, birthPlace:'Rogers, Texas', country:'USA', field:'Visual Arts', subfield:'Choreographer',
+  { id:'alvin-ailey', name:'Alvin Ailey', middleName:'', homophones:[], similarSpellings:['Alvyn','Alven','Alvinn','Alvine'], gender:'male', birthYear:1931, birthMonth:1, birthDay:5, birthPlace:'Rogers, Texas', country:'USA', field:'Arts', subfield:'Choreographer',
     teams:[], awards:[{name:'Kennedy Center Honors',year:1988}],
     collaborators:['Judith Jamison','Carmen de Lavallade'], contemporaries:[], friends:[], foes:[],
     bio:"Texas-born choreographer whose Revelations turned spirituals into a permanent monument of American dance." },
 
-  { id:'twyla-tharp', name:'Twyla Tharp', middleName:'', homophones:[], similarSpellings:['Twila','Twyla','Twylah','Twilah'], gender:'female', birthYear:1941, birthMonth:7, birthDay:1, birthPlace:'Portland, Indiana', country:'USA', field:'Visual Arts', subfield:'Choreographer',
+  { id:'twyla-tharp', name:'Twyla Tharp', middleName:'', homophones:[], similarSpellings:['Twila','Twyla','Twylah','Twilah'], gender:'female', birthYear:1941, birthMonth:7, birthDay:1, birthPlace:'Portland, Indiana', country:'USA', field:'Arts', subfield:'Choreographer',
     teams:[], awards:[{name:'Tony Award',year:2003}],
     collaborators:['Mikhail Baryshnikov','Billy Joel'], contemporaries:[], friends:[], foes:[],
     bio:"Genre-mashing choreographer who set ballet to Sinatra and rock musicals to Joel." },
 
-  { id:'george-balanchine', name:'George Balanchine', middleName:'', homophones:['Georg','Jorje'], similarSpellings:['Georje','Jorge','Georeg','Geirge'], gender:'male', birthYear:1904, birthMonth:1, birthDay:22, birthPlace:'Saint Petersburg, Russia', country:'Russia', field:'Visual Arts', subfield:'Choreographer',
+  { id:'george-balanchine', name:'George Balanchine', middleName:'', homophones:['Georg','Jorje'], similarSpellings:['Georje','Jorge','Georeg','Geirge'], gender:'male', birthYear:1904, birthMonth:1, birthDay:22, birthPlace:'Saint Petersburg, Russia', country:'Russia', field:'Arts', subfield:'Choreographer',
     teams:[], awards:[{name:'Kennedy Center Honors',year:1978}],
     collaborators:['Igor Stravinsky','Lincoln Kirstein'], contemporaries:[], friends:[], foes:[],
     bio:"Russian-born co-founder of New York City Ballet who made neoclassical dance America's classical." },
 
-  { id:'rudolf-nureyev', name:'Rudolf Nureyev', middleName:'Khametovich', homophones:['Rudolph'], similarSpellings:['Rudolph','Rudulf','Rodolf','Roodolf'], gender:'male', birthYear:1938, birthMonth:3, birthDay:17, birthPlace:'Irkutsk Oblast, Russia', country:'Russia', field:'Visual Arts', subfield:'Choreographer',
+  { id:'rudolf-nureyev', name:'Rudolf Nureyev', middleName:'Khametovich', homophones:['Rudolph'], similarSpellings:['Rudolph','Rudulf','Rodolf','Roodolf'], gender:'male', birthYear:1938, birthMonth:3, birthDay:17, birthPlace:'Irkutsk Oblast, Russia', country:'Russia', field:'Arts', subfield:'Choreographer',
     teams:[], awards:[{name:'Dance Magazine Award',year:1973}],
     collaborators:['Margot Fonteyn','Frederick Ashton'], contemporaries:[], friends:[], foes:[],
     bio:"Tatar dancer who leapt the Iron Curtain at Le Bourget and redefined the male ballet star." },
@@ -2391,7 +2391,7 @@ export const PEOPLE = [
     teams:[{name:"Fleetwood Mac",years:[1970,2022]}], awards:[{name:"Rock and Roll Hall of Fame",year:1998}], collaborators:["Stevie Nicks","Lindsey Buckingham"], bio:"Fleetwood Mac's warm contralto and hit factory — 'Don't Stop,' 'Songbird,' 'Everywhere' — the steady center of 'Rumours'-era chaos." },
   { id:"florence-ballard", name:"Florence Ballard", gender:"female", birthYear:1943, birthPlace:"Detroit, Michigan", country:"USA", field:"Music", subfield:"Pop",
     teams:[{name:"The Supremes",years:[1959,1967]}], awards:[{name:"Rock and Roll Hall of Fame",year:1988}], collaborators:["Diana Ross","Mary Wilson"], bio:"Founding Supreme with the biggest voice in the group, eased out of Motown by 1967 and gone by 32 — the trio's tragic heart." },
-  { id:"keith-haring", name:"Keith Haring", gender:"male", birthYear:1958, birthPlace:"Reading, Pennsylvania", country:"USA", field:"Visual Arts", subfield:"Pop Artist",
+  { id:"keith-haring", name:"Keith Haring", gender:"male", birthYear:1958, birthPlace:"Reading, Pennsylvania", country:"USA", field:"Arts", subfield:"Pop Artist",
     teams:[], awards:[], collaborators:["Andy Warhol","Jean-Michel Basquiat"], bio:"Subway-chalk prodigy whose radiant babies and barking dogs turned 1980s downtown New York into a public canvas before AIDS took him at 31." },
   { id:"max-von-sydow", name:"Max von Sydow", gender:"male", birthYear:1929, birthPlace:"Lund, Sweden", country:"Sweden", field:"Film", subfield:"Actor",
     teams:[], awards:[], collaborators:["Ingmar Bergman","Liv Ullmann"], bio:"Bergman's gaunt leading man who played chess with Death, then became Hollywood's go-to European from 'The Exorcist' to 'Star Wars.'" },
@@ -2415,7 +2415,7 @@ export const PEOPLE = [
     teams:[], awards:[{name:"Grammy Award",year:1971}], collaborators:["Miles Davis"], bio:"Impressionist pianist whose hushed, blue voicings shaped Miles Davis's 'Kind of Blue,' then haunted jazz with the most lyrical touch on the keys." },
   { id:"gal-costa", name:"Gal Costa", gender:"female", birthYear:1945, birthPlace:"Salvador, Brazil", country:"Brazil", field:"Music", subfield:"Tropicália",
     teams:[], awards:[], collaborators:["Caetano Veloso"], bio:"Tropicália's fearless voice, she sang down Brazil's dictatorship beside Caetano Veloso with a sound as bold as her notorious album covers." },
-  { id:"david-alfaro-siqueiros", name:"David Alfaro Siqueiros", gender:"male", birthYear:1896, birthPlace:"Camargo, Mexico", country:"Mexico", field:"Visual Arts", subfield:"Muralist",
+  { id:"david-alfaro-siqueiros", name:"David Alfaro Siqueiros", gender:"male", birthYear:1896, birthPlace:"Camargo, Mexico", country:"Mexico", field:"Arts", subfield:"Muralist",
     teams:[], awards:[], collaborators:["Diego Rivera"], bio:"Most militant of Mexico's mural masters, he painted revolution at monumental scale beside Diego Rivera — and took up a rifle for his politics." },
   // =====================================================================
   //  2026-07-29 nightly (rotation: STRENGTHEN THE GRAPH)
@@ -2558,7 +2558,7 @@ export const PEOPLE = [
   //  contemporaries: Robert Plant, Johnny Cash, Miles Davis/Quincy Jones/
   //  Joni Mitchell, Caetano Veloso, John Coltrane, Stephen Curry & the
   //  Warriors, LeBron James & Kyrie Irving, Pablo Picasso, Marie Curie,
-  //  and Lise Meitner. Fields: Music, Sports, Visual Arts, Science.
+  //  and Lise Meitner. Fields: Music, Sports, Arts, Science.
   // =====================================================================
   { id:'jimmy-page', name:'Jimmy Page', middleName:'Patrick', homophones:['Jimmie','Jimi'], similarSpellings:['Jimi','Jimmi','Paige','Pagge'], gender:'male', birthYear:1944, birthMonth:1, birthDay:9, birthPlace:'Heston, England', country:'UK', field:'Music', subfield:'Rock',
     teams:[{name:'Led Zeppelin',years:[1968,1980]}], awards:[{name:'Rock and Roll Hall of Fame',year:1995}],
@@ -2595,7 +2595,7 @@ export const PEOPLE = [
     collaborators:['LeBron James','Kyrie Irving'], contemporaries:['LeBron James','Kevin Durant'], friends:['LeBron James'], foes:[],
     bio:"Outlet-passing stretch big who left Minnesota to complete LeBron James and Kyrie Irving's Cleveland trio and end a 52-year title drought." },
 
-  { id:'georges-braque', name:'Georges Braque', middleName:'', homophones:['George','Jorge'], similarSpellings:['George','Georg','Brack','Braq'], gender:'male', birthYear:1882, birthMonth:5, birthDay:13, birthPlace:'Argenteuil, France', country:'France', field:'Visual Arts', subfield:'Painting',
+  { id:'georges-braque', name:'Georges Braque', middleName:'', homophones:['George','Jorge'], similarSpellings:['George','Georg','Brack','Braq'], gender:'male', birthYear:1882, birthMonth:5, birthDay:13, birthPlace:'Argenteuil, France', country:'France', field:'Arts', subfield:'Painting',
     teams:[], awards:[],
     collaborators:['Pablo Picasso'], contemporaries:['Pablo Picasso'], friends:['Pablo Picasso'], foes:[],
     bio:"The quieter half of Cubism, who with Picasso shattered perspective into facets, then pasted the first papier collé onto canvas." },
@@ -2640,7 +2640,7 @@ export const PEOPLE = [
     collaborators:['Jean-Luc Godard'], contemporaries:['Jean-Luc Godard','François Truffaut','Agnès Varda'], friends:[], foes:[],
     bio:"The face of the French New Wave; Godard married her, filmed her dancing through 'Bande à part,' then let the marriage unravel on screen." },
 
-  { id:'francoise-gilot', name:'Françoise Gilot', middleName:'', homophones:['Francoise','Francoyse'], similarSpellings:['Francoise','Francois','Franchesca','Frances'], gender:'female', birthYear:1921, birthMonth:11, birthDay:26, birthPlace:'Neuilly-sur-Seine, France', country:'France', field:'Visual Arts', subfield:'Painter',
+  { id:'francoise-gilot', name:'Françoise Gilot', middleName:'', homophones:['Francoise','Francoyse'], similarSpellings:['Francoise','Francois','Franchesca','Frances'], gender:'female', birthYear:1921, birthMonth:11, birthDay:26, birthPlace:'Neuilly-sur-Seine, France', country:'France', field:'Arts', subfield:'Painter',
     teams:[], awards:[],
     collaborators:['Pablo Picasso','Henri Matisse'], contemporaries:['Pablo Picasso'], friends:['Henri Matisse'], foes:['Pablo Picasso'],
     bio:"The only lover to walk out on Picasso — then out-painted the grudge, living to 101 as an artist in her own right, never a muse." },

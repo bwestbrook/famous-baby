@@ -188,7 +188,7 @@ const FIELD_COLORS = {
   'Science':      '#6E3FB0', // violet
   'Activism':     '#E0A024', // gold
   'Architecture': '#4F6685', // steel
-  'Visual Arts':  '#D67A2A', // saffron
+  'Arts':         '#D67A2A', // saffron
   'Fashion':      '#E03B7C', // hot pink
   'Tech':         '#1F8DEB', // electric blue
   'Religion':     '#C18A3B', // mustard
@@ -208,7 +208,7 @@ const FIELD_ICONS = {
   'Science':      'i-flask',
   'Activism':     'i-mega',
   'Architecture': 'i-building',
-  'Visual Arts':  'i-palette',
+  'Arts':         'i-palette',
   'Fashion':      'i-hanger',
   'Tech':         'i-chip',
   'Religion':     'i-spark',
@@ -660,12 +660,67 @@ const app = createApp({
       const TILE_ASPECT = 3 / 4;
       if (w / h > TILE_ASPECT) h = w / TILE_ASPECT;
       else w = h * TILE_ASPECT;
+      return { x: cx - w / 2, y: cy - h / 2, w, h };
+    });
+
+    // ---- Card map zoom ----
+    // 1 = the country fits the tile. Zooming in closes on the birthplace;
+    // zooming out pulls back to the neighbours. Resets with each new card.
+    const miniZoom = ref(1);
+    const MINI_ZOOM_MIN = 0.35, MINI_ZOOM_MAX = 24;
+    function zoomMini(dir) {
+      const next = miniZoom.value * (dir > 0 ? 1.6 : 1 / 1.6);
+      miniZoom.value = Math.min(MINI_ZOOM_MAX, Math.max(MINI_ZOOM_MIN, next));
+    }
+    // (the watch that resets this per card lives with selectedPerson, which is
+    // declared further down — watch() runs immediately, so it can't sit here)
+
+    // The frame actually rendered: the fitted box, scaled by the zoom and
+    // centred on the birthplace so zooming in dives toward the person.
+    const miniFrame = computed(() => {
+      const v = miniView.value;
+      if (!v) return null;
+      const z = miniZoom.value;
+      const w = v.w / z, h = v.h / z;
+      const loc = birthLocation(selectedPerson.value);
+      const fx = loc ? projX(loc.lng) : v.x + v.w / 2;
+      const fy = loc ? projY(loc.lat) : v.y + v.h / 2;
+      let x = fx - w / 2, y = fy - h / 2;
+      // Zoomed in, hold the frame inside the country's own box; zoomed out,
+      // there's nothing to clamp against, so just stay centred.
+      x = w < v.w ? Math.min(Math.max(x, v.x), v.x + v.w - w) : v.x + v.w / 2 - w / 2;
+      y = h < v.h ? Math.min(Math.max(y, v.y), v.y + v.h - h) : v.y + v.h / 2 - h / 2;
       return {
-        box: `${(cx - w / 2).toFixed(2)} ${(cy - h / 2).toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)}`,
-        // Stroke and marker sizes are in user units, so they have to scale
-        // with how far the view is zoomed in.
+        x, y, w, h,
+        box: `${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)}`,
+        // Strokes, dots and type are in user units, so they scale with zoom.
         unit: Math.max(w, h) / 100,
       };
+    });
+
+    // City labels for whatever the frame currently covers — the person's own
+    // city first, then major cities that fall inside the view.
+    const miniCities = computed(() => {
+      const f = miniFrame.value;
+      if (!f) return [];
+      const inFrame = (x, y) => x >= f.x && x <= f.x + f.w && y >= f.y && y <= f.y + f.h;
+      const out = [];
+      const seen = new Set();
+      const person = selectedPerson.value;
+      const own = birthLocation(person);
+      if (own && own.exact) {
+        const name = (person.birthPlace || '').split(',')[0].trim();
+        out.push({ name, x: projX(own.lng), y: projY(own.lat), own: true });
+        seen.add(name);
+      }
+      for (const c of MAJOR_CITIES) {
+        if (seen.has(c.name)) continue;
+        const x = projX(c.lng), y = projY(c.lat);
+        if (!inFrame(x, y)) continue;
+        out.push({ name: c.name, x, y, own: false });
+        if (out.length >= 12) break;
+      }
+      return out;
     });
 
     const miniMarker = computed(() => {
@@ -827,6 +882,8 @@ const app = createApp({
 
     // Refine lives in an overlay sheet behind the tune icon on the search line.
     const refineOpen = ref(false);
+    // Account / settings sheet behind the three-bar button in the title row.
+    const menuOpen = ref(false);
     const refineCount = computed(() => typeFilterCount.value + timeFilterCount.value);
 
     // ---- Quick-category strip (top of the map) ----
@@ -959,6 +1016,8 @@ const app = createApp({
 
     // ---- Person info modal ----
     const selectedPerson = ref(null);
+    // Each card opens at the country-fits-the-tile zoom.
+    watch(selectedPerson, () => { miniZoom.value = 1; });
     function openPerson(p) {
       selectedPerson.value = p;
       // The camera drops in on their birth country and the spin stops, so the
@@ -1073,7 +1132,8 @@ const app = createApp({
     // ---- Esc key closes the modal ----
     function onKeydown(e) {
       if (e.key !== 'Escape') return;
-      if (refineOpen.value) refineOpen.value = false;
+      if (menuOpen.value) menuOpen.value = false;
+      else if (refineOpen.value) refineOpen.value = false;
       else if (selectedPerson.value) closePerson();
       else if (hitsExpanded.value) hitsExpanded.value = false;
     }
@@ -1371,13 +1431,14 @@ const app = createApp({
       bornTodayActive, toggleBornToday,
       selectedCountry, clearCountry, globeData, globeRotating, toggleGlobeRotation, zoomGlobe,
       pickCountry, flyToCountry, resetGlobeView,
-      miniOutline, miniAdmin, miniView, miniMarker,
+      miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
+      miniCities, miniZoom, zoomMini,
       selectedBornMonth, selectedBornDay,
       setBornMonth, clearBornFilters,
       MONTH_NAMES, zodiacFor, formatBirthDate, daysInMonth,
       surpriseMe,
       // dock
-      hitsExpanded, visibleHits, refineOpen, refineCount,
+      hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen,
       clearType, clearTime, clearCategories, typeFilterCount, timeFilterCount,
       toggleField, toggleSubfield, toggleGender,
       openPerson, closePerson, toggleTheme,

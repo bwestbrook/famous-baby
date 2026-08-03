@@ -96,16 +96,37 @@ body {
 }
 .topstack > * { pointer-events: auto; }
 
-/* ---------- wordmark ---------- */
-.titlebar { display: flex; justify-content: center; padding: 1px 0 3px; }
+/* ---------- wordmark + account controls, right-aligned ---------- */
+.titlebar {
+  display: flex; align-items: center; justify-content: flex-end; gap: 2px;
+  padding: 1px 0 3px;
+}
 .titlebar__mark {
   font-size: 14px; font-weight: 500; letter-spacing: .01em;
   color: #fff;
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  margin-right: 6px;
 }
 .titlebar__mark em {
   font-style: normal; font-weight: 300;
   color: rgba(255,255,255,.72);
+}
+.titlebar__btn {
+  position: relative;
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: rgba(255,255,255,.8);
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.titlebar__btn:hover { background: rgba(255,255,255,.14); color: #fff; }
+.titlebar__btn.is-on { color: #ff6d60; }
+.titlebar__badge {
+  position: absolute; top: 0; right: -1px;
+  min-width: 13px; height: 13px; padding: 0 3px;
+  border-radius: 7px;
+  background: #fff; color: #000;
+  font-size: 8.5px; font-weight: 500; line-height: 13px; text-align: center;
 }
 
 .qbar { display: flex; align-items: center; gap: 4px; }
@@ -166,6 +187,15 @@ body {
 }
 .qcat.is-on .qcat__ico { opacity: 1; }
 .qcat.is-on .qcat__label { font-weight: 500; }
+
+/* Framed on a desktop the tiles sit further from the eye than a phone held in
+   the hand, and the same px sizes read heavy — ease the icon and label down.
+   Matches the breakpoint where #app stops being a device frame. */
+@media (min-width: 561px) {
+  .qcat { padding: 6px 2px 4px; gap: 2px; }
+  .qcat__ico { width: 16px; height: 16px; }
+  .qcat__label { font-size: 8px; letter-spacing: .015em; }
+}
 
 /* ---------- clear-categories row ---------- */
 .qclear-row { display: flex; justify-content: flex-end; }
@@ -478,9 +508,11 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,.45), 0 12px 36px rgba(0,0,0,.5);
   overflow: hidden;
   display: flex; flex-direction: column;
-  flex: 0 1 auto;
+  /* Full-height sheet at every size — it takes the whole dock down to the
+     timeline, rather than stopping short and showing a band of globe. */
+  flex: 1 1 auto;
   min-height: 0;
-  max-height: 82%;
+  max-height: 100%;
   animation: pop-in .18s var(--ease);
 }
 @keyframes pop-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
@@ -597,8 +629,10 @@ body {
   margin: 0; padding: 0;
   background: rgba(255,255,255,.05);
   overflow: hidden;
+  cursor: pointer;
   transition: background .12s var(--ease);
 }
+.minimap:focus-visible { outline: 2px solid var(--blue-dark); outline-offset: -2px; }
 .minimap:hover { background: rgba(253,214,99,.1); }
 .minimap__svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .minimap__hl {
@@ -610,6 +644,37 @@ body {
 }
 .minimap__halo { fill: rgba(253,214,99,.22); }
 .minimap__dot { fill: #FDD663; stroke: rgba(0,0,0,.55); }
+
+/* City labels — scale with the viewBox, so the sizes come from the template */
+.minimap__citydot { fill: rgba(255,255,255,.5); }
+.minimap__citydot.is-own { fill: #FDD663; }
+.minimap__city {
+  fill: rgba(255,255,255,.75);
+  font-family: var(--font); font-weight: 300;
+  paint-order: stroke;
+  stroke: rgba(0,0,0,.65);
+  stroke-width: .6px;
+  vector-effect: non-scaling-stroke;
+}
+.minimap__city.is-own { fill: #FDD663; font-weight: 500; }
+
+/* Zoom, bottom-right of the tile */
+.minimap__zoom {
+  position: absolute; right: 5px; bottom: 26px;
+  display: flex; flex-direction: column; gap: 1px;
+  z-index: 2;
+}
+.minimap__zbtn {
+  width: 22px; height: 20px;
+  display: grid; place-items: center;
+  color: rgba(255,255,255,.85);
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.22);
+  transition: background .12s var(--ease);
+}
+.minimap__zbtn:first-child { border-radius: 6px 6px 2px 2px; }
+.minimap__zbtn:last-child  { border-radius: 2px 2px 6px 6px; }
+.minimap__zbtn:hover { background: rgba(40,42,48,.9); color: #fff; }
 .minimap__cap {
   position: absolute; left: 0; right: 0; bottom: 0;
   display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -888,4 +953,30 @@ body {
   stroke: rgba(253,214,99,.38);
   stroke-width: .7px;
   vector-effect: non-scaling-stroke;
+}
+
+/* =========================================================================
+   ACCOUNT / SETTINGS MENU — a short sheet, same black chrome
+   ========================================================================= */
+.ovl__sheet--menu { max-height: 60%; }
+.mrow {
+  width: 100%;
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  color: #e8eaed;
+  font-size: 13px; font-weight: 300;
+  text-align: left;
+  transition: background .12s var(--ease);
+}
+.mrow + .mrow { border-top: 1px solid rgba(255,255,255,.1); }
+.mrow .ico { color: rgba(255,255,255,.6); flex: none; }
+.mrow__label { flex: 1; min-width: 0; }
+.mrow__meta { color: rgba(255,255,255,.5); font-variant-numeric: tabular-nums; }
+button.mrow:hover { background: rgba(255,255,255,.08); color: #fff; }
+button.mrow:disabled { opacity: .4; cursor: default; background: none; }
+.mrow--static { cursor: default; }
+.mnote {
+  padding: 14px 16px 4px;
+  font-size: 11.5px; font-weight: 300; line-height: 1.5;
+  color: rgba(255,255,255,.5);
 }

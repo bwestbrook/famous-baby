@@ -97,6 +97,7 @@
       <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></symbol>
       <symbol id="i-food" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></symbol>
       <symbol id="i-avatar" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-3.33 0-8 1.67-8 4v2h16v-2c0-2.33-4.67-4-8-4z"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 18h18v-2H3zm0-5h18v-2H3zm0-7v2h18V6z"/></symbol>
       <symbol id="i-info" viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></symbol>
     </defs>
   </svg>
@@ -110,9 +111,21 @@
       <!-- ---------- TOP STACK — wordmark, categories, map controls ---------- -->
       <div class="topstack">
 
-      <!-- Wordmark, centred at the very top -->
+      <!-- Wordmark and account controls, right-aligned at the very top -->
       <div class="titlebar">
         <span class="titlebar__mark"><em>famous</em>Baby</span>
+        <button
+          class="titlebar__btn"
+          :class="{ 'is-on': onlyFavorites }"
+          @click="toggleOnlyFavorites"
+          :title="favorites.size ? favorites.size + ' saved — show only these' : 'No favorites yet'"
+        >
+          <svg class="ico ico--18"><use :href="onlyFavorites ? '#i-heart' : '#i-heart-o'"/></svg>
+          <span v-if="favorites.size" class="titlebar__badge">{{ favorites.size }}</span>
+        </button>
+        <button class="titlebar__btn" @click="menuOpen = true" title="Account and settings">
+          <svg class="ico ico--18"><use href="#i-menu"/></svg>
+        </button>
       </div>
 
       <!-- Clear the category strip; only present when something is picked. -->
@@ -273,42 +286,73 @@
               <div class="pop__scrim"></div>
             </div>
 
-            <!-- Where they're from, at a glance -->
-            <button
-              v-if="miniView"
+            <!-- Where they're from, at a glance. A div rather than a button so
+                 the zoom controls can nest inside it. -->
+            <div
+              v-if="miniFrame"
               class="minimap"
+              role="button"
+              tabindex="0"
               @click="pickCountry(selectedPerson.country)"
+              @keydown.enter="pickCountry(selectedPerson.country)"
               :title="'See names from ' + selectedPerson.country"
             >
               <!-- .camel is required: this is an in-DOM template, so the HTML
                    parser would lowercase :viewBox into an attribute SVG ignores. -->
-              <svg class="minimap__svg" :view-box.camel="miniView.box" preserveAspectRatio="xMidYMid meet">
+              <svg class="minimap__svg" :view-box.camel="miniFrame.box" preserveAspectRatio="xMidYMid meet">
                 <path
                   class="minimap__hl"
                   :d="miniOutline"
-                  :stroke-width="miniView.unit * 0.7"
+                  :stroke-width="miniFrame.unit * 0.7"
                 />
                 <path v-if="miniAdmin" class="minimap__admin" :d="miniAdmin"/>
+
+                <!-- Cities in view; the birthplace leads and is highlighted. -->
+                <g v-for="c in miniCities" :key="c.name">
+                  <circle
+                    :class="c.own ? 'minimap__citydot is-own' : 'minimap__citydot'"
+                    :cx="c.x" :cy="c.y"
+                    :r="miniFrame.unit * (c.own ? 1.1 : 0.7)"
+                  />
+                  <text
+                    :class="c.own ? 'minimap__city is-own' : 'minimap__city'"
+                    :x="c.x"
+                    :y="c.y - miniFrame.unit * 2"
+                    :font-size="miniFrame.unit * (c.own ? 4 : 3.2)"
+                    text-anchor="middle"
+                  >{{ c.name }}</text>
+                </g>
+
                 <g v-if="miniMarker">
                   <circle
                     class="minimap__halo"
                     :cx="miniMarker.x" :cy="miniMarker.y"
-                    :r="miniView.unit * 3.4"
+                    :r="miniFrame.unit * 3.4"
                   />
                   <circle
                     class="minimap__dot"
                     :cx="miniMarker.x" :cy="miniMarker.y"
-                    :r="miniView.unit * 1.3"
-                    :stroke-width="miniView.unit * 0.35"
+                    :r="miniFrame.unit * 1.3"
+                    :stroke-width="miniFrame.unit * 0.35"
                   />
                 </g>
               </svg>
+
+              <div class="minimap__zoom">
+                <button class="minimap__zbtn" @click.stop="zoomMini(1)" title="Zoom in">
+                  <svg class="ico ico--12"><use href="#i-plus"/></svg>
+                </button>
+                <button class="minimap__zbtn" @click.stop="zoomMini(-1)" title="Zoom out">
+                  <svg class="ico ico--12"><use href="#i-minus"/></svg>
+                </button>
+              </div>
+
               <span class="minimap__cap">
                 <svg class="ico ico--12"><use href="#i-public"/></svg>
                 <span class="minimap__place">{{ selectedPerson.birthPlace }}</span>
                 <em v-if="miniMarker && !miniMarker.exact">approx.</em>
               </span>
-            </button>
+            </div>
           </div>
 
           <button class="pop__back" @click="closePerson" title="Back to results">
@@ -455,15 +499,6 @@
 
       <!-- ---------- SEARCH LINE — the last thing on screen ---------- -->
       <div class="sbar">
-        <button
-          class="sbar__btn sbar__btn--lucky"
-          @click="surpriseMe"
-          :disabled="!filtered.length"
-          title="Open a random name"
-        >
-          <svg class="ico ico--18"><use href="#i-dice"/></svg>
-        </button>
-        <svg class="ico ico--18 sbar__ico"><use href="#i-search"/></svg>
         <input
           class="sbar__input"
           type="text"
@@ -478,11 +513,11 @@
         <span class="sbar__div"></span>
         <button
           class="sbar__btn"
-          :class="{ 'is-on': onlyFavorites }"
-          @click="toggleOnlyFavorites"
-          :title="favorites.size ? favorites.size + ' saved' : 'No favorites yet'"
+          @click="surpriseMe"
+          :disabled="!filtered.length"
+          title="Open a random name"
         >
-          <svg class="ico ico--18"><use :href="onlyFavorites ? '#i-heart' : '#i-heart-o'"/></svg>
+          <svg class="ico ico--18"><use href="#i-dice"/></svg>
         </button>
         <button
           class="sbar__btn"
@@ -497,6 +532,47 @@
     </div>
 
     <!-- ============== REFINE OVERLAY ============== -->
+    <!-- ============== ACCOUNT / SETTINGS MENU ============== -->
+    <div class="ovl" v-show="menuOpen" @click.self="menuOpen = false">
+      <div class="ovl__sheet ovl__sheet--menu" role="dialog" aria-modal="true">
+        <div class="ovl__head">
+          <h2 class="ovl__title">Account &amp; settings</h2>
+          <button class="panel__collapse" @click="menuOpen = false" title="Close">
+            <svg class="ico ico--18"><use href="#i-close"/></svg>
+          </button>
+        </div>
+
+        <div class="ovl__scroll">
+          <button class="mrow" @click="toggleOnlyFavorites(); menuOpen = false">
+            <svg class="ico ico--18"><use :href="onlyFavorites ? '#i-heart' : '#i-heart-o'"/></svg>
+            <span class="mrow__label">Saved names</span>
+            <span class="mrow__meta">{{ favorites.size }}</span>
+          </button>
+
+          <button class="mrow" @click="clearAll(); menuOpen = false" :disabled="!hasActiveFilters">
+            <svg class="ico ico--18"><use href="#i-close"/></svg>
+            <span class="mrow__label">Clear all filters</span>
+          </button>
+
+          <button class="mrow" @click="resetGlobeView(); globeRotating = true; menuOpen = false">
+            <svg class="ico ico--18"><use href="#i-compass"/></svg>
+            <span class="mrow__label">Reset the globe</span>
+          </button>
+
+          <div class="mrow mrow--static">
+            <svg class="ico ico--18"><use href="#i-public"/></svg>
+            <span class="mrow__label">Roster</span>
+            <span class="mrow__meta">{{ PEOPLE_COUNT }} names</span>
+          </div>
+
+          <div class="mnote">
+            Favorites are stored on this device only — there are no accounts yet,
+            so clearing your browser data clears your shortlist.
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="ovl" v-show="refineOpen" @click.self="refineOpen = false">
       <div class="ovl__sheet" role="dialog" aria-modal="true">
         <div class="ovl__head">
