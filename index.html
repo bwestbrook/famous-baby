@@ -488,7 +488,7 @@
           class="sbar__btn"
           :class="{ 'is-on': refineOpen || refineCount }"
           @click="refineOpen = true"
-          title="Refine"
+          title="Advanced search"
         >
           <svg class="ico ico--18"><use href="#i-tune"/></svg>
           <span v-if="refineCount" class="sbar__badge">{{ refineCount }}</span>
@@ -500,7 +500,7 @@
     <div class="ovl" v-show="refineOpen" @click.self="refineOpen = false">
       <div class="ovl__sheet" role="dialog" aria-modal="true">
         <div class="ovl__head">
-          <h2 class="ovl__title">Refine</h2>
+          <h2 class="ovl__title">Advanced search</h2>
           <button class="panel__collapse" @click="refineOpen = false" title="Close">
             <svg class="ico ico--18"><use href="#i-close"/></svg>
           </button>
