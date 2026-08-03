@@ -488,7 +488,7 @@ body {
 /* The rail sits below the tick labels inside .tl__track, so anything flanking
    it gets nudged down by half the tick strip to line up with the rail itself
    rather than with the row as a whole. */
-.tl__label, .tl__val {
+.tl__label, .tl__val, .tl__sign {
   position: relative;
   top: 3px;               /* half the tick strip above the rail */
   line-height: 1;
@@ -551,6 +551,7 @@ body {
   color: rgba(255,255,255,.92);
 }
 .tl__val--min { text-align: left; }
+.tl__sign { flex: none; color: #FDD663; display: grid; place-items: center; }
 /* Date-of-birth mode: the readout is the point of the bar, so it leads. */
 .tl.is-dob { opacity: 1; background: rgba(18,19,22,.78); border-color: rgba(253,214,99,.35); }
 .tl.is-dob .tl__label { color: #FDD663; }
@@ -656,11 +657,26 @@ body {
 }
 .pop__name { margin: 0; font-size: 19px; font-weight: 500; line-height: 1.15; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
 .pop__sub {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
   font-size: 12px; font-weight: 300; letter-spacing: .01em;
   color: #FDD663;
   margin-top: 3px;
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
 }
+/* The sign rides beside the date, and filters to itself when tapped. */
+.pop__sign {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  border-radius: 11px;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(0,0,0,.3);
+  backdrop-filter: blur(4px);
+  font-size: 11px; font-weight: 300;
+  color: rgba(255,255,255,.9);
+  text-shadow: none;
+  transition: background .12s var(--ease), border-color .12s var(--ease);
+}
+.pop__sign:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); color: #fff; }
 
 .pop__body {
   flex: 1; min-height: 0; overflow-y: auto;
@@ -760,11 +776,8 @@ body {
   border-radius: 6px; padding: 0 4px;
 }
 
-.pop .kgiven { background: rgba(255,255,255,.07); }
-.pop .kgiven__l { color: rgba(255,255,255,.5); }
-.pop .kgiven__n { color: #f1f3f4; }
-
-.pop .kcard__bio { color: rgba(255,255,255,.86); }
+.pop .pop .pop 
+.pop .kcard__bio { color: #f1f3f4; }
 
 .pop .btn--out { border-color: rgba(255,255,255,.25); color: var(--blue-dark); }
 .pop .btn--out:hover { background: rgba(138,180,248,.16); }
@@ -802,15 +815,6 @@ body {
 .kfact--link .ico { color: var(--blue); }
 .kfact--link:hover { background: var(--blue-tint); }
 
-.kgiven {
-  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
-  padding: 7px 10px; margin-bottom: 10px;
-  background: var(--panel-3); border-radius: 8px;
-  border-left: 3px solid var(--field-color, var(--blue));
-}
-.kgiven__l { font-size: 9.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); }
-.kgiven__n { font-size: 12.5px; }
-.kgiven__n em { font-style: normal; font-weight: 500; }
 
 .kcard__bio { margin: 0 0 12px; font-size: 12.5px; line-height: 1.6; color: #3c4043; }
 
@@ -1118,3 +1122,60 @@ button.mrow:disabled { opacity: .4; cursor: default; background: none; }
 /* A name we can actually open reads as a link. */
 .pop .tag.is-linked { color: var(--blue-dark); }
 .pop .tag.is-linked:hover { background: rgba(138,180,248,.22); color: #fff; }
+
+/* ---------- account sheet: lists, groups, confirm ---------- */
+.mrow__go { color: rgba(255,255,255,.3); margin-left: 2px; }
+.mrow--warn { color: #ff9d94; }
+button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
+.mrow--inset { border-radius: 8px; }
+
+.mlist { list-style: none; margin: 0; padding: 0; }
+.mitem { display: flex; align-items: stretch; }
+.mitem + .mitem { border-top: 1px solid rgba(255,255,255,.1); }
+.mitem__open {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 6px 10px 16px;
+  text-align: left;
+  transition: background .12s var(--ease);
+}
+.mitem__open:hover { background: rgba(255,255,255,.08); }
+.mitem__dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.mitem__main { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.mitem__name {
+  font-size: 12.5px; color: #f1f3f4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mitem__meta {
+  font-size: 10.5px; color: rgba(255,255,255,.45);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mitem__x {
+  flex: none; width: 34px;
+  display: grid; place-items: center;
+  color: rgba(255,255,255,.4);
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.mitem__x:hover { background: rgba(255,109,96,.16); color: #ff9d94; }
+
+.mgrp { padding: 12px 16px 4px; }
+.mgrp__label {
+  font-size: 10.5px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+  color: rgba(255,255,255,.5); margin-bottom: 8px;
+}
+.mgrp__hint {
+  margin-top: 8px;
+  font-size: 11px; font-weight: 300; line-height: 1.5;
+  color: rgba(255,255,255,.45);
+}
+.mgrp .mrow { padding-left: 12px; padding-right: 12px; }
+.mnote--tight { padding-top: 4px; font-size: 11px; }
+
+.mconfirm {
+  border: 1px solid rgba(255,157,148,.35);
+  border-radius: 10px;
+  padding: 12px;
+  background: rgba(255,109,96,.08);
+}
+.mconfirm__q { margin: 0 0 10px; font-size: 12px; font-weight: 300; line-height: 1.5; color: rgba(255,255,255,.85); }
+.mconfirm__row { display: flex; justify-content: flex-end; gap: 6px; }

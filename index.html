@@ -66,13 +66,6 @@
       <symbol id="i-tune" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></symbol>
       <symbol id="i-public" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41C17.92 5.77 20 8.65 20 12c0 2.08-.8 3.97-2.1 5.39z"/></symbol>
       <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol>
-      <!-- Outlined die: at 16px the old solid one read as a smudged square. -->
-      <symbol id="i-dice" viewBox="0 0 24 24">
-        <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V5h14z"/>
-        <circle cx="8.4" cy="8.4" r="1.7"/><circle cx="15.6" cy="8.4" r="1.7"/>
-        <circle cx="12" cy="12" r="1.7"/>
-        <circle cx="8.4" cy="15.6" r="1.7"/><circle cx="15.6" cy="15.6" r="1.7"/>
-      </symbol>
       <!-- Crossing arrows — the universal "random", clearer than a die. -->
       <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></symbol>
       <symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
@@ -241,9 +234,6 @@
             <svg class="ico ico--16"><use href="#i-minus"/></svg>
           </button>
         </div>
-        <button class="mapctl__btn" @click="randomGlobeView" title="Spin to somewhere else">
-          <svg class="ico ico--16"><use href="#i-shuffle"/></svg>
-        </button>
       </div>
     </main>
 
@@ -461,34 +451,24 @@
             <svg class="ico ico--18"><use :href="isFavorite(selectedPerson) ? '#i-heart' : '#i-heart-o'"/></svg>
           </button>
           <div class="pop__titles">
-            <h2 class="pop__name">{{ selectedPerson.name }}</h2>
+            <h2 class="pop__name">{{ fullNameOf(selectedPerson) }}</h2>
             <div v-if="selectedPerson.stageName" class="pop__alias">known as {{ selectedPerson.stageName }}</div>
-            <div class="pop__sub">{{ formatBirthDate(selectedPerson) }}</div>
+            <div class="pop__sub">
+              <span>{{ formatBirthDate(selectedPerson) }}</span>
+              <!-- Sign sits with the date and filters the roster to itself. -->
+              <button
+                v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+                class="pop__sign"
+                @click="filterZodiac(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"
+                :title="'Show ' + zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) + ' names'"
+              >
+                <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="pop__body">
-          <div class="kcard__facts">
-            <!-- Sign glyph — filters the roster to that sign. -->
-            <button
-              v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
-              class="kfact kfact--zodiac"
-              @click="filterZodiac(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"
-              :title="'Show ' + zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) + ' names'"
-            >
-              <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
-            </button>
-          </div>
-
-          <div v-if="fullNameParts(selectedPerson)" class="kgiven">
-            <span class="kgiven__l">Full name</span>
-            <span class="kgiven__n">
-              {{ fullNameParts(selectedPerson).first }}
-              <em>{{ fullNameParts(selectedPerson).middle }}</em>
-              {{ fullNameParts(selectedPerson).last }}
-            </span>
-          </div>
-
           <p class="kcard__bio">{{ selectedPerson.bio }}</p>
 
           <div class="kask">
@@ -622,6 +602,14 @@
             </div>
           </div>
           <span class="tl__val">{{ selectedPerson ? tlLabel : yearMax }}</span>
+          <!-- The sign travels with the date here too, glyph only for width. -->
+          <span
+            v-if="selectedPerson && zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+            class="tl__sign"
+            :title="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+          >
+            <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>
+          </span>
         </div>
       </div>
 
@@ -640,13 +628,21 @@
           <svg class="ico ico--16"><use href="#i-close"/></svg>
         </button>
         <span class="sbar__div"></span>
+        <!-- The two dice-rolls, side by side: a random name, a random place. -->
         <button
           class="sbar__btn"
           @click="surpriseMe"
           :disabled="!filtered.length"
           title="Open a random name"
         >
-          <svg class="ico ico--18"><use href="#i-dice"/></svg>
+          <svg class="ico ico--18"><use href="#i-shuffle"/></svg>
+        </button>
+        <button
+          class="sbar__btn"
+          @click="randomGlobeView"
+          title="Spin the globe somewhere else"
+        >
+          <svg class="ico ico--18"><use href="#i-public"/></svg>
         </button>
         <button
           class="sbar__btn"
@@ -669,43 +665,167 @@
     </div>
 
     <!-- ============== REFINE OVERLAY ============== -->
-    <!-- ============== ACCOUNT / SETTINGS MENU ============== -->
+    <!-- ============== ACCOUNT MENU ============== -->
     <div class="ovl" v-show="menuOpen" @click.self="menuOpen = false">
       <div class="ovl__sheet ovl__sheet--menu" role="dialog" aria-modal="true">
         <div class="ovl__head">
-          <h2 class="ovl__title">Account &amp; settings</h2>
+          <button
+            v-if="menuView !== 'root'"
+            class="panel__collapse"
+            @click="menuView = 'root'"
+            title="Back"
+          ><svg class="ico ico--18"><use href="#i-back"/></svg></button>
+          <h2 class="ovl__title">
+            <span v-if="menuView === 'root'">Account</span>
+            <span v-else-if="menuView === 'favorites'">Saved favorites</span>
+            <span v-else-if="menuView === 'searches'">Saved searches</span>
+            <span v-else>Account settings</span>
+          </h2>
           <button class="panel__collapse" @click="menuOpen = false" title="Close">
             <svg class="ico ico--18"><use href="#i-close"/></svg>
           </button>
         </div>
 
         <div class="ovl__scroll">
-          <button class="mrow" @click="toggleOnlyFavorites(); menuOpen = false">
-            <svg class="ico ico--18"><use :href="onlyFavorites ? '#i-heart' : '#i-heart-o'"/></svg>
-            <span class="mrow__label">Saved names</span>
-            <span class="mrow__meta">{{ favorites.size }}</span>
-          </button>
 
-          <button class="mrow" @click="clearAll(); menuOpen = false" :disabled="!hasActiveFilters">
-            <svg class="ico ico--18"><use href="#i-close"/></svg>
-            <span class="mrow__label">Clear all filters</span>
-          </button>
+          <!-- ---------- the four destinations ---------- -->
+          <template v-if="menuView === 'root'">
+            <button class="mrow" @click="menuView = 'favorites'">
+              <svg class="ico ico--18"><use href="#i-heart-o"/></svg>
+              <span class="mrow__label">Saved favorites</span>
+              <span class="mrow__meta">{{ favorites.size }}</span>
+              <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
+            </button>
 
-          <button class="mrow" @click="resetGlobeView(); menuOpen = false">
-            <svg class="ico ico--18"><use href="#i-compass"/></svg>
-            <span class="mrow__label">Reset the globe</span>
-          </button>
+            <button class="mrow" @click="menuView = 'searches'">
+              <svg class="ico ico--18"><use href="#i-search"/></svg>
+              <span class="mrow__label">Saved searches</span>
+              <span class="mrow__meta">{{ savedSearches.length }}</span>
+              <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
+            </button>
 
-          <div class="mrow mrow--static">
-            <svg class="ico ico--18"><use href="#i-public"/></svg>
-            <span class="mrow__label">Roster</span>
-            <span class="mrow__meta">{{ PEOPLE_COUNT }} names</span>
-          </div>
+            <button class="mrow" @click="menuView = 'settings'">
+              <svg class="ico ico--18"><use href="#i-tune"/></svg>
+              <span class="mrow__label">Account settings</span>
+              <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
+            </button>
 
-          <div class="mnote">
-            Favorites are stored on this device only — there are no accounts yet,
-            so clearing your browser data clears your shortlist.
-          </div>
+            <button class="mrow mrow--warn" @click="menuView = 'settings'; confirmSignOut = true">
+              <svg class="ico ico--18"><use href="#i-back"/></svg>
+              <span class="mrow__label">Log off</span>
+            </button>
+          </template>
+
+          <!-- ---------- saved favorites ---------- -->
+          <template v-else-if="menuView === 'favorites'">
+            <ol v-if="favoritePeople.length" class="mlist">
+              <li v-for="p in favoritePeople" :key="p.id" class="mitem">
+                <button class="mitem__open" @click="openPerson(p); menuOpen = false">
+                  <span class="mitem__dot" :style="{ background: colorForField(p.field) }"></span>
+                  <span class="mitem__main">
+                    <span class="mitem__name">{{ p.name }}</span>
+                    <span class="mitem__meta">{{ rowMeta(p) }}</span>
+                  </span>
+                </button>
+                <button class="mitem__x" @click="toggleFavorite(p)" title="Remove from favorites">
+                  <svg class="ico ico--14"><use href="#i-close"/></svg>
+                </button>
+              </li>
+            </ol>
+            <div v-else class="mnote">
+              Nothing saved yet. Tap the heart on any name — or on a card — and it
+              lands here.
+            </div>
+            <button
+              v-if="favoritePeople.length"
+              class="mrow"
+              @click="toggleOnlyFavorites(); menuOpen = false"
+            >
+              <svg class="ico ico--18"><use :href="onlyFavorites ? '#i-heart' : '#i-heart-o'"/></svg>
+              <span class="mrow__label">{{ onlyFavorites ? 'Stop showing only these' : 'Show only these' }}</span>
+            </button>
+          </template>
+
+          <!-- ---------- saved searches ---------- -->
+          <template v-else-if="menuView === 'searches'">
+            <button class="mrow" @click="saveCurrentSearch()" :disabled="!hasActiveFilters || isSearchSaved">
+              <svg class="ico ico--18"><use href="#i-plus"/></svg>
+              <span class="mrow__label">
+                <span v-if="!hasActiveFilters">Nothing to save yet</span>
+                <span v-else-if="isSearchSaved">Already saved</span>
+                <span v-else>Save this search</span>
+              </span>
+              <span v-if="hasActiveFilters && !isSearchSaved" class="mrow__meta">{{ filtered.length }}</span>
+            </button>
+            <div v-if="hasActiveFilters && !isSearchSaved" class="mnote mnote--tight">{{ searchLabel }}</div>
+
+            <ol v-if="savedSearches.length" class="mlist">
+              <li v-for="q in savedSearches" :key="q.id" class="mitem">
+                <button class="mitem__open" @click="applySavedSearch(q)">
+                  <span class="mitem__main">
+                    <span class="mitem__name">{{ q.label }}</span>
+                    <span class="mitem__meta">{{ q.count }} {{ q.count === 1 ? 'name' : 'names' }} when saved</span>
+                  </span>
+                </button>
+                <button class="mitem__x" @click="deleteSavedSearch(q.id)" title="Delete">
+                  <svg class="ico ico--14"><use href="#i-close"/></svg>
+                </button>
+              </li>
+            </ol>
+            <div v-else class="mnote">
+              Set up a search you like — a field, a place, a stretch of years — then
+              save it here and it comes back in one tap.
+            </div>
+          </template>
+
+          <!-- ---------- account settings ---------- -->
+          <template v-else>
+            <div class="mgrp">
+              <div class="mgrp__label">Name order</div>
+              <div class="chips">
+                <button class="chip chip--sm" :class="{ 'is-on': nameMode === 'first' }" @click="setNameMode('first')">First name</button>
+                <button class="chip chip--sm" :class="{ 'is-on': nameMode === 'last' }" @click="setNameMode('last')">Last name</button>
+              </div>
+              <div class="mgrp__hint">Sorting and the letter dial both follow this.</div>
+            </div>
+
+            <div class="mgrp">
+              <div class="mgrp__label">This device</div>
+              <button class="mrow mrow--inset" @click="clearSavedData()" :disabled="!favorites.size && !savedSearches.length">
+                <svg class="ico ico--18"><use href="#i-close"/></svg>
+                <span class="mrow__label">Clear favorites and searches</span>
+                <span class="mrow__meta">{{ favorites.size + savedSearches.length }}</span>
+              </button>
+              <div class="mgrp__hint">
+                Everything is kept in this browser — there is no account behind it
+                yet, so nothing follows you to another device.
+              </div>
+            </div>
+
+            <div class="mgrp">
+              <div class="mgrp__label">Log off</div>
+              <template v-if="!confirmSignOut">
+                <button class="mrow mrow--inset mrow--warn" @click="confirmSignOut = true">
+                  <svg class="ico ico--18"><use href="#i-back"/></svg>
+                  <span class="mrow__label">Log off this device</span>
+                </button>
+              </template>
+              <template v-else>
+                <div class="mconfirm">
+                  <p class="mconfirm__q">
+                    There is no sign-in yet, so logging off clears the shortlist,
+                    the saved searches and the current filters. Go ahead?
+                  </p>
+                  <div class="mconfirm__row">
+                    <button class="btn btn--text" @click="confirmSignOut = false">Cancel</button>
+                    <button class="btn btn--fill" @click="signOut()">Log off</button>
+                  </div>
+                </div>
+              </template>
+            </div>
+
+            <div class="mnote">Roster · {{ PEOPLE_COUNT }} names</div>
+          </template>
         </div>
       </div>
     </div>

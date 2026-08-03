@@ -980,7 +980,11 @@ const app = createApp({
       while (parts.length > 1 && NAME_SUFFIXES.has(parts[parts.length - 1].toLowerCase())) parts.pop();
       return parts[parts.length - 1] || '';
     }
-    const nameMode = ref('first');           // 'first' | 'last'
+    const STORAGE_NAMEMODE = 'fb-namemode-v1';
+    const nameMode = ref((() => {
+      try { return localStorage.getItem(STORAGE_NAMEMODE) || 'first'; } catch { return 'first'; }
+    })());                                   // 'first' | 'last'
+    watch(nameMode, (v) => { try { localStorage.setItem(STORAGE_NAMEMODE, v); } catch {} });
     function nameKey(person) {
       const full = String((person && person.name) || '');
       return (nameMode.value === 'last' ? surnameOf(person) + ' ' + full : full).toLowerCase();
@@ -1111,6 +1115,96 @@ const app = createApp({
     const refineOpen = ref(false);
     // Account / settings sheet behind the three-bar button in the title row.
     const menuOpen = ref(false);
+    // Which face of the account sheet is showing.
+    const menuView = ref('root');            // root | favorites | searches | settings
+    function openMenu(view) { menuView.value = view; menuOpen.value = true; }
+    watch(menuOpen, (open) => { if (!open) menuView.value = 'root'; });
+
+    // ---- Saved searches ----
+    // A search is the whole filter state, stored under the label the dock
+    // chips already spell out. Restoring one puts every control back.
+    const STORAGE_SEARCHES = 'fb-searches-v1';
+    function loadSearches() {
+      try {
+        const raw = localStorage.getItem(STORAGE_SEARCHES);
+        return raw ? JSON.parse(raw) : [];
+      } catch { return []; }
+    }
+    const savedSearches = ref(loadSearches());
+    function persistSearches() {
+      try { localStorage.setItem(STORAGE_SEARCHES, JSON.stringify(savedSearches.value)); } catch {}
+    }
+    function snapshotFilters() {
+      return {
+        query: query.value,
+        fields: [...selectedFields.value],
+        subfields: [...selectedSubfields.value],
+        genders: [...selectedGenders.value],
+        yearMin: yearMin.value,
+        yearMax: yearMax.value,
+        country: selectedCountry.value,
+        months: [...selectedBornMonths.value],
+        days: [...selectedBornDays.value],
+        zodiacs: [...selectedZodiacs.value],
+        onlyFavorites: onlyFavorites.value,
+        bornToday: bornTodayActive.value,
+      };
+    }
+    const searchLabel = computed(() =>
+      activeFilters.value.map(f => f.label).join(' · ') || 'Everything'
+    );
+    function saveCurrentSearch() {
+      if (!hasActiveFilters.value) return;
+      const label = searchLabel.value;
+      const entry = { id: 's' + Date.now(), label, count: filtered.value.length, state: snapshotFilters() };
+      savedSearches.value = [entry, ...savedSearches.value.filter(x => x.label !== label)].slice(0, 24);
+      persistSearches();
+    }
+    function applySavedSearch(entry) {
+      const st = (entry && entry.state) || {};
+      query.value = st.query || '';
+      selectedFields.value = [...(st.fields || [])];
+      selectedSubfields.value = [...(st.subfields || [])];
+      selectedGenders.value = [...(st.genders || [])];
+      yearMin.value = typeof st.yearMin === 'number' ? st.yearMin : YEAR_FLOOR;
+      yearMax.value = typeof st.yearMax === 'number' ? st.yearMax : YEAR_CEIL;
+      selectedCountry.value = st.country || '';
+      selectedBornMonths.value = [...(st.months || [])];
+      selectedBornDays.value = [...(st.days || [])];
+      selectedZodiacs.value = [...(st.zodiacs || [])];
+      onlyFavorites.value = !!st.onlyFavorites;
+      bornTodayActive.value = !!st.bornToday;
+      if (st.country) flyToCountry(st.country);
+      menuOpen.value = false;
+    }
+    function deleteSavedSearch(id) {
+      savedSearches.value = savedSearches.value.filter(x => x.id !== id);
+      persistSearches();
+    }
+    const isSearchSaved = computed(() =>
+      savedSearches.value.some(x => x.label === searchLabel.value)
+    );
+
+    // ---- Settings / sign-off ----
+    // There is no account to sign out of yet, so signing off means clearing
+    // what this device is holding: the shortlist, the saved searches, the
+    // remembered name order, and whatever is currently filtered.
+    function clearSavedData() {
+      favorites.value = new Set();
+      savedSearches.value = [];
+      // Write an empty list rather than removing the key, or the next load
+      // reads "never visited" and seeds three names again.
+      try { localStorage.setItem(STORAGE_FAVS, '[]'); } catch {}
+      persistSearches();
+    }
+    const confirmSignOut = ref(false);
+    function signOut() {
+      clearSavedData();
+      clearAll();
+      nameMode.value = 'first';
+      confirmSignOut.value = false;
+      menuOpen.value = false;
+    }
     const refineCount = computed(() => typeFilterCount.value + timeFilterCount.value);
 
     // ---- Quick-category strip (top of the map) ----
@@ -1613,6 +1707,14 @@ const app = createApp({
       ].filter(Boolean).join(' · ');
     }
 
+    // The card titles with the whole name — given, middle and family — so it
+    // appears once, in the one place it matters, rather than twice.
+    function fullNameOf(person) {
+      const parts = fullNameParts(person);
+      if (!parts) return (person && person.name) || '';
+      return `${parts.first} ${parts.middle} ${parts.last}`;
+    }
+
     function metaPills(person) {
       const pills = [];
       pills.push(`b. ${person.birthYear}`);
@@ -1679,6 +1781,10 @@ const app = createApp({
       surpriseMe,
       // dock
       hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen,
+      menuView, openMenu,
+      savedSearches, saveCurrentSearch, applySavedSearch, deleteSavedSearch,
+      searchLabel, isSearchSaved,
+      clearSavedData, signOut, confirmSignOut, nameMode,
       dialTrack, dialLetter, onDialScroll, onDialClick,
       dialPointerDown, dialPointerMove, dialPointerUp,
       // hits list: A–Z jump and first/last name order
@@ -1691,7 +1797,7 @@ const app = createApp({
       askOpen, askInput, askAnswer, askError, askLoading,
       toggleAsk, submitAsk,
       // display helpers
-      metaPills, tagsFor, fullNameParts, rowMeta,
+      metaPills, tagsFor, fullNameParts, fullNameOf, rowMeta,
     };
   },
 });
