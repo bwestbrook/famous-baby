@@ -454,7 +454,6 @@ const app = createApp({
 
     // ---- 3D globe (country outlines are the click target) ----
     const selectedCountry = ref('');
-    const globeRotating = ref(true);
     const hoveredPoly = ref(null);
     let globeInstance = null;
 
@@ -478,7 +477,6 @@ const app = createApp({
       selectedCountry.value = (selectedCountry.value === c) ? '' : c;
     }
     function clearCountry() { selectedCountry.value = ''; }
-    function toggleGlobeRotation() { globeRotating.value = !globeRotating.value; }
 
     // Countries ranked by how many people the dataset has from each — the
     // "Places" panel list, and the source of the bar widths in it.
@@ -519,7 +517,6 @@ const app = createApp({
     function flyToCountry(country, altitude = 0.85) {
       const coords = COUNTRY_COORDS[country];
       if (!coords || !globeInstance) return;
-      globeRotating.value = false;
       try {
         globeInstance.pointOfView({ lat: coords[0], lng: coords[1], altitude }, 900);
         syncLabelScaleTo(altitude);
@@ -536,12 +533,30 @@ const app = createApp({
       if (!wasSelected) flyToCountry(country);
     }
 
-    // Pull the camera back out to the whole-globe view.
+    // Where the globe opens, picked once per load. Drawing from MAJOR_CITIES
+    // rather than random coordinates means it always faces somewhere inhabited
+    // — most of a random lat/lng is ocean.
+    const HOME_VIEW = (() => {
+      const c = MAJOR_CITIES[Math.floor(Math.random() * MAJOR_CITIES.length)];
+      return c ? { lat: c.lat, lng: c.lng, altitude: 2.4 } : { lat: 20, lng: 0, altitude: 2.4 };
+    })();
+
+    // Somewhere else entirely — re-rolls the opening view, so whatever the
+    // camera comes "back" to afterwards is the new place too.
+    function randomGlobeView() {
+      const c = MAJOR_CITIES[Math.floor(Math.random() * MAJOR_CITIES.length)];
+      if (!c) return;
+      HOME_VIEW.lat = c.lat;
+      HOME_VIEW.lng = c.lng;
+      resetGlobeView();
+    }
+
+    // Pull the camera back out to the view this session started on.
     function resetGlobeView() {
       if (!globeInstance) return;
       try {
-        globeInstance.pointOfView({ lat: 20, lng: 0, altitude: 2.4 }, 700);
-        syncLabelScaleTo(2.4);
+        globeInstance.pointOfView({ ...HOME_VIEW }, 700);
+        syncLabelScaleTo(HOME_VIEW.altitude);
       } catch {}
     }
 
@@ -908,14 +923,25 @@ const app = createApp({
       labelSizeApplied = labelSizeFor(2.4);
       try {
         const c = globeInstance.controls();
-        c.autoRotate = globeRotating.value;
-        c.autoRotateSpeed = 0.35;
+        // Never animates on its own: the globe only moves when you move it.
+        if ('autoRotate' in c) c.autoRotate = false;
         c.enableZoom = true;
         c.zoomSpeed = 1.2;
         c.minDistance = 110;   // just outside the sphere (radius ≈ 100)
         c.maxDistance = 700;
-        // Grabbing the globe stops the spin, the way Earth behaves.
-        c.addEventListener('start', () => { globeRotating.value = false; });
+        // Weight and friction, like a globe on a stand: a flick keeps turning
+        // and coasts to a stop. The two control types spell it differently, so
+        // set whichever this build is using — a lower factor coasts longer.
+        if ('staticMoving' in c) {        // TrackballControls
+          c.staticMoving = false;
+          c.dynamicDampingFactor = 0.07;
+          c.rotateSpeed = 1.1;
+        }
+        if ('enableDamping' in c) {       // OrbitControls
+          c.enableDamping = true;
+          c.dampingFactor = 0.07;
+          c.rotateSpeed = 0.9;
+        }
       } catch {}
       el.style.cursor = 'grab';
       const ro = new ResizeObserver(() => {
@@ -983,6 +1009,84 @@ const app = createApp({
       for (const r of filtered.value) set.add(letterOf(r.person));
       return set;
     });
+
+    // ---- Letter dial ----
+    // A combination-lock dial rather than a row of 26 tap targets: swipe it
+    // left or right and whichever letter lands under the notch is the one the
+    // list jumps to. Letters nobody files under still ride past, greyed, so
+    // the alphabet never changes length under your thumb.
+    const dialTrack = ref(null);
+    const dialLetter = ref('A');
+    let dialSettle = null;
+
+    function dialCell() {
+      const el = dialTrack.value;
+      if (!el) return 0;
+      const first = el.querySelector('.dial__l');
+      return first ? first.getBoundingClientRect().width : 0;
+    }
+    // The pads either side are exactly half a viewport minus half a cell, so
+    // the centred index falls out as scrollLeft / cellWidth.
+    function onDialScroll() {
+      const el = dialTrack.value;
+      const cell = dialCell();
+      if (!el || !cell) return;
+      const i = Math.max(0, Math.min(AZ.length - 1, Math.round(el.scrollLeft / cell)));
+      dialLetter.value = AZ[i];
+      clearTimeout(dialSettle);
+      dialSettle = setTimeout(() => {
+        if (!dialQuiet && hitLetters.value.has(AZ[i])) jumpToLetter(AZ[i]);
+      }, 110);
+    }
+    function centerLetter(L, behavior = 'smooth') {
+      const el = dialTrack.value;
+      const cell = dialCell();
+      if (!el || !cell) return;
+      el.scrollTo({ left: AZ.indexOf(L) * cell, behavior });
+    }
+
+    // A new filter is a new alphabet: park the dial on the first letter the
+    // result set actually has. Quiet, because repositioning shouldn't force
+    // the list into alphabetical order the way a real swipe does.
+    let dialQuiet = false;
+    function resetDial() {
+      const first = AZ.find(L => hitLetters.value.has(L)) || 'A';
+      dialLetter.value = first;
+      dialQuiet = true;
+      centerLetter(first, 'auto');
+      setTimeout(() => { dialQuiet = false; }, 220);
+    }
+    function pickLetter(L) {
+      dialLetter.value = L;
+      centerLetter(L);
+      if (hitLetters.value.has(L)) jumpToLetter(L);
+    }
+
+    // A mouse has no swipe, so it drags the dial instead.
+    let dialDrag = false, dialDownX = 0, dialDownScroll = 0, dialMoved = false;
+    let suppressDialClick = false;
+    function dialPointerDown(e) {
+      if (e.pointerType === 'touch' || !dialTrack.value) return;
+      dialDrag = true; dialMoved = false;
+      dialDownX = e.clientX;
+      dialDownScroll = dialTrack.value.scrollLeft;
+    }
+    function dialPointerMove(e) {
+      if (!dialDrag || !dialTrack.value) return;
+      const dx = e.clientX - dialDownX;
+      if (Math.abs(dx) > 4) dialMoved = true;
+      dialTrack.value.scrollLeft = dialDownScroll - dx;
+    }
+    function dialPointerUp() {
+      if (!dialDrag) return;
+      dialDrag = false;
+      suppressDialClick = dialMoved;
+      setTimeout(() => { suppressDialClick = false; }, 0);
+    }
+    function onDialClick(L) {
+      if (suppressDialClick) return;
+      pickLetter(L);
+    }
 
     const hitsList = ref(null);
     // Jumping is only meaningful in alphabetical order, so a jump switches the
@@ -1120,16 +1224,6 @@ const app = createApp({
 
     // Repaint the outlines whenever selection changes.
     watch(selectedCountry, repaintPolygons);
-    watch(globeRotating, (spinning) => {
-      if (!globeInstance) return;
-      try {
-        const c = globeInstance.controls();
-        c.autoRotate = spinning;
-      } catch {}
-      if (globeInstance._el) {
-        globeInstance._el.style.cursor = spinning ? 'pointer' : 'grab';
-      }
-    });
 
     // ---- Surprise Me — random person matching current filters ----
     function surpriseMe() {
@@ -1177,7 +1271,6 @@ const app = createApp({
       selectedPerson.value = null;
       clearYears();
       resetGlobeView();
-      globeRotating.value = true;
     }
 
     // Touching any filter — typing, a category, the timeline, a country, the
@@ -1190,6 +1283,7 @@ const app = createApp({
       () => {
         if (selectedPerson.value) selectedPerson.value = null;
         hitsExpanded.value = false;
+        nextTick(resetDial);
       }
     );
 
@@ -1573,8 +1667,8 @@ const app = createApp({
       // new features
       favorites, onlyFavorites, isFavorite, toggleFavorite, toggleOnlyFavorites,
       bornTodayActive, toggleBornToday,
-      selectedCountry, clearCountry, globeData, globeRotating, toggleGlobeRotation, zoomGlobe,
-      pickCountry, flyToCountry, resetGlobeView,
+      selectedCountry, clearCountry, globeData, zoomGlobe,
+      pickCountry, flyToCountry, resetGlobeView, randomGlobeView,
       miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
       miniCities, miniZoom, zoomMini,
       selectedBornMonths, selectedBornDays, selectedZodiacs, ZODIACS,
@@ -1585,6 +1679,8 @@ const app = createApp({
       surpriseMe,
       // dock
       hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen,
+      dialTrack, dialLetter, onDialScroll, onDialClick,
+      dialPointerDown, dialPointerMove, dialPointerUp,
       // hits list: A–Z jump and first/last name order
       AZ, hitLetters, hitsList, jumpToLetter, nameMode, setNameMode,
       clearType, clearTime, clearCategories, typeFilterCount, timeFilterCount,

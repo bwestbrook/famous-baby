@@ -331,34 +331,80 @@ body {
 .hits__list::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.5); background-clip: content-box; }
 
 /* ---------- name order + A–Z jump ---------- */
+/* One row: name order, then the dial, all the same height. */
 .hitbar {
-  display: flex; flex-direction: column; gap: 3px;
-  padding: 5px 8px 4px;
+  --hitbar-h: 34px;          /* the dial, half again as tall as the letters */
+  display: flex; align-items: stretch; gap: 5px;
+  padding: 5px 8px;
   border-bottom: 1px solid rgba(255,255,255,.12);
 }
-.hitbar__mode { display: flex; gap: 2px; align-self: flex-start; }
+.hitbar__mode { display: flex; gap: 3px; flex: none; }
 .hitbar__mode button {
-  padding: 2px 9px;
-  border-radius: 9px;
-  font-size: 9.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase;
+  height: var(--hitbar-h);
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.18);
+  font-size: 8.5px; font-weight: 400; letter-spacing: .05em; text-transform: uppercase;
+  white-space: nowrap;
   color: rgba(255,255,255,.5);
-  transition: background .12s var(--ease), color .12s var(--ease);
+  transition: background .12s var(--ease), color .12s var(--ease), border-color .12s var(--ease);
 }
-.hitbar__mode button:hover { color: #fff; }
-.hitbar__mode button.is-on { background: rgba(255,255,255,.16); color: #fff; }
+.hitbar__mode button:hover { color: #fff; border-color: rgba(255,255,255,.4); }
+.hitbar__mode button.is-on { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.5); color: #fff; }
 
-/* One column per letter, so the strip always spans the list exactly. */
-.hitbar__az { display: grid; grid-template-columns: repeat(26, 1fr); }
-.az {
-  padding: 1px 0;
-  font-size: 9px; font-weight: 400; line-height: 1.4;
-  color: rgba(255,255,255,.72);
-  border-radius: 3px;
-  transition: background .1s var(--ease), color .1s var(--ease);
+/* ---------- letter dial ----------
+   A lock dial: the alphabet slides behind a fixed notch, and the letter that
+   settles under it is the jump target. Snap points keep it landing cleanly. */
+.dialwrap {
+  position: relative;
+  flex: 1; min-width: 0;
+  height: var(--hitbar-h);
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.5);
+  overflow: hidden;
 }
-.az:hover { background: rgba(255,255,255,.18); color: #fff; }
-.az.is-off { color: rgba(255,255,255,.18); cursor: default; }
-.az.is-off:hover { background: none; color: rgba(255,255,255,.18); }
+.dial {
+  display: flex; align-items: stretch;
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  cursor: grab;
+  /* the faces at the rim curve away, like a real dial */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent);
+          mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent);
+}
+.dial::-webkit-scrollbar { display: none; }
+.dial:active { cursor: grabbing; }
+/* Half a viewport each side, so the first and last letters can reach centre. */
+.dial__pad { flex: 0 0 calc(50% - 13px); }
+
+.dial__l {
+  flex: 0 0 26px;
+  scroll-snap-align: center;
+  display: grid; place-items: center;
+  height: 100%; padding: 0;
+  font-size: 10px; font-weight: 300; line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255,255,255,.45);
+  transition: color .12s var(--ease), transform .12s var(--ease), opacity .12s var(--ease);
+}
+.dial__l.is-off { color: rgba(255,255,255,.16); }
+/* Under the notch: bigger, brighter, and it stays legible even when empty. */
+.dial__l.is-sel { color: #fff; font-weight: 500; font-size: 13px; transform: scale(1.05); }
+.dial__l.is-sel.is-off { color: rgba(255,255,255,.35); }
+
+.dial__notch {
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 26px; margin-left: -13px;
+  border-left: 1px solid rgba(255,255,255,.28);
+  border-right: 1px solid rgba(255,255,255,.28);
+  background: rgba(255,255,255,.07);
+  pointer-events: none;
+}
 
 .row {
   display: grid;
@@ -427,7 +473,7 @@ body {
 .tl {
   width: 100%;
   display: flex; align-items: center; gap: 10px;
-  padding: 6px 8px 8px 12px;
+  padding: 6px 12px 8px 12px;
   border-radius: 20px;
   background: rgba(18,19,22,.40);
   border: 1px solid rgba(255,255,255,.07);
@@ -442,7 +488,7 @@ body {
 /* The rail sits below the tick labels inside .tl__track, so anything flanking
    it gets nudged down by half the tick strip to line up with the rail itself
    rather than with the row as a whole. */
-.tl__label, .tl__val, .tl__x {
+.tl__label, .tl__val {
   position: relative;
   top: 3px;               /* half the tick strip above the rail */
   line-height: 1;
@@ -512,15 +558,6 @@ body {
 .tl.is-dob .tl__in { pointer-events: none; }
 .tl.is-dob .tl__in::-webkit-slider-thumb { background: #FDD663; }
 .tl.is-dob .tl__in::-moz-range-thumb { background: #FDD663; }
-.tl__x {
-  flex: none;
-  width: 22px; height: 22px; display: grid; place-items: center;
-  border-radius: 50%; color: rgba(255,255,255,.7);
-  opacity: 0; pointer-events: none;
-  transition: opacity .15s var(--ease), background .12s var(--ease);
-}
-.tl__x.is-vis { opacity: 1; pointer-events: auto; }
-.tl__x:hover { background: rgba(255,255,255,.14); color: #fff; }
 
 /* =========================================================================
    PERSON POPUP — opens in the dock, right where the list was.
