@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>famous Baby — find your baby's namesake</title>
   <meta name="description" content="An almanac for naming. Search famous people by anything except their name." />
+  <meta name="theme-color" content="#202124" />
 
-  <!-- Editorial type stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
   <!-- During development: cache-bust on every load so refreshes always get fresh assets. -->
   <script>
@@ -29,7 +29,7 @@
       root.removeAttribute('v-cloak');
       root.style.visibility = 'visible';
       var pre = document.createElement('pre');
-      pre.style.cssText = 'padding:24px;font:13px/1.5 ui-monospace,monospace;color:#8A2B2B;background:#fff;border:1px solid #E5DFD2;margin:24px;white-space:pre-wrap';
+      pre.style.cssText = 'position:relative;z-index:99999;padding:24px;font:13px/1.5 ui-monospace,monospace;color:#f28b82;background:#202124;margin:24px;white-space:pre-wrap';
       pre.textContent = '[' + label + ']\n\n' + detail;
       root.appendChild(pre);
     }
@@ -40,7 +40,6 @@
       var r = e.reason;
       __famousBabyShowError('unhandled promise rejection', (r && r.stack) ? r.stack : String(r));
     });
-    // If the page is still cloaked 5s after load, show a hint.
     window.addEventListener('load', function () {
       setTimeout(function () {
         var root = document.getElementById('app');
@@ -52,565 +51,484 @@
   </script>
 </head>
 <body>
-  <!-- Q&A endpoint — set after deploying ./worker (see worker/README.md).
-       Uncomment and paste the URL Cloudflare Wrangler prints after `npm run deploy`. -->
+  <!-- Q&A endpoint — set after deploying ./worker (see worker/README.md). -->
   <script>
     // window.FAMOUS_BABY_QA_ENDPOINT = 'https://famous-baby-qa.<your-subdomain>.workers.dev';
   </script>
+
+  <!-- ============== ICON SPRITE (Material-style, 24 grid) ============== -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+      <symbol id="i-tune" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></symbol>
+      <symbol id="i-public" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41C17.92 5.77 20 8.65 20 12c0 2.08-.8 3.97-2.1 5.39z"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol>
+      <symbol id="i-dice" viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM7.5 18a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4.5 4.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4.5 4.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M19 13H5v-2h14z"/></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24"><path d="M12 10.9a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zM12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6z"/></symbol>
+      <symbol id="i-chev-left" viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></symbol>
+      <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></symbol>
+      <symbol id="i-heart-o" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></symbol>
+      <symbol id="i-cake" viewBox="0 0 24 24"><path d="M12 6c1.11 0 2-.9 2-2 0-.38-.1-.73-.29-1.03L12 0l-1.71 2.97c-.19.3-.29.65-.29 1.03 0 1.1.9 2 2 2zm6 6v5H6v-5h12m1-2H5a2 2 0 0 0-2 2v9h2v-2h14v2h2v-9a2 2 0 0 0-2-2zM8 9h2V7.5H8V9zm6 0h2V7.5h-2V9z"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m11.99 18.54-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></symbol>
+      <symbol id="i-sort" viewBox="0 0 24 24"><path d="M3 18h6v-2H3zM3 6v2h18V6zm0 7h12v-2H3z"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></symbol>
+      <!-- field / category icons -->
+      <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 15.9V19H7v2h10v-2h-4v-3.1a5.01 5.01 0 0 0 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></symbol>
+      <symbol id="i-note" viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></symbol>
+      <symbol id="i-film" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4z"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 18H6V4h1v8l2.5-1.5L12 12V4h6z"/></symbol>
+      <symbol id="i-gov" viewBox="0 0 24 24"><path d="M4 10v7h3v-7zm6 0v7h3v-7zM2 22h19v-3H2zm14-12v7h3v-7zm-4.5-9L2 6v2h19V6z"/></symbol>
+      <symbol id="i-flask" viewBox="0 0 24 24"><path d="M6 22h12a1 1 0 0 0 .8-1.6L14 13.7V6h1a1 1 0 0 0 0-2H9a1 1 0 0 0 0 2h1v7.7l-4.8 6.7A1 1 0 0 0 6 22z"/></symbol>
+      <symbol id="i-mega" viewBox="0 0 24 24"><path d="M18 11v2h4v-2zm-2 6.61c.96.71 2.21 1.65 3.2 2.39l1.2-1.6c-.99-.74-2.24-1.68-3.2-2.4zM20.4 5.6 19.2 4c-.99.74-2.24 1.68-3.2 2.4l1.2 1.6c.96-.72 2.21-1.66 3.2-2.4zM4 9a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1v4h2v-4h1l5 3V6L8 9zm11.5 3c0-1.33-.58-2.53-1.5-3.35v6.69c.92-.81 1.5-2.01 1.5-3.34z"/></symbol>
+      <symbol id="i-building" viewBox="0 0 24 24"><path d="M17 11V3H7v4H3v14h8v-4h2v4h8V11zM7 19H5v-2h2zm0-4H5v-2h2zm0-4H5V9h2zm4 4H9v-2h2zm0-4H9V9h2zm0-4H9V5h2zm4 8h-2v-2h2zm0-4h-2V9h2zm0-4h-2V5h2zm4 12h-2v-2h2zm0-4h-2v-2h2z"/></symbol>
+      <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18 1.5 1.5 0 0 0 1.5-1.5c0-.39-.15-.74-.39-1.01a1.49 1.49 0 0 1 1.12-2.49H16a5 5 0 0 0 5-5c0-4.42-4.03-8-9-8zM6.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></symbol>
+      <symbol id="i-hanger" viewBox="0 0 24 24"><path d="M21.6 18.2 13 11.75v-.91a3 3 0 0 0-.87-5.65A3 3 0 0 0 9 4a1 1 0 0 0 2 0 1 1 0 1 1 1 1 1 1 0 0 0-1 1v3.84L2.4 18.2A1 1 0 0 0 3 20h18a1 1 0 0 0 .6-1.8zM6 18l6-4.5 6 4.5z"/></symbol>
+      <symbol id="i-chip" viewBox="0 0 24 24"><path d="M15 9H9v6h6zm-2 4h-2v-2h2zm8-2V9h-2V7a2 2 0 0 0-2-2h-2V3h-2v2h-2V3H9v2H7a2 2 0 0 0-2 2v2H3v2h2v2H3v2h2v2a2 2 0 0 0 2 2h2v2h2v-2h2v2h2v-2h2a2 2 0 0 0 2-2v-2h2v-2h-2v-2zm-4 6H7V7h10z"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25z"/></symbol>
+      <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></symbol>
+      <symbol id="i-food" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></symbol>
+    </defs>
+  </svg>
+
   <div id="app" v-cloak>
 
-    <!-- ============== WORLD-MAP BACKDROP ==============
-         Fixed full-viewport, very low opacity, themed via currentColor.
-         Sits behind all content (z-index 0). Stylized continent silhouettes
-         + faint lat/lng grid — reads as an atlas page, not realistic
-         cartography. -->
-    <div class="world-backdrop" aria-hidden="true">
-      <svg viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
-        <g class="world-backdrop__grid">
-          <line x1="0" y1="83"  x2="1000" y2="83"  />
-          <line x1="0" y1="167" x2="1000" y2="167" />
-          <line x1="0" y1="250" x2="1000" y2="250" />
-          <line x1="0" y1="333" x2="1000" y2="333" />
-          <line x1="0" y1="417" x2="1000" y2="417" />
-          <line x1="125"  y1="0" x2="125"  y2="500" />
-          <line x1="250"  y1="0" x2="250"  y2="500" />
-          <line x1="375"  y1="0" x2="375"  y2="500" />
-          <line x1="500"  y1="0" x2="500"  y2="500" />
-          <line x1="625"  y1="0" x2="625"  y2="500" />
-          <line x1="750"  y1="0" x2="750"  y2="500" />
-          <line x1="875"  y1="0" x2="875"  y2="500" />
-        </g>
-        <g class="world-backdrop__land">
-          <!-- North America -->
-          <path d="M155 90 Q90 130 80 220 Q105 285 175 295 Q255 285 290 220 Q295 145 245 105 Q200 75 155 90 Z M120 295 Q140 320 175 320 Q200 315 210 305 L180 300 Q150 300 120 295 Z" />
-          <!-- South America -->
-          <path d="M265 295 Q235 335 248 410 Q272 465 312 475 Q345 455 354 380 Q344 308 304 295 Q283 290 265 295 Z" />
-          <!-- Europe -->
-          <path d="M470 95 Q438 125 460 175 Q505 180 545 165 Q565 135 545 100 Q505 78 470 95 Z" />
-          <!-- Africa -->
-          <path d="M470 195 Q447 260 472 355 Q505 405 553 385 Q583 320 580 240 Q570 192 528 178 Q490 178 470 195 Z" />
-          <!-- Asia (mainland + India + SEA) -->
-          <path d="M545 75 Q518 115 542 175 Q575 205 660 198 Q790 182 855 130 Q865 80 800 52 Q700 42 600 50 Q555 58 545 75 Z M620 200 Q610 240 630 280 Q655 295 685 280 Q695 245 680 215 Q650 198 620 200 Z M760 200 Q740 220 745 245 Q770 258 800 250 Q820 230 808 210 Q780 198 760 200 Z" />
-          <!-- Australia -->
-          <path d="M775 345 Q745 365 762 405 Q802 428 855 412 Q892 380 870 350 Q830 332 800 338 Q782 340 775 345 Z" />
-          <!-- Antarctica strip -->
-          <path d="M0 462 Q200 482 500 472 Q800 482 1000 462 L1000 500 L0 500 Z" />
-          <!-- Greenland -->
-          <path d="M340 50 Q318 80 332 130 Q360 145 388 130 Q400 95 380 65 Q358 48 340 50 Z" />
-          <!-- UK + Ireland (tiny) -->
-          <path d="M445 105 Q438 118 446 130 Q458 132 462 120 Q458 105 445 105 Z" />
-          <!-- Japan (tiny) -->
-          <path d="M848 175 Q842 190 850 205 Q862 207 866 195 Q862 178 848 175 Z" />
-          <!-- Madagascar -->
-          <path d="M600 358 Q595 378 605 395 Q615 395 618 378 Q614 358 600 358 Z" />
-          <!-- New Zealand (tiny) -->
-          <path d="M905 405 Q900 418 908 430 Q918 430 920 418 Q918 405 905 405 Z" />
-        </g>
-      </svg>
-    </div>
+    <!-- ============== MAP (full-bleed globe; everything floats above it) ============== -->
+    <main class="map">
+      <div id="globe-canvas" class="map__globe"></div>
 
+      <!-- ---------- TOP STACK — categories, then the timeline ---------- -->
+      <div class="topstack">
 
-    <!-- ============== MASTHEAD ============== -->
-    <header class="masthead">
-      <div class="container">
-        <div class="masthead__top">
-          <div class="kicker"><span class="kicker__dot"></span>Vol. 01 &nbsp;/&nbsp; Almanac &nbsp;/&nbsp; All-Time Roster</div>
-          <div class="masthead__top-right">
-            <div class="masthead__date">{{ today }}</div>
-          </div>
-        </div>
-
-        <h1 class="wordmark">
-          <span class="wordmark__small"><em>famous</em></span><span class="wordmark__big">Baby</span>
-        </h1>
-
-        <!-- Editorial color bar: each field tinted in its accent. -->
-        <div class="colorbar" aria-hidden="true">
-          <span
-            v-for="f in FIELDS"
-            :key="f"
-            class="colorbar__band"
-            :style="{ background: colorForField(f) }"
-            :title="f"
-          ></span>
-        </div>
-      </div>
-    </header>
-
-    <!-- ============== SEARCH ============== -->
-    <section class="search">
-      <div class="container">
-        <div class="search__label">Ask anything</div>
-        <div class="search__bar">
-          <svg class="search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"></circle>
-            <path d="m20 20-3.5-3.5"></path>
-          </svg>
-          <input
-            class="search__input"
-            type="text"
-            v-model="query"
-            placeholder="e.g. NBA players who played with Michael Jordan…"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button v-if="query" class="search__clear" @click="clearAll">Clear</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== ACTIVE FILTER PILLS ============== -->
-    <section v-if="hasActiveFilters" class="active-filters-band container">
-      <div class="active-filters">
-        <span class="active-filters__label">Filtering by:</span>
-        <button
-          v-for="f in activeFilters"
-          :key="f.key"
-          class="active-filter"
-          @click="f.clear"
-          :title="'Remove ' + f.group + ': ' + f.label"
-        >
-          <span class="active-filter__group">{{ f.group }}</span>
-          <span class="active-filter__label">{{ f.label }}</span>
-          <span class="active-filter__x">×</span>
+      <!-- Five field shortcuts at a time; the arrows page through the rest so
+           the strip never has to wrap or scroll on a narrow canvas. -->
+      <div class="qbar">
+        <button class="qbar__arrow" @click="catPage(-1)" :disabled="!canCatPrev" title="Previous categories">
+          <svg class="ico ico--16"><use href="#i-chev-left"/></svg>
         </button>
-        <button class="active-filters__clear" @click="clearAll">Clear all</button>
-      </div>
-    </section>
-
-    <!-- ============== RESULTS ============== -->
-    <section class="results container">
-      <div class="results__head">
-        <div class="results__count">
-          <em>{{ filtered.length }}</em>
-          {{ filtered.length === 1 ? 'name' : 'names' }}
-        </div>
-        <div class="results__actions">
+        <div class="qbar__track">
           <button
-            class="results__surprise"
-            @click="surpriseMe"
-            :disabled="filtered.length === 0"
-            title="Open a random person from the current results"
-          >Surprise me</button>
-          <button
-            class="results__toggle"
-            :class="{ 'is-active': onlyFavorites }"
-            @click="toggleOnlyFavorites"
-            :title="favorites.size ? `${favorites.size} saved` : 'No favorites yet'"
-          >♥ Favorites <span v-if="favorites.size">· {{ favorites.size }}</span></button>
-          <button
-            class="results__toggle"
-            :class="{ 'is-active': bornTodayActive }"
-            @click="toggleBornToday"
-            title="Show only people born on today's calendar day"
-          >Born today</button>
+            v-for="f in visibleFields"
+            :key="f"
+            class="qcat"
+            :class="{ 'is-on': isFieldSelected(f) }"
+            @click="quickPick(f)"
+            :title="f"
+          >
+            <svg class="ico ico--18 qcat__ico"><use :href="'#' + iconForField(f)"/></svg>
+            <span class="qcat__label">{{ f }}</span>
+          </button>
         </div>
-        <div class="results__sort">
-          <button :class="{ 'is-active': sort === 'relevance' }" @click="sort = 'relevance'">Relevance</button>
-          <button :class="{ 'is-active': sort === 'alpha' }"     @click="sort = 'alpha'">A–Z</button>
-          <button :class="{ 'is-active': sort === 'oldest' }"    @click="sort = 'oldest'">Oldest</button>
-          <button :class="{ 'is-active': sort === 'newest' }"    @click="sort = 'newest'">Newest</button>
-        </div>
+        <button class="qbar__arrow" @click="catPage(1)" :disabled="!canCatNext" title="More categories">
+          <svg class="ico ico--16"><use href="#i-chev-right"/></svg>
+        </button>
       </div>
 
-      <!-- Empty (no filters yet) -->
-      <div v-if="!hasActiveFilters" class="empty empty--start">
-        <p class="empty__h">Start searching.</p>
-        <p class="empty__p">Pick a country on the globe, drag the year slider, search a name, or choose a field below — we'll surface the matching namesakes here.</p>
-      </div>
-
-      <!-- Results window (fixed-height; scroll inside) -->
-      <ol v-else-if="filtered.length" class="entries entries--window">
-        <li
-          v-for="(r, i) in filtered"
-          :key="r.person.id"
-          class="entry"
-          :style="{ '--field-color': colorForField(r.person.field) }"
-          @click="openPerson(r.person)"
-        >
-          <div class="entry__num" @click="openPerson(r.person)">{{ String(i + 1).padStart(2, '0') }}</div>
-          <button
-            class="entry__fav"
-            :class="{ 'is-on': isFavorite(r.person) }"
-            @click.stop="toggleFavorite(r.person)"
-            :aria-label="isFavorite(r.person) ? 'Unfavorite' : 'Favorite'"
-            :title="isFavorite(r.person) ? 'Remove from favorites' : 'Save to favorites'"
-          >{{ isFavorite(r.person) ? '♥' : '♡' }}</button>
-          <div class="entry__body" @click="openPerson(r.person)">
-            <h2 class="entry__name" @click="openPerson(r.person)">
-              <template v-if="fullNameParts(r.person)">
-                {{ fullNameParts(r.person).first }}
-                <em class="entry__middle">{{ fullNameParts(r.person).middle }}</em>
-                {{ fullNameParts(r.person).last }}
-              </template>
-              <template v-else>{{ r.person.name }}</template>
-            </h2>
-            <div class="entry__meta">
-              <span v-for="m in metaPills(r.person)" :key="m">{{ m }}</span>
+      <!-- ---------- TIMELINE ----------
+           Quiet at rest, full strength on approach or while a range is set. -->
+      <div class="tl-wrap">
+        <div class="tl" :class="{ 'is-on': yearsActive }">
+          <span class="tl__label">Timeline</span>
+          <div class="tl__track">
+            <div class="tl__ticks">
+              <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }">
+                <b v-if="t.label">{{ t.y }}</b>
+              </i>
             </div>
-            <p class="entry__bio">{{ r.person.bio }}</p>
-            <div class="entry__tags">
-              <span
-                v-for="t in tagsFor(r.person, r.matchedParts)"
-                :key="t.label"
-                class="entry__tag"
-                :class="{ 'is-match': t.match }"
-              >{{ t.label }}</span>
+            <div class="tl__rail">
+              <div class="tl__fill" :style="{ left: yearMinPct + '%', width: (yearMaxPct - yearMinPct) + '%' }"></div>
+              <input
+                type="range" class="tl__in"
+                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="yearMin"
+                @input="setYearMin($event.target.value)" aria-label="Earliest birth year"
+              />
+              <input
+                type="range" class="tl__in"
+                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="yearMax"
+                @input="setYearMax($event.target.value)" aria-label="Latest birth year"
+              />
             </div>
           </div>
-        </li>
-      </ol>
-
-      <div v-else class="empty">
-        <p class="empty__h">No namesakes match.</p>
-        <p class="empty__p">Try loosening the filters, or rephrase the question.
-          The dataset is small for now — more names are on the way.</p>
-      </div>
-    </section><!-- /.results -->
-
-    <!-- ============== LOCATION (globe) ============== -->
-    <section class="band band--location container">
-      <div class="band__head">
-        <span class="band__num">01</span>
-        <h2 class="band__title">Location</h2>
-        <span class="band__sub">country of birth</span>
-      </div>
-      <div v-if="selectedCountry" class="band__place">
-        <button
-          class="chip chip--country is-active"
-          @click="clearCountry"
-          :title="'Clear ' + selectedCountry"
-        >{{ selectedCountry }} <span class="chip__close">×</span></button>
-      </div>
-      <div class="band__globe-wrap">
-        <div id="globe-canvas" class="band__globe"></div>
-        <div class="band__globe-zoom" aria-label="Zoom globe">
-          <button class="band__globe-zoombtn" @click="zoomGlobe(-1)" title="Zoom in">+</button>
-          <button class="band__globe-zoombtn" @click="zoomGlobe(1)" title="Zoom out">−</button>
-        </div>
-        <div class="band__globe-status">
-          <span v-if="globeRotating" class="band__globe-state band__globe-state--spin">
-            <span class="band__globe-dot"></span>spinning — click globe to stop
-          </span>
-          <span v-else class="band__globe-state band__globe-state--stopped">
-            <span class="band__globe-dot"></span>tap a marker to filter — click globe to spin
-          </span>
-          <button class="band__globe-btn" @click="toggleGlobeRotation">
-            {{ globeRotating ? 'Stop spin' : 'Resume spin' }}
+          <span class="tl__val">{{ yearMin }} – {{ yearMax }}</span>
+          <button class="tl__x" :class="{ 'is-vis': yearsActive }" @click="clearYears" title="Reset years">
+            <svg class="ico ico--14"><use href="#i-close"/></svg>
           </button>
         </div>
       </div>
-    </section>
 
-    <!-- ============== TIME (year slider + born on) ============== -->
-    <section class="band band--time container">
-      <div class="band__head">
-        <span class="band__num">02</span>
-        <h2 class="band__title">Time</h2>
-        <span class="band__sub">year · birthday</span>
-      </div>
-      <div class="band__row">
-        <div class="band__label">Born&nbsp;between</div>
-        <div class="band__control">
-          <div class="year-slider year-slider--full">
-            <div class="year-slider__values">
-              <span class="year-slider__value">{{ yearMin }}</span>
-              <span class="year-slider__sep">→</span>
-              <span class="year-slider__value">{{ yearMax }}</span>
-            </div>
-            <div class="year-slider__rail">
-              <div
-                class="year-slider__fill"
-                :style="{ left: yearMinPct + '%', width: (yearMaxPct - yearMinPct) + '%' }"
-              ></div>
-              <input
-                type="range"
-                class="year-slider__input year-slider__input--min"
-                :min="YEAR_FLOOR"
-                :max="YEAR_CEIL"
-                step="1"
-                :value="yearMin"
-                @input="setYearMin($event.target.value)"
-                aria-label="Earliest birth year"
-              />
-              <input
-                type="range"
-                class="year-slider__input year-slider__input--max"
-                :min="YEAR_FLOOR"
-                :max="YEAR_CEIL"
-                step="1"
-                :value="yearMax"
-                @input="setYearMax($event.target.value)"
-                aria-label="Latest birth year"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      </div><!-- /.topstack -->
 
-      <div class="band__row">
-        <div class="band__label">Born&nbsp;on</div>
-        <div class="band__control">
-          <div class="band__chips">
-            <button
-              v-for="m in 12"
-              :key="'m'+m"
-              class="chip chip--month"
-              :class="{ 'is-active': selectedBornMonth === m }"
-              @click="setBornMonth(m)"
-            >{{ MONTH_NAMES[m].slice(0,3) }}</button>
-            <div class="day-select" v-if="selectedBornMonth > 0">
-              <label class="day-select__label" :for="'day-of-' + selectedBornMonth">Day:</label>
-              <select
-                :id="'day-of-' + selectedBornMonth"
-                class="day-select__input"
-                v-model.number="selectedBornDay"
-                :title="'Day of ' + MONTH_NAMES[selectedBornMonth]"
-              >
-                <option :value="0">any</option>
-                <option v-for="d in daysInMonth(selectedBornMonth)" :key="d" :value="d">{{ d }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== WHO (filters below results) ============== -->
-    <section class="band band--who container">
-      <div class="band__head">
-        <span class="band__num">03</span>
-        <h2 class="band__title">Who</h2>
-        <span class="band__sub">field · gender</span>
-      </div>
-      <div class="band__row">
-        <div class="band__label">Field</div>
-        <div class="band__control">
-          <div class="band__chips band__chips--fields">
-            <button
-              v-for="f in FIELDS"
-              :key="f"
-              class="chip chip--field"
-              :class="{ 'is-active': isFieldSelected(f) }"
-              :style="{ '--field-color': colorForField(f) }"
-              @click="toggleField(f)"
-            >{{ f }}</button>
-          </div>
-        </div>
-      </div>
-      <div v-if="availableSubfields.length" class="band__row">
-        <div class="band__label band__label--sub">↳ within</div>
-        <div class="band__control">
-          <div class="band__chips">
-            <button
-              v-for="sf in availableSubfields"
-              :key="sf"
-              class="chip chip--sub"
-              :class="{ 'is-active': isSubfieldSelected(sf) }"
-              @click="toggleSubfield(sf)"
-            >{{ sf }}</button>
-          </div>
-        </div>
-      </div>
-      <div class="band__row">
-        <div class="band__label">Gender</div>
-        <div class="band__control">
-          <div class="band__chips">
-            <button
-              v-for="g in GENDERS"
-              :key="g"
-              class="chip"
-              :class="{ 'is-active': isGenderSelected(g) }"
-              @click="toggleGender(g)"
-            >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== PERSON CARD MODAL ============== -->
-    <div
-      v-if="selectedPerson"
-      class="modal"
-      @click.self="closePerson"
-      :style="{ '--field-color': colorForField(selectedPerson.field) }"
-    >
-      <article class="modal__card" role="dialog" aria-modal="true">
-        <button class="modal__close" @click="closePerson" aria-label="Close">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M6 6l12 12M18 6L6 18"/>
-          </svg>
+      <!-- Map controls, top-right under the top stack -->
+      <div class="mapctl">
+        <button class="mapctl__btn" @click="toggleGlobeRotation" :title="globeRotating ? 'Stop rotation' : 'Rotate globe'">
+          <svg class="ico ico--16"><use :href="globeRotating ? '#i-pause' : '#i-play'"/></svg>
         </button>
+        <button class="mapctl__btn" @click="resetGlobeView" title="Reset view">
+          <svg class="ico ico--16"><use href="#i-compass"/></svg>
+        </button>
+        <button class="mapctl__btn" @click="surpriseMe" :disabled="!filtered.length" title="Open a random name">
+          <svg class="ico ico--16"><use href="#i-dice"/></svg>
+        </button>
+        <div class="mapctl__stack">
+          <button class="mapctl__btn mapctl__btn--top" @click="zoomGlobe(-1)" title="Zoom in">
+            <svg class="ico ico--16"><use href="#i-plus"/></svg>
+          </button>
+          <button class="mapctl__btn mapctl__btn--bottom" @click="zoomGlobe(1)" title="Zoom out">
+            <svg class="ico ico--16"><use href="#i-minus"/></svg>
+          </button>
+        </div>
+      </div>
+    </main>
 
-        <div class="modal__photo">
+    <!-- ============== BOTTOM DOCK ==============
+         Everything the user drives sits here, stacked upward from the bottom
+         edge: attribution, timeline, results (3 at a time) or the person
+         popup, and the search line pinned last. -->
+    <div class="dock">
+
+      <div class="attrib">
+        <span>{{ PEOPLE_COUNT }} names</span>
+        <span v-if="selectedCountry">{{ selectedCountry }}</span>
+        <span>NASA Blue Marble</span>
+      </div>
+
+      <!-- ---------- ACTIVE FILTERS ---------- -->
+      <div v-if="hasActiveFilters && !selectedPerson" class="chiprow">
+        <button
+          v-for="f in activeFilters"
+          :key="f.key"
+          class="fchip"
+          @click="f.clear"
+          :title="'Remove ' + f.group + ': ' + f.label"
+        >
+          <span class="fchip__g">{{ f.group }}</span>{{ f.label }}
+          <svg class="ico ico--12 fchip__x"><use href="#i-close"/></svg>
+        </button>
+        <button class="fchip fchip--clear" @click="clearAll">Clear</button>
+      </div>
+
+      <!-- ---------- HITS — three names, straight above the search line ---------- -->
+      <div v-if="showResults && !selectedPerson" class="hits" :class="{ 'is-expanded': hitsExpanded }">
+        <ol v-if="filtered.length" class="hits__list">
+          <li
+            v-for="r in visibleHits"
+            :key="r.person.id"
+            class="row"
+            @click="openPerson(r.person)"
+          >
+            <span class="row__thumb" :style="{ background: colorForField(r.person.field) }">
+              <img
+                :src="'./photos/' + r.person.id + '.jpg'" alt="" loading="lazy"
+                @load="$event.target.classList.add('is-loaded')"
+                @error="$event.target.classList.add('is-broken')"
+              />
+              <span class="row__initial">{{ r.person.name[0] }}</span>
+            </span>
+            <span class="row__main">
+              <span class="row__name">{{ r.person.name }}</span>
+              <span class="row__meta">{{ rowMeta(r.person) }}</span>
+            </span>
+            <button
+              class="row__fav"
+              :class="{ 'is-on': isFavorite(r.person) }"
+              @click.stop="toggleFavorite(r.person)"
+              :title="isFavorite(r.person) ? 'Remove from favorites' : 'Save to favorites'"
+            >
+              <svg class="ico ico--16"><use :href="isFavorite(r.person) ? '#i-heart' : '#i-heart-o'"/></svg>
+            </button>
+          </li>
+        </ol>
+
+        <div v-else class="hits__none">
+          <span>No matches</span>
+          <button class="btn btn--text" @click="clearAll">Clear filters</button>
+        </div>
+
+        <button
+          v-if="filtered.length > HITS_LIMIT"
+          class="hits__more"
+          @click="hitsExpanded = !hitsExpanded"
+        >
+          <span v-if="!hitsExpanded">{{ filtered.length - HITS_LIMIT }} more · show all</span>
+          <span v-else>Show fewer</span>
+          <svg class="ico ico--14 hits__chev" :class="{ 'is-up': hitsExpanded }"><use href="#i-chev-right"/></svg>
+        </button>
+      </div>
+
+      <!-- ---------- PERSON POPUP — opens right where the list was ---------- -->
+      <article
+        v-if="selectedPerson"
+        class="pop"
+        :style="{ '--field-color': colorForField(selectedPerson.field) }"
+        role="dialog"
+        aria-modal="false"
+      >
+        <div class="pop__hero">
           <img
-            class="modal__photo-img"
+            class="pop__img"
             :src="'./photos/' + selectedPerson.id + '.jpg'"
             :alt="selectedPerson.name"
             @load="$event.target.classList.add('is-loaded')"
             @error="$event.target.classList.add('is-broken')"
           />
-          <div class="modal__photo-inner">
-            <svg viewBox="0 0 64 64" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="32" cy="24" r="11"/>
-              <path d="M10 56c2-12 12-18 22-18s20 6 22 18"/>
-            </svg>
-            <div class="modal__photo-label">No photo yet</div>
+          <div class="pop__scrim"></div>
+          <button class="pop__back" @click="closePerson" title="Back to results">
+            <svg class="ico ico--18"><use href="#i-back"/></svg>
+          </button>
+          <button
+            class="pop__fav"
+            :class="{ 'is-on': isFavorite(selectedPerson) }"
+            @click="toggleFavorite(selectedPerson)"
+            title="Save"
+          >
+            <svg class="ico ico--18"><use :href="isFavorite(selectedPerson) ? '#i-heart' : '#i-heart-o'"/></svg>
+          </button>
+          <div class="pop__titles">
+            <h2 class="pop__name">{{ selectedPerson.name }}</h2>
+            <div class="pop__sub">{{ selectedPerson.subfield || selectedPerson.field }} · b. {{ selectedPerson.birthYear }}</div>
           </div>
-          <div class="modal__photo-tag">{{ selectedPerson.field }}</div>
         </div>
 
-        <div class="modal__body">
-          <div class="modal__eyebrow">
-            <span>{{ formatBirthDate(selectedPerson) }}</span>
-            <span>{{ selectedPerson.birthPlace }}</span>
-            <span v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)" class="modal__eyebrow-zodiac">
-              {{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
+        <div class="pop__body">
+          <div class="kcard__facts">
+            <span class="kfact"><svg class="ico ico--14"><use href="#i-cake"/></svg>{{ formatBirthDate(selectedPerson) }}</span>
+            <button class="kfact kfact--link" @click="pickCountry(selectedPerson.country)" :title="'Fly to ' + selectedPerson.country">
+              <svg class="ico ico--14"><use href="#i-public"/></svg>{{ selectedPerson.birthPlace }}
+            </button>
+            <span v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)" class="kfact">
+              <svg class="ico ico--14"><use href="#i-star"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
             </span>
-            <span v-if="selectedPerson.subfield">{{ selectedPerson.subfield }}</span>
           </div>
-          <h2 class="modal__name">{{ selectedPerson.name }}</h2>
-          <div v-if="fullNameParts(selectedPerson)" class="modal__given">
-            <span class="modal__given-label">Full name</span>
-            <span class="modal__given-name">
+
+          <div v-if="fullNameParts(selectedPerson)" class="kgiven">
+            <span class="kgiven__l">Full name</span>
+            <span class="kgiven__n">
               {{ fullNameParts(selectedPerson).first }}
-              <em class="modal__given-middle">{{ fullNameParts(selectedPerson).middle }}</em>
+              <em>{{ fullNameParts(selectedPerson).middle }}</em>
               {{ fullNameParts(selectedPerson).last }}
             </span>
           </div>
-          <p class="modal__bio">{{ selectedPerson.bio }}</p>
 
-          <!-- Ask a question -->
-          <div class="modal__ask">
-            <button
-              type="button"
-              class="modal__ask-toggle"
-              :class="{ 'is-open': askOpen }"
-              @click="toggleAsk"
-              :aria-expanded="askOpen ? 'true' : 'false'"
-            >
-              <span v-if="!askOpen">Ask a question about {{ selectedPerson.name.split(' ')[0] }}</span>
-              <span v-else>Cancel</span>
+          <p class="kcard__bio">{{ selectedPerson.bio }}</p>
+
+          <div class="kask">
+            <button class="btn btn--out" @click="toggleAsk" :aria-expanded="askOpen ? 'true' : 'false'">
+              {{ askOpen ? 'Cancel' : 'Ask about ' + selectedPerson.name.split(' ')[0] }}
             </button>
-
-            <div v-if="askOpen" class="modal__ask-panel">
-              <form class="modal__ask-form" @submit.prevent="submitAsk">
-                <input
-                  type="text"
-                  class="modal__ask-input"
-                  v-model="askInput"
-                  :placeholder="'e.g. What was their biggest moment?'"
-                  :disabled="askLoading"
-                  maxlength="200"
-                />
-                <button
-                  type="submit"
-                  class="modal__ask-submit"
-                  :disabled="askLoading || !askInput.trim()"
-                >
+            <div v-if="askOpen" class="kask__panel">
+              <form class="kask__form" @submit.prevent="submitAsk">
+                <input type="text" class="kask__input" v-model="askInput"
+                       placeholder="e.g. What was their biggest moment?" :disabled="askLoading" maxlength="200" />
+                <button type="submit" class="btn btn--fill" :disabled="askLoading || !askInput.trim()">
                   {{ askLoading ? '…' : 'Ask' }}
                 </button>
               </form>
-              <p v-if="askError" class="modal__ask-error">{{ askError }}</p>
-              <p v-if="askAnswer" class="modal__ask-answer">{{ askAnswer }}</p>
+              <p v-if="askError" class="kask__err">{{ askError }}</p>
+              <p v-if="askAnswer" class="kask__ans">{{ askAnswer }}</p>
             </div>
           </div>
 
-          <dl class="modal__facts">
+          <dl class="kdl">
             <template v-if="selectedPerson.teams && selectedPerson.teams.length">
               <dt>Teams</dt>
-              <dd>
-                <span v-for="t in selectedPerson.teams" :key="t.name" class="modal__pill">
-                  {{ t.name }}<em v-if="t.years"> &middot; {{ t.years[0] }}&ndash;{{ t.years[1] }}</em>
-                </span>
-              </dd>
+              <dd><span v-for="t in selectedPerson.teams" :key="t.name" class="tag">
+                {{ t.name }}<em v-if="t.years"> · {{ t.years[0] }}–{{ t.years[1] }}</em>
+              </span></dd>
             </template>
             <template v-if="selectedPerson.awards && selectedPerson.awards.length">
               <dt>Awards</dt>
-              <dd>
-                <span v-for="a in selectedPerson.awards" :key="a.name + a.year" class="modal__pill">
-                  {{ a.name }}<em v-if="a.year"> &middot; {{ a.year }}</em>
-                </span>
-              </dd>
+              <dd><span v-for="a in selectedPerson.awards" :key="a.name + a.year" class="tag">
+                {{ a.name }}<em v-if="a.year"> · {{ a.year }}</em>
+              </span></dd>
             </template>
             <template v-if="selectedPerson.collaborators && selectedPerson.collaborators.length">
               <dt>With</dt>
-              <dd>
-                <span v-for="c in selectedPerson.collaborators" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
-              </dd>
+              <dd><span v-for="c in selectedPerson.collaborators" :key="c" class="tag tag--ghost">{{ c }}</span></dd>
             </template>
             <template v-if="selectedPerson.contemporaries && selectedPerson.contemporaries.length">
               <dt>Contemporaries</dt>
-              <dd>
-                <span v-for="c in selectedPerson.contemporaries" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
-              </dd>
+              <dd><span v-for="c in selectedPerson.contemporaries" :key="c" class="tag tag--ghost">{{ c }}</span></dd>
             </template>
             <template v-if="selectedPerson.friends && selectedPerson.friends.length">
               <dt>Friends</dt>
-              <dd>
-                <span v-for="c in selectedPerson.friends" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
-              </dd>
+              <dd><span v-for="c in selectedPerson.friends" :key="c" class="tag tag--ghost">{{ c }}</span></dd>
             </template>
             <template v-if="selectedPerson.foes && selectedPerson.foes.length">
               <dt>Foes</dt>
-              <dd>
-                <span v-for="c in selectedPerson.foes" :key="c" class="modal__pill modal__pill--ghost">{{ c }}</span>
-              </dd>
+              <dd><span v-for="c in selectedPerson.foes" :key="c" class="tag tag--ghost">{{ c }}</span></dd>
             </template>
           </dl>
 
-          <!-- Same / similar names -->
-          <div
-            v-if="similarForSelected.exact.length || similarForSelected.similar.length"
-            class="modal__similar"
-          >
-            <div v-if="similarForSelected.exact.length" class="modal__similar-block">
-              <h3 class="modal__similar-h">Same name</h3>
-              <ul class="modal__similar-list">
-                <li v-for="p in similarForSelected.exact" :key="p.id">
-                  <button
-                    class="modal__similar-link"
-                    :style="{ '--field-color': colorForField(p.field) }"
-                    @click="openPerson(p)"
-                  >
-                    <span class="modal__similar-name">{{ p.name }}</span>
-                    <span class="modal__similar-meta">{{ p.field }} &middot; b. {{ p.birthYear }}</span>
-                  </button>
-                </li>
-              </ul>
+          <div v-if="similarForSelected.exact.length || similarForSelected.similar.length" class="ksim">
+            <div v-if="similarForSelected.exact.length">
+              <h3 class="ksim__h">Same first name</h3>
+              <button v-for="p in similarForSelected.exact" :key="p.id" class="ksim__row" @click="openPerson(p)">
+                <i class="ksim__dot" :style="{ background: colorForField(p.field) }"></i>
+                <span class="ksim__n">{{ p.name }}</span>
+                <span class="ksim__m">{{ p.field }} · b. {{ p.birthYear }}</span>
+              </button>
             </div>
-            <div v-if="similarForSelected.similar.length" class="modal__similar-block">
-              <h3 class="modal__similar-h">Sounds similar</h3>
-              <ul class="modal__similar-list">
-                <li v-for="p in similarForSelected.similar" :key="p.id">
-                  <button
-                    class="modal__similar-link"
-                    :style="{ '--field-color': colorForField(p.field) }"
-                    @click="openPerson(p)"
-                  >
-                    <span class="modal__similar-name">{{ p.name }}</span>
-                    <span class="modal__similar-meta">{{ p.field }} &middot; b. {{ p.birthYear }}</span>
-                  </button>
-                </li>
-              </ul>
+            <div v-if="similarForSelected.similar.length">
+              <h3 class="ksim__h">Sounds similar</h3>
+              <button v-for="p in similarForSelected.similar" :key="p.id" class="ksim__row" @click="openPerson(p)">
+                <i class="ksim__dot" :style="{ background: colorForField(p.field) }"></i>
+                <span class="ksim__n">{{ p.name }}</span>
+                <span class="ksim__m">{{ p.field }} · b. {{ p.birthYear }}</span>
+              </button>
             </div>
           </div>
         </div>
       </article>
+
+      <!-- ---------- SEARCH LINE — the last thing on screen ---------- -->
+      <div class="sbar">
+        <svg class="ico ico--18 sbar__ico"><use href="#i-search"/></svg>
+        <input
+          class="sbar__input"
+          type="text"
+          v-model="query"
+          placeholder="Search anything but a name…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button v-if="query" class="sbar__btn" @click="query = ''" title="Clear search">
+          <svg class="ico ico--16"><use href="#i-close"/></svg>
+        </button>
+        <span class="sbar__div"></span>
+        <button
+          class="sbar__btn"
+          :class="{ 'is-on': onlyFavorites }"
+          @click="toggleOnlyFavorites"
+          :title="favorites.size ? favorites.size + ' saved' : 'No favorites yet'"
+        >
+          <svg class="ico ico--18"><use :href="onlyFavorites ? '#i-heart' : '#i-heart-o'"/></svg>
+        </button>
+        <button
+          class="sbar__btn"
+          :class="{ 'is-on': refineOpen || refineCount }"
+          @click="refineOpen = true"
+          title="Refine"
+        >
+          <svg class="ico ico--18"><use href="#i-tune"/></svg>
+          <span v-if="refineCount" class="sbar__badge">{{ refineCount }}</span>
+        </button>
+      </div>
     </div>
 
-    <!-- ============== FOOTER ============== -->
-    <footer class="foot">
-      <div class="container foot__inner">
-        <div class="foot__brand"><em>famous</em>BABY</div>
-        <div>Prototype &middot; {{ today }}</div>
+    <!-- ============== REFINE OVERLAY ============== -->
+    <div class="ovl" v-show="refineOpen" @click.self="refineOpen = false">
+      <div class="ovl__sheet" role="dialog" aria-modal="true">
+        <div class="ovl__head">
+          <h2 class="ovl__title">Refine</h2>
+          <button class="panel__collapse" @click="refineOpen = false" title="Close">
+            <svg class="ico ico--18"><use href="#i-close"/></svg>
+          </button>
+        </div>
+
+        <div class="ovl__scroll">
+          <div class="grp">
+            <div class="grp__label">Field</div>
+            <div class="chips chips--grid">
+              <button
+                v-for="f in FIELDS"
+                :key="f"
+                class="chip"
+                :class="{ 'is-on': isFieldSelected(f) }"
+                :style="{ '--dot': colorForField(f) }"
+                @click="toggleField(f)"
+              ><i class="chip__dot"></i>{{ f }}</button>
+            </div>
+          </div>
+
+          <div v-if="availableSubfields.length" class="grp">
+            <div class="grp__label">Within</div>
+            <div class="chips">
+              <button
+                v-for="sf in availableSubfields"
+                :key="sf"
+                class="chip chip--sm"
+                :class="{ 'is-on': isSubfieldSelected(sf) }"
+                @click="toggleSubfield(sf)"
+              >{{ sf }}</button>
+            </div>
+          </div>
+
+          <div class="grp">
+            <div class="grp__label">Gender</div>
+            <div class="chips">
+              <button
+                v-for="g in GENDERS"
+                :key="g"
+                class="chip chip--sm"
+                :class="{ 'is-on': isGenderSelected(g) }"
+                @click="toggleGender(g)"
+              >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
+            </div>
+          </div>
+
+          <div class="grp">
+            <div class="grp__label">Born on</div>
+            <div class="chips chips--months">
+              <button
+                v-for="m in 12"
+                :key="'m' + m"
+                class="chip chip--sm"
+                :class="{ 'is-on': selectedBornMonth === m }"
+                @click="setBornMonth(m)"
+              >{{ MONTH_NAMES[m].slice(0, 3) }}</button>
+            </div>
+            <div v-if="selectedBornMonth > 0" class="dayrow">
+              <label class="dayrow__label" for="day-pick">Day</label>
+              <select id="day-pick" class="dayrow__select" v-model.number="selectedBornDay">
+                <option :value="0">Any</option>
+                <option v-for="d in daysInMonth(selectedBornMonth)" :key="d" :value="d">{{ d }}</option>
+              </select>
+            </div>
+            <div class="chips" style="margin-top:8px">
+              <button class="chip chip--sm" :class="{ 'is-on': bornTodayActive }" @click="toggleBornToday">
+                <svg class="ico ico--14"><use href="#i-cake"/></svg> Born today
+              </button>
+            </div>
+          </div>
+
+          <div class="grp">
+            <div class="grp__label">Places <span class="grp__val">{{ countryList.length }} countries</span></div>
+            <ol class="rlist rlist--places">
+              <li
+                v-for="c in countryList"
+                :key="c.country"
+                class="prow"
+                :class="{ 'is-sel': selectedCountry === c.country }"
+                @click="pickCountry(c.country); refineOpen = false"
+              >
+                <svg class="ico ico--16 prow__ico"><use href="#i-public"/></svg>
+                <span class="prow__name">{{ c.country }}</span>
+                <span class="prow__bar"><i :style="{ width: (c.count / countryMax * 100) + '%' }"></i></span>
+                <span class="prow__n">{{ c.count }}</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="ovl__foot">
+          <button class="btn btn--text" @click="clearAll" :disabled="!hasActiveFilters">Reset</button>
+          <button class="btn btn--fill" @click="refineOpen = false">Show {{ filtered.length }}</button>
+        </div>
       </div>
-    </footer>
+    </div>
 
   </div>
 
   <!-- 3D globe library — UMD bundle, exposes window.Globe. ~280KB minified. -->
   <script src="https://unpkg.com/globe.gl@2.34.6"></script>
+  <!-- TopoJSON → GeoJSON, for the clickable country outlines. ~10KB. -->
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 
   <script>
     // Cache-bust app.js (which itself imports data.js with a cache-buster)

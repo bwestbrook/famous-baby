@@ -83,6 +83,32 @@ const COUNTRY_COORDS = {
   'Barbados':       [13.2,  -59.5],
   'Martinique':     [14.6,  -61.0],
 };
+// Country outlines for the globe. world-atlas ships TopoJSON (small); the
+// topojson-client UMD loaded in index.html converts it to the GeoJSON
+// features three-globe draws.
+const WORLD_TOPO_URL = 'https://unpkg.com/world-atlas@2.0.2/countries-110m.json';
+
+// Natural Earth country names → the `country` strings used in data.js.
+// Anything not listed matches by its own name.
+const GEO_NAME_ALIASES = {
+  'United States of America': 'USA',
+  'United States':           'USA',
+  'United Kingdom':          'UK',
+  'Dem. Rep. Congo':         'DR Congo',
+  'Democratic Republic of the Congo': 'DR Congo',
+  'Czech Rep.':              'Czechia',
+  'Czech Republic':          'Czechia',
+  'Republic of Korea':       'South Korea',
+  'Korea':                   'South Korea',
+  'Macedonia':               'North Macedonia',
+  'Russian Federation':      'Russia',
+  'Bosnia and Herz.':        'Bosnia',
+};
+function geoCountryName(feat) {
+  const raw = (feat && feat.properties && (feat.properties.name || feat.properties.NAME)) || '';
+  return GEO_NAME_ALIASES[raw] || raw;
+}
+
 // data.js gets a cache-buster so dev refreshes always pick up changes.
 const __DATA_URL = './data.js?v=' + Date.now();
 const { PEOPLE, FIELDS, GENDERS } = await import(__DATA_URL);
@@ -164,6 +190,25 @@ const FIELD_COLORS = {
 };
 const DEFAULT_FIELD_COLOR = '#0B1F3A';
 const colorForField = (f) => FIELD_COLORS[f] || DEFAULT_FIELD_COLOR;
+
+// Sprite id per field — drives the quick-category strip at the top of the map.
+const FIELD_ICONS = {
+  'Sports':       'i-trophy',
+  'Music':        'i-note',
+  'Film':         'i-film',
+  'Literature':   'i-book',
+  'Politics':     'i-gov',
+  'Science':      'i-flask',
+  'Activism':     'i-mega',
+  'Architecture': 'i-building',
+  'Visual Arts':  'i-palette',
+  'Fashion':      'i-hanger',
+  'Tech':         'i-chip',
+  'Religion':     'i-spark',
+  'Philosophy':   'i-bulb',
+  'Culinary':     'i-food',
+};
+const iconForField = (f) => FIELD_ICONS[f] || 'i-star';
 
 // Pull the leading given-name token (handles diacritics).
 function firstName(fullName) {
@@ -272,10 +317,9 @@ const app = createApp({
     // We use plain arrays for multi-select state because Vue 3's reactivity
     // tracks array reassignment cleanly and templates can call helpers
     // without surprising auto-unwrap behavior on collection types.
-    // Pre-seeded query so first-time visitors land on a meaningful result
-     // set instead of an empty page. Acts like a soft default — the user can
-     // edit/clear the input at any time, same as any other typed query.
-    const query             = ref('women scientists');
+    // Empty by default: the panel lists the whole roster on load, so the
+    // first screen is content rather than a prompt.
+    const query             = ref('');
     const selectedFields    = ref([]);
     const selectedSubfields = ref([]);          // genres/leagues/etc. inside a field
     const selectedGenders   = ref([]);
@@ -357,36 +401,68 @@ const app = createApp({
       return true;
     }
 
-    // ---- 3D globe (map-based country search) ----
+    // ---- 3D globe (country outlines are the click target) ----
     const selectedCountry = ref('');
     const globeRotating = ref(true);
-    const hoveredCountry = ref(null);
+    const hoveredPoly = ref(null);
     let globeInstance = null;
 
-    const globeData = computed(() => {
-      const byCountry = new Map();
+    // How many people the dataset holds per country, plus a few sample names
+    // for the hover label. Independent of COUNTRY_COORDS so a country still
+    // counts even if we have no centroid to fly to.
+    const countryCounts = computed(() => {
+      const m = new Map();
       for (const p of PEOPLE) {
         if (!p.country) continue;
-        const coords = COUNTRY_COORDS[p.country];
-        if (!coords) continue;
-        if (!byCountry.has(p.country)) {
-          byCountry.set(p.country, {
-            country: p.country, lat: coords[0], lng: coords[1],
-            count: 0, sample: [],
-          });
-        }
-        const entry = byCountry.get(p.country);
-        entry.count += 1;
-        if (entry.sample.length < 5) entry.sample.push(p.name);
+        if (!m.has(p.country)) m.set(p.country, { country: p.country, count: 0, sample: [] });
+        const e = m.get(p.country);
+        e.count += 1;
+        if (e.sample.length < 5) e.sample.push(p.name);
       }
-      return [...byCountry.values()];
+      return m;
     });
+    const globeData = computed(() => [...countryCounts.value.values()]);
 
     function selectGlobeCountry(c) {
       selectedCountry.value = (selectedCountry.value === c) ? '' : c;
     }
     function clearCountry() { selectedCountry.value = ''; }
     function toggleGlobeRotation() { globeRotating.value = !globeRotating.value; }
+
+    // Countries ranked by how many people the dataset has from each — the
+    // "Places" panel list, and the source of the bar widths in it.
+    const countryList = computed(() =>
+      [...globeData.value].sort((a, b) => b.count - a.count || a.country.localeCompare(b.country))
+    );
+    const countryMax = computed(() =>
+      countryList.value.reduce((m, c) => Math.max(m, c.count), 1)
+    );
+
+    // Fly the camera to a country the way Earth does: stop the spin, ease in.
+    function flyToCountry(country, altitude = 0.85) {
+      const coords = COUNTRY_COORDS[country];
+      if (!coords || !globeInstance) return;
+      globeRotating.value = false;
+      try {
+        globeInstance.pointOfView({ lat: coords[0], lng: coords[1], altitude }, 900);
+      } catch {}
+    }
+
+    // Picking a place from the list (or from a knowledge card) both filters
+    // and moves the camera. Re-picking the active country clears the filter
+    // but keeps the camera where it is.
+    function pickCountry(country) {
+      if (!country) return;
+      const wasSelected = selectedCountry.value === country;
+      selectGlobeCountry(country);
+      if (!wasSelected) flyToCountry(country);
+    }
+
+    // Pull the camera back out to the whole-globe view.
+    function resetGlobeView() {
+      if (!globeInstance) return;
+      try { globeInstance.pointOfView({ lat: 20, lng: 0, altitude: 2.4 }, 700); } catch {}
+    }
 
     // Step zoom for the +/− buttons. dir = -1 zooms in (camera moves closer),
     // dir = +1 zooms out. Clamped by the OrbitControls min/maxDistance set in
@@ -400,53 +476,95 @@ const app = createApp({
       } catch {}
     }
 
-    function pointColorFor(d) {
-      if (d === hoveredCountry.value) return '#FFE56A';
-      if (!selectedCountry.value) return '#C8463A';
-      return d.country === selectedCountry.value ? '#FFE56A' : '#C8463A';
+    // ---- Country polygon painting ----
+    // Countries we have names for get a lit border and a translucent fill;
+    // the rest stay as faint hairlines so the globe still reads as a map.
+    function polyEntry(d) { return countryCounts.value.get(geoCountryName(d)); }
+
+    function polyCapColor(d) {
+      const entry = polyEntry(d);
+      if (!entry) return 'rgba(255,255,255,0.012)';
+      if (entry.country === selectedCountry.value) return 'rgba(253,214,99,0.45)';
+      if (d === hoveredPoly.value) return 'rgba(138,180,248,0.40)';
+      return 'rgba(138,180,248,0.13)';
     }
-    function pointRadiusFor(d) {
-      // Larger pins → easier to click and hover. Sized in degrees of arc:
-      // ~1.2 minimum (covers a few hundred km on the surface) plus a
-      // log-scaled bump for countries with more people in the dataset.
-      const base = 1.2 + Math.log(d.count + 1) * 0.42;
-      return d === hoveredCountry.value ? base * 1.45 : base;
+    function polyStrokeColor(d) {
+      const entry = polyEntry(d);
+      if (entry && entry.country === selectedCountry.value) return '#FDD663';
+      if (!entry) return 'rgba(255,255,255,0.16)';
+      return d === hoveredPoly.value ? '#CFE0FF' : 'rgba(160,196,255,0.7)';
     }
-    function pointAltitudeFor(d) {
-      // Lift pins further off the surface so the body of the peg sits clear
-      // of the globe — pointer rays hit the peg before the sphere behind it.
-      return 0.06 + Math.log(d.count + 1) * 0.03;
+    function polyAltitude(d) {
+      const entry = polyEntry(d);
+      if (!entry) return 0.004;
+      if (entry.country === selectedCountry.value || d === hoveredPoly.value) return 0.015;
+      return 0.007;
+    }
+    function repaintPolygons() {
+      if (!globeInstance) return;
+      globeInstance
+        .polygonCapColor(polyCapColor)
+        .polygonStrokeColor(polyStrokeColor)
+        .polygonAltitude(polyAltitude);
     }
 
-    // Suppression flag: when a pin is clicked, swallow the canvas click that
-    // follows so it doesn't also toggle rotation.
-    let _suppressGlobeClick = false;
-
-    function handleGlobeBackgroundClick() {
-      if (_suppressGlobeClick) { _suppressGlobeClick = false; return; }
-      globeRotating.value = !globeRotating.value;
+    // Clicking a country selects it. Countries with nobody in the dataset are
+    // inert — they're drawn for context, not as targets.
+    function handlePolygonClick(d) {
+      const entry = polyEntry(d);
+      if (!entry) return;
+      pickCountry(entry.country);
     }
 
-    function handleGlobePointClick(d) {
-      _suppressGlobeClick = true;
-      // Belt-and-suspenders: clear the flag next tick in case the canvas
-      // click event never arrives (event ordering quirks across browsers).
-      setTimeout(() => { _suppressGlobeClick = false; }, 0);
-      if (globeRotating.value) {
-        // First click stops the spin; user clicks again to select.
-        globeRotating.value = false;
-        return;
+    // Fetch + attach the outlines. Failure is non-fatal: the globe still
+    // renders, just without borders.
+    async function loadCountryPolygons() {
+      try {
+        const res = await fetch(WORLD_TOPO_URL);
+        const topo = await res.json();
+        if (!window.topojson) throw new Error('topojson-client did not load');
+        const features = window.topojson.feature(topo, topo.objects.countries).features;
+        if (!globeInstance) return;
+        globeInstance
+          .polygonsData(features)
+          .polygonGeoJsonGeometry('geometry')
+          .polygonSideColor(() => 'rgba(138,180,248,0.12)')
+          .polygonStrokeColor(polyStrokeColor)
+          .polygonCapColor(polyCapColor)
+          .polygonAltitude(polyAltitude)
+          .polygonsTransitionDuration(200)
+          .polygonLabel(d => {
+            const e = polyEntry(d);
+            const title = geoCountryName(d);
+            const line = e
+              ? `<span style="color:#5f6368">${e.count} ${e.count === 1 ? 'name' : 'names'}</span>` +
+                `<br/><span style="color:#80868b;font-size:11px">${e.sample.slice(0,3).join(' · ')}` +
+                `${e.count > 3 ? ` · +${e.count - 3} more` : ''}</span>`
+              : `<span style="color:#80868b">no names yet</span>`;
+            return `<div style="background:#fff;color:#202124;padding:7px 10px;border-radius:8px;` +
+              `box-shadow:0 1px 3px rgba(0,0,0,.3),0 4px 8px 3px rgba(0,0,0,.15);` +
+              `font-family:Roboto,sans-serif;font-size:12px;line-height:1.35;max-width:220px">` +
+              `<strong style="font-weight:500">${title}</strong><br/>${line}</div>`;
+          })
+          .onPolygonClick(handlePolygonClick)
+          .onPolygonHover(d => {
+            hoveredPoly.value = d || null;
+            const el = globeInstance && globeInstance._el;
+            if (el) el.style.cursor = (d && polyEntry(d)) ? 'pointer' : 'grab';
+            repaintPolygons();
+          });
+        console.log('[famous Baby] country outlines loaded:', features.length);
+      } catch (err) {
+        console.error('[famous Baby] country outlines failed:', err);
       }
-      selectGlobeCountry(d.country);
     }
 
     async function initGlobe() {
       await nextTick();
       const el = document.getElementById('globe-canvas');
       if (!window.Globe || !el || globeInstance) return;
-      // The sticky rail can layout late — wait until the canvas has real
-      // dimensions before initializing, otherwise globe.gl creates a 0x0
-      // canvas that never paints.
+      // Wait until the container has real dimensions before initializing,
+      // otherwise globe.gl creates a 0x0 canvas that never paints.
       const w0 = el.clientWidth, h0 = el.clientHeight;
       if (w0 < 20 || h0 < 20) {
         const deadline = Date.now() + 5000;
@@ -459,12 +577,11 @@ const app = createApp({
           tick();
         });
       }
-      // Clamp dimensions so a layout glitch can't blow the canvas up to
-      // viewport-sized.
-      const rawW = el.clientWidth, rawH = el.clientHeight;
-      const w = Math.min(Math.max(rawW, 240), 560);
-      const h = Math.min(Math.max(rawH, 240), 520);
-      console.log('[famous Baby] initGlobe dimensions: el=', rawW, 'x', rawH, '→ canvas=', w, 'x', h);
+      // The globe now fills the viewport, so the canvas simply tracks the
+      // container — no clamping.
+      const w = el.clientWidth || window.innerWidth;
+      const h = el.clientHeight || window.innerHeight;
+      console.log('[famous Baby] initGlobe canvas:', w, 'x', h);
       // Preload the earth texture so we can surface a clear error if the CDN
       // is blocked / slow. Use a pinned version (skip the unpkg redirect) and
       // fall back to a colored globe if the image can't load.
@@ -479,92 +596,110 @@ const app = createApp({
       globeInstance = window.Globe()(el)
         .width(w)
         .height(h)
-        .backgroundColor('#0a1228')
+        .backgroundColor('#05070c')
         .globeImageUrl(EARTH_URL)
         .bumpImageUrl(BUMP_URL)
         .showAtmosphere(true)
-        .atmosphereColor('#C8463A')
-        .atmosphereAltitude(0.15)
-        .pointsData(globeData.value)
-        .pointLat('lat')
-        .pointLng('lng')
-        .pointAltitude(pointAltitudeFor)
-        .pointColor(pointColorFor)
-        .pointRadius(pointRadiusFor)
-        .pointResolution(16)
-        .pointLabel(d =>
-          `<div style="background:#1A1612;color:#F5EFE2;padding:6px 10px;border:1px solid #C8463A;` +
-          `font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em">` +
-          `<strong>${d.country}</strong> · ${d.count} ${d.count === 1 ? 'person' : 'people'}<br/>` +
-          `<span style="color:#8A7B6B;font-size:10px">${d.sample.slice(0,3).join(' · ')}` +
-          `${d.count > 3 ? ` · +${d.count - 3} more` : ''}</span></div>`
-        )
-        .onPointClick(handleGlobePointClick)
-        .onPointHover(d => {
-          hoveredCountry.value = d || null;
-          if (el) el.style.cursor = d ? 'pointer' : (globeRotating.value ? 'pointer' : 'grab');
-          if (globeInstance) {
-            globeInstance.pointColor(pointColorFor).pointRadius(pointRadiusFor);
-          }
-        });
+        .atmosphereColor('#7FB2F0')
+        .atmosphereAltitude(0.18);
       try {
         const c = globeInstance.controls();
         c.autoRotate = globeRotating.value;
-        c.autoRotateSpeed = 0.4;
-        // Zoom (wheel / pinch). globe.gl defaults vary by version; pin them
-        // explicitly so users can scroll-zoom in/out of the globe.
+        c.autoRotateSpeed = 0.35;
         c.enableZoom = true;
         c.zoomSpeed = 1.2;
         c.minDistance = 110;   // just outside the sphere (radius ≈ 100)
-        c.maxDistance = 600;
+        c.maxDistance = 700;
+        // Grabbing the globe stops the spin, the way Earth behaves.
+        c.addEventListener('start', () => { globeRotating.value = false; });
       } catch {}
-      // Background click on the canvas toggles rotation. Pin clicks set
-      // _suppressGlobeClick first so we don't double-fire.
-      el.addEventListener('click', handleGlobeBackgroundClick);
-      el.style.cursor = globeRotating.value ? 'pointer' : 'grab';
+      el.style.cursor = 'grab';
       const ro = new ResizeObserver(() => {
         if (!globeInstance || !el.isConnected) return;
-        const rw = Math.min(Math.max(el.clientWidth, 240), 560);
-        const rh = Math.min(Math.max(el.clientHeight, 240), 520);
-        globeInstance.width(rw).height(rh);
+        globeInstance.width(el.clientWidth).height(el.clientHeight);
       });
       ro.observe(el);
       globeInstance._ro = ro;
-      globeInstance._clickHandler = handleGlobeBackgroundClick;
       globeInstance._el = el;
+      resetGlobeView();
+      loadCountryPolygons();
     }
 
     function disposeGlobe() {
       if (!globeInstance) return;
       globeInstance._ro && globeInstance._ro.disconnect();
       const el = globeInstance._el;
-      if (el && globeInstance._clickHandler) {
-        el.removeEventListener('click', globeInstance._clickHandler);
-      }
       if (el) el.innerHTML = '';
       globeInstance = null;
     }
 
-    onMounted(() => {
-      if (window.Globe) {
-        initGlobe();
-      } else {
-        const start = Date.now();
-        const tick = () => {
-          if (window.Globe) initGlobe();
-          else if (Date.now() - start < 5000) setTimeout(tick, 100);
-        };
-        tick();
-      }
-    });
+    // ---- Bottom dock ----
+    // The search line owns the bottom edge; hits stack directly above it,
+    // three at a time, and expand in place when there are more.
+    const HITS_LIMIT = 3;
+    const hitsExpanded = ref(false);
+    const visibleHits = computed(() =>
+      hitsExpanded.value ? filtered.value.slice(0, 60) : filtered.value.slice(0, HITS_LIMIT)
+    );
+
+    // Refine lives in an overlay sheet behind the tune icon on the search line.
+    const refineOpen = ref(false);
+    const refineCount = computed(() => typeFilterCount.value + timeFilterCount.value);
+
+    // ---- Quick-category strip (top of the map) ----
+    // Five field shortcuts visible at a time; arrows page through the rest.
+    const CATS_PER_PAGE = 5;
+    const catStart = ref(0);
+    const catMaxStart = Math.max(0, FIELDS.length - CATS_PER_PAGE);
+    const visibleFields = computed(() => FIELDS.slice(catStart.value, catStart.value + CATS_PER_PAGE));
+    const canCatPrev = computed(() => catStart.value > 0);
+    const canCatNext = computed(() => catStart.value < catMaxStart);
+    function catPage(dir) {
+      catStart.value = Math.max(0, Math.min(catStart.value + dir * CATS_PER_PAGE, catMaxStart));
+    }
+    // Tapping a category filters by that field; the hits appear above the
+    // search line on their own.
+    function quickPick(f) {
+      toggleField(f);
+      hitsExpanded.value = false;
+    }
+
+    // The globe is always mounted now, so it can initialize on load. The
+    // globe.gl UMD bundle may still be in flight — poll briefly for it.
+    function ensureGlobe() {
+      if (globeInstance) return;
+      if (window.Globe) { initGlobe(); return; }
+      const start = Date.now();
+      const tick = () => {
+        if (window.Globe) initGlobe();
+        else if (Date.now() - start < 8000) setTimeout(tick, 100);
+      };
+      tick();
+    }
+    onMounted(() => nextTick(() => ensureGlobe()));
+
+    function clearType() {
+      selectedFields.value = [];
+      selectedSubfields.value = [];
+      selectedGenders.value = [];
+    }
+    function clearTime() {
+      yearMin.value = YEAR_FLOOR;
+      yearMax.value = YEAR_CEIL;
+      clearBornFilters();
+    }
+    const typeFilterCount = computed(() =>
+      selectedFields.value.length + selectedSubfields.value.length + selectedGenders.value.length
+    );
+    const timeFilterCount = computed(() =>
+      (yearMin.value !== YEAR_FLOOR || yearMax.value !== YEAR_CEIL ? 1 : 0)
+      + (selectedBornMonth.value > 0 ? 1 : 0)
+      + (bornTodayActive.value ? 1 : 0)
+    );
     onUnmounted(disposeGlobe);
 
-    // Recolor pins (and update cursor) reactively when state changes.
-    watch([selectedCountry, hoveredCountry], () => {
-      if (globeInstance) {
-        globeInstance.pointColor(pointColorFor).pointRadius(pointRadiusFor);
-      }
-    });
+    // Repaint the outlines whenever selection changes.
+    watch(selectedCountry, repaintPolygons);
     watch(globeRotating, (spinning) => {
       if (!globeInstance) return;
       try {
@@ -588,6 +723,10 @@ const app = createApp({
     const selectedPerson = ref(null);
     function openPerson(p) {
       selectedPerson.value = p;
+      // The camera follows the person to their birthplace — the Earth
+      // "knowledge card" gesture.
+      refineOpen.value = false;
+      if (p && p.country) flyToCountry(p.country, 1.1);
       // Reset the per-person Q&A state whenever a different person opens.
       askOpen.value = false;
       askInput.value = '';
@@ -596,6 +735,19 @@ const app = createApp({
       askLoading.value = false;
     }
     function closePerson() { selectedPerson.value = null; }
+
+    // Touching any filter — typing, a category, the timeline, a country, the
+    // heart — puts the three-name list back in front of the user. If a card
+    // was open it steps aside so the new result set is visible.
+    watch(
+      [query, selectedFields, selectedSubfields, selectedGenders,
+       yearMin, yearMax, selectedCountry, selectedBornMonth, selectedBornDay,
+       onlyFavorites, bornTodayActive],
+      () => {
+        if (selectedPerson.value) selectedPerson.value = null;
+        hitsExpanded.value = false;
+      }
+    );
 
     // ---- "Ask a question" affordance ----
     // Lightweight UI scaffold. Submit posts to whatever endpoint is configured
@@ -675,7 +827,10 @@ const app = createApp({
 
     // ---- Esc key closes the modal ----
     function onKeydown(e) {
-      if (e.key === 'Escape' && selectedPerson.value) closePerson();
+      if (e.key !== 'Escape') return;
+      if (refineOpen.value) refineOpen.value = false;
+      else if (selectedPerson.value) closePerson();
+      else if (hitsExpanded.value) hitsExpanded.value = false;
     }
     onMounted(() => document.addEventListener('keydown', onKeydown));
     onUnmounted(() => document.removeEventListener('keydown', onKeydown));
@@ -842,6 +997,34 @@ const app = createApp({
     });
     const hasActiveFilters = computed(() => activeFilters.value.length > 0);
 
+    // The roster is never shown cold: the list appears only once the user has
+    // actually asked something — typed text, picked a place, or moved time.
+    // (Field/gender/saved count too; they're filters like any other.)
+    const showResults = computed(() => hasActiveFilters.value);
+
+    // ---- Timeline (bottom scrubber) ----
+    // Year range is "engaged" whenever either handle has left its end stop.
+    const yearsActive = computed(() =>
+      yearMin.value !== YEAR_FLOOR || yearMax.value !== YEAR_CEIL
+    );
+    function clearYears() {
+      yearMin.value = YEAR_FLOOR;
+      yearMax.value = YEAR_CEIL;
+    }
+    // Century ticks across the rail; every other one carries a label so the
+    // scale reads without crowding.
+    const YEAR_TICKS = (() => {
+      const out = [];
+      for (let y = 1400; y <= 2000; y += 100) {
+        out.push({
+          y,
+          pct: ((y - YEAR_FLOOR) / (YEAR_CEIL - YEAR_FLOOR)) * 100,
+          label: y % 200 === 0,
+        });
+      }
+      return out;
+    })();
+
     // ---- Display helpers ----
     // Split a person's display name into first/last around their middle name.
     // Returns null when there's no middleName (so the template can v-if it out)
@@ -855,6 +1038,18 @@ const app = createApp({
         middle: person.middleName,
         last: parts.slice(1).join(' '),
       };
+    }
+
+    // Everyone the user has hearted, in dataset order.
+    const favoritePeople = computed(() => PEOPLE.filter(p => favorites.value.has(p.id)));
+
+    // One-line secondary text under a name in the result rows.
+    function rowMeta(person) {
+      return [
+        person.subfield || person.field,
+        person.birthPlace,
+        'b. ' + person.birthYear,
+      ].filter(Boolean).join(' · ');
     }
 
     function metaPills(person) {
@@ -892,10 +1087,14 @@ const app = createApp({
       sort,
       selectedPerson, theme,
       // data / constants
-      FIELDS, GENDERS, FIELD_COLORS, today,
-      colorForField,
+      FIELDS, GENDERS, FIELD_COLORS, today, PEOPLE_COUNT: PEOPLE.length, HITS_LIMIT,
+      colorForField, iconForField,
+      // quick categories
+      visibleFields, canCatPrev, canCatNext, catPage, quickPick,
       // computed
       filtered, availableSubfields, similarForSelected,
+      favoritePeople, countryList, countryMax,
+      showResults, yearsActive, clearYears, YEAR_TICKS,
       activeFilters, hasActiveFilters,
       // selection helpers (templates)
       isFieldSelected, isSubfieldSelected, isGenderSelected,
@@ -905,17 +1104,21 @@ const app = createApp({
       favorites, onlyFavorites, isFavorite, toggleFavorite, toggleOnlyFavorites,
       bornTodayActive, toggleBornToday,
       selectedCountry, clearCountry, globeData, globeRotating, toggleGlobeRotation, zoomGlobe,
+      pickCountry, flyToCountry, resetGlobeView,
       selectedBornMonth, selectedBornDay,
       setBornMonth, clearBornFilters,
       MONTH_NAMES, zodiacFor, formatBirthDate, daysInMonth,
       surpriseMe,
+      // dock
+      hitsExpanded, visibleHits, refineOpen, refineCount,
+      clearType, clearTime, typeFilterCount, timeFilterCount,
       toggleField, toggleSubfield, toggleGender,
       openPerson, closePerson, toggleTheme,
       // ask-a-question
       askOpen, askInput, askAnswer, askError, askLoading,
       toggleAsk, submitAsk,
       // display helpers
-      metaPills, tagsFor, fullNameParts,
+      metaPills, tagsFor, fullNameParts, rowMeta,
     };
   },
 });

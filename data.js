@@ -57,7 +57,7 @@ export const PEOPLE = [
 
   { id:'john-havlicek', name:'John Havlicek', middleName:'Joseph', homophones:['Jon','Jhon'], similarSpellings:['Jon','Johnn','Jhon','Johan'], gender:'male', birthYear:1940, birthMonth:4, birthDay:8, birthPlace:'Martins Ferry, Ohio', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Boston Celtics',years:[1962,1978]}], awards:[{name:'NBA Champion',year:1963},{name:'NBA Finals MVP',year:1974}],
-    collaborators:['Bill Russell','Dave Cowens'], contemporaries:[], friends:[], foes:[], bio:"Hondo — eight-time Celtics champion who stole the ball." },
+    collaborators:['Bill Russell','Dave Cowens'], contemporaries:[], friends:[], foes:[], bio:"Hondo — eight-time Celtics champion who stole the ball. An Ohio native, he won an NCAA title at Ohio State alongside Jerry Lucas and was such an athlete that the NFL's Cleveland Browns drafted him as a receiver though he had never played college football. His deflection of Hal Greer's inbounds pass in the 1965 Eastern finals produced Johnny Most's immortal cry, \"Havlicek stole the ball!\" A tireless swingman who thrived as both starter and sixth man, he made thirteen All-Star teams and retired in 1978 as the Celtics' all-time leading scorer with 26,395 points." },
 
   { id:'willis-reed', name:'Willis Reed', middleName:'Junior', homophones:['Willes'], similarSpellings:['Wilis','Willice','Willys','Wilys'], gender:'male', birthYear:1942, birthMonth:6, birthDay:25, birthPlace:'Hico, Louisiana', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'New York Knicks',years:[1964,1974]}], awards:[{name:'NBA MVP',year:1970},{name:'NBA Champion',year:1970}],
@@ -111,7 +111,7 @@ export const PEOPLE = [
 
   { id:'james-worthy', name:'James Worthy', middleName:'Ager', homophones:['Jaymes'], similarSpellings:['Jaymes','Jamie','Jamz','Jameson'], gender:'male', birthYear:1961, birthMonth:2, birthDay:27, birthPlace:'Gastonia, North Carolina', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Los Angeles Lakers',years:[1982,1994]}], awards:[{name:'NBA Finals MVP',year:1988},{name:'NBA Champion',year:1985}],
-    collaborators:['Magic Johnson','Kareem Abdul-Jabbar'], contemporaries:[], friends:[], foes:[], bio:"Big Game James — three-time NBA champion and 1988 Finals MVP." },
+    collaborators:['Magic Johnson','Kareem Abdul-Jabbar'], contemporaries:[], friends:[], foes:[], bio:"Big Game James — three-time NBA champion and 1988 Finals MVP. He led North Carolina to the 1982 national title alongside a freshman Michael Jordan, then went No. 1 overall to the Lakers that spring. A cornerstone of the Showtime dynasty next to Magic Johnson and Kareem Abdul-Jabbar, he capped the 1988 Finals with a series-clinching triple-double. A seven-time All-Star, he spent his entire twelve-year career in Los Angeles and was named to the NBA's 50th Anniversary Team." },
 
   { id:'isiah-thomas', name:'Isiah Thomas', middleName:'Lord', homophones:['Isaiah'], similarSpellings:['Isaiah','Izaiah','Iziah','Isiaiah'], gender:'male', birthYear:1961, birthMonth:4, birthDay:30, birthPlace:'Chicago, Illinois', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Detroit Pistons',years:[1981,1994]}], awards:[{name:'NBA Champion',year:1989},{name:'NBA Finals MVP',year:1990}],
@@ -247,7 +247,7 @@ export const PEOPLE = [
 
   { id:'paul-pierce', name:'Paul Pierce', middleName:'Anthony', homophones:[], similarSpellings:['Pol','Paull','Pawl','Paulo'], gender:'male', birthYear:1977, birthMonth:10, birthDay:13, birthPlace:'Oakland, California', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Boston Celtics',years:[1998,2013]}], awards:[{name:'NBA Finals MVP',year:2008},{name:'NBA Champion',year:2008}],
-    collaborators:['Kevin Garnett','Ray Allen'], contemporaries:[], friends:[], foes:[], bio:"The Truth — Celtics wing, 2008 NBA champion, and Finals MVP." },
+    collaborators:['Kevin Garnett','Ray Allen'], contemporaries:[], friends:[], foes:[], bio:"The Truth — Celtics wing, 2008 NBA champion, and Finals MVP. A star at the University of Kansas, he slid to the tenth pick in the 1998 draft and spent fifteen seasons in Boston, becoming the second-leading scorer in franchise history behind John Havlicek. Shaquille O'Neal reportedly gave him the nickname \"The Truth\" after a 2001 game. Paired with Kevin Garnett and Ray Allen, he led the Celtics to the 2008 title, and his No. 34 now hangs in the TD Garden rafters." },
 
   { id:'dirk-nowitzki', name:'Dirk Nowitzki', middleName:'Werner', homophones:[], similarSpellings:['Derk','Dirck','Dirc','Dyrk'], gender:'male', birthYear:1978, birthMonth:6, birthDay:19, birthPlace:'Würzburg, Germany', country:'Germany', field:'Sports', subfield:'NBA',
     teams:[{name:'Dallas Mavericks',years:[1998,2019]}], awards:[{name:'NBA MVP',year:2007},{name:'NBA Champion',year:2011}],
@@ -297,11 +297,11 @@ export const PEOPLE = [
 
   { id:'derrick-rose', name:'Derrick Rose', middleName:'Martell', homophones:[], similarSpellings:['Derek','Derik','Deric','Derrik'], gender:'male', birthYear:1988, birthMonth:10, birthDay:4, birthPlace:'Chicago, Illinois', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Chicago Bulls',years:[2008,2016]},{name:'New York Knicks',years:[2016,2017]}], awards:[{name:'NBA MVP',year:2011}],
-    collaborators:['Joakim Noah','Luol Deng'], contemporaries:[], friends:[], foes:[], bio:"D-Rose — youngest MVP in NBA history at age 22." },
+    collaborators:['Joakim Noah','Luol Deng'], contemporaries:[], friends:[], foes:[], bio:"D-Rose — youngest MVP in NBA history at age 22. Raised on Chicago's South Side, he starred at Simeon Career Academy and spent a single season at Memphis before the hometown Bulls made him the No. 1 overall pick in 2008. He was Rookie of the Year in 2009 and, two seasons later, the youngest MVP the league has ever crowned. A torn ACL in the 2012 playoffs altered his trajectory, sending him on a long second act with the Knicks, Cavaliers, Timberwolves, Pistons, and Grizzlies. His 50-point night for Minnesota in 2018 became one of the most emotional performances of the modern era." },
 
   { id:'russell-westbrook', name:'Russell Westbrook', middleName:'', homophones:[], similarSpellings:['Russel','Rusell','Russle','Russ'], gender:'male', birthYear:1988, birthMonth:11, birthDay:12, birthPlace:'Long Beach, California', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Oklahoma City Thunder',years:[2008,2019]},{name:'Houston Rockets',years:[2019,2020]},{name:'Los Angeles Lakers',years:[2021,2023]}],
-    awards:[{name:'NBA MVP',year:2017}], collaborators:['Kevin Durant','James Harden','Paul George'], contemporaries:[], friends:[], foes:[], bio:"Brodie — 2017 MVP and the all-time leader in triple-doubles." },
+    awards:[{name:'NBA MVP',year:2017}], collaborators:['Kevin Durant','James Harden','Paul George'], contemporaries:[], friends:[], foes:[], bio:"Brodie — 2017 MVP and the all-time leader in triple-doubles. Out of UCLA, he was drafted fourth overall by the Seattle SuperSonics in 2008, moving with the team to Oklahoma City that summer. In his 2016–17 MVP season he averaged a triple-double across the full year, a feat not matched since Oscar Robertson in 1962, and he would repeat it three more times. In 2021 he passed Robertson for the most triple-doubles in NBA history. A nine-time All-Star, he is known for his explosive athleticism and fashion-forward wardrobe." },
 
   { id:'kevin-durant', name:'Kevin Durant', middleName:'Wayne', homophones:[], similarSpellings:['Kevon','Kevyn','Kevan','Kevern'], gender:'male', birthYear:1988, birthMonth:9, birthDay:29, birthPlace:'Washington, D.C.', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Oklahoma City Thunder',years:[2008,2016]},{name:'Golden State Warriors',years:[2016,2019]},{name:'Brooklyn Nets',years:[2019,2023]},{name:'Phoenix Suns',years:[2023,2025]}],
@@ -390,7 +390,7 @@ export const PEOPLE = [
 
   { id:'donovan-mitchell', name:'Donovan Mitchell', middleName:'Vincent', homophones:[], similarSpellings:['Donavan','Donovin','Donavon','Donavin'], gender:'male', birthYear:1996, birthMonth:9, birthDay:7, birthPlace:'Elmsford, New York', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Utah Jazz',years:[2017,2022]},{name:'Cleveland Cavaliers',years:[2022,2025]}], awards:[],
-    collaborators:['Rudy Gobert','Darius Garland'], contemporaries:[], friends:[], foes:[], bio:"Spida — five-time All-Star who once scored 71 points in a game." },
+    collaborators:['Rudy Gobert','Darius Garland'], contemporaries:[], friends:[], foes:[], bio:"Spida — five-time All-Star who once scored 71 points in a game. A Louisville standout drafted in 2017, he finished runner-up for Rookie of the Year and quickly became a scoring centerpiece for the Utah Jazz. His 71-point outburst came in January 2023 as a Cleveland Cavalier, the highest single-game total in that franchise's history. An All-NBA guard since his 2022 trade to Cleveland, he also runs a signature sneaker line with Adidas." },
 
   { id:'bam-adebayo', name:'Bam Adebayo', middleName:'Edrice', homophones:[], similarSpellings:['Bamm','Baam','Bham'], gender:'male', birthYear:1997, birthMonth:7, birthDay:18, birthPlace:'Newark, New Jersey', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Miami Heat',years:[2017,2025]}], awards:[],
@@ -419,7 +419,7 @@ export const PEOPLE = [
 
   { id:'zion-williamson', name:'Zion Williamson', middleName:'Lateef', homophones:[], similarSpellings:['Zyon','Sion','Zhion','Zionn'], gender:'male', birthYear:2000, birthMonth:7, birthDay:6, birthPlace:'Salisbury, North Carolina', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'New Orleans Pelicans',years:[2019,2025]}], awards:[],
-    collaborators:['Brandon Ingram'], contemporaries:[], friends:[], foes:[], bio:"285-pound force of nature and the No. 1 overall pick in 2019." },
+    collaborators:['Brandon Ingram'], contemporaries:[], friends:[], foes:[], bio:"285-pound force of nature and the No. 1 overall pick in 2019. A one-and-done sensation at Duke, he became a viral phenomenon whose blown-out shoe in a 2019 game against North Carolina made national news. New Orleans drafted him first overall, and despite injuries slowing his early seasons, he made the All-Star team in 2021 and 2023. When healthy, his rare blend of size, power, and agility makes him one of the most explosive finishers the league has seen." },
 
   { id:'tyrese-haliburton', name:'Tyrese Haliburton', middleName:'John', homophones:['Tyreese'], similarSpellings:['Tyreese','Tyreis','Tirese','Tyrise'], gender:'male', birthYear:2000, birthMonth:2, birthDay:29, birthPlace:'Oshkosh, Wisconsin', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Sacramento Kings',years:[2020,2022]},{name:'Indiana Pacers',years:[2022,2025]}], awards:[],
@@ -440,7 +440,7 @@ export const PEOPLE = [
 
   { id:'paolo-banchero', name:'Paolo Banchero', middleName:'Napoleon', homophones:[], similarSpellings:['Paulo','Pablo','Paolino','Paolio'], gender:'male', birthYear:2002, birthMonth:11, birthDay:12, birthPlace:'Seattle, Washington', country:'USA', field:'Sports', subfield:'NBA',
     teams:[{name:'Orlando Magic',years:[2022,2025]}], awards:[{name:'NBA Rookie of the Year',year:2023}],
-    collaborators:['Franz Wagner'], contemporaries:[], friends:[], foes:[], bio:"Italian-American forward and 2023 NBA Rookie of the Year." },
+    collaborators:['Franz Wagner'], contemporaries:[], friends:[], foes:[], bio:"Italian-American forward and 2023 NBA Rookie of the Year. Raised in Seattle in an athletic family, he played one season at Duke before the Orlando Magic selected him first overall in the 2022 NBA Draft. He averaged around twenty points a game as a rookie to win the award and made his first All-Star team in 2024. A big, ball-handling forward with a versatile scoring game, he became the cornerstone of a young Magic team's rebuild." },
 
   { id:'victor-wembanyama', name:'Victor Wembanyama', middleName:'', homophones:['Viktor'], similarSpellings:['Viktor','Victr','Vyctor','Victorr'], gender:'male', birthYear:2004, birthMonth:1, birthDay:4, birthPlace:'Le Chesnay, France', country:'France', field:'Sports', subfield:'NBA',
     teams:[{name:'San Antonio Spurs',years:[2023,2025]}], awards:[{name:'NBA Rookie of the Year',year:2024}],
@@ -478,7 +478,7 @@ export const PEOPLE = [
 
   { id:'ella-fitzgerald', name:'Ella Fitzgerald', middleName:'Jane', homophones:[], similarSpellings:['Ela','Elle','Ellah','Ellie'], gender:'female', birthYear:1917, birthMonth:4, birthDay:25, birthPlace:'Newport News, Virginia', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Vocal Performance, Female',year:1959}],
-    collaborators:['Louis Armstrong','Duke Ellington'], contemporaries:[], friends:[], foes:[], bio:'First Lady of Song; 14 Grammys and the unrivaled scat singer.' },
+    collaborators:['Louis Armstrong','Duke Ellington'], contemporaries:[], friends:[], foes:[], bio:"First Lady of Song; 14 Grammys and the unrivaled scat singer. Orphaned as a teenager, she won an amateur night at Harlem's Apollo Theater in 1934 and soon became the star vocalist of drummer Chick Webb's band. Her mid-career Song Book series for Verve, devoted to composers like Cole Porter and the Gershwins, redefined the American popular canon. She was the first African American woman to win a Grammy, in 1959, and later received the Presidential Medal of Freedom and the National Medal of Arts." },
 
   { id:'peggy-lee', name:'Peggy Lee', middleName:'', homophones:['Peggi','Pegi'], similarSpellings:['Peggi','Pegi','Peggie','Peggey'], gender:'female', birthYear:1920, birthMonth:5, birthDay:26, birthPlace:'Jamestown, North Dakota', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award',year:1969}],
@@ -494,7 +494,7 @@ export const PEOPLE = [
 
   { id:'patsy-cline', name:'Patsy Cline', middleName:'', homophones:[], similarSpellings:['Patsey','Patsi','Patzy'], gender:'female', birthYear:1932, birthMonth:9, birthDay:8, birthPlace:'Winchester, Virginia', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Country Music Hall of Fame',year:1973}],
-    collaborators:['Owen Bradley','Loretta Lynn'], contemporaries:[], friends:[], foes:[], bio:'Country-pop pioneer whose voice still aches on "Crazy."' },
+    collaborators:['Owen Bradley','Loretta Lynn'], contemporaries:[], friends:[], foes:[], bio:"Country-pop pioneer whose voice still aches on \"Crazy.\" Raised in Winchester, Virginia, she broke through in 1957 with \"Walkin' After Midnight\" following a star turn on Arthur Godfrey's Talent Scouts. Working with producer Owen Bradley in Nashville, she recorded the crossover standards \"I Fall to Pieces\" and \"Crazy,\" the latter written by a young Willie Nelson. She died in a plane crash in Tennessee in March 1963 at just thirty years old, and a decade later became the first female solo artist inducted into the Country Music Hall of Fame." },
 
   { id:'petula-clark', name:'Petula Clark', middleName:'Sally', homophones:[], similarSpellings:['Petulla','Petoula','Petulah'], gender:'female', birthYear:1932, birthMonth:11, birthDay:15, birthPlace:'Epsom, England', country:'UK', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Rock and Roll Recording',year:1965}],
@@ -540,7 +540,7 @@ export const PEOPLE = [
 
   { id:'joni-mitchell', name:'Joni Mitchell', middleName:'', homophones:['Joany','Joney'], similarSpellings:['Joany','Joney','Jonie','Joanie'], gender:'female', birthYear:1943, birthMonth:11, birthDay:7, birthPlace:'Fort Macleod, Alberta', country:'Canada', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Pop Album',year:1995}],
-    collaborators:['James Taylor','Crosby, Stills, Nash & Young'], contemporaries:[], friends:[], foes:[], bio:'Canadian poet of folk-pop; reshaped what songwriting could do.' },
+    collaborators:['James Taylor','Crosby, Stills, Nash & Young'], contemporaries:[], friends:[], foes:[], bio:"Canadian poet of folk-pop; reshaped what songwriting could do. Working in unconventional open guitar tunings, she turned confessional lyricism into art on the 1971 album Blue, long ranked among the greatest ever made. Songs like \"Both Sides Now,\" \"A Case of You,\" and \"Big Yellow Taxi\" gave way to jazz explorations, including a 1979 collaboration with bassist Charles Mingus. After a 2015 brain aneurysm she staged a celebrated comeback, performing a surprise set at the 2022 Newport Folk Festival." },
 
   { id:'diana-ross', name:'Diana Ross', middleName:'Ernestine', homophones:['Dianna','Dyana'], similarSpellings:['Dianna','Dyana','Diane','Diahann'], gender:'female', birthYear:1944, birthMonth:3, birthDay:26, birthPlace:'Detroit, Michigan', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Lifetime Achievement Award',year:2012}],
@@ -548,7 +548,7 @@ export const PEOPLE = [
 
   { id:'debbie-harry', name:'Debbie Harry', middleName:'Ann', homophones:['Debby','Debi'], similarSpellings:['Debby','Debi','Debbi','Debbie'], gender:'female', birthYear:1945, birthMonth:7, birthDay:1, birthPlace:'Miami, Florida', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Rock and Roll Hall of Fame',year:2006}],
-    collaborators:['Chris Stein','Giorgio Moroder'], contemporaries:[], friends:[], foes:[], bio:'Blondie front and the cool-glance face of CBGB-era pop.' },
+    collaborators:['Chris Stein','Giorgio Moroder'], contemporaries:[], friends:[], foes:[], bio:"Blondie front and the cool-glance face of CBGB-era pop. She co-founded Blondie with guitarist Chris Stein in 1974, rising out of the same downtown New York scene as the Ramones and Talking Heads. The band bridged punk, disco, and pop with \"Heart of Glass,\" the Giorgio Moroder-produced \"Call Me,\" and \"Rapture,\" the first U.S. No. 1 single to feature rapping. Blondie was inducted into the Rock and Roll Hall of Fame in 2006, and Harry has also sustained a solo career and acted in films including David Cronenberg's Videodrome." },
 
   { id:'cher', name:'Cher', middleName:'', homophones:['Share'], similarSpellings:['Sher','Shere','Cherr'], gender:'female', birthYear:1946, birthMonth:5, birthDay:20, birthPlace:'El Centro, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Dance Recording',year:2000}],
@@ -556,7 +556,7 @@ export const PEOPLE = [
 
   { id:'linda-ronstadt', name:'Linda Ronstadt', middleName:'Maria', homophones:['Lynda','Lindah'], similarSpellings:['Lynda','Lindah','Lindy','Linde'], gender:'female', birthYear:1946, birthMonth:7, birthDay:15, birthPlace:'Tucson, Arizona', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Country Vocal Performance, Female',year:1976}],
-    collaborators:['Emmylou Harris','Dolly Parton'], contemporaries:[], friends:[], foes:[], bio:'Genre-jumping vocalist — country, pop, mariachi, big-band.' },
+    collaborators:['Emmylou Harris','Dolly Parton'], contemporaries:[], friends:[], foes:[], bio:"Genre-jumping vocalist — country, pop, mariachi, big-band. Emerging from the Southern California rock scene, she became one of the 1970s' biggest stars with hits like \"You're No Good,\" \"Blue Bayou,\" and \"When Will I Be Loved.\" She restlessly changed course — recording pop standards with Nelson Riddle, the Trio albums with Dolly Parton and Emmylou Harris, and the mariachi tribute Canciones de Mi Padre, one of the best-selling non-English-language albums in U.S. history. She won ten Grammy Awards and was inducted into the Rock and Roll Hall of Fame in 2014. A neurological illness later diagnosed as progressive supranuclear palsy forced her to stop singing." },
 
   { id:'dolly-parton', name:'Dolly Parton', middleName:'Rebecca', homophones:['Dolley','Dollie'], similarSpellings:['Dolley','Dollie','Dolli','Dolie'], gender:'female', birthYear:1946, birthMonth:1, birthDay:19, birthPlace:'Sevierville, Tennessee', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Lifetime Achievement Award',year:2011}],
@@ -585,7 +585,7 @@ export const PEOPLE = [
   { id:'annie-lennox', name:'Annie Lennox', middleName:'', homophones:['Anny','Anni'], similarSpellings:['Anny','Anni','Annee','Annye'], gender:'female', birthYear:1954, birthMonth:12, birthDay:25, birthPlace:'Aberdeen, Scotland', country:'UK', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Pop Vocal Album',year:1996}],
     collaborators:['Dave Stewart'], contemporaries:[], friends:[], foes:[],
-    bio:'Eurythmics androgyne and four-octave belter of "Sweet Dreams."' },
+    bio:"Eurythmics androgyne and four-octave belter of \"Sweet Dreams.\" With Dave Stewart she drove the Eurythmics through hits like \"Here Comes the Rain Again\" before launching a solo career with 1992's Diva and songs such as \"Why\" and \"Walking on Broken Glass.\" She won an Academy Award for \"Into the West\" from The Lord of the Rings: The Return of the King in 2004. A longtime activist, she has campaigned for HIV/AIDS awareness and founded the women's advocacy group The Circle." },
 
   { id:'gloria-estefan', name:'Gloria Estefan', middleName:'', homophones:[], similarSpellings:['Glorea','Gloriah','Glorie','Glorya'], gender:'female', birthYear:1957, birthMonth:9, birthDay:1, birthPlace:'Havana, Cuba', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Tropical Latin Album',year:1994}],
@@ -598,7 +598,7 @@ export const PEOPLE = [
   { id:'belinda-carlisle', name:'Belinda Carlisle', middleName:'', homophones:[], similarSpellings:['Bellinda','Belynda','Belindah'], gender:'female', birthYear:1958, birthMonth:8, birthDay:17, birthPlace:'Hollywood, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[],
     collaborators:['Jane Wiedlin'], contemporaries:[], friends:[], foes:[],
-    bio:"Go-Go's lead and 'Heaven Is a Place on Earth' solo star." },
+    bio:"Go-Go's lead and \"Heaven Is a Place on Earth\" solo star. Before she ever sang lead she was briefly the drummer of the Los Angeles punk band the Germs, performing under the name \"Dottie Danger.\" She fronted the Go-Go's, whose 1981 debut Beauty and the Beat made them the first all-female band to write their own songs, play their own instruments, and top the Billboard album chart, powered by \"We Got the Beat\" and \"Our Lips Are Sealed.\" When the group splintered she launched a solo career that reached No. 1 in 1987 with the shimmering \"Heaven Is a Place on Earth.\" The Go-Go's were inducted into the Rock and Roll Hall of Fame in 2021." },
 
   { id:'madonna', name:'Madonna', middleName:'', homophones:[], similarSpellings:['Madona','Madonnah','Madonia'], gender:'female', birthYear:1958, birthMonth:8, birthDay:16, birthPlace:'Bay City, Michigan', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Pop Album',year:1999}],
@@ -610,12 +610,12 @@ export const PEOPLE = [
 
   { id:'whitney-houston', name:'Whitney Houston', middleName:'Elizabeth', homophones:[], similarSpellings:['Whitnee','Whitnie','Whitny','Whittney'], gender:'female', birthYear:1963, birthMonth:8, birthDay:9, birthPlace:'Newark, New Jersey', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Album of the Year',year:1994}],
-    collaborators:['Clive Davis','Mariah Carey'], contemporaries:[], friends:[], foes:[], bio:'The Voice — "I Will Always Love You" sat at No. 1 for 14 weeks.' },
+    collaborators:['Clive Davis','Mariah Carey'], contemporaries:[], friends:[], foes:[], bio:"The Voice — \"I Will Always Love You\" sat at No. 1 for 14 weeks. The daughter of gospel singer Cissy Houston and a cousin of Dionne Warwick, she launched one of the best-selling debut albums ever in 1985. She set a record with seven consecutive number-one Hot 100 singles, then starred in 1992's The Bodyguard, whose soundtrack became one of the best-selling of all time. Struggles with addiction shadowed her later years, and she drowned in 2012 at age 48." },
 
   { id:'bjork', name:'Björk', middleName:'', homophones:[], similarSpellings:['Bjoerk','Byork'], gender:'female', birthYear:1965, birthMonth:11, birthDay:21, birthPlace:'Reykjavík, Iceland', country:'Iceland', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'BRIT Award for International Female Solo Artist',year:1996}],
     collaborators:['Mark Bell'], contemporaries:[], friends:[], foes:[],
-    bio:'Icelandic art-pop alien; every album its own sonic country.' },
+    bio:"Icelandic art-pop alien; every album its own sonic country. A child singer in Reykjavík, she first gained international notice fronting the alternative band The Sugarcubes before launching a solo career with Debut in 1993, followed by Post, Homogenic, and Vespertine. Restlessly experimental, she has fused electronic, orchestral, and vocal textures and worked with directors like Michel Gondry on groundbreaking music videos. She won the Best Actress prize at Cannes for Lars von Trier's Dancer in the Dark (2000) and earned an Oscar nomination for its song \"I've Seen It All\" — arriving at the ceremony in her infamous swan dress. She remains a singular force at the intersection of pop, art, and technology." },
 
   { id:'tori-amos', name:'Tori Amos', middleName:'Ellen', homophones:['Tory','Torie'], similarSpellings:['Tory','Torie','Toree','Toria'], gender:'female', birthYear:1963, birthMonth:8, birthDay:22, birthPlace:'Newton, North Carolina', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[],
@@ -627,7 +627,7 @@ export const PEOPLE = [
 
   { id:'janet-jackson', name:'Janet Jackson', middleName:'Damita', homophones:[], similarSpellings:['Janett','Janette','Janeth','Jeanette'], gender:'female', birthYear:1966, birthMonth:5, birthDay:16, birthPlace:'Gary, Indiana', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Long Form Music Video',year:1990}],
-    collaborators:['Jimmy Jam','Terry Lewis'], contemporaries:[], friends:[], foes:[], bio:'Control — choreography-first pop monarch of the 1980s and 90s.' },
+    collaborators:['Jimmy Jam','Terry Lewis'], contemporaries:[], friends:[], foes:[], bio:"Control — choreography-first pop monarch of the 1980s and 90s. The youngest of the Jackson siblings, she stepped out of her family's shadow with 1986's Control and 1989's Rhythm Nation 1814, both built with producers Jimmy Jam and Terry Lewis. Her precision dancing and socially conscious songs became a template for modern pop performers. Rhythm Nation produced number-one hits across three separate calendar years, a chart record, and she was inducted into the Rock and Roll Hall of Fame in 2019." },
 
   { id:'toni-braxton', name:'Toni Braxton', middleName:'Michele', homophones:['Tony','Toney'], similarSpellings:['Tony','Toney','Tonee','Tonia'], gender:'female', birthYear:1967, birthMonth:10, birthDay:7, birthPlace:'Severn, Maryland', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best New Artist',year:1994}],
@@ -635,7 +635,7 @@ export const PEOPLE = [
 
   { id:'faith-hill', name:'Faith Hill', middleName:'', homophones:[], similarSpellings:['Fayth','Faythe','Faithe'], gender:'female', birthYear:1967, birthMonth:9, birthDay:21, birthPlace:'Ridgeland, Mississippi', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Female Country Vocal Performance',year:2001}],
-    collaborators:['Tim McGraw'], contemporaries:[], friends:[], foes:[], bio:'Country-pop crossover and one half of Nashville\'s power couple.' },
+    collaborators:['Tim McGraw'], contemporaries:[], friends:[], foes:[], bio:"Country-pop crossover and one half of Nashville's power couple. She broke through in the mid-1990s and crossed fully into pop with 1999's Breathe, one of the decade's best-selling country albums. Married to Tim McGraw since 1996, she co-headlined their Soul2Soul tours and sang the opening theme of NBC's Sunday Night Football for years. In 2021 she starred opposite McGraw as Margaret Dutton in the Western series 1883." },
 
   { id:'celine-dion', name:'Céline Dion', middleName:'Marie', homophones:[], similarSpellings:['Celina','Selene','Selina','Celyne'], gender:'female', birthYear:1968, birthMonth:3, birthDay:30, birthPlace:'Charlemagne, Quebec', country:'Canada', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Record of the Year',year:1999}],
@@ -655,7 +655,7 @@ export const PEOPLE = [
 
   { id:'selena-quintanilla', name:'Selena Quintanilla', middleName:'', homophones:['Salena','Selina'], similarSpellings:['Salena','Selina','Selene','Celina'], gender:'female', birthYear:1971, birthMonth:4, birthDay:16, birthPlace:'Lake Jackson, Texas', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Mexican-American Album',year:1994}],
-    collaborators:['A.B. Quintanilla'], contemporaries:[], friends:[], foes:[], bio:'Queen of Tejano — Latin pop\'s eternal what-might-have-been.' },
+    collaborators:['A.B. Quintanilla'], contemporaries:[], friends:[], foes:[], bio:"Queen of Tejano — Latin pop's eternal what-might-have-been. She began performing as a child in her family's band, Selena y Los Dinos, and grew into the biggest star of Tejano music with hits like \"Como La Flor,\" \"Amor Prohibido,\" and \"Bidi Bidi Bom Bom.\" Her album Live won the Grammy for Best Mexican-American Album, and she was preparing an English-language crossover when, in March 1995, she was shot and killed by the president of her fan club at age 23. The posthumous album Dreaming of You debuted atop the Billboard 200 that summer. A 1997 biopic launched Jennifer Lopez to stardom, and Selena's influence on Latin pop endures." },
 
   { id:'gwen-stefani', name:'Gwen Stefani', middleName:'Renée', homophones:[], similarSpellings:['Gwenn','Gwenne','Gweneth'], gender:'female', birthYear:1969, birthMonth:10, birthDay:3, birthPlace:'Fullerton, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Pop Performance by a Duo or Group',year:2003}],
@@ -684,7 +684,7 @@ export const PEOPLE = [
 
   { id:'fergie', name:'Fergie', middleName:'', homophones:['Fergy'], similarSpellings:['Fergy','Fergee','Fergi','Fergye'], gender:'female', birthYear:1975, birthMonth:3, birthDay:27, birthPlace:'Hacienda Heights, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Pop Performance by a Duo or Group',year:2010}],
-    collaborators:['will.i.am','Black Eyed Peas'], contemporaries:[], friends:[], foes:[], bio:'Black Eyed Peas frontwoman and "Big Girls Don\'t Cry" solo star.' },
+    collaborators:['will.i.am','Black Eyed Peas'], contemporaries:[], friends:[], foes:[], bio:"Black Eyed Peas frontwoman and \"Big Girls Don't Cry\" solo star. Stacy Ferguson performed as a child on Kids Incorporated and in the group Wild Orchid before joining the Black Eyed Peas in 2002. She fronted their smashes \"Where Is the Love?,\" \"My Humps,\" and \"Boom Boom Pow.\" Her 2006 solo debut The Dutchess spun off \"London Bridge,\" \"Glamorous,\" and \"Fergalicious,\" and she later hosted TV competition shows." },
 
   { id:'shakira', name:'Shakira', middleName:'Isabel', homophones:[], similarSpellings:['Chakira','Shakirah','Shaqira'], gender:'female', birthYear:1977, birthMonth:2, birthDay:2, birthPlace:'Barranquilla, Colombia', country:'Colombia', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Latin Pop Album',year:2006}],
@@ -717,7 +717,7 @@ export const PEOPLE = [
 
   { id:'sara-bareilles', name:'Sara Bareilles', middleName:'Beth', homophones:['Sarah','Zara','Sera'], similarSpellings:['Sarah','Sera','Sahra','Sarra'], gender:'female', birthYear:1979, birthMonth:12, birthDay:7, birthPlace:'Eureka, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[],
-    collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Piano-pop hitmaker turned Tony-nominated Broadway composer.' },
+    collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Piano-pop hitmaker turned Tony-nominated Broadway composer. She broke through in 2007 with the defiant single \"Love Song\" and scored again with the empowerment anthem \"Brave,\" earning multiple Grammy nominations along the way. She wrote the music and lyrics for the Broadway musical Waitress (2016), receiving a Tony nomination and later stepping into the lead role of Jenna herself. She played Mary Magdalene in NBC's Jesus Christ Superstar Live in Concert and co-created and starred in the comedy series Girls5eva. Across pop and theater, she has become known for warm, literate songwriting about resilience." },
 
   { id:'monica', name:'Monica', middleName:'Denise', homophones:[], similarSpellings:['Monika','Monicka','Monnica','Monyca'], gender:'female', birthYear:1980, birthMonth:10, birthDay:24, birthPlace:'College Park, Georgia', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best R&B Performance by a Duo or Group',year:1999}],
@@ -725,7 +725,7 @@ export const PEOPLE = [
 
   { id:'christina-aguilera', name:'Christina Aguilera', middleName:'Maria', homophones:['Cristina','Kristina'], similarSpellings:['Cristina','Kristina','Kristyna','Christine'], gender:'female', birthYear:1980, birthMonth:12, birthDay:18, birthPlace:'Staten Island, New York', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Pop Vocal Album',year:2007}],
-    collaborators:['Linda Perry'], contemporaries:[], friends:[], foes:[], bio:'Genie-out-of-the-bottle pop belter and rival-twin to Britney.' },
+    collaborators:['Linda Perry'], contemporaries:[], friends:[], foes:[], bio:"Genie-out-of-the-bottle pop belter and rival-twin to Britney. A former Mickey Mouse Club cast member, she topped the charts in 1999 with \"Genie in a Bottle\" and won that year's Best New Artist Grammy. She reinvented herself with the raunchy Stripped and its empowerment anthem \"Beautiful,\" then embraced retro glamour on the 2006 album Back to Basics. A multiple Grammy winner celebrated for her four-octave range, she later reached new audiences as a coach on the singing competition The Voice." },
 
   { id:'jessica-simpson', name:'Jessica Simpson', middleName:'Ann', homophones:[], similarSpellings:['Jessika','Jessicka','Jessicah'], gender:'female', birthYear:1980, birthMonth:7, birthDay:10, birthPlace:'Abilene, Texas', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[],
@@ -748,11 +748,11 @@ export const PEOPLE = [
   { id:'alicia-keys', name:'Alicia Keys', middleName:'Augello', homophones:[], similarSpellings:['Alycia','Aleecia','Alisha','Alecia'], gender:'female', birthYear:1981, birthMonth:1, birthDay:25, birthPlace:'New York, New York', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best New Artist',year:2002}],
     collaborators:['Jay-Z'], contemporaries:[], friends:[], foes:[],
-    bio:"Hell's Kitchen-raised pianist and 15-time Grammy winner." },
+    bio:"Hell's Kitchen-raised pianist and 15-time Grammy winner. Classically trained from childhood, she broke through in 2001 with the debut Songs in A Minor and its single \"Fallin',\" sweeping five Grammys the following year including Best New Artist. She stacked further standards across the decade with \"If I Ain't Got You,\" \"No One,\" and the Jay-Z duet \"Empire State of Mind.\" Beyond music she co-founded the AIDS charity Keep a Child Alive and has hosted the Grammy Awards ceremony." },
 
   { id:'kelly-clarkson', name:'Kelly Clarkson', middleName:'Brianne', homophones:['Kelli','Kelley'], similarSpellings:['Kelli','Kelley','Kellie','Kely'], gender:'female', birthYear:1982, birthMonth:4, birthDay:24, birthPlace:'Fort Worth, Texas', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best Pop Vocal Album',year:2006}],
-    collaborators:['Max Martin'], contemporaries:[], friends:[], foes:[], bio:'First-ever American Idol winner and 2000s breakup-anthem queen.' },
+    collaborators:['Max Martin'], contemporaries:[], friends:[], foes:[], bio:"First-ever American Idol winner and 2000s breakup-anthem queen. She won the inaugural season of American Idol in 2002 and broke out with the 2004 album Breakaway, home to \"Since U Been Gone\" and \"Behind These Hazel Eyes.\" Her powerhouse voice carried later hits like \"My Life Would Suck Without You\" and \"Stronger (What Doesn't Kill You).\" Since 2019 she has hosted the daytime Kelly Clarkson Show and coached on The Voice." },
 
   { id:'leann-rimes', name:'LeAnn Rimes', middleName:'', homophones:[], similarSpellings:['Leeanne','Leeann','Leighanne','Liane'], gender:'female', birthYear:1982, birthMonth:8, birthDay:28, birthPlace:'Jackson, Mississippi', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best New Artist',year:1997}],
@@ -761,15 +761,15 @@ export const PEOPLE = [
   { id:'amy-winehouse', name:'Amy Winehouse', middleName:'Jade', homophones:['Aimee','Amie','Ami'], similarSpellings:['Aimee','Amie','Ami','Amee'], gender:'female', birthYear:1983, birthMonth:9, birthDay:14, birthPlace:'London, England', country:'UK', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Record of the Year',year:2008}],
     collaborators:['Mark Ronson','Salaam Remi'], contemporaries:[], friends:[], foes:[],
-    bio:'Back to Black smoke-and-soul prodigy gone too soon at 27.' },
+    bio:"Back to Black smoke-and-soul prodigy gone too soon at 27. Raised in a Jewish family in north London and steeped in jazz, she debuted with Frank in 2003 before her second album, Back to Black (2006), made her a global star. Produced with Mark Ronson and Salaam Remi, its retro-soul sound and confessional songs like \"Rehab\" and \"You Know I'm No Good\" won five Grammys in 2008, including Record of the Year. Her towering beehive and tabloid struggles with addiction became as famous as her voice. She died of alcohol poisoning in July 2011, joining the so-called 27 Club." },
 
   { id:'carrie-underwood', name:'Carrie Underwood', middleName:'Marie', homophones:['Cary','Kari','Keri'], similarSpellings:['Cary','Kari','Keri','Carry'], gender:'female', birthYear:1983, birthMonth:3, birthDay:10, birthPlace:'Muskogee, Oklahoma', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best New Artist',year:2007}],
-    collaborators:[], contemporaries:[], friends:[], foes:[], bio:'American Idol champion turned country-pop\'s premier vocalist.' },
+    collaborators:[], contemporaries:[], friends:[], foes:[], bio:"American Idol champion turned country-pop's premier vocalist. She won the fourth season of American Idol in 2005 and quickly became the show's most commercially successful alumna, with her debut single \"Jesus, Take the Wheel\" launching a run of country No. 1 hits. Anthems like \"Before He Cheats\" and \"Blown Away\" made her a multi-format star, and she has sold tens of millions of records worldwide. A multiple Grammy winner and member of the Grand Ole Opry, she long provided the voice of NBC's Sunday Night Football broadcasts." },
 
   { id:'katy-perry', name:'Katy Perry', middleName:'Elizabeth', homophones:['Katie','Kati','Caty'], similarSpellings:['Katie','Kati','Caty','Katey'], gender:'female', birthYear:1984, birthMonth:10, birthDay:25, birthPlace:'Santa Barbara, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[],
-    collaborators:['Max Martin','Dr. Luke'], contemporaries:[], friends:[], foes:[], bio:'Teenage Dream — only second album to spawn five Hot 100 No. 1s.' },
+    collaborators:['Max Martin','Dr. Luke'], contemporaries:[], friends:[], foes:[], bio:"Teenage Dream — only second album to spawn five Hot 100 No. 1s. Raised by pastor parents, she sang gospel before reinventing herself as a pop provocateur with 2008's \"I Kissed a Girl.\" Teenage Dream tied Michael Jackson's Bad for five number-one singles from a single album. She headlined the 2015 Super Bowl halftime show, the most-watched in history, later judged American Idol, and scored further hits with \"Roar\" and \"Dark Horse.\"" },
 
   { id:'avril-lavigne', name:'Avril Lavigne', middleName:'Ramona', homophones:[], similarSpellings:['Avrille','Avryl','Aprille'], gender:'female', birthYear:1984, birthMonth:9, birthDay:27, birthPlace:'Belleville, Ontario', country:'Canada', field:'Music', subfield:'Pop',
     teams:[], awards:[],
@@ -835,11 +835,11 @@ export const PEOPLE = [
 
   { id:'karol-g', name:'Karol G', middleName:'', homophones:['Carol','Carroll','Carole'], similarSpellings:['Carol','Carroll','Carole','Carrol'], gender:'female', birthYear:1991, birthMonth:2, birthDay:14, birthPlace:'Medellín, Colombia', country:'Colombia', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Latin Grammy Award for Album of the Year',year:2023}],
-    collaborators:['Bad Bunny'], contemporaries:[], friends:[], foes:[], bio:'Reggaetón\'s reigning bichota and stadium-headline solo star.' },
+    collaborators:['Bad Bunny'], contemporaries:[], friends:[], foes:[], bio:"Reggaetón's reigning bichota and stadium-headline solo star. Born Carolina Giraldo Navarro in Medellín, she spent years grinding through the male-dominated genre before breaking out with the 2021 anthem \"Bichota.\" Her 2023 album Mañana Será Bonito became the first all-Spanish-language album by a woman to top the Billboard 200 and won the Latin Grammy for Album of the Year. That same year she launched a record-breaking stadium tour across the Americas, filling venues few Latina soloists had ever headlined." },
 
   { id:'kacey-musgraves', name:'Kacey Musgraves', middleName:'Lee', homophones:['Casey','Kasey','Kacy'], similarSpellings:['Casey','Kasey','Kacy','Kasie'], gender:'female', birthYear:1988, birthMonth:8, birthDay:21, birthPlace:'Golden, Texas', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Album of the Year',year:2019}],
-    collaborators:['Daniel Tashian'], contemporaries:[], friends:[], foes:[], bio:'Country-pop poet whose "Golden Hour" swept the 2019 Grammys.' },
+    collaborators:['Daniel Tashian'], contemporaries:[], friends:[], foes:[], bio:"Country-pop poet whose \"Golden Hour\" swept the 2019 Grammys. Raised in the small town of Golden, Texas, she competed on the singing show Nashville Star before her 2013 major-label debut Same Trailer Different Park introduced her wry, progressive take on country with \"Follow Your Arrow.\" Golden Hour won all four of its Grammy nominations in 2019, including Album of the Year and Best Country Album. Her willingness to fold in disco textures and openly progressive themes has made her one of Nashville's most genre-fluid stars." },
 
   { id:'demi-lovato', name:'Demi Lovato', middleName:'', homophones:['Demmi'], similarSpellings:['Demmi','Demie','Demee','Demy'], gender:'nonbinary', birthYear:1992, birthMonth:8, birthDay:20, birthPlace:'Albuquerque, New Mexico', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[],
@@ -855,7 +855,7 @@ export const PEOPLE = [
 
   { id:'charli-xcx', name:'Charli XCX', middleName:'', homophones:['Charlie','Charley'], similarSpellings:['Charlie','Charley','Charley','Charly'], gender:'female', birthYear:1992, birthMonth:8, birthDay:2, birthPlace:'Cambridge, England', country:'UK', field:'Music', subfield:'Pop',
     teams:[], awards:[],
-    collaborators:['A. G. Cook','Iggy Azalea'], contemporaries:[], friends:[], foes:[], bio:'PC-Music-aligned Brit who turned 2024 lime green with "Brat."' },
+    collaborators:['A. G. Cook','Iggy Azalea'], contemporaries:[], friends:[], foes:[], bio:"PC-Music-aligned Brit who turned 2024 lime green with \"Brat.\" Born Charlotte Aitchison, she began posting songs online as a teenager and scored early success writing and guesting on Icona Pop's \"I Love It\" and Iggy Azalea's \"Fancy.\" After years as a critically adored cult figure pushing hyperpop's edges, her sixth album Brat became a 2024 cultural phenomenon whose lime-green aesthetic spread far beyond music. The record earned her a slew of Grammy nominations and cemented her reputation as pop's most restless experimentalist." },
 
   { id:'iu', name:'IU', middleName:'', homophones:[], similarSpellings:['Eeu','Iyu'], gender:'female', birthYear:1993, birthMonth:5, birthDay:16, birthPlace:'Seoul, South Korea', country:'South Korea', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Melon Music Award',year:2010}],
@@ -904,7 +904,7 @@ export const PEOPLE = [
 
   { id:'camila-cabello', name:'Camila Cabello', middleName:'', homophones:['Camilla','Kamila'], similarSpellings:['Camilla','Kamila','Camille','Kamilla'], gender:'female', birthYear:1997, birthMonth:3, birthDay:3, birthPlace:'Cojímar, Havana', country:'Cuba', field:'Music', subfield:'Pop',
     teams:[], awards:[],
-    collaborators:['Shawn Mendes'], contemporaries:[], friends:[], foes:[], bio:'Cuban-American Fifth Harmony alum who went solo with "Havana."' },
+    collaborators:['Shawn Mendes'], contemporaries:[], friends:[], foes:[], bio:"Cuban-American Fifth Harmony alum who went solo with \"Havana.\" Born in Cuba and raised in Miami, she rose on The X Factor USA as a member of Fifth Harmony before leaving the group in 2016. Her solo single \"Havana,\" featuring Young Thug, topped charts around the world in 2017. She released the chart-topping album Camila in 2018 and played the title role in a 2021 musical film adaptation of Cinderella." },
 
   { id:'her', name:'H.E.R.', middleName:'', homophones:[], similarSpellings:['Herr','Heir'], gender:'female', birthYear:1997, birthMonth:6, birthDay:27, birthPlace:'Vallejo, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Academy Award for Best Original Song',year:2021}],
@@ -912,15 +912,15 @@ export const PEOPLE = [
 
   { id:'chappell-roan', name:'Chappell Roan', middleName:'', homophones:[], similarSpellings:['Chappel','Chapell','Chappele'], gender:'female', birthYear:1998, birthMonth:2, birthDay:19, birthPlace:'Willard, Missouri', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best New Artist',year:2025}],
-    collaborators:['Dan Nigro'], contemporaries:[], friends:[], foes:[], bio:'Midwest Princess — drag-inflected pop sensation of 2024.' },
+    collaborators:['Dan Nigro'], contemporaries:[], friends:[], foes:[], bio:"Midwest Princess — drag-inflected pop sensation of 2024. Born Kayleigh Rose Amstutz in small-town Willard, Missouri, she took her stage name from her late grandfather and built a persona steeped in drag artistry and camp. Her 2023 debut album The Rise and Fall of a Midwest Princess, made with producer Dan Nigro, caught fire slowly before exploding in 2024 on the strength of \"Good Luck, Babe!,\" \"Pink Pony Club,\" and \"Hot to Go!\" The rush of attention led her to speak candidly about the pressures of sudden fame, and she won the Grammy for Best New Artist in 2025." },
 
   { id:'sabrina-carpenter', name:'Sabrina Carpenter', middleName:'Annlynn', homophones:[], similarSpellings:['Sabryna','Sabreena','Sabrinna'], gender:'female', birthYear:1999, birthMonth:5, birthDay:11, birthPlace:'Lehigh Valley, Pennsylvania', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[],
-    collaborators:['Jack Antonoff'], contemporaries:[], friends:[], foes:[], bio:'Disney-to-pop graduate; 2024\'s "Espresso" parked the summer.' },
+    collaborators:['Jack Antonoff'], contemporaries:[], friends:[], foes:[], bio:"Disney-to-pop graduate; 2024's \"Espresso\" parked the summer. She got her start as Maya Hart on the Disney Channel series Girl Meets World before building a music career across several albums. Her breakthrough sixth album, Short n' Sweet, arrived in 2024 on the strength of \"Espresso\" and \"Please Please Please,\" the latter becoming her first Billboard Hot 100 No. 1. Short n' Sweet debuted atop the Billboard 200 and won her first two Grammy Awards in 2025, while her cheeky stage banter turned her into one of pop's biggest new headliners." },
 
   { id:'olivia-rodrigo', name:'Olivia Rodrigo', middleName:'Isabel', homophones:[], similarSpellings:['Alivia','Olyvia','Olivya','Oliviah'], gender:'female', birthYear:2003, birthMonth:2, birthDay:20, birthPlace:'Murrieta, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Best New Artist',year:2022}],
-    collaborators:['Dan Nigro'], contemporaries:[], friends:[], foes:[], bio:'Drivers License went viral on a Sunday and never came back.' },
+    collaborators:['Dan Nigro'], contemporaries:[], friends:[], foes:[], bio:"Drivers License went viral on a Sunday and never came back. A former Disney star of Bizaardvark and High School Musical: The Musical: The Series, she wrote her 2021 debut Sour largely with producer Dan Nigro. That album's singles \"Good 4 U\" and \"Deja Vu\" followed \"Drivers License\" up the charts, and Sour won three Grammys in 2022, including Best New Artist. Her 2023 follow-up Guts opened at No. 1 and spun off the anthem \"Vampire,\" cementing her as pop's leading voice of teenage catharsis." },
 
   { id:'billie-eilish', name:'Billie Eilish', middleName:'Eilish', homophones:['Billy','Billi','Billee'], similarSpellings:['Billy','Billi','Billee','Bilee'], gender:'female', birthYear:2001, birthMonth:12, birthDay:18, birthPlace:'Los Angeles, California', country:'USA', field:'Music', subfield:'Pop',
     teams:[], awards:[{name:'Grammy Award for Album of the Year',year:2020}],
@@ -942,7 +942,7 @@ export const PEOPLE = [
   { id:'donovan-mcnabb', name:'Donovan McNabb', middleName:'Jamal', homophones:[], similarSpellings:['Donavan','Donovin','Donavon','Donavin'], gender:'male', birthYear:1976, birthMonth:11, birthDay:25, birthPlace:'Chicago, Illinois', country:'USA', field:'Sports', subfield:'NFL',
     teams:[{name:'Philadelphia Eagles',years:[1999,2009]},{name:'Washington Redskins',years:[2010,2010]}],
     awards:[{name:'Pro Bowl',year:2000}], collaborators:['Andy Reid','Brian Westbrook'], contemporaries:[], friends:[], foes:[],
-    bio:"Six-time Pro Bowl quarterback, born on Chicago's South Side." },
+    bio:"Six-time Pro Bowl quarterback, born on Chicago's South Side. A standout at Syracuse, he was the second overall pick of the 1999 draft, greeted by boos from Eagles fans who wanted the team to take a running back. He led Philadelphia to five NFC Championship Games and Super Bowl XXXIX, and he remains the franchise's all-time leader in passing yards and touchdowns. His durable, dual-threat play defined a decade of Eagles football before he finished his career with brief stints in Washington and Minnesota." },
 
   { id:'simeon-rice', name:'Simeon Rice', middleName:'', homophones:[], similarSpellings:['Simion','Simyon','Symeon','Simeun'], gender:'male', birthYear:1974, birthMonth:4, birthDay:26, birthPlace:'Chicago, Illinois', country:'USA', field:'Sports', subfield:'NFL',
     teams:[{name:'Arizona Cardinals',years:[1996,2000]},{name:'Tampa Bay Buccaneers',years:[2001,2006]}],
@@ -992,7 +992,7 @@ export const PEOPLE = [
 
   { id:'viola-davis', name:'Viola Davis', middleName:'', homophones:[], similarSpellings:['Violla','Violah','Violetta'], gender:'female', birthYear:1965, birthMonth:8, birthDay:11, birthPlace:'St. Matthews, South Carolina', country:'USA', field:'Film', subfield:'Actress',
     teams:[], awards:[{name:'Academy Award for Best Supporting Actress',year:2017}],
-    collaborators:['Denzel Washington','Steve McQueen'], contemporaries:[], friends:[], foes:[], bio:'Only Black actor to achieve the Triple Crown of Acting.' },
+    collaborators:['Denzel Washington','Steve McQueen'], contemporaries:[], friends:[], foes:[], bio:"Only Black actor to achieve the Triple Crown of Acting. Born in South Carolina and raised in poverty in Central Falls, Rhode Island, she trained at Juilliard before building a stage and screen career of unusual gravity. She won Tony Awards for King Hedley II and Fences, an Emmy for How to Get Away with Murder — the first Black woman to win the lead-drama-actress category — and an Academy Award for the film version of Fences. In 2023 her narration of the memoir Finding Me won a Grammy, completing a rare EGOT." },
 
   // =====================================================================
   //  Music — Hip-Hop (preserved, men)
@@ -1031,7 +1031,7 @@ export const PEOPLE = [
   // =====================================================================
   { id:'marie-curie', name:'Marie Curie', middleName:'Salomea', homophones:['Mari','Mary','Marey'], similarSpellings:['Mari','Mary','Marey','Maree'], gender:'female', birthYear:1867, birthMonth:11, birthDay:7, birthPlace:'Warsaw, Poland', country:'Poland', field:'Science', subfield:'Physics & Chemistry',
     teams:[], awards:[{name:'Nobel Prize in Physics',year:1903},{name:'Nobel Prize in Chemistry',year:1911}],
-    collaborators:['Pierre Curie','Henri Becquerel'], contemporaries:[], friends:[], foes:[], bio:'First person to win Nobel Prizes in two different sciences.' },
+    collaborators:['Pierre Curie','Henri Becquerel'], contemporaries:[], friends:[], foes:[], bio:"First person to win Nobel Prizes in two different sciences. Born Maria Skłodowska in Warsaw, she moved to Paris to study at the Sorbonne, where she later became its first female professor. With her husband Pierre she discovered the elements polonium and radium and coined the term \"radioactivity.\" During World War I she equipped mobile X-ray units for the front, and she died in 1934 of aplastic anemia brought on by decades of radiation exposure. Her notebooks remain so radioactive that they are still stored in lead-lined boxes." },
 
   { id:'rosalind-franklin', name:'Rosalind Franklin', middleName:'Elsie', homophones:[], similarSpellings:['Rosalin','Rozalind','Rosalynd','Roslind'], gender:'female', birthYear:1920, birthMonth:7, birthDay:25, birthPlace:'London, England', country:'UK', field:'Science', subfield:'Chemistry',
     teams:[], awards:[],
@@ -1043,7 +1043,7 @@ export const PEOPLE = [
 
   { id:'ada-lovelace', name:'Ada Lovelace', middleName:'', homophones:['Aida','Ayda'], similarSpellings:['Aida','Ayda','Adah','Aada'], gender:'female', birthYear:1815, birthMonth:12, birthDay:10, birthPlace:'London, England', country:'UK', field:'Science', subfield:'Computing',
     teams:[], awards:[], collaborators:['Charles Babbage'], contemporaries:[], friends:[], foes:[],
-    bio:'Mathematician credited as the first computer programmer.' },
+    bio:"Mathematician credited as the first computer programmer. The only legitimate child of the poet Lord Byron, she was steered by her mother toward mathematics and logic, and in the 1830s befriended the inventor Charles Babbage. Translating an article on his proposed Analytical Engine in 1843, she appended notes several times longer than the original, including a step-by-step method to compute Bernoulli numbers now regarded as the first published algorithm written for a machine. She also grasped that such a device might one day manipulate symbols and even compose music, not merely crunch numbers. She died of cancer in 1852 at thirty-six, and the U.S. Department of Defense later named its Ada programming language in her honor." },
 
   { id:'grace-hopper', name:'Grace Hopper', middleName:'Brewster', homophones:[], similarSpellings:['Grayce','Grase','Graice'], gender:'female', birthYear:1906, birthMonth:12, birthDay:9, birthPlace:'New York, New York', country:'USA', field:'Science', subfield:'Computing',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:2016}],
@@ -1151,7 +1151,7 @@ export const PEOPLE = [
   // =====================================================================
   { id:'toni-morrison', name:'Toni Morrison', middleName:'', homophones:['Tony','Toney','Tonie'], similarSpellings:['Tony','Toney','Tonie','Tonee'], gender:'female', birthYear:1931, birthMonth:2, birthDay:18, birthPlace:'Lorain, Ohio', country:'USA', field:'Literature', subfield:'Novelist',
     teams:[], awards:[{name:'Pulitzer Prize for Fiction',year:1988},{name:'Nobel Prize in Literature',year:1993}],
-    collaborators:[], contemporaries:[], friends:[], foes:[], bio:'First Black woman to win the Nobel Prize in Literature.' },
+    collaborators:[], contemporaries:[], friends:[], foes:[], bio:"First Black woman to win the Nobel Prize in Literature. Born Chloe Wofford in the steel town of Lorain, Ohio, she spent years as an editor at Random House, bringing Black voices into the American canon, before her own fiction took hold. Song of Solomon announced her fully in 1977, and Beloved — her novel of slavery and its haunting aftermath — won the Pulitzer Prize in 1988. She received the Nobel in 1993 and the Presidential Medal of Freedom in 2012, and remained a moral voice in American letters until her death in 2019." },
 
   { id:'james-baldwin', name:'James Baldwin', middleName:'Arthur', homophones:['Jaymes'], similarSpellings:['Jaymes','Jamie','Jamz','Jameson'], gender:'male', birthYear:1924, birthMonth:8, birthDay:2, birthPlace:'Harlem, New York', country:'USA', field:'Literature', subfield:'Essayist',
     teams:[], awards:[],
@@ -1274,9 +1274,9 @@ export const PEOPLE = [
     teams:[], awards:[], collaborators:['George Westinghouse'], contemporaries:[], friends:[], foes:[], bio:'Pioneer of alternating current and modern electrical engineering.' },
   { id:'agbell', name:'Alexander Graham Bell', middleName:'Graham', homophones:['Alexandr','Alexsander'], similarSpellings:['Alexandr','Alexsander','Alexandar','Alixander'], gender:'male', birthYear:1847, birthMonth:3, birthDay:3, birthPlace:'Edinburgh, Scotland', country:'UK', field:'Tech', subfield:'Inventor',
     teams:[], awards:[], collaborators:['Thomas Watson'], contemporaries:[], friends:[], foes:[],
-    bio:'Patented the telephone in 1876; founded what became AT&T.' },
+    bio:"Patented the telephone in 1876; founded what became AT&T. Scottish-born and trained in elocution, he emigrated by way of Canada to Boston, where his work teaching deaf students — including his future wife — shaped his experiments with transmitting sound. His first successful telephone call in March 1876 carried the words \"Mr. Watson, come here, I want to see you,\" and the Bell Telephone Company he founded in 1877 grew into AT&T. A restless inventor, he later worked on hydrofoils, kites, and early flying machines, and helped found and lead the National Geographic Society. He died in Nova Scotia in 1922." },
   { id:'reshma-saujani', name:'Reshma Saujani', middleName:'', homophones:[], similarSpellings:['Reshmah','Reshama','Reshmaa'], gender:'female', birthYear:1975, birthMonth:11, birthDay:18, birthPlace:'Schaumburg, Illinois', country:'USA', field:'Tech', subfield:'Activist',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Founded Girls Who Code; advocate for women in technology.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Founded Girls Who Code; advocate for women in technology. The daughter of Ugandan-Indian refugees who settled in Illinois, she trained as a lawyer and in 2010 became the first Indian-American woman to run for U.S. Congress, losing the race but drawing attention to the gender gap in computing. She launched Girls Who Code in 2012 to close that gap, and the nonprofit has since reached hundreds of thousands of girls. She wrote the bestseller Brave, Not Perfect and gave a widely viewed TED talk on raising girls to be brave rather than perfect. She later founded Moms First, originally the Marshall Plan for Moms, to champion paid leave and childcare." },
   { id:'sundar', name:'Sundar Pichai', middleName:'', homophones:[], similarSpellings:['Sunder','Sundara','Sundarah'], gender:'male', birthYear:1972, birthMonth:7, birthDay:10, birthPlace:'Madurai, India', country:'India', field:'Tech', subfield:'Executive',
     teams:[], awards:[], collaborators:['Larry Page','Sergey Brin'], contemporaries:[], friends:[], foes:[], bio:'CEO of Google and Alphabet; led the rise of Chrome and Android.' },
 
@@ -1296,9 +1296,9 @@ export const PEOPLE = [
   { id:'tubman', name:'Harriet Tubman', middleName:'', homophones:[], similarSpellings:['Harriette','Harriet','Hariet','Harriott'], gender:'female', birthYear:1822, birthPlace:'Dorchester County, Maryland', country:'USA', field:'Activism', subfield:'Abolition',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Escaped slavery, returned thirteen times to lead some seventy others north on the Underground Railroad.' },
   { id:'cesar-chavez', name:'Cesar Chavez', middleName:'Estrada', homophones:['Caesar','Sezar'], similarSpellings:['Caesar','Sezar','Cesare','Cesaro'], gender:'male', birthYear:1927, birthMonth:3, birthDay:31, birthPlace:'Yuma, Arizona', country:'USA', field:'Activism', subfield:'Labor',
-    teams:[], awards:[], collaborators:['Dolores Huerta'], contemporaries:[], friends:[], foes:[], bio:'Co-founded the United Farm Workers; led the grape boycott.' },
+    teams:[], awards:[], collaborators:['Dolores Huerta'], contemporaries:[], friends:[], foes:[], bio:"Co-founded the United Farm Workers; led the grape boycott. A former migrant farmworker of Mexican-American descent, he founded the National Farm Workers Association with Dolores Huerta in 1962, the group that became the UFW. Inspired by Gandhi and King, he embraced nonviolence and undertook long public fasts, including a 25-day fast in 1968, to dramatize the plight of field laborers. The Delano grape strike and nationwide boycott he led from 1965 won landmark union contracts and made him the most prominent Latino civil-rights figure of his era. He was posthumously awarded the Presidential Medal of Freedom in 1994, and his birthday, March 31, is a holiday in several states." },
   { id:'dolores-huerta', name:'Dolores Huerta', middleName:'Clara', homophones:[], similarSpellings:['Doloras','Delores','Dolorez','Doloris'], gender:'female', birthYear:1930, birthMonth:4, birthDay:10, birthPlace:'Dawson, New Mexico', country:'USA', field:'Activism', subfield:'Labor',
-    teams:[], awards:[{name:'Presidential Medal of Freedom',year:2012}], collaborators:['Cesar Chavez'], contemporaries:[], friends:[], foes:[], bio:'Co-founded the United Farm Workers; coined "Sí, se puede."' },
+    teams:[], awards:[{name:'Presidential Medal of Freedom',year:2012}], collaborators:['Cesar Chavez'], contemporaries:[], friends:[], foes:[], bio:"Co-founded the United Farm Workers; coined \"Sí, se puede.\" Born in New Mexico and raised in Stockton, California, she left teaching to organize farmworkers, founding the National Farm Workers Association with Cesar Chavez in 1962 and serving as its chief contract negotiator. She coined the rallying cry \"Sí, se puede\" in 1972, a phrase later echoed by Barack Obama's \"Yes, we can.\" In 1988 she was severely beaten by San Francisco police at a peaceful protest, prompting reforms in the department's crowd-control policies. President Obama awarded her the Presidential Medal of Freedom in 2012, and she has continued her activism into her nineties through the Dolores Huerta Foundation." },
   { id:'berta', name:'Berta Cáceres', middleName:'Isabel', homophones:[], similarSpellings:['Bertah','Berthah','Bertta'], gender:'female', birthYear:1971, birthMonth:3, birthDay:4, birthPlace:'La Esperanza, Honduras', country:'Honduras', field:'Activism', subfield:'Indigenous Rights',
     teams:[], awards:[{name:'Goldman Environmental Prize',year:2015}], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:'Lenca leader who organized against the Agua Zarca dam; assassinated in 2016.' },
@@ -1311,13 +1311,13 @@ export const PEOPLE = [
   // =====================================================================
   { id:'gaudi', name:'Antoni Gaudí', middleName:'', homophones:[], similarSpellings:['Antony','Antoni','Antonio','Anton'], gender:'male', birthYear:1852, birthMonth:6, birthDay:25, birthPlace:'Reus, Spain', country:'Spain', field:'Architecture', subfield:'Modernist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Catalan modernist behind Sagrada Família and Park Güell.' },
+    bio:"Catalan modernist behind Sagrada Família and Park Güell. Trained in Barcelona, he fused Gothic and curvilinear organic forms with broken-tile mosaics into a style all his own, seen in Casa Batlló and the undulating Casa Milà, known as La Pedrera. Deeply Catholic, he devoted his last decades entirely to the Sagrada Família basilica, begun in 1882 and still unfinished nearly a century after his death. In 1926 he was struck by a tram in Barcelona and, mistaken for a pauper because of his shabby clothes, died days later; seven of his works are now UNESCO World Heritage Sites." },
   { id:'frank-lloyd-wright', name:'Frank Lloyd Wright', middleName:'Lloyd', homophones:[], similarSpellings:['Franc','Franck','Frankk','Franky'], gender:'male', birthYear:1867, birthMonth:6, birthDay:8, birthPlace:'Richland Center, Wisconsin', country:'USA', field:'Architecture', subfield:'Organic',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Father of organic architecture; Fallingwater, the Guggenheim, the prairie style.' },
   { id:'le-corbusier', name:'Le Corbusier', middleName:'', homophones:[], similarSpellings:['Lecorbusier'], gender:'male', birthYear:1887, birthMonth:10, birthDay:6, birthPlace:'La Chaux-de-Fonds, Switzerland', country:'Switzerland', field:'Architecture', subfield:'Modernist',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Swiss-French modernist; "a house is a machine for living in."' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Swiss-French modernist who declared that \"a house is a machine for living in.\" Born Charles-Édouard Jeanneret, he took the single-name pseudonym in the early 1920s and set out his Five Points of a New Architecture. He designed the Villa Savoye outside Paris and the Unité d'Habitation in Marseille, and late in life master-planned the Indian city of Chandigarh. His Modulor system tied building proportions to the human body, and in 2016 seventeen of his projects across seven countries were inscribed together as a UNESCO World Heritage site." },
   { id:'im-pei', name:'I. M. Pei', middleName:'Ming', homophones:[], similarSpellings:['Eye Em','I.M.'], gender:'male', birthYear:1917, birthMonth:4, birthDay:26, birthPlace:'Guangzhou, China', country:'China', field:'Architecture', subfield:'Modernist',
-    teams:[], awards:[{name:'Pritzker Prize',year:1983}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Designed the Louvre Pyramid and the Bank of China Tower.' },
+    teams:[], awards:[{name:'Pritzker Prize',year:1983}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Designed the Louvre Pyramid and the Bank of China Tower. Born in Guangzhou and raised in Hong Kong and Shanghai, he moved to the United States in 1935 to study at MIT and Harvard, becoming a leading modernist known for bold geometry in glass, steel, and stone. His commissions ranged from the John F. Kennedy Library and the National Gallery of Art's East Building in Washington to the Rock and Roll Hall of Fame and the Museum of Islamic Art in Doha. The glass pyramid he added to the Louvre in 1989 was fiercely controversial in Paris before becoming a beloved landmark. He won the Pritzker Prize in 1983 and worked into his nineties, dying in 2019 at the age of 102." },
   { id:'zaha-hadid', name:'Zaha Hadid', middleName:'Mohammad', homophones:[], similarSpellings:['Zahah','Zaaha'], gender:'female', birthYear:1950, birthMonth:10, birthDay:31, birthPlace:'Baghdad, Iraq', country:'Iraq', field:'Architecture', subfield:'Deconstructivist',
     teams:[], awards:[{name:'Pritzker Prize',year:2004}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'First woman to win the Pritzker Prize; sweeping, futurist forms.' },
   { id:'tadao-ando', name:'Tadao Ando', middleName:'', homophones:[], similarSpellings:['Tadou','Tadaoh'], gender:'male', birthYear:1941, birthMonth:9, birthDay:13, birthPlace:'Osaka, Japan', country:'Japan', field:'Architecture', subfield:'Minimalist',
@@ -1336,13 +1336,13 @@ export const PEOPLE = [
   { id:'ottolenghi', name:'Yotam Ottolenghi', middleName:'Assaf', homophones:[], similarSpellings:['Yoatam','Yotham'], gender:'male', birthYear:1968, birthMonth:12, birthDay:14, birthPlace:'Jerusalem, Israel', country:'Israel', field:'Culinary', subfield:'Restaurateur',
     teams:[], awards:[], collaborators:['Sami Tamimi'], contemporaries:[], friends:[], foes:[], bio:'London-based chef whose books reshaped how the West cooks vegetables.' },
   { id:'massimo-bottura', name:'Massimo Bottura', middleName:'', homophones:[], similarSpellings:['Massymo','Massimmo','Massim'], gender:'male', birthYear:1962, birthMonth:9, birthDay:30, birthPlace:'Modena, Italy', country:'Italy', field:'Culinary', subfield:'Restaurateur',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Three-Michelin-star Italian; founder of Food for Soul.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Three-Michelin-star Italian; founder of Food for Soul. His Osteria Francescana in Modena topped the World's 50 Best Restaurants list in 2016 and again in 2018, celebrated for playful reinventions of tradition like \"Five Ages of Parmigiano Reggiano\" and the plated-accident dessert \"Oops! I Dropped the Lemon Tart.\" Food for Soul, the nonprofit he launched with his wife Lara Gilmore, fights food waste and social isolation by opening community kitchens called refettorios, beginning with one in Milan for Expo 2015. He has since carried the concept to cities from Rio de Janeiro to London, turning surplus ingredients into dignified meals for people in need." },
   { id:'asma-khan', name:'Asma Khan', middleName:'', homophones:[], similarSpellings:['Asmah','Azma','Asama'], gender:'female', birthYear:1969, birthPlace:'Calcutta, India', country:'India', field:'Culinary', subfield:'Restaurateur',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:"Founder of London's Darjeeling Express; the first Briton on Chef's Table." },
   { id:'escoffier', name:'Auguste Escoffier', middleName:'Georges Auguste', homophones:[], similarSpellings:['Augustus','August','Augustin','Augusto'], gender:'male', birthYear:1846, birthMonth:10, birthDay:28, birthPlace:'Villeneuve-Loubet, France', country:'France', field:'Culinary', subfield:'Restaurateur',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Codified the brigade kitchen and modern French haute cuisine.' },
+    bio:"Codified the brigade kitchen and modern French haute cuisine. Georges Auguste Escoffier partnered with hotelier César Ritz at London's Savoy and later the Carlton, organizing kitchens into the brigade de cuisine of specialized stations still used today. In 1903 he published Le Guide Culinaire, a reference of some five thousand recipes that remains a cornerstone of professional cooking. He is credited with inventing Peach Melba in honor of soprano Nellie Melba, and he became one of the first chefs made a chevalier of the Legion of Honour." },
 
   // =====================================================================
   //  FASHION — global
@@ -1354,7 +1354,7 @@ export const PEOPLE = [
   { id:'westwood', name:'Vivienne Westwood', middleName:'Isabel', homophones:[], similarSpellings:['Vivian','Viviane','Viviana','Vyvyan'], gender:'female', birthYear:1941, birthMonth:4, birthDay:8, birthPlace:'Tintwistle, England', country:'UK', field:'Fashion', subfield:'Designer',
     teams:[], awards:[], collaborators:['Malcolm McLaren'], contemporaries:[], friends:[], foes:[], bio:'Punk\'s designer of record; tartan, corsets, and political fury.' },
   { id:'rei-kawakubo', name:'Rei Kawakubo', middleName:'', homophones:['Ray','Rae','Rey'], similarSpellings:['Ray','Rae','Rey','Reigh'], gender:'female', birthYear:1942, birthMonth:10, birthDay:11, birthPlace:'Tokyo, Japan', country:'Japan', field:'Fashion', subfield:'Designer',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Founder of Comme des Garçons; deconstruction as wardrobe.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Founder of Comme des Garçons; deconstruction as wardrobe. She studied fine arts and literature at Keio University and began designing without formal fashion training, launching Comme des Garçons in Tokyo in 1969. Her 1981 Paris debut, dominated by distressed, asymmetric black garments, shocked critics and reshaped avant-garde fashion. She built a global business that includes the influential Dover Street Market retail concept and the popular Play line. In 2017 she became only the second living designer, after Yves Saint Laurent, to be honored with a solo exhibition at the Metropolitan Museum of Art's Costume Institute." },
   { id:'iris-apfel', name:'Iris Apfel', middleName:'Barrel', homophones:[], similarSpellings:['Irys','Eiris','Iriss','Irice'], gender:'female', birthYear:1921, birthMonth:8, birthDay:29, birthPlace:'Astoria, New York', country:'USA', field:'Fashion', subfield:'Stylist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Style icon who became a model in her late eighties. An interior designer and textile entrepreneur, she ran the firm Old World Weavers with her husband Carl and consulted on White House restoration projects spanning nine presidential administrations. A 2005 exhibition of her flamboyant clothing and jewelry at the Met's Costume Institute turned her into an unexpected fashion celebrity. Albert Maysles directed the 2014 documentary Iris about her life, and in 2019 she signed with IMG Models at age 97. She remained a vibrant presence in fashion until her death in 2024 at age 102." },
   { id:'mcqueen', name:'Alexander McQueen', middleName:'Lee', homophones:[], similarSpellings:['Alexandr','Alexandar','Alexsander','Alixander'], gender:'male', birthYear:1969, birthMonth:3, birthDay:17, birthPlace:'London, England', country:'UK', field:'Fashion', subfield:'Designer',
@@ -1365,13 +1365,13 @@ export const PEOPLE = [
   //  RELIGION — global
   // =====================================================================
   { id:'dalai-lama', name:'Tenzin Gyatso', middleName:'', homophones:[], similarSpellings:['Tensin','Tenzyn','Tenzen'], gender:'male', birthYear:1935, birthMonth:7, birthDay:6, birthPlace:'Taktser, Tibet', country:'Tibet', field:'Religion', subfield:'Buddhist',
-    teams:[], awards:[{name:'Nobel Peace Prize',year:1989}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'14th Dalai Lama; Tibetan spiritual leader in exile since 1959.' },
+    teams:[], awards:[{name:'Nobel Peace Prize',year:1989}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"14th Dalai Lama; Tibetan spiritual leader in exile since 1959. Born Lhamo Thondup to a farming family, he was recognized as a toddler as the reincarnation of his predecessor. After the failed 1959 Tibetan uprising he fled to India and established a government-in-exile in Dharamsala. Honored for his nonviolent advocacy of Tibetan autonomy, he stepped back from political leadership in 2011, devolving that authority to a democratically elected head of government." },
   { id:'desmond-tutu', name:'Desmond Tutu', middleName:'Mpilo', homophones:[], similarSpellings:['Desmund','Dezmond','Desmon','Dezmund'], gender:'male', birthYear:1931, birthMonth:10, birthDay:7, birthPlace:'Klerksdorp, South Africa', country:'South Africa', field:'Religion', subfield:'Anglican',
     teams:[], awards:[{name:'Nobel Peace Prize',year:1984}], collaborators:['Nelson Mandela'], contemporaries:[], friends:[], foes:[], bio:'Anglican archbishop; chaired South Africa\'s Truth and Reconciliation Commission.' },
   { id:'mother-teresa', name:'Mother Teresa', middleName:'', homophones:[], similarSpellings:['Theresa','Tereza','Therese','Teresia'], gender:'female', birthYear:1910, birthMonth:8, birthDay:26, birthPlace:'Skopje, North Macedonia', country:'North Macedonia', field:'Religion', subfield:'Catholic',
     teams:[], awards:[{name:'Nobel Peace Prize',year:1979}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Founded the Missionaries of Charity in Calcutta; canonized in 2016.' },
   { id:'pope-francis', name:'Pope Francis', middleName:'', homophones:[], similarSpellings:['Frances','Fransis','Franciss'], gender:'male', birthYear:1936, birthMonth:12, birthDay:17, birthPlace:'Buenos Aires, Argentina', country:'Argentina', field:'Religion', subfield:'Catholic',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'First Latin American pope; took the name of Francis of Assisi.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"First Latin American pope; took the name of Francis of Assisi. Born Jorge Mario Bergoglio in Buenos Aires to Italian immigrant parents, he served as the city's Jesuit archbishop before his 2013 election. He became both the first pope from the Americas and the first Jesuit to hold the office. Emphasizing humility, care for the poor, and the environment, he issued the 2015 encyclical Laudato Si' and softened the Church's tone on social questions while holding to core doctrine." },
   { id:'hildegard', name:'Hildegard von Bingen', middleName:'', homophones:[], similarSpellings:['Hildegarde','Hildagard','Hildegaard'], gender:'female', birthYear:1098, birthPlace:'Bermersheim, Germany', country:'Germany', field:'Religion', subfield:'Catholic',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Medieval mystic, composer, and physician; Doctor of the Church.' },
 
@@ -1383,7 +1383,7 @@ export const PEOPLE = [
   { id:'arendt', name:'Hannah Arendt', middleName:'', homophones:[], similarSpellings:['Hannnah','Hanah','Hannaa','Hannia'], gender:'female', birthYear:1906, birthMonth:10, birthDay:14, birthPlace:'Linden, Germany', country:'Germany', field:'Philosophy', subfield:'Political Theory',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Political theorist; coined "the banality of evil" in Eichmann in Jerusalem.' },
   { id:'kierkegaard', name:'Søren Kierkegaard', middleName:'Aabye', homophones:[], similarSpellings:['Soeren','Soren','Sjoeren'], gender:'male', birthYear:1813, birthMonth:5, birthDay:5, birthPlace:'Copenhagen, Denmark', country:'Denmark', field:'Philosophy', subfield:'Existentialism',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Danish progenitor of existentialism; the leap of faith.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Danish progenitor of existentialism; the leap of faith. Writing in Copenhagen in the 1840s, often behind pseudonyms like Johannes de Silentio, he placed individual choice, anxiety, and faith at the center of philosophy in works such as Either/Or and Fear and Trembling. His broken engagement to Regine Olsen shadowed much of his writing on love and renunciation. Late in his short life he waged a public war against the comfortable Danish state church, and he died in 1855 at the age of forty-two, largely unread in his time but later claimed as a father of existentialist thought." },
   { id:'fanon', name:'Frantz Fanon', middleName:'Omar', homophones:[], similarSpellings:['Frants','Frantsz','Frantz','Franz'], gender:'male', birthYear:1925, birthMonth:7, birthDay:20, birthPlace:'Fort-de-France, Martinique', country:'Martinique', field:'Philosophy', subfield:'Postcolonial',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Psychiatrist whose Black Skin, White Masks reframed colonialism and race.' },
   { id:'marx', name:'Karl Marx', middleName:'Heinrich', homophones:['Carl','Karle'], similarSpellings:['Carl','Karle','Karol','Carle'], gender:'male', birthYear:1818, birthMonth:5, birthDay:5, birthPlace:'Trier, Germany', country:'Germany', field:'Philosophy', subfield:'Political Economy',
@@ -1403,7 +1403,7 @@ export const PEOPLE = [
   { id:'patti-smith', name:'Patti Smith', middleName:'Lee', homophones:['Patty','Pati','Patte'], similarSpellings:['Patty','Pati','Patte','Patti'], gender:'female', birthYear:1946, birthMonth:12, birthDay:30, birthPlace:'Chicago, Illinois', country:'USA', field:'Music', subfield:'Rock',
     teams:[], awards:[{name:'National Book Award for Nonfiction',year:2010}], collaborators:['Robert Mapplethorpe'], contemporaries:[], friends:[], foes:[], bio:'Punk poet laureate; Horses opens with one of rock\'s great first lines.' },
   { id:'robert-plant', name:'Robert Plant', middleName:'Anthony', homophones:[], similarSpellings:['Roberto','Robart','Robbert','Rupert'], gender:'male', birthYear:1948, birthMonth:8, birthDay:20, birthPlace:'West Bromwich, England', country:'UK', field:'Music', subfield:'Rock',
-    teams:[{name:'Led Zeppelin',years:[1968,1980]}], awards:[], collaborators:['Jimmy Page'], contemporaries:[], friends:[], foes:[], bio:'Led Zeppelin\'s wail; folk explorer in his solo decades.' },
+    teams:[{name:'Led Zeppelin',years:[1968,1980]}], awards:[], collaborators:['Jimmy Page'], contemporaries:[], friends:[], foes:[], bio:"Led Zeppelin's wail; folk explorer in his solo decades. As frontman he wrote and sang the words to \"Whole Lotta Love,\" \"Kashmir,\" and \"Stairway to Heaven,\" pairing his high, keening voice with Jimmy Page's guitar. Zeppelin disbanded after drummer John Bonham's death in 1980, and Plant refused for decades to become a nostalgia act. His 2007 album Raising Sand, a spare collaboration with bluegrass singer Alison Krauss, won six Grammys including Album of the Year, and he has kept mining folk, blues, and North African music ever since." },
   // (Björk, Joni Mitchell already exist above under Music/Pop — skipped.)
 
   // =====================================================================
@@ -1418,7 +1418,7 @@ export const PEOPLE = [
   { id:'loretta-lynn', name:'Loretta Lynn', middleName:'Webb', homophones:[], similarSpellings:['Lorretta','Loreta','Lorettah','Loritta'], gender:'female', birthYear:1932, birthMonth:4, birthDay:14, birthPlace:'Butcher Hollow, Kentucky', country:'USA', field:'Music', subfield:'Country',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Coal Miner\'s Daughter; first woman to be Country Music Association Entertainer of the Year.' },
   { id:'hank-williams', name:'Hank Williams', middleName:'', homophones:[], similarSpellings:['Hanc','Hanck','Hanky','Henk'], gender:'male', birthYear:1923, birthMonth:9, birthDay:17, birthPlace:'Mount Olive, Alabama', country:'USA', field:'Music', subfield:'Country',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Honky-tonk patriarch; dead at 29 with the genre rewritten.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Honky-tonk patriarch; dead at 29 with the genre rewritten. Rising out of Alabama, he electrified the Grand Ole Opry in 1949 with \"Lovesick Blues\" and strung together standards including \"Your Cheatin' Heart,\" \"Hey Good Lookin',\" and \"I'm So Lonesome I Could Cry.\" Chronic back pain from spina bifida fed an addiction to alcohol and morphine that unraveled his career, and he was dismissed from the Opry in 1952. He died in the back seat of his car on New Year's Day 1953, en route to a show. He was inducted in the inaugural class of the Country Music Hall of Fame in 1961, and his son Hank Williams Jr. became a star in his own right." },
 
   // =====================================================================
   //  CLASSICAL
@@ -1430,9 +1430,9 @@ export const PEOPLE = [
   { id:'beethoven', name:'Ludwig van Beethoven', middleName:'', homophones:[], similarSpellings:['Ludwic','Ludvig','Ludvik','Ludwik'], gender:'male', birthYear:1770, birthMonth:12, birthDay:17, birthPlace:'Bonn, Germany', country:'Germany', field:'Music', subfield:'Classical',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Wrote the Ninth Symphony after he had gone deaf. Born in Bonn into a family of court musicians, he moved to Vienna in 1792 to study with Haydn and quickly built a reputation as a thrilling pianist before refocusing on composition. He began losing his hearing in his late twenties and confessed his despair in the 1802 Heiligenstadt Testament, but continued to write almost every major instrumental work of his career, including nine symphonies, 32 piano sonatas, sixteen string quartets, and the opera Fidelio. At the 1824 premiere of the Ninth, with its choral \"Ode to Joy\" finale, he was so deaf that one of the soloists had to physically turn him around so he could see the ovation. He died in Vienna in 1827, and his funeral procession reportedly drew an estimated twenty thousand mourners." },
   { id:'yo-yo-ma', name:'Yo-Yo Ma', middleName:'', homophones:[], similarSpellings:['Yoyo','Yo Yo','Yoh-Yoh'], gender:'male', birthYear:1955, birthMonth:10, birthDay:7, birthPlace:'Paris, France', country:'France', field:'Music', subfield:'Classical',
-    teams:[], awards:[{name:'Presidential Medal of Freedom',year:2011}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Cellist; eighteen Grammys; Bach Suites by candlelight.' },
+    teams:[], awards:[{name:'Presidential Medal of Freedom',year:2011}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Cellist; eighteen Grammys; Bach Suites by candlelight. Born in Paris to Chinese parents, he was a prodigy who performed for President Kennedy at the age of seven before studying at Juilliard and Harvard. In 1998 he founded the Silk Road Ensemble to bring together musicians and traditions from across Europe and Asia, a project that itself won a Grammy. He has recorded Bach's six unaccompanied cello suites several times across his career, and in his 2018 Bach Project he played all of them in thirty-six locations around the globe as a plea for culture and connection. He performed at Barack Obama's first inauguration in 2009." },
   { id:'hilary-hahn', name:'Hilary Hahn', middleName:'', homophones:['Hillary','Hilarie'], similarSpellings:['Hillary','Hilarie','Hilery','Hilari'], gender:'female', birthYear:1979, birthMonth:11, birthDay:27, birthPlace:'Lexington, Virginia', country:'USA', field:'Music', subfield:'Classical',
-    teams:[], awards:[{name:'Grammy Award',year:2003}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Three-time Grammy-winning violinist with a fastidious tone.' },
+    teams:[], awards:[{name:'Grammy Award',year:2003}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Three-time Grammy-winning violinist with a fastidious tone. She entered Philadelphia's Curtis Institute at age ten and released her debut album of Bach's solo works at seventeen. Her project In 27 Pieces gathered new encores commissioned from living composers and earned her a 2015 Grammy. Known for a rigorous work ethic, she chronicled a \"100 days of practice\" challenge on social media to demystify the discipline behind virtuosity." },
   { id:'clara-schumann', name:'Clara Schumann', middleName:'Josephine', homophones:[], similarSpellings:['Clarah','Clarra','Klara','Clarissa'], gender:'female', birthYear:1819, birthMonth:9, birthDay:13, birthPlace:'Leipzig, Germany', country:'Germany', field:'Music', subfield:'Classical',
     teams:[], awards:[], collaborators:['Robert Schumann','Johannes Brahms'], contemporaries:[], friends:[], foes:[], bio:'Foremost pianist of the Romantic era and composer in her own right.' },
 
@@ -1442,7 +1442,7 @@ export const PEOPLE = [
   { id:'miles-davis', name:'Miles Davis', middleName:'Dewey', homophones:[], similarSpellings:['Myles','Mylles','Milles'], gender:'male', birthYear:1926, birthMonth:5, birthDay:26, birthPlace:'Alton, Illinois', country:'USA', field:'Music', subfield:'Jazz',
     teams:[], awards:[], collaborators:['John Coltrane','Herbie Hancock'], contemporaries:[], friends:[], foes:[], bio:'Reinvented jazz five times — bebop, cool, modal, fusion, electric.' },
   { id:'coltrane', name:'John Coltrane', middleName:'William', homophones:['Jon','Jhon'], similarSpellings:['Jon','Johnn','Jhon','Johan'], gender:'male', birthYear:1926, birthMonth:9, birthDay:23, birthPlace:'Hamlet, North Carolina', country:'USA', field:'Music', subfield:'Jazz',
-    teams:[], awards:[], collaborators:['Miles Davis','McCoy Tyner'], contemporaries:[], friends:[], foes:[], bio:'A Love Supreme remains jazz\'s most spiritual statement.' },
+    teams:[], awards:[], collaborators:['Miles Davis','McCoy Tyner'], contemporaries:[], friends:[], foes:[], bio:"A Love Supreme remains jazz's most spiritual statement. A saxophonist from North Carolina, he sharpened his craft in Miles Davis's quintet and Thelonious Monk's band before leading his own groups, developing the cascading style critics called \"sheets of sound.\" With his classic quartet of McCoy Tyner, Jimmy Garrison, and Elvin Jones he recorded Giant Steps, My Favorite Things, and the 1965 devotional suite A Love Supreme. He pushed into free jazz in his final years and died of liver cancer in 1967 at just forty, later so revered that a San Francisco church was founded in his name." },
   { id:'charlie-parker', name:'Charlie Parker', middleName:'', homophones:['Charley','Charly'], similarSpellings:['Charley','Charly','Charli','Charlee'], gender:'male', birthYear:1920, birthMonth:8, birthDay:29, birthPlace:'Kansas City, Kansas', country:'USA', field:'Music', subfield:'Jazz',
     teams:[], awards:[], collaborators:['Dizzy Gillespie'], contemporaries:[], friends:[], foes:[], bio:'Bird — alto saxophonist who invented bebop with Dizzy Gillespie.' },
   { id:'louis-armstrong', name:'Louis Armstrong', middleName:'Daniel', homophones:['Lewis','Luis'], similarSpellings:['Lewis','Luis','Louie','Luigi'], gender:'male', birthYear:1901, birthMonth:8, birthDay:4, birthPlace:'New Orleans, Louisiana', country:'USA', field:'Music', subfield:'Jazz',
@@ -1456,7 +1456,7 @@ export const PEOPLE = [
   //  R&B / SOUL
   // =====================================================================
   { id:'marvin-gaye', name:'Marvin Gaye', middleName:'Pentz', homophones:[], similarSpellings:['Marvyn','Marven','Marvon','Marvine'], gender:'male', birthYear:1939, birthMonth:4, birthDay:2, birthPlace:'Washington, D.C.', country:'USA', field:'Music', subfield:'R&B',
-    teams:[], awards:[], collaborators:['Tammi Terrell'], contemporaries:[], friends:[], foes:[], bio:'Prince of Motown; What\'s Going On rewrote the political album.' },
+    teams:[], awards:[], collaborators:['Tammi Terrell'], contemporaries:[], friends:[], foes:[], bio:"Prince of Motown; What's Going On rewrote the political album. He started at Motown as a session drummer and duet partner, scoring with \"How Sweet It Is\" and, alongside Tammi Terrell, \"Ain't No Mountain High Enough.\" Over Berry Gordy's objections he released the 1971 concept album What's Going On, confronting war, poverty, and the environment. He followed with the sensual Let's Get It On in 1973 and the Grammy-winning \"Sexual Healing\" in 1982, before his father shot and killed him in 1984, a day short of his 45th birthday." },
   { id:'stevie-wonder', name:'Stevie Wonder', middleName:'', homophones:['Stevy','Stevi'], similarSpellings:['Stevy','Stevi','Stevee','Stevye'], gender:'male', birthYear:1950, birthMonth:5, birthDay:13, birthPlace:'Saginaw, Michigan', country:'USA', field:'Music', subfield:'R&B',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:2014}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Twenty-five Grammys; Songs in the Key of Life. Born Stevland Hardaway Judkins in Saginaw, Michigan, and blinded shortly after his premature birth, he signed with Motown's Tamla label at age eleven and scored his first U.S. number-one single, \"Fingertips, Pt. 2,\" two years later. His mid-1970s run of Talking Book, Innervisions, Fulfillingness' First Finale, and Songs in the Key of Life remains one of the most lauded streaks in popular music, and Songs in the Key of Life alone won four Grammys including Album of the Year. He wrote and performed \"Happy Birthday\" to campaign for a national holiday honoring Martin Luther King Jr., a holiday signed into law in 1983. He was inducted into the Rock and Roll Hall of Fame in 1989." },
   { id:'sade', name:'Sade Adu', middleName:'Folasade', homophones:['Shaday','Shadae'], similarSpellings:['Shaday','Shadae','Sadae','Saday'], gender:'female', birthYear:1959, birthMonth:1, birthDay:16, birthPlace:'Ibadan, Nigeria', country:'Nigeria', field:'Music', subfield:'R&B',
@@ -1475,7 +1475,7 @@ export const PEOPLE = [
     collaborators:['Peter Tosh','Bunny Wailer'], contemporaries:['Peter Tosh','Bunny Wailer','Jimmy Cliff'], friends:['Peter Tosh','Bunny Wailer'], foes:[],
     bio:"Carried reggae and Rastafari to the world. Born in the rural village of Nine Mile, Saint Ann, to a teenage Jamaican mother and a much older British-Jamaican father he barely knew, he co-founded The Wailers in 1963 with Peter Tosh and Bunny Wailer. After signing with Island Records in 1972, he and the band released the genre-defining albums Catch a Fire (1973), Natty Dread (1974), and Exodus (1977). He survived an assassination attempt at his Hope Road home in December 1976 and performed at the Smile Jamaica concert two days later with a wounded arm. Diagnosed with melanoma, he died in 1981 at age 36 and was given a Jamaican state funeral." },
   { id:'fela-kuti', name:'Fela Kuti', middleName:'Anikulapo', homophones:[], similarSpellings:['Felah','Phela','Fella'], gender:'male', birthYear:1938, birthMonth:10, birthDay:15, birthPlace:'Abeokuta, Nigeria', country:'Nigeria', field:'Music', subfield:'Afrobeat',
-    teams:[], awards:[], collaborators:['Tony Allen'], contemporaries:[], friends:[], foes:[], bio:'Invented Afrobeat; turned his Lagos compound into a republic.' },
+    teams:[], awards:[], collaborators:['Tony Allen'], contemporaries:[], friends:[], foes:[], bio:"Invented Afrobeat; turned his Lagos compound into a republic. Fela Kuti fused Yoruba rhythms, jazz, and funk into a sound he wielded against Nigeria's military rulers, declaring his commune the independent Kalakuta Republic. In 1977 some thousand soldiers razed it and threw his mother, activist Funmilayo Ransome-Kuti, from a window; she died of her injuries the next year. Albums such as Zombie and Coffin for Head of State made his band a political force, and he held marathon shows at his club, the Shrine, while even running for president." },
   { id:'ravi-shankar', name:'Ravi Shankar', middleName:'', homophones:[], similarSpellings:['Ravee','Ravy','Raavi'], gender:'male', birthYear:1920, birthMonth:4, birthDay:7, birthPlace:'Varanasi, India', country:'India', field:'Music', subfield:'Indian Classical',
     teams:[], awards:[], collaborators:['George Harrison'], contemporaries:[], friends:[], foes:[], bio:'Brought the sitar and Hindustani classical music to the global pop conversation.' },
   { id:'edith-piaf', name:'Édith Piaf', middleName:'Giovanna', homophones:[], similarSpellings:['Edyth','Edythe','Edithe','Edyth'], gender:'female', birthYear:1915, birthMonth:12, birthDay:19, birthPlace:'Paris, France', country:'France', field:'Music', subfield:'Chanson',
@@ -1488,15 +1488,15 @@ export const PEOPLE = [
   // =====================================================================
   { id:'kurosawa', name:'Akira Kurosawa', middleName:'', homophones:[], similarSpellings:['Akirah','Akirra','Akeera'], gender:'male', birthYear:1910, birthMonth:3, birthDay:23, birthPlace:'Tokyo, Japan', country:'Japan', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Honorary Award',year:1990}], collaborators:['Toshiro Mifune'], contemporaries:['Kenji Mizoguchi','Yasujirō Ozu','Mikio Naruse','Masaki Kobayashi'], friends:['Francis Ford Coppola','George Lucas'], foes:[],
-    bio:'Seven Samurai, Rashomon, Ran — the towering Japanese director.' },
+    bio:"Seven Samurai, Rashomon, Ran — the towering Japanese director. Rashomon won the top prize at Venice in 1951 and opened Western audiences to Japanese cinema. His samurai epics were remade in Hollywood, with Seven Samurai becoming The Magnificent Seven and Yojimbo becoming A Fistful of Dollars. Across a five-decade career he directed Ikiru, Throne of Blood, and the King Lear-inspired Ran, and his longtime star Toshiro Mifune appeared in sixteen of his films." },
   { id:'fellini', name:'Federico Fellini', middleName:'', homophones:[], similarSpellings:['Federic','Federiko','Fredrico','Frederico'], gender:'male', birthYear:1920, birthMonth:1, birthDay:20, birthPlace:'Rimini, Italy', country:'Italy', field:'Film', subfield:'Director',
-    teams:[], awards:[{name:'Academy Honorary Award',year:1993}], collaborators:['Marcello Mastroianni'], contemporaries:[], friends:[], foes:[], bio:'La Dolce Vita and 8½; defined Italian cinema after the war.' },
+    teams:[], awards:[{name:'Academy Honorary Award',year:1993}], collaborators:['Marcello Mastroianni'], contemporaries:[], friends:[], foes:[], bio:"La Dolce Vita and 8½; defined Italian cinema after the war. He started out as a cartoonist and gag writer before co-scripting Roberto Rossellini's neorealist landmark Rome, Open City. His own films won a record four Academy Awards for Best Foreign Language Film — for La Strada, Nights of Cabiria, 8½, and Amarcord. La Dolce Vita gave the world the word \"paparazzo,\" borrowed from a news photographer in the film. He accepted an honorary Oscar for lifetime achievement in 1993, months before his death that same year." },
   { id:'bergman', name:'Ingmar Bergman', middleName:'', homophones:['Inger'], similarSpellings:['Inger','Ingmaar','Ingmare'], gender:'male', birthYear:1918, birthMonth:7, birthDay:14, birthPlace:'Uppsala, Sweden', country:'Sweden', field:'Film', subfield:'Director',
     teams:[], awards:[], collaborators:['Liv Ullmann'], contemporaries:[], friends:[], foes:[], bio:'Swedish director of Persona, The Seventh Seal, Wild Strawberries.' },
   { id:'miyazaki', name:'Hayao Miyazaki', middleName:'', homophones:[], similarSpellings:['Hayou','Hyao','Hyo'], gender:'male', birthYear:1941, birthMonth:1, birthDay:5, birthPlace:'Tokyo, Japan', country:'Japan', field:'Film', subfield:'Director',
     teams:[{name:'Studio Ghibli',years:[1985,2025]}], awards:[{name:'Academy Award for Best Animated Feature',year:2003}], collaborators:['Joe Hisaishi'], contemporaries:[], friends:[], foes:[], bio:'Co-founded Studio Ghibli; Spirited Away, Totoro, Princess Mononoke.' },
   { id:'almodovar', name:'Pedro Almodóvar', middleName:'', homophones:[], similarSpellings:['Pedroh','Petro','Pedrro'], gender:'male', birthYear:1949, birthMonth:9, birthDay:25, birthPlace:'Calzada de Calatrava, Spain', country:'Spain', field:'Film', subfield:'Director',
-    teams:[], awards:[{name:'Academy Award for Best Original Screenplay',year:2003}], collaborators:['Penélope Cruz'], contemporaries:[], friends:[], foes:[], bio:'Spanish auteur of bold color and stranger family ties.' },
+    teams:[], awards:[{name:'Academy Award for Best Original Screenplay',year:2003}], collaborators:['Penélope Cruz'], contemporaries:[], friends:[], foes:[], bio:"Spanish auteur of bold color and stranger family ties. He came of age in La Movida Madrileña, the burst of counterculture that followed Franco's death, and turned melodrama, desire, and maternal devotion into his signatures. All About My Mother won the Academy Award for Best Foreign Language Film in 1999, and Talk to Her earned him a screenwriting Oscar three years later. Muses including Carmen Maura, Antonio Banderas, and Penélope Cruz have recurred across a filmography that runs from Women on the Verge of a Nervous Breakdown to the autobiographical Pain and Glory." },
   { id:'agnes-varda', name:'Agnès Varda', middleName:'', homophones:['Agness','Agnese'], similarSpellings:['Agness','Agnese','Agneta','Agnetha'], gender:'female', birthYear:1928, birthMonth:5, birthDay:30, birthPlace:'Ixelles, Belgium', country:'Belgium', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Honorary Award',year:2017}], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:"Grandmother of the French New Wave; her 1962 Cléo from 5 to 7 follows a singer in near real time as she awaits a medical result. Trained first as a photographer, she announced the movement early with her 1955 debut La Pointe Courte, and her marriage to fellow director Jacques Demy linked two of French cinema's great careers. In a restless late period she reinvented herself as a documentarian, roaming France for The Gleaners and I in 2000 and teaming with the street artist JR for the Oscar-nominated Faces Places in 2017. She remained an impish, wool-capped presence on screen and behind the camera until her death at ninety." },
@@ -1504,9 +1504,9 @@ export const PEOPLE = [
     teams:[], awards:[{name:'Academy Award for Best Director',year:2020}], collaborators:['Song Kang-ho'], contemporaries:[], friends:[], foes:[],
     bio:'Parasite swept the Oscars; first non-English-language Best Picture winner.' },
   { id:'chloe-zhao', name:'Chloé Zhao', middleName:'', homophones:['Khloe','Cloe','Chloey'], similarSpellings:['Khloe','Cloe','Chloey','Cloey'], gender:'female', birthYear:1982, birthMonth:3, birthDay:31, birthPlace:'Beijing, China', country:'China', field:'Film', subfield:'Director',
-    teams:[], awards:[{name:'Academy Award for Best Director',year:2021}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Nomadland — first woman of color to win Best Director.' },
+    teams:[], awards:[{name:'Academy Award for Best Director',year:2021}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Nomadland — first woman of color to win Best Director. Born in Beijing, she left as a teenager to study in England and the United States, then made her early features in the American West with largely non-professional casts. The Rider (2017) drew on the life of a real injured rodeo rider, and Nomadland (2020), starring Frances McDormand among actual van-dwelling nomads, swept the 2021 Oscars with wins for Best Picture, Best Actress, and Best Director. With that award she became only the second woman ever to win the category and the first woman of color. She next moved to blockbuster scale, directing Marvel's Eternals the same year." },
   { id:'wertmuller', name:'Lina Wertmüller', middleName:'', homophones:['Lena'], similarSpellings:['Lena','Lyna','Linah','Leenah'], gender:'female', birthYear:1928, birthMonth:8, birthDay:14, birthPlace:'Rome, Italy', country:'Italy', field:'Film', subfield:'Director',
-    teams:[], awards:[{name:'Academy Honorary Award',year:2019}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'First woman ever nominated for the Best Director Oscar (1977).' },
+    teams:[], awards:[{name:'Academy Honorary Award',year:2019}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"First woman ever nominated for the Best Director Oscar (1977). Lina Wertmüller earned that historic nod for Seven Beauties, having begun as an assistant to Federico Fellini on 8½. Her provocative political tragicomedies, often starring Giancarlo Giannini and Mariangela Melato, included Swept Away and Love and Anarchy. Blending sex, class conflict, and Italian politics, her work made her one of only a handful of women later given an honorary Academy Award." },
   { id:'gerwig', name:'Greta Gerwig', middleName:'Celeste', homophones:['Gretta'], similarSpellings:['Gretta','Gretah','Greata','Grete'], gender:'female', birthYear:1983, birthMonth:8, birthDay:4, birthPlace:'Sacramento, California', country:'USA', field:'Film', subfield:'Director',
     teams:[], awards:[], collaborators:['Noah Baumbach'], contemporaries:[], friends:[], foes:[], bio:'Lady Bird, Little Women, Barbie — the most commercially powerful woman director in history.' },
   { id:'spike-lee', name:'Spike Lee', middleName:'', homophones:[], similarSpellings:['Spyke','Spik','Spykee'], gender:'male', birthYear:1957, birthMonth:3, birthDay:20, birthPlace:'Atlanta, Georgia', country:'USA', field:'Film', subfield:'Director',
@@ -1521,9 +1521,9 @@ export const PEOPLE = [
     teams:[], awards:[{name:'Academy Award for Best Actress',year:1954}], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:"Roman Holiday, Breakfast at Tiffany's; later UNICEF ambassador." },
   { id:'cary-grant', name:'Cary Grant', middleName:'', homophones:['Carey','Kary','Kerry'], similarSpellings:['Carey','Kary','Kerry','Cari'], gender:'male', birthYear:1904, birthMonth:1, birthDay:18, birthPlace:'Bristol, England', country:'UK', field:'Film', subfield:'Actor',
-    teams:[], awards:[{name:'Academy Honorary Award',year:1970}], collaborators:['Alfred Hitchcock'], contemporaries:[], friends:[], foes:[], bio:'Born Archibald Leach; perfected the screwball leading man.' },
+    teams:[], awards:[{name:'Academy Honorary Award',year:1970}], collaborators:['Alfred Hitchcock'], contemporaries:[], friends:[], foes:[], bio:"Born Archibald Leach; perfected the screwball leading man. He left Bristol as a teenager with a troupe of acrobats and stilt-walkers, honing the physical comedy and timing that underpinned his screen persona of debonair charm. In Hollywood he starred in screwball classics like Bringing Up Baby, The Philadelphia Story, and His Girl Friday, and became Alfred Hitchcock's favorite leading man in Notorious, To Catch a Thief, and North by Northwest. Though nominated twice, he never won a competitive Academy Award and received an Honorary Oscar in 1970. He retired from acting in 1966 to help raise his daughter." },
   { id:'marlene-dietrich', name:'Marlene Dietrich', middleName:'', homophones:['Marlena','Marlina'], similarSpellings:['Marlena','Marlina','Marleen','Marleene'], gender:'female', birthYear:1901, birthMonth:12, birthDay:27, birthPlace:'Schöneberg, Germany', country:'Germany', field:'Film', subfield:'Actress',
-    teams:[], awards:[], collaborators:['Josef von Sternberg'], contemporaries:[], friends:[], foes:[], bio:'Smoky-voiced cabaret icon; sang for Allied troops in WWII.' },
+    teams:[], awards:[], collaborators:['Josef von Sternberg'], contemporaries:[], friends:[], foes:[], bio:"Smoky-voiced cabaret icon; sang for Allied troops in WWII. Born in Berlin, she became an international sensation as the sultry Lola Lola in Josef von Sternberg's The Blue Angel (1930), singing \"Falling in Love Again,\" and followed him to Hollywood for films like Morocco, which earned her an Oscar nomination. Loathing the Nazi regime, she rejected its offers to return to Germany, took U.S. citizenship in 1939, and toured the front lines entertaining Allied soldiers. For that service she received the U.S. Medal of Freedom and France's Legion of Honour. She reinvented herself as a glamorous touring cabaret performer before living her final years reclusively in Paris, where she died in 1992." },
   { id:'greta-garbo', name:'Greta Garbo', middleName:'Lovisa', homophones:['Gretta'], similarSpellings:['Gretta','Gretah','Greata','Grete'], gender:'female', birthYear:1905, birthMonth:9, birthDay:18, birthPlace:'Stockholm, Sweden', country:'Sweden', field:'Film', subfield:'Actress',
     teams:[], awards:[{name:'Academy Honorary Award',year:1955}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'"I want to be alone." Retired at thirty-six and never returned.' },
   { id:'ingrid-bergman', name:'Ingrid Bergman', middleName:'', homophones:[], similarSpellings:['Ingrida','Ingred','Ingryd','Inghrid'], gender:'female', birthYear:1915, birthMonth:8, birthDay:29, birthPlace:'Stockholm, Sweden', country:'Sweden', field:'Film', subfield:'Actress',
@@ -1542,16 +1542,16 @@ export const PEOPLE = [
   { id:'marion-cotillard', name:'Marion Cotillard', middleName:'', homophones:[], similarSpellings:['Marian','Maryon','Marione','Marrion'], gender:'female', birthYear:1975, birthMonth:9, birthDay:30, birthPlace:'Paris, France', country:'France', field:'Film', subfield:'Actress',
     teams:[], awards:[{name:'Academy Award for Best Actress',year:2008}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'La Vie en Rose; first French actress to win Best Actress for a French-language role.' },
   { id:'penelope-cruz', name:'Penélope Cruz', middleName:'', homophones:[], similarSpellings:['Penelopee','Penelopy','Pinelopi'], gender:'female', birthYear:1974, birthMonth:4, birthDay:28, birthPlace:'Alcobendas, Spain', country:'Spain', field:'Film', subfield:'Actress',
-    teams:[], awards:[{name:'Academy Award for Best Supporting Actress',year:2009}], collaborators:['Pedro Almodóvar'], contemporaries:[], friends:[], foes:[], bio:'Almodóvar\'s muse; first Spanish actress to win an Oscar.' },
+    teams:[], awards:[{name:'Academy Award for Best Supporting Actress',year:2009}], collaborators:['Pedro Almodóvar'], contemporaries:[], friends:[], foes:[], bio:"Almodóvar's muse; first Spanish actress to win an Oscar. She broke through as a teenager in Bigas Luna's Jamón Jamón (1992) and became internationally known through repeated collaborations with Pedro Almodóvar, including All About My Mother, Volver, and Parallel Mothers. Her Academy Award for Best Supporting Actress came in 2009 for Woody Allen's Vicky Cristina Barcelona. She has also earned Oscar nominations for Volver and Nine and won multiple Goya Awards in Spain. She is married to fellow Spanish actor Javier Bardem, whom she first met on the set of Jamón Jamón." },
   { id:'mifune', name:'Toshiro Mifune', middleName:'', homophones:[], similarSpellings:['Toshyro','Tochiro','Toshero'], gender:'male', birthYear:1920, birthMonth:4, birthDay:1, birthPlace:'Qingdao, China', country:'Japan', field:'Film', subfield:'Actor',
     teams:[], awards:[], collaborators:['Akira Kurosawa'], contemporaries:[], friends:[], foes:[], bio:'Kurosawa\'s lead in sixteen films; the samurai you picture when you picture a samurai.' },
   { id:'cate-blanchett', name:'Cate Blanchett', middleName:'Elise', homophones:['Kate','Kait','Cait'], similarSpellings:['Kate','Kait','Cait','Kayt'], gender:'female', birthYear:1969, birthMonth:5, birthDay:14, birthPlace:'Melbourne, Australia', country:'Australia', field:'Film', subfield:'Actress',
-    teams:[], awards:[{name:'Academy Award for Best Actress',year:2014}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Two Oscars; ranges from Galadriel to Bob Dylan to Lydia Tár.' },
+    teams:[], awards:[{name:'Academy Award for Best Actress',year:2014}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Two Oscars; ranges from Galadriel to Bob Dylan to Lydia Tár. She trained at Australia's NIDA and broke through internationally in the title role of 1998's Elizabeth. She won Best Supporting Actress for playing Katharine Hepburn in The Aviator and Best Actress for Blue Jasmine, and earned a nomination for portraying a man — Bob Dylan — in I'm Not There. A longtime stage actor who co-directed the Sydney Theatre Company, she has also served as a Goodwill Ambassador for the UN refugee agency." },
   { id:'tilda-swinton', name:'Tilda Swinton', middleName:'Matilda', homophones:[], similarSpellings:['Tylda','Tildah','Tildaa'], gender:'female', birthYear:1960, birthMonth:11, birthDay:5, birthPlace:'London, England', country:'UK', field:'Film', subfield:'Actress',
-    teams:[], awards:[{name:'Academy Award for Best Supporting Actress',year:2008}], collaborators:['Wes Anderson'], contemporaries:[], friends:[], foes:[], bio:'Otherworldly screen presence; muse to Jarman, Anderson, Bong.' },
+    teams:[], awards:[{name:'Academy Award for Best Supporting Actress',year:2008}], collaborators:['Wes Anderson'], contemporaries:[], friends:[], foes:[], bio:"Otherworldly screen presence; muse to Jarman, Anderson, Bong. She emerged in Derek Jarman's 1980s art films and broke through as the gender-shifting lead of Orlando in 1992. Her Academy Award-winning turn in Michael Clayton confirmed her range, and she has since recurred in Wes Anderson's ensembles and in Bong Joon-ho's Snowpiercer and Okja. She also works in performance art, once sleeping inside a glass box in a gallery installation titled The Maybe." },
   { id:'anya-taylor-joy', name:'Anya Taylor-Joy', middleName:'Josephine', homophones:['Aniya','Aanya'], similarSpellings:['Aniya','Aanya','Anyah','Annya'], gender:'female', birthYear:1996, birthMonth:4, birthDay:16, birthPlace:'Miami, Florida', country:'USA', field:'Film', subfield:'Actress',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"The Queen's Gambit, Furiosa; raised in Argentina and the UK." },
+    bio:"The Queen's Gambit, Furiosa; raised in Argentina and the UK. Born in Miami and raised largely in Buenos Aires before moving to London, she spoke mainly Spanish as a child. She drew notice in the 2015 horror film The Witch and M. Night Shyamalan's thriller Split, then won a Golden Globe for playing chess prodigy Beth Harmon in Netflix's The Queen's Gambit. She has since headlined The Menu and taken over the title role in Furiosa: A Mad Max Saga." },
   { id:'lea-seydoux', name:'Léa Seydoux', middleName:'Hélène', homophones:['Leah','Lia','Leigh'], similarSpellings:['Leah','Lia','Leigh','Leya'], gender:'female', birthYear:1985, birthMonth:7, birthDay:1, birthPlace:'Paris, France', country:'France', field:'Film', subfield:'Actress',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Blue Is the Warmest Color; the new Bond girl who outacts the franchise.' },
   { id:'daniel-day-lewis', name:'Daniel Day-Lewis', middleName:'Michael Blake', homophones:[], similarSpellings:['Danyel','Danial','Daniyel','Daniele'], gender:'male', birthYear:1957, birthMonth:4, birthDay:29, birthPlace:'London, England', country:'UK', field:'Film', subfield:'Actor',
@@ -1567,7 +1567,7 @@ export const PEOPLE = [
   { id:'lucille-ball', name:'Lucille Ball', middleName:'Désirée', homophones:[], similarSpellings:['Lucile','Lucil','Lucilla','Lucillah'], gender:'female', birthYear:1911, birthMonth:8, birthDay:6, birthPlace:'Jamestown, New York', country:'USA', field:'Film', subfield:'Comedian',
     teams:[], awards:[], collaborators:['Desi Arnaz'], contemporaries:[], friends:[], foes:[], bio:'I Love Lucy; co-founded Desilu, the studio that produced Star Trek.' },
   { id:'robin-williams', name:'Robin Williams', middleName:'McLaurin', homophones:['Robyn','Robbin'], similarSpellings:['Robyn','Robbin','Robben','Robynn'], gender:'male', birthYear:1951, birthMonth:7, birthDay:21, birthPlace:'Chicago, Illinois', country:'USA', field:'Film', subfield:'Comedian',
-    teams:[], awards:[{name:'Academy Award for Best Supporting Actor',year:1998}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Improvisational genius — Mork, Mrs. Doubtfire, Sean Maguire.' },
+    teams:[], awards:[{name:'Academy Award for Best Supporting Actor',year:1998}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Improvisational genius — Mork, Mrs. Doubtfire, Sean Maguire. He trained at Juilliard alongside Christopher Reeve before rocketing to fame as the alien Mork on the sitcom Mork & Mindy. His manic stand-up gave way to acclaimed film roles in Good Morning, Vietnam, Dead Poets Society, and Good Will Hunting, the last of which won him the 1998 Academy Award for Best Supporting Actor. He voiced the Genie in Disney's Aladdin, improvising much of the part, and remained a tireless performer for U.S. troops until his death in 2014." },
   { id:'tina-fey', name:'Tina Fey', middleName:'', homophones:['Teena','Tena'], similarSpellings:['Teena','Tena','Tinah','Tinna'], gender:'female', birthYear:1970, birthMonth:5, birthDay:18, birthPlace:'Upper Darby, Pennsylvania', country:'USA', field:'Film', subfield:'Comedian',
     teams:[], awards:[], collaborators:['Amy Poehler'], contemporaries:[], friends:[], foes:[], bio:"First female head writer of SNL; created 30 Rock. Born in Upper Darby, Pennsylvania, she joined Saturday Night Live in 1997 and co-anchored Weekend Update for six seasons. Her impression of Sarah Palin during the 2008 campaign became a national sensation. She wrote the 2004 film Mean Girls and starred as Liz Lemon on 30 Rock, which she created and ran. In 2010 she became the youngest recipient of the Mark Twain Prize for American Humor, and she later co-hosted the Golden Globes three times with Amy Poehler." },
   { id:'gervais', name:'Ricky Gervais', middleName:'Dene', homophones:[], similarSpellings:['Rickie','Riki','Ricki','Rikky'], gender:'male', birthYear:1961, birthMonth:6, birthDay:25, birthPlace:'Reading, England', country:'UK', field:'Film', subfield:'Comedian',
@@ -1581,13 +1581,13 @@ export const PEOPLE = [
   { id:'marsha-p-johnson', name:'Marsha P. Johnson', middleName:'', homophones:[], similarSpellings:['Marshah','Marscha','Marshaa'], gender:'female', birthYear:1945, birthMonth:8, birthDay:24, birthPlace:'Elizabeth, New Jersey', country:'USA', field:'Activism', subfield:'LGBTQ+',
     teams:[], awards:[], collaborators:['Sylvia Rivera'], contemporaries:[], friends:[], foes:[], bio:'Trans activist at the front of the 1969 Stonewall uprising; co-founded STAR.' },
   { id:'sylvia-rivera', name:'Sylvia Rivera', middleName:'Lee', homophones:['Silvia','Sylvie'], similarSpellings:['Silvia','Sylvie','Sylvya','Silviah'], gender:'female', birthYear:1951, birthMonth:7, birthDay:2, birthPlace:'New York, New York', country:'USA', field:'Activism', subfield:'LGBTQ+',
-    teams:[], awards:[], collaborators:['Marsha P. Johnson'], contemporaries:[], friends:[], foes:[], bio:'Trans Latina activist; STAR co-founder; Stonewall veteran.' },
+    teams:[], awards:[], collaborators:['Marsha P. Johnson'], contemporaries:[], friends:[], foes:[], bio:"Trans Latina activist; STAR co-founder; Stonewall veteran. Of Puerto Rican and Venezuelan descent, she was orphaned young and living on the streets of New York as a teenager when the Stonewall uprising erupted in 1969. In 1970 she and her friend Marsha P. Johnson founded Street Transvestite Action Revolutionaries (STAR), which sheltered homeless queer and transgender youth. She spent decades fighting for the inclusion of transgender and gender-nonconforming people in a gay-rights movement that often sidelined them. After her death in 2002, the Sylvia Rivera Law Project was founded in her honor to advocate for gender self-determination." },
   { id:'laverne-cox', name:'Laverne Cox', middleName:'', homophones:[], similarSpellings:['Lavern','Lavurn','Lavearne'], gender:'female', birthYear:1972, birthMonth:5, birthDay:29, birthPlace:'Mobile, Alabama', country:'USA', field:'Film', subfield:'Actress',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Orange Is the New Black; first trans woman of color to lead a primetime series.' },
   { id:'janet-mock', name:'Janet Mock', middleName:'', homophones:[], similarSpellings:['Janett','Janette','Janeth','Jeanette'], gender:'female', birthYear:1983, birthMonth:3, birthDay:10, birthPlace:'Honolulu, Hawaii', country:'USA', field:'Literature', subfield:'Memoirist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Author of Redefining Realness; first trans woman of color to write/direct for primetime TV.' },
   { id:'elliot-page', name:'Elliot Page', middleName:'', homophones:['Elliott','Eliot','Eliott'], similarSpellings:['Elliott','Eliot','Eliott','Eliyot'], gender:'male', birthYear:1987, birthMonth:2, birthDay:21, birthPlace:'Halifax, Canada', country:'Canada', field:'Film', subfield:'Actor',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Juno, The Umbrella Academy; came out as trans in 2020.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Juno, The Umbrella Academy; came out as trans in 2020. A native of Halifax, Nova Scotia, he earned an Academy Award nomination for Best Actress for Juno at the age of twenty, and went on to appear in Hard Candy, Whip It, and Christopher Nolan's Inception. He came out as gay in 2014 and as transgender in December 2020, becoming one of the most prominent openly trans actors working, while continuing to lead Netflix's The Umbrella Academy. His 2023 memoir Pageboy became a New York Times bestseller." },
   { id:'lana-wachowski', name:'Lana Wachowski', middleName:'', homophones:['Lanna','Lannah'], similarSpellings:['Lanna','Lannah','Lanae','Lannae'], gender:'female', birthYear:1965, birthMonth:6, birthDay:21, birthPlace:'Chicago, Illinois', country:'USA', field:'Film', subfield:'Director',
     teams:[], awards:[], collaborators:['Lilly Wachowski'], contemporaries:[], friends:[], foes:[], bio:'Co-directed The Matrix; first openly trans director of a major Hollywood film.' },
   { id:'lilly-wachowski', name:'Lilly Wachowski', middleName:'', homophones:['Lily','Lili','Lilli'], similarSpellings:['Lily','Lili','Lilli','Lilie'], gender:'female', birthYear:1967, birthMonth:12, birthDay:29, birthPlace:'Chicago, Illinois', country:'USA', field:'Film', subfield:'Director',
@@ -1614,7 +1614,7 @@ export const PEOPLE = [
   //  field on those originals is updated in place to 'nonbinary'.)
   { id:'asia-kate-dillon', name:'Asia Kate Dillon', middleName:'', homophones:['Aisha','Aja'], similarSpellings:['Aisha','Aja','Asya','Asiah'], gender:'nonbinary', birthYear:1984, birthMonth:11, birthDay:15, birthPlace:'Ithaca, New York', country:'USA', field:'Film', subfield:'Actor',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Billions; first openly non-binary actor on a major TV series.' },
+    bio:"Billions; first openly non-binary actor on a major TV series. Dillon, who identifies as non-binary, played Taylor Mason on Showtime's Billions and Brandy Epps on Orange Is the New Black. In 2017 they wrote to the Television Academy questioning the gendered \"actor\" and \"actress\" Emmy categories, sparking a wider industry debate. That same year they presented the first genderless acting prize at the MTV Movie & TV Awards to Emma Watson." },
   { id:'alok', name:'Alok Vaid-Menon', middleName:'', homophones:[], similarSpellings:['Allok','Aloke','Alocke'], gender:'nonbinary', birthYear:1991, birthMonth:7, birthDay:13, birthPlace:'College Station, Texas', country:'USA', field:'Literature', subfield:'Poet',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[],
     bio:"Poet, performer, and gender non-conformity advocate. Alok Vaid-Menon is an Indian-American writer and performance artist who blends poetry, comedy, and fashion in work centered on gender. They are the author of the books Femme in Public and Beyond the Gender Binary, the latter widely used in classrooms. A prominent voice for gender-nonconforming people, they have toured internationally with stand-up and spoken-word shows. Their bold, colorful style has made them a recognizable figure in both fashion and social media." },
@@ -1639,7 +1639,7 @@ export const PEOPLE = [
   { id:'simone-biles', name:'Simone Biles', middleName:'Arianne', homophones:[], similarSpellings:['Symone','Simohne','Simonn','Simoni'], gender:'female', birthYear:1997, birthMonth:3, birthDay:14, birthPlace:'Columbus, Ohio', country:'USA', field:'Sports', subfield:'Gymnastics',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Most-decorated gymnast in history; multiple skills named after her.' },
   { id:'usain-bolt', name:'Usain Bolt', middleName:'St. Leo', homophones:[], similarSpellings:['Usein','Yusan','Usane'], gender:'male', birthYear:1986, birthMonth:8, birthDay:21, birthPlace:'Sherwood Content, Jamaica', country:'Jamaica', field:'Sports', subfield:'Track & Field',
-    teams:[], awards:[], collaborators:[], contemporaries:['Yohan Blake','Tyson Gay','Justin Gatlin','Asafa Powell'], friends:['Yohan Blake'], foes:['Justin Gatlin'], bio:'8 Olympic gold medals; world records in the 100m and 200m.' },
+    teams:[], awards:[], collaborators:[], contemporaries:['Yohan Blake','Tyson Gay','Justin Gatlin','Asafa Powell'], friends:['Yohan Blake'], foes:['Justin Gatlin'], bio:"8 Olympic gold medals; world records in the 100m and 200m. Nicknamed \"Lightning Bolt,\" the Jamaican sprinter won the 100m and 200m at three consecutive Olympics — Beijing 2008, London 2012, and Rio 2016 — an unprecedented sprint \"triple-triple\" later trimmed by one relay medal when a teammate's doping was uncovered. At the 2009 World Championships in Berlin he set still-standing world records of 9.58 seconds in the 100m and 19.19 in the 200m. His charisma, showmanship, and signature lightning-bolt pose made him one of the most recognizable athletes on earth. He retired from competition in 2017." },
   { id:'nadia-comaneci', name:'Nadia Comăneci', middleName:'Elena', homophones:[], similarSpellings:['Nadya','Nadiya','Nadiah','Nadja'], gender:'female', birthYear:1961, birthMonth:11, birthDay:12, birthPlace:'Onești, Romania', country:'Romania', field:'Sports', subfield:'Gymnastics',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'First gymnast ever scored a perfect 10 — at the 1976 Montreal Olympics, age 14.' },
   { id:'jackie-robinson', name:'Jackie Robinson', middleName:'Roosevelt', homophones:['Jacky','Jacki'], similarSpellings:['Jacky','Jacki','Jackee','Jaqui'], gender:'male', birthYear:1919, birthMonth:1, birthDay:31, birthPlace:'Cairo, Georgia', country:'USA', field:'Sports', subfield:'MLB',
@@ -1714,20 +1714,20 @@ export const PEOPLE = [
   //  GLOBAL LITERATURE — non-US, era-diverse
   // =====================================================================
   { id:'gabriel-garcia-marquez', name:'Gabriel García Márquez', middleName:'José', homophones:[], similarSpellings:['Gabriell','Gabriele','Gavriel','Gabryel'], gender:'male', birthYear:1927, birthMonth:3, birthDay:6, birthPlace:'Aracataca, Colombia', country:'Colombia', field:'Literature', subfield:'Novelist',
-    teams:[], awards:[{name:'Nobel Prize in Literature',year:1982}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'One Hundred Years of Solitude; godfather of magical realism.' },
+    teams:[], awards:[{name:'Nobel Prize in Literature',year:1982}], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"One Hundred Years of Solitude; godfather of magical realism. Known affectionately as \"Gabo,\" he worked as a journalist across Colombia and Europe before writing his 1967 masterpiece, which sold tens of millions of copies and was translated into dozens of languages. His other landmarks include Love in the Time of Cholera and The Autumn of the Patriarch. He won the Nobel Prize in Literature in 1982 and spent much of his later life in Mexico City, where he died in 2014, mourned across Latin America." },
   { id:'chimamanda', name:'Chimamanda Ngozi Adichie', middleName:'Ngozi', homophones:[], similarSpellings:['Chimamandah','Chimimanda'], gender:'female', birthYear:1977, birthMonth:9, birthDay:15, birthPlace:'Enugu, Nigeria', country:'Nigeria', field:'Literature', subfield:'Novelist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Americanah; \"We should all be feminists.\" Born in Enugu, Nigeria, the fifth of six children of a statistics professor and a university registrar, she studied medicine briefly in Nigeria before moving to the United States to read communications and political science. Her second novel Half of a Yellow Sun (2006), set during the Biafran War, won the Orange Prize for Fiction and was adapted to film in 2013 starring Chiwetel Ejiofor and Thandiwe Newton. Americanah (2013) won the U.S. National Book Critics Circle Award for fiction. Her 2012 TEDx talk \"We Should All Be Feminists,\" later expanded as a 2014 essay, was famously sampled by Beyoncé on \"Flawless.\"" },
   { id:'haruki-murakami', name:'Haruki Murakami', middleName:'', homophones:[], similarSpellings:['Haruky','Harukii','Haruke'], gender:'male', birthYear:1949, birthMonth:1, birthDay:12, birthPlace:'Kyoto, Japan', country:'Japan', field:'Literature', subfield:'Novelist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Norwegian Wood, Kafka on the Shore; cats, jazz, parallel worlds.' },
   { id:'arundhati-roy', name:'Arundhati Roy', middleName:'', homophones:[], similarSpellings:['Arundathi','Arundhuti','Arundhuthi'], gender:'female', birthYear:1961, birthMonth:11, birthDay:24, birthPlace:'Shillong, India', country:'India', field:'Literature', subfield:'Novelist',
     teams:[], awards:[{name:'Booker Prize',year:1997}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'The God of Small Things; Indian novelist and essayist.' },
+    bio:"The God of Small Things; Indian novelist and essayist. Her debut novel, set in the backwaters of Kerala, won the 1997 Booker Prize and made her the first Indian woman to take the award. She then largely set fiction aside for two decades to become one of India's most outspoken political essayists, writing against nuclear weapons, big dams, corporate power, and the occupation of Kashmir. Her long-awaited second novel, The Ministry of Utmost Happiness, finally arrived in 2017." },
   { id:'james-joyce', name:'James Joyce', middleName:'Augustine Aloysius', homophones:['Jaymes'], similarSpellings:['Jaymes','Jamie','Jamz','Jameson'], gender:'male', birthYear:1882, birthMonth:2, birthDay:2, birthPlace:'Dublin, Ireland', country:'Ireland', field:'Literature', subfield:'Novelist',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Ulysses, Finnegans Wake; reshaped what a novel could be.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Ulysses, Finnegans Wake; reshaped what a novel could be. Born in Dublin, he spent most of his adult life in self-imposed exile in Trieste, Zurich, and Paris, yet set nearly all his fiction in the Ireland he had left. After the story collection Dubliners and the semi-autobiographical A Portrait of the Artist as a Young Man, his masterpiece Ulysses was published in Paris in 1922 by Sylvia Beach and banned for obscenity in the United States until 1934. Its stream-of-consciousness technique and dense allusion transformed modernist literature, a project he pushed to the limits of language in the seventeen-years-in-the-making Finnegans Wake. Plagued by failing eyesight, he died in Zurich in 1941." },
   { id:'virginia-woolf', name:'Virginia Woolf', middleName:'', homophones:[], similarSpellings:['Verginia','Virgenia','Virginyah','Virginnia'], gender:'female', birthYear:1882, birthMonth:1, birthDay:25, birthPlace:'London, England', country:'UK', field:'Literature', subfield:'Novelist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'To the Lighthouse, A Room of One\'s Own; modernism\'s most piercing voice.' },
   { id:'chinua-achebe', name:'Chinua Achebe', middleName:'', homophones:[], similarSpellings:['Chinwa','Chenua','Chinuah'], gender:'male', birthYear:1930, birthMonth:11, birthDay:16, birthPlace:'Ogidi, Nigeria', country:'Nigeria', field:'Literature', subfield:'Novelist',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Things Fall Apart; father of modern African literature.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Things Fall Apart; father of modern African literature. Published in 1958 and drawing its title from Yeats, his debut told of the Igbo leader Okonkwo and the disruption wrought by British colonialism, and it has since sold millions of copies in dozens of languages. He wrote in English but bent it to Igbo speech and proverb, insisting that Africans tell their own stories. His 1975 lecture attacking the racism in Conrad's Heart of Darkness reshaped how the Western canon is read, and in 2007 he won the Man Booker International Prize." },
   { id:'borges', name:'Jorge Luis Borges', middleName:'Luis', homophones:[], similarSpellings:['George','Jorje','Jorgy','Yorge'], gender:'male', birthYear:1899, birthMonth:8, birthDay:24, birthPlace:'Buenos Aires, Argentina', country:'Argentina', field:'Literature', subfield:'Short Story',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Argentine fabulist of labyrinths, libraries, and infinite mirrors.' },
 
@@ -2417,6 +2417,254 @@ export const PEOPLE = [
     teams:[], awards:[], collaborators:["Caetano Veloso"], bio:"Tropicália's fearless voice, she sang down Brazil's dictatorship beside Caetano Veloso with a sound as bold as her notorious album covers." },
   { id:"david-alfaro-siqueiros", name:"David Alfaro Siqueiros", gender:"male", birthYear:1896, birthPlace:"Camargo, Mexico", country:"Mexico", field:"Visual Arts", subfield:"Muralist",
     teams:[], awards:[], collaborators:["Diego Rivera"], bio:"Most militant of Mexico's mural masters, he painted revolution at monumental scale beside Diego Rivera — and took up a rifle for his politics." },
+  // =====================================================================
+  //  2026-07-29 nightly (rotation: STRENGTHEN THE GRAPH)
+  //  10 connectors whose collaborators reach back into existing entries:
+  //  Duke Ellington, Count Basie, Charlie Parker, Dizzy Gillespie, Miles
+  //  Davis, Quincy Jones, Bill Russell, Martin Luther King, Enrico Fermi,
+  //  Lise Meitner, Caetano Veloso.
+  // =====================================================================
+  { id:"billy-strayhorn", name:"Billy Strayhorn", gender:"male", birthYear:1915, birthPlace:"Dayton, USA", country:"United States", field:"Music", subfield:"Jazz",
+    teams:[], awards:[], collaborators:["Duke Ellington","Ella Fitzgerald","Lena Horne"], bio:"Duke Ellington's silent partner, who wrote 'Take the A Train' at 23 and lived openly gay in an era that punished the honesty." },
+  { id:"charles-mingus", name:"Charles Mingus", gender:"male", birthYear:1922, birthPlace:"Nogales, USA", country:"United States", field:"Music", subfield:"Jazz",
+    teams:[], awards:[{name:"Guggenheim Fellowship",year:1971}], collaborators:["Duke Ellington","Charlie Parker","Dizzy Gillespie"], bio:"Volcanic bassist-composer whose 'Mingus Ah Um' fused gospel, bop and fury; he would fire players mid-set for missing the feeling." },
+  { id:"mary-lou-williams", name:"Mary Lou Williams", gender:"female", birthYear:1910, birthPlace:"Atlanta, USA", country:"United States", field:"Music", subfield:"Jazz",
+    teams:[], awards:[{name:"Guggenheim Fellowship",year:1972}], collaborators:["Dizzy Gillespie","Duke Ellington","Thelonious Monk"], bio:"The only jazz figure to arrange for Ellington and mentor Gillespie and Monk alike, then turn from swing to composing sacred jazz masses." },
+  { id:"herbie-hancock", name:"Herbie Hancock", gender:"male", birthYear:1940, birthPlace:"Chicago, USA", country:"United States", field:"Music", subfield:"Jazz",
+    teams:[], awards:[{name:"Academy Award for Best Original Score",year:1987},{name:"Grammy Award for Album of the Year",year:2008}], collaborators:["Miles Davis","Quincy Jones"], bio:"Miles Davis's keyboardist who leapt from acoustic bop to the funk of 'Chameleon,' then won Album of the Year for a set of Joni Mitchell songs." },
+  { id:"sam-jones", name:"Sam Jones", gender:"male", birthYear:1933, birthPlace:"Wilmington, USA", country:"United States", field:"Sports", subfield:"NBA",
+    teams:[{name:"Boston Celtics",years:[1957,1969]}], awards:[{name:"NBA Champion",year:1959},{name:"NBA Champion",year:1965}], collaborators:["Bill Russell","Bob Cousy","John Havlicek"], bio:"Ten-time Celtics champion whose bank shot was so automatic teammates called him the quietest superstar the NBA ever produced." },
+  { id:"coretta-scott-king", name:"Coretta Scott King", gender:"female", birthYear:1927, birthPlace:"Marion, USA", country:"United States", field:"Activism", subfield:"Civil Rights",
+    teams:[], awards:[{name:"Congressional Gold Medal",year:2004}], collaborators:["Martin Luther King"], bio:"Turned her husband's memory into a movement, founding the King Center and winning the fifteen-year fight for a national holiday in his name." },
+  { id:"leo-szilard", name:"Leó Szilárd", gender:"male", birthYear:1898, birthPlace:"Budapest, Hungary", country:"Hungary", field:"Science", subfield:"Physics",
+    teams:[], awards:[{name:"Atoms for Peace Award",year:1959}], collaborators:["Enrico Fermi","Albert Einstein"], bio:"Conceived the nuclear chain reaction waiting at a London stoplight, then spent his life trying to keep the bomb he enabled from ever being used." },
+  { id:"otto-hahn", name:"Otto Hahn", gender:"male", birthYear:1879, birthPlace:"Frankfurt, Germany", country:"Germany", field:"Science", subfield:"Chemistry",
+    teams:[], awards:[{name:"Nobel Prize in Chemistry",year:1944}], collaborators:["Lise Meitner"], bio:"Split the uranium atom on a Berlin workbench in 1938 and won the Nobel — while exiled partner Lise Meitner, who explained it, was left off." },
+  { id:"gilberto-gil", name:"Gilberto Gil", gender:"male", birthYear:1942, birthPlace:"Salvador, Brazil", country:"Brazil", field:"Music", subfield:"Tropicália",
+    teams:[], awards:[{name:"Grammy Award for Best World Music Album",year:1999}], collaborators:["Caetano Veloso"], bio:"Co-founded Tropicália, was jailed and exiled by Brazil's junta, then returned decades later as the nation's Minister of Culture." },
+  { id:"lena-horne", name:"Lena Horne", gender:"female", birthYear:1917, birthPlace:"Brooklyn, USA", country:"United States", field:"Music", subfield:"Jazz",
+    teams:[], awards:[{name:"Tony Award",year:1981}], collaborators:["Duke Ellington","Count Basie","Billy Strayhorn"], bio:"Refused to play maids, so Hollywood shot her songs to be cut for Southern theaters; at 64 she conquered Broadway entirely on her own terms." },
+
+  // =====================================================================
+  //  2026-07-30 (Thursday) — Fill gaps: broadening thin Sports subfields
+  //  MLB (was 1), NHL (was 1), Tennis (was 3). 10 new entries.
+  // =====================================================================
+  { id:'babe-ruth', name:'Babe Ruth', middleName:'George Herman', homophones:['Ruthe'], similarSpellings:['Ruth','Rooth','Rueth'], gender:'male', birthYear:1895, birthMonth:2, birthDay:6, birthPlace:'Baltimore, Maryland', country:'USA', field:'Sports', subfield:'MLB',
+    teams:[{name:'Boston Red Sox',years:[1914,1919]},{name:'New York Yankees',years:[1920,1934]}], awards:[{name:'AL MVP',year:1923},{name:'World Series Champion',year:1927}],
+    collaborators:['Lou Gehrig'], contemporaries:['Ty Cobb','Lou Gehrig'], friends:['Lou Gehrig'], foes:[],
+    bio:"Started as an ace lefty, then hit so many home runs the Yankees built a stadium his bat paid for and reshaped baseball forever." },
+
+  { id:'roberto-clemente', name:'Roberto Clemente', middleName:'Enrique', homophones:['Roverto'], similarSpellings:['Robert','Ruberto','Clementi','Clemenete'], gender:'male', birthYear:1934, birthMonth:8, birthDay:18, birthPlace:'Carolina, Puerto Rico', country:'Puerto Rico', field:'Sports', subfield:'MLB',
+    teams:[{name:'Pittsburgh Pirates',years:[1955,1972]}], awards:[{name:'NL MVP',year:1966},{name:'World Series Champion',year:1971}],
+    collaborators:['Willie Stargell'], contemporaries:['Willie Mays','Hank Aaron'], friends:['Willie Stargell'], foes:[],
+    bio:"Reached exactly 3,000 hits, then died on a New Year's flight ferrying earthquake aid to Nicaragua; the Hall waived its five-year wait for him." },
+
+  { id:'hank-aaron', name:'Hank Aaron', middleName:'Henry Louis', homophones:['Aron','Erin'], similarSpellings:['Aron','Aaran','Aaren','Harron'], gender:'male', birthYear:1934, birthMonth:2, birthDay:5, birthPlace:'Mobile, Alabama', country:'USA', field:'Sports', subfield:'MLB',
+    teams:[{name:'Milwaukee/Atlanta Braves',years:[1954,1974]},{name:'Milwaukee Brewers',years:[1975,1976]}], awards:[{name:'NL MVP',year:1957},{name:'World Series Champion',year:1957}],
+    collaborators:['Eddie Mathews'], contemporaries:['Willie Mays','Roberto Clemente'], friends:['Eddie Mathews'], foes:[],
+    bio:"Chased down Babe Ruth's home-run record through a blizzard of hate mail, then broke it in Atlanta and finished with 755." },
+
+  { id:'willie-mays', name:'Willie Mays', middleName:'Howard', homophones:['Willy','Maze','Mayes'], similarSpellings:['Willy','Wille','Mayes','Maes'], gender:'male', birthYear:1931, birthMonth:5, birthDay:6, birthPlace:'Westfield, Alabama', country:'USA', field:'Sports', subfield:'MLB',
+    teams:[{name:'New York/San Francisco Giants',years:[1951,1972]},{name:'New York Mets',years:[1972,1973]}], awards:[{name:'NL MVP',year:1954},{name:'NL MVP',year:1965}],
+    collaborators:['Willie McCovey','Juan Marichal'], contemporaries:['Hank Aaron','Roberto Clemente'], friends:['Willie McCovey'], foes:[],
+    bio:"Made an over-the-shoulder catch so famous it needs no other name — 'The Catch' — from the best all-around player many ever saw." },
+
+  { id:'gordie-howe', name:'Gordie Howe', middleName:'Gordon', homophones:['How','Hough'], similarSpellings:['Gordy','Gordi','How','Howie'], gender:'male', birthYear:1928, birthMonth:3, birthDay:31, birthPlace:'Floral, Canada', country:'Canada', field:'Sports', subfield:'NHL',
+    teams:[{name:'Detroit Red Wings',years:[1946,1971]},{name:'Hartford Whalers',years:[1979,1980]}], awards:[{name:'Hart Trophy',year:1952},{name:'Stanley Cup Champion',year:1955}],
+    collaborators:['Ted Lindsay','Alex Delvecchio'], contemporaries:['Maurice Richard','Jean Béliveau'], friends:['Ted Lindsay'], foes:[],
+    bio:"Mr. Hockey played five decades and skated a pro shift beside his own sons at 51; a goal, an assist and a fight became his trademark." },
+
+  { id:'maurice-richard', name:'Maurice Richard', middleName:'Joseph Henri', homophones:['Morris','Richart'], similarSpellings:['Morris','Maurece','Richerd','Rishard'], gender:'male', birthYear:1921, birthMonth:8, birthDay:4, birthPlace:'Montreal, Canada', country:'Canada', field:'Sports', subfield:'NHL',
+    teams:[{name:'Montreal Canadiens',years:[1942,1960]}], awards:[{name:'Hart Trophy',year:1947},{name:'Stanley Cup Champion',year:1956}],
+    collaborators:['Jean Béliveau','Bernard Geoffrion'], contemporaries:['Gordie Howe','Jean Béliveau'], friends:['Bernard Geoffrion'], foes:[],
+    bio:"The Rocket was first to score 50 goals in 50 games; his 1955 suspension sparked a Montreal riot that helped ignite Quebec's Quiet Revolution." },
+
+  { id:'billie-jean-king', name:'Billie Jean King', middleName:'Moffitt', homophones:['Billy','Jean','Gene','Kingg'], similarSpellings:['Billy','Billi','Jeane','Kingh'], gender:'female', birthYear:1943, birthMonth:11, birthDay:22, birthPlace:'Long Beach, California', country:'USA', field:'Sports', subfield:'Tennis',
+    teams:[], awards:[{name:'Wimbledon Champion',year:1966},{name:'Presidential Medal of Freedom',year:2009}],
+    collaborators:['Rosie Casals'], contemporaries:['Chris Evert','Martina Navratilova'], friends:['Rosie Casals'], foes:['Bobby Riggs'],
+    bio:"Beat Bobby Riggs before 90 million in the Battle of the Sexes, then founded the WTA and forced tennis to pay women like it meant it." },
+
+  { id:'rod-laver', name:'Rod Laver', middleName:'George', homophones:['Rodd','Laver','Lavor'], similarSpellings:['Rodd','Rhod','Lavor','Laer'], gender:'male', birthYear:1938, birthMonth:8, birthDay:9, birthPlace:'Rockhampton, Australia', country:'Australia', field:'Sports', subfield:'Tennis',
+    teams:[], awards:[{name:'Calendar Grand Slam',year:1962},{name:'Calendar Grand Slam',year:1969}],
+    collaborators:['Ken Rosewall'], contemporaries:['Ken Rosewall','John Newcombe'], friends:['Ken Rosewall'], foes:[],
+    bio:"The Rockhampton Rocket is the only player to win the calendar Grand Slam twice — the second after turning pro cost him five prime years." },
+
+  { id:'martina-navratilova', name:'Martina Navratilova', middleName:'', homophones:['Martine','Navratalova'], similarSpellings:['Martine','Martyna','Navratalova','Navratilowa'], gender:'female', birthYear:1956, birthMonth:10, birthDay:18, birthPlace:'Prague, Czechoslovakia', country:'Czechoslovakia', field:'Sports', subfield:'Tennis',
+    teams:[], awards:[{name:'Wimbledon Champion',year:1978}],
+    collaborators:['Pam Shriver'], contemporaries:['Chris Evert','Billie Jean King'], friends:['Chris Evert'], foes:['Chris Evert'],
+    bio:"Defected from Czechoslovakia at 18 and rebuilt tennis around athletic fitness, winning Wimbledon singles a record nine times." },
+
+  { id:'chris-evert', name:'Chris Evert', middleName:'Christine Marie', homophones:['Kris','Evart'], similarSpellings:['Kris','Chriss','Evert','Evart'], gender:'female', birthYear:1954, birthMonth:12, birthDay:21, birthPlace:'Fort Lauderdale, Florida', country:'USA', field:'Sports', subfield:'Tennis',
+    teams:[], awards:[{name:'US Open Champion',year:1975},{name:'French Open Champion',year:1974}],
+    collaborators:[], contemporaries:['Martina Navratilova','Billie Jean King'], friends:['Martina Navratilova'], foes:['Martina Navratilova'],
+    bio:"Her ice-cold two-handed backhand won 18 majors and reached the semifinals of 34 straight Slams; rival and lifelong friend to Navratilova." },
+
+  // =====================================================================
+  //  Born today — July 31 (added 2026-07-31, "Anniversaries today" rotation)
+  // =====================================================================
+  { id:'jk-rowling', name:'J.K. Rowling', middleName:'', homophones:['Joann','Johanne'], similarSpellings:['Joanne','Joanna','Rowlin','Rowley'], gender:'female', birthYear:1965, birthMonth:7, birthDay:31, birthPlace:'Yate, England', country:'UK', field:'Literature', subfield:'Novelist',
+    teams:[], awards:[{name:'Hugo Award',year:2001}],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Sketched Harry Potter on a delayed train and finished book one as a single mother on benefits in Edinburgh cafés; the K stands for Kathleen." },
+
+  { id:'primo-levi', name:'Primo Levi', middleName:'Michele', homophones:['Preemo'], similarSpellings:['Primmo','Premo','Levy','Leavi'], gender:'male', birthYear:1919, birthMonth:7, birthDay:31, birthPlace:'Turin, Italy', country:'Italy', field:'Literature', subfield:'Memoirist',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"A Turin chemist whose survival of Auschwitz became If This Is a Man, and who later mapped a life onto the elements in The Periodic Table." },
+
+  { id:'evonne-goolagong', name:'Evonne Goolagong Cawley', middleName:'Fay', homophones:['Yvonne','Evon'], similarSpellings:['Yvonne','Evonn','Goolagon','Goolgong'], gender:'female', birthYear:1951, birthMonth:7, birthDay:31, birthPlace:'Barellan, Australia', country:'Australia', field:'Sports', subfield:'Tennis',
+    teams:[], awards:[{name:'Wimbledon Champion',year:1971},{name:'Wimbledon Champion',year:1980}],
+    collaborators:[], contemporaries:['Billie Jean King','Chris Evert','Martina Navratilova'], friends:[], foes:[],
+    bio:"A Wiradjuri girl from a country tin-shed town who won Wimbledon at 19 in 1971, then took it again in 1980 as a mother of a toddler." },
+
+  { id:'louis-de-funes', name:'Louis de Funès', middleName:'Germain David', homophones:['Louie','Lewis'], similarSpellings:['Louie','Luis','Funes','Funez'], gender:'male', birthYear:1914, birthMonth:7, birthDay:31, birthPlace:'Courbevoie, France', country:'France', field:'Film', subfield:'Comedian',
+    teams:[], awards:[{name:'Honorary César',year:1980}],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"France's favourite comic actor of the 1960s — a whirl of bulging eyes and twitching tics as the tyrannical little boss of Gendarme and Fantômas farces." },
+
+  { id:'geraldine-chaplin', name:'Geraldine Chaplin', middleName:'Leigh', homophones:['Jeraldine'], similarSpellings:['Geraldene','Geraldyne','Chaplin','Chaplyn'], gender:'female', birthYear:1944, birthMonth:7, birthDay:31, birthPlace:'Santa Monica, California', country:'USA', field:'Film', subfield:'Actress',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Charlie Chaplin's eldest daughter, who stepped out of the shadow as Tonya in Doctor Zhivago and became muse to Spain's Carlos Saura." },
+
+  { id:'mark-cuban', name:'Mark Cuban', middleName:'', homophones:['Marc','Marke'], similarSpellings:['Marc','Marck','Cubin','Kuban'], gender:'male', birthYear:1958, birthMonth:7, birthDay:31, birthPlace:'Pittsburgh, Pennsylvania', country:'USA', field:'Tech', subfield:'Entrepreneur',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Sold Broadcast.com to Yahoo at the dot-com peak, bought the Dallas Mavericks, then took on drug pricing with a cut-rate online pharmacy." },
+
+  { id:'zac-brown', name:'Zac Brown', middleName:'Alexander', homophones:['Zack','Zach'], similarSpellings:['Zack','Zach','Zak','Browne'], gender:'male', birthYear:1978, birthMonth:7, birthDay:31, birthPlace:'Cumming, Georgia', country:'USA', field:'Music', subfield:'Country',
+    teams:[], awards:[{name:'Grammy Award (Best New Artist)',year:2010}],
+    collaborators:[], contemporaries:['Carrie Underwood'], friends:[], foes:[],
+    bio:"Bearded, beanie-clad frontman who hauled his Zac Brown Band from Georgia bar patios to Chicken Fried and a Best New Artist Grammy." },
+
+  { id:'hank-jones', name:'Hank Jones', middleName:'Henry', homophones:['Hanke'], similarSpellings:['Hanks','Hancke','Joens','Joans'], gender:'male', birthYear:1918, birthMonth:7, birthDay:31, birthPlace:'Vicksburg, Mississippi', country:'USA', field:'Music', subfield:'Jazz',
+    teams:[], awards:[{name:'NEA Jazz Masters',year:1989},{name:'Grammy Lifetime Achievement Award',year:2009}],
+    collaborators:['Ella Fitzgerald','Charlie Parker'], contemporaries:['Thelonious Monk','Count Basie'], friends:[], foes:[],
+    bio:"Elder of Detroit's Jones jazz dynasty; Ella's longtime accompanist and the pianist behind Marilyn Monroe's breathy 'Happy Birthday, Mr. President.'" },
+
+  { id:'lynne-reid-banks', name:'Lynne Reid Banks', middleName:'', homophones:['Lyn','Lin'], similarSpellings:['Lynn','Lyn','Linn','Bankes'], gender:'female', birthYear:1929, birthMonth:7, birthDay:31, birthPlace:'London, England', country:'UK', field:'Literature', subfield:'Novelist',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"One of British TV's first female news reporters, who then wrote the bedsit classic The L-Shaped Room and the boy-and-toy tale The Indian in the Cupboard." },
+
+  { id:'antonio-conte', name:'Antonio Conte', middleName:'', homophones:['Antoneo','Contay'], similarSpellings:['Antonino','Antony','Contte','Konte'], gender:'male', birthYear:1969, birthMonth:7, birthDay:31, birthPlace:'Lecce, Italy', country:'Italy', field:'Sports', subfield:'Soccer',
+    teams:[{name:'Juventus',years:[1991,2004]}], awards:[{name:'UEFA Champions League',year:1996}],
+    collaborators:[], contemporaries:['Zinedine Zidane'], friends:[], foes:[],
+    bio:"Juventus midfield workhorse turned touchline-pacing manager — the only coach to win Serie A with three different clubs." },
+
+  // =====================================================================
+  //  2026-08-01 (Saturday) — Rotation: "Strengthen the graph"
+  //  10 additions, each linked to an existing entry via collaborators/
+  //  contemporaries: Robert Plant, Johnny Cash, Miles Davis/Quincy Jones/
+  //  Joni Mitchell, Caetano Veloso, John Coltrane, Stephen Curry & the
+  //  Warriors, LeBron James & Kyrie Irving, Pablo Picasso, Marie Curie,
+  //  and Lise Meitner. Fields: Music, Sports, Visual Arts, Science.
+  // =====================================================================
+  { id:'jimmy-page', name:'Jimmy Page', middleName:'Patrick', homophones:['Jimmie','Jimi'], similarSpellings:['Jimi','Jimmi','Paige','Pagge'], gender:'male', birthYear:1944, birthMonth:1, birthDay:9, birthPlace:'Heston, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[{name:'Led Zeppelin',years:[1968,1980]}], awards:[{name:'Rock and Roll Hall of Fame',year:1995}],
+    collaborators:['Robert Plant'], contemporaries:['Mick Jagger','David Bowie','Robert Plant'], friends:['Robert Plant'], foes:[],
+    bio:"Session-man turned riff-lord who built Led Zeppelin around Robert Plant's wail and bowed his guitar with a violin bow onstage." },
+
+  { id:'june-carter-cash', name:'June Carter Cash', middleName:'Valerie', homophones:['Joon'], similarSpellings:['Joon','Junne','Carther','Cashe'], gender:'female', birthYear:1929, birthMonth:6, birthDay:23, birthPlace:'Maces Spring, Virginia', country:'USA', field:'Music', subfield:'Country',
+    teams:[], awards:[{name:'Grammy Award',year:1999},{name:'Grammy Award',year:2003}],
+    collaborators:['Johnny Cash'], contemporaries:['Loretta Lynn','Patsy Cline'], friends:['Johnny Cash'], foes:[],
+    bio:"Carter Family heir who co-wrote 'Ring of Fire,' then spent decades steadying Johnny Cash — offstage as his wife, onstage as his foil." },
+
+  { id:'herbie-hancock', name:'Herbie Hancock', middleName:'Jeffrey', homophones:['Herby'], similarSpellings:['Herby','Hurbie','Hancoc','Handcock'], gender:'male', birthYear:1940, birthMonth:4, birthDay:12, birthPlace:'Chicago, Illinois', country:'USA', field:'Music', subfield:'Jazz',
+    teams:[], awards:[{name:'Academy Award (Best Original Score)',year:1987},{name:'Grammy Award (Album of the Year)',year:2008}],
+    collaborators:['Miles Davis','Quincy Jones','Joni Mitchell'], contemporaries:['Miles Davis','John Coltrane'], friends:[], foes:[],
+    bio:"Miles Davis's pianist who plugged jazz into a Fender Rhodes, scored a hit with 'Rockit,' and won Album of the Year for a Joni Mitchell tribute." },
+
+  { id:'gilberto-gil', name:'Gilberto Gil', middleName:'Passos', homophones:['Gilbert'], similarSpellings:['Gilbert','Gilberdo','Ghilberto','Gill'], gender:'male', birthYear:1942, birthMonth:6, birthDay:26, birthPlace:'Salvador, Brazil', country:'Brazil', field:'Music', subfield:'MPB',
+    teams:[], awards:[{name:'Grammy Award (Best World Music Album)',year:1999}],
+    collaborators:['Caetano Veloso'], contemporaries:['Caetano Veloso'], friends:['Caetano Veloso'], foes:[],
+    bio:"Tropicália firebrand who fused Bahian rhythm with rock beside Caetano Veloso, went into exile, then returned as Brazil's culture minister." },
+
+  { id:'alice-coltrane', name:'Alice Coltrane', middleName:'McLeod', homophones:['Alyce','Allis'], similarSpellings:['Alyce','Allice','Coltrain','Coltraine'], gender:'female', birthYear:1937, birthMonth:8, birthDay:27, birthPlace:'Detroit, Michigan', country:'USA', field:'Music', subfield:'Jazz',
+    teams:[], awards:[],
+    collaborators:['John Coltrane','Pharoah Sanders'], contemporaries:['John Coltrane'], friends:[], foes:[],
+    bio:"Harpist and pianist who married John Coltrane, then followed his cosmic path into ashram-born devotional jazz all her own." },
+
+  { id:'andre-iguodala', name:'Andre Iguodala', middleName:'Tyler', homophones:['Andrae','Ondre'], similarSpellings:['Andrae','Andres','Iguadala','Igoudala'], gender:'male', birthYear:1984, birthMonth:1, birthDay:28, birthPlace:'Springfield, Illinois', country:'USA', field:'Sports', subfield:'NBA',
+    teams:[{name:'Philadelphia 76ers',years:[2004,2012]},{name:'Golden State Warriors',years:[2013,2019]}], awards:[{name:'NBA Finals MVP',year:2015},{name:'NBA Champion',year:2015}],
+    collaborators:['Stephen Curry','Draymond Green','Klay Thompson'], contemporaries:['Stephen Curry','LeBron James'], friends:['Stephen Curry'], foes:['LeBron James'],
+    bio:"Warriors' defensive Swiss-army knife who came off the bench to guard LeBron James and steal the 2015 Finals MVP." },
+
+  { id:'kevin-love', name:'Kevin Love', middleName:'Wesley', homophones:['Kevan','Kevyn'], similarSpellings:['Kevan','Kevyn','Loave','Luv'], gender:'male', birthYear:1988, birthMonth:9, birthDay:7, birthPlace:'Santa Monica, California', country:'USA', field:'Sports', subfield:'NBA',
+    teams:[{name:'Minnesota Timberwolves',years:[2008,2014]},{name:'Cleveland Cavaliers',years:[2014,2024]}], awards:[{name:'NBA Champion',year:2016}],
+    collaborators:['LeBron James','Kyrie Irving'], contemporaries:['LeBron James','Kevin Durant'], friends:['LeBron James'], foes:[],
+    bio:"Outlet-passing stretch big who left Minnesota to complete LeBron James and Kyrie Irving's Cleveland trio and end a 52-year title drought." },
+
+  { id:'georges-braque', name:'Georges Braque', middleName:'', homophones:['George','Jorge'], similarSpellings:['George','Georg','Brack','Braq'], gender:'male', birthYear:1882, birthMonth:5, birthDay:13, birthPlace:'Argenteuil, France', country:'France', field:'Visual Arts', subfield:'Painting',
+    teams:[], awards:[],
+    collaborators:['Pablo Picasso'], contemporaries:['Pablo Picasso'], friends:['Pablo Picasso'], foes:[],
+    bio:"The quieter half of Cubism, who with Picasso shattered perspective into facets, then pasted the first papier collé onto canvas." },
+
+  { id:'irene-joliot-curie', name:'Irène Joliot-Curie', middleName:'', homophones:['Irene','Ireen'], similarSpellings:['Irene','Iréne','Curie','Jolliot'], gender:'female', birthYear:1897, birthMonth:9, birthDay:12, birthPlace:'Paris, France', country:'France', field:'Science', subfield:'Chemistry',
+    teams:[], awards:[{name:'Nobel Prize in Chemistry',year:1935}],
+    collaborators:['Marie Curie','Frédéric Joliot-Curie'], contemporaries:['Lise Meitner','Marie Curie'], friends:[], foes:[],
+    bio:"Marie Curie's daughter who shared a 1935 Nobel with her husband for making atoms radioactive — a second act to the family's first." },
+
+  { id:'otto-hahn', name:'Otto Hahn', middleName:'', homophones:['Oto','Otho'], similarSpellings:['Oto','Otho','Hahne','Han'], gender:'male', birthYear:1879, birthMonth:3, birthDay:8, birthPlace:'Frankfurt, Germany', country:'Germany', field:'Science', subfield:'Chemistry',
+    teams:[], awards:[{name:'Nobel Prize in Chemistry',year:1944}],
+    collaborators:['Lise Meitner','Fritz Strassmann'], contemporaries:['Lise Meitner','Niels Bohr'], friends:['Lise Meitner'], foes:[],
+    bio:"Chemist who split the uranium atom in 1938 and won the Nobel alone, while his partner Lise Meitner, who named fission, was passed over." },
+
+  // =====================================================================
+  //  2026-08-02 (Sunday) — "Strengthen the graph": 10 additions, each
+  //  linked to an existing entry as collaborator / teammate / contemporary.
+  // =====================================================================
+
+  { id:'fritz-strassmann', name:'Fritz Strassmann', middleName:'Wilhelm', homophones:['Frits','Fritts'], similarSpellings:['Fritts','Frittz','Friz','Frtiz'], gender:'male', birthYear:1902, birthMonth:2, birthDay:22, birthPlace:'Boppard, Germany', country:'Germany', field:'Science', subfield:'Chemistry',
+    teams:[], awards:[],
+    collaborators:['Otto Hahn','Lise Meitner'], contemporaries:['Otto Hahn','Lise Meitner','Ida Noddack'], friends:['Otto Hahn'], foes:[],
+    bio:"Chemist who split uranium beside Otto Hahn in 1938, then hid a Jewish colleague from the Nazis — later honored as Righteous Among the Nations." },
+
+  { id:'erwin-schrodinger', name:'Erwin Schrödinger', middleName:'Rudolf', homophones:['Irwin','Irvin'], similarSpellings:['Irwin','Ervin','Erwyn','Edwin'], gender:'male', birthYear:1887, birthMonth:8, birthDay:12, birthPlace:'Vienna, Austria', country:'Austria', field:'Science', subfield:'Physicist',
+    teams:[], awards:[{name:'Nobel Prize in Physics',year:1933}],
+    collaborators:['Albert Einstein'], contemporaries:['Paul Dirac','Werner Heisenberg','Niels Bohr','Albert Einstein'], friends:['Albert Einstein'], foes:[],
+    bio:"Devised the wave equation at the heart of quantum mechanics, shared a Nobel with Dirac, then trapped a cat between life and death to mock it." },
+
+  { id:'mary-wells', name:'Mary Wells', middleName:'Esther', homophones:['Marie','Mari'], similarSpellings:['Marie','Marey','Maery','Welles'], gender:'female', birthYear:1943, birthMonth:5, birthDay:13, birthPlace:'Detroit, Michigan', country:'USA', field:'Music', subfield:'R&B',
+    teams:[], awards:[],
+    collaborators:['Marvin Gaye','Berry Gordy'], contemporaries:['Marvin Gaye','Diana Ross','Stevie Wonder'], friends:[], foes:[],
+    bio:"Motown's first star and 'My Guy' herself, she traded verses with Marvin Gaye before walking out on Berry Gordy at the peak of her fame." },
+
+  { id:'cannonball-adderley', name:'Cannonball Adderley', middleName:'Edwin', homophones:['Cannonbal'], similarSpellings:['Cannonbal','Canonball','Adderly','Aderley'], gender:'male', birthYear:1928, birthMonth:9, birthDay:15, birthPlace:'Tampa, Florida', country:'USA', field:'Music', subfield:'Jazz',
+    teams:[], awards:[{name:'Grammy Award',year:1967}],
+    collaborators:['Miles Davis','John Coltrane'], contemporaries:['Miles Davis','John Coltrane','Thelonious Monk'], friends:['Miles Davis'], foes:[],
+    bio:"Blues-drenched alto saxophonist who played on Miles Davis's 'Kind of Blue,' then made hard bop dance with 'Mercy, Mercy, Mercy.'" },
+
+  { id:'anna-karina', name:'Anna Karina', middleName:'', homophones:['Ana','Anah','Ahna'], similarSpellings:['Ana','Annah','Anya','Hanna'], gender:'female', birthYear:1940, birthMonth:9, birthDay:22, birthPlace:'Copenhagen, Denmark', country:'Denmark', field:'Film', subfield:'Actress',
+    teams:[], awards:[],
+    collaborators:['Jean-Luc Godard'], contemporaries:['Jean-Luc Godard','François Truffaut','Agnès Varda'], friends:[], foes:[],
+    bio:"The face of the French New Wave; Godard married her, filmed her dancing through 'Bande à part,' then let the marriage unravel on screen." },
+
+  { id:'francoise-gilot', name:'Françoise Gilot', middleName:'', homophones:['Francoise','Francoyse'], similarSpellings:['Francoise','Francois','Franchesca','Frances'], gender:'female', birthYear:1921, birthMonth:11, birthDay:26, birthPlace:'Neuilly-sur-Seine, France', country:'France', field:'Visual Arts', subfield:'Painter',
+    teams:[], awards:[],
+    collaborators:['Pablo Picasso','Henri Matisse'], contemporaries:['Pablo Picasso'], friends:['Henri Matisse'], foes:['Pablo Picasso'],
+    bio:"The only lover to walk out on Picasso — then out-painted the grudge, living to 101 as an artist in her own right, never a muse." },
+
+  { id:'john-bonham', name:'John Bonham', middleName:'Henry', homophones:['Jon','Jhon'], similarSpellings:['Jon','Johnn','Jhon','Johan'], gender:'male', birthYear:1948, birthMonth:5, birthDay:31, birthPlace:'Redditch, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[], awards:[],
+    collaborators:['Jimmy Page','Robert Plant'], contemporaries:['Jimmy Page','Robert Plant','Mick Jagger'], friends:['Jimmy Page','Robert Plant'], foes:[],
+    bio:"Led Zeppelin's thunder — the drummer whose 'When the Levee Breaks' groove became hip-hop's most sampled beat; his death ended the band." },
+
+  { id:'kc-jones', name:'K.C. Jones', middleName:'', homophones:['Casey','Kacey'], similarSpellings:['Casey','Kacey','Kasey','KC'], gender:'male', birthYear:1932, birthMonth:5, birthDay:25, birthPlace:'Taylor, Texas', country:'USA', field:'Sports', subfield:'NBA',
+    teams:[{name:'Boston Celtics',years:[1958,1967]}], awards:[{name:'NBA Champion',year:1959}],
+    collaborators:['Bill Russell','Bob Cousy'], contemporaries:['Bill Russell','Sam Jones','Jerry West'], friends:['Bill Russell'], foes:[],
+    bio:"Bill Russell's backcourt shadow from college to eight Celtics titles, then a coach who won two more — a defensive lock who barely shot." },
+
+  { id:'ronaldinho', name:'Ronaldinho', middleName:'', homophones:['Ronaldino'], similarSpellings:['Ronaldino','Ronaldhino','Ronaldinjo','Ronaldo'], gender:'male', birthYear:1980, birthMonth:3, birthDay:21, birthPlace:'Porto Alegre, Brazil', country:'Brazil', field:'Sports', subfield:'Soccer',
+    teams:[{name:'FC Barcelona',years:[2003,2008]}], awards:[{name:'Ballon d\'Or',year:2005},{name:'FIFA World Cup',year:2002}],
+    collaborators:['Lionel Messi'], contemporaries:['Lionel Messi','Cristiano Ronaldo','Zinédine Zidane'], friends:['Lionel Messi'], foes:['Cristiano Ronaldo'],
+    bio:"The grinning magician who made football joyful — and handed a teenage Messi the Barcelona keys before gliding off into legend." },
+
+  { id:'eric-clapton', name:'Eric Clapton', middleName:'Patrick', homophones:['Erik','Erick'], similarSpellings:['Erik','Erick','Aeric','Claptin'], gender:'male', birthYear:1945, birthMonth:3, birthDay:30, birthPlace:'Ripley, England', country:'UK', field:'Music', subfield:'Rock',
+    teams:[], awards:[{name:'Grammy Award',year:1993}],
+    collaborators:['George Harrison'], contemporaries:['Mick Jagger','Jimmy Page','George Harrison'], friends:['George Harrison'], foes:[],
+    bio:"Blues-obsessed guitar god of Cream and 'Layla' — he played the weeping, uncredited solo on his friend George Harrison's Beatles track." },
+
 ].filter(p => p.field !== '__skip__');  // drop placeholder rows used during editing
 
 // Convenience: distinct values for filter chips.
