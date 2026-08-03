@@ -543,12 +543,20 @@ const app = createApp({
 
     // Somewhere else entirely — re-rolls the opening view, so whatever the
     // camera comes "back" to afterwards is the new place too.
+    // Spin to somewhere else and filter to it, so the throw always lands on
+    // names. Only countries the roster actually has are in the draw, and the
+    // one you're already looking at is excluded.
     function randomGlobeView() {
-      const c = MAJOR_CITIES[Math.floor(Math.random() * MAJOR_CITIES.length)];
-      if (!c) return;
-      HOME_VIEW.lat = c.lat;
-      HOME_VIEW.lng = c.lng;
-      resetGlobeView();
+      const pool = countryList.value.filter(
+        c => COUNTRY_COORDS[c.country] && c.country !== selectedCountry.value
+      );
+      if (!pool.length) return;
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      const coords = COUNTRY_COORDS[pick.country];
+      HOME_VIEW.lat = coords[0];
+      HOME_VIEW.lng = coords[1];
+      selectedCountry.value = pick.country;
+      flyToCountry(pick.country);
     }
 
     // Pull the camera back out to the view this session started on.
@@ -1020,7 +1028,6 @@ const app = createApp({
     // the alphabet never changes length under your thumb.
     const dialTrack = ref(null);
     const dialLetter = ref('A');
-    let dialSettle = null;
 
     function dialCell() {
       const el = dialTrack.value;
@@ -1035,11 +1042,11 @@ const app = createApp({
       const cell = dialCell();
       if (!el || !cell) return;
       const i = Math.max(0, Math.min(AZ.length - 1, Math.round(el.scrollTop / cell)));
+      if (AZ[i] === dialLetter.value) return;
       dialLetter.value = AZ[i];
-      clearTimeout(dialSettle);
-      dialSettle = setTimeout(() => {
-        if (!dialQuiet && hitLetters.value.has(AZ[i])) jumpToLetter(AZ[i]);
-      }, 110);
+      // Track the dial as it turns rather than waiting for it to settle —
+      // instant, because a smooth scroll can't keep up with a drag.
+      if (!dialQuiet && hitLetters.value.has(AZ[i])) jumpToLetter(AZ[i], 'auto');
     }
     function centerLetter(L, behavior = 'smooth') {
       const el = dialTrack.value;
@@ -1094,14 +1101,14 @@ const app = createApp({
     const hitsList = ref(null);
     // Jumping is only meaningful in alphabetical order, so a jump switches the
     // list into it rather than scrolling to an arbitrary spot.
-    function jumpToLetter(letter) {
+    function jumpToLetter(letter, behavior = 'smooth') {
       if (!hitLetters.value.has(letter)) return;
       if (sort.value !== 'alpha') sort.value = 'alpha';
       nextTick(() => {
         const box = hitsList.value;
         if (!box) return;
         const el = box.querySelector('[data-letter="' + letter + '"]');
-        if (el) box.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
+        if (el) box.scrollTo({ top: el.offsetTop, behavior });
       });
     }
     function setNameMode(mode) {
@@ -1282,6 +1289,10 @@ const app = createApp({
       tick();
     }
     onMounted(() => nextTick(() => {
+      // Open on a random country rather than a blank screen. This runs before
+      // the globe exists, which is deliberate: it parks HOME_VIEW on that
+      // country, so initGlobe's opening move lands there on its own.
+      randomGlobeView();
       ensureGlobe();
       syncCatArrows();
     }));
@@ -1353,6 +1364,13 @@ const app = createApp({
     }
     // Teams, awards and the like search on their own text.
     function searchFor(term) { query.value = term; }
+    // A birth date filters to everyone who shares it — the month and day, not
+    // the year, since a shared birthday is the interesting coincidence.
+    function filterBirthday(person) {
+      if (!person || !person.birthMonth) return;
+      selectedBornMonths.value = [person.birthMonth];
+      selectedBornDays.value = person.birthDay ? [person.birthDay] : [];
+    }
     // The sign filters in place rather than leaving for Wikipedia.
     function filterZodiac(sign) {
       if (sign) selectedZodiacs.value = [sign];
@@ -1791,7 +1809,7 @@ const app = createApp({
       clearType, clearTime, clearCategories, typeFilterCount, timeFilterCount,
       toggleField, toggleSubfield, toggleGender,
       openPerson, closePerson, toggleTheme,
-      hasPerson, personByName, openOrSearch, searchFor, filterZodiac,
+      hasPerson, personByName, openOrSearch, searchFor, filterZodiac, filterBirthday,
       // ask-a-question
       askOpen, askInput, askAnswer, askError, askLoading,
       toggleAsk, submitAsk,

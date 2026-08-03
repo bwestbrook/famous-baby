@@ -319,7 +319,6 @@ body {
   scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.34) rgba(255,255,255,.07);
   overscroll-behavior: contain;
 }
-.hits.is-expanded .hits__list { max-height: 42vh; }
 /* Styling the track opts out of macOS overlay scrollbars, so it's visible
    before the list is touched rather than only while scrolling. */
 .hits__list::-webkit-scrollbar { width: 8px; -webkit-appearance: none; }
@@ -465,16 +464,6 @@ body {
   padding: 12px 10px 12px 14px;
   font-size: 12.5px; color: rgba(255,255,255,.6);
 }
-.hits__more {
-  width: 100%;
-  display: flex; align-items: center; justify-content: center; gap: 4px;
-  padding: 8px;
-  border-top: 1px solid rgba(255,255,255,.12);
-  font-size: 11.5px; font-weight: 400; color: rgba(255,255,255,.8);
-}
-.hits__more:hover { background: rgba(255,255,255,.1); color: #fff; }
-.hits__chev { transform: rotate(90deg); transition: transform .15s var(--ease); }
-.hits__chev.is-up { transform: rotate(-90deg); }
 
 /* =========================================================================
    TIMELINE — quiet scrubber, sits just above the hits
@@ -665,24 +654,44 @@ body {
   color: #fff;
   background: linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.42));
 }
-/* One line: name, middle name, date, sign — wrapping only if it must. */
-.pop__line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
-.pop__name { margin: 0; font-size: 18px; font-weight: 500; line-height: 1.15; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
-.pop__date {
-  font-size: 12px; font-weight: 300; letter-spacing: .01em;
-  color: #FDD663;
-  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+/* Two lines: who they are, then when. Neither wraps — the name is the only
+   part allowed to give ground, and only in the extreme. */
+.pop__line {
+  display: flex; align-items: baseline; flex-wrap: nowrap; gap: 6px;
+  min-width: 0;
 }
+.pop__line--sub { margin-top: 3px; align-items: center; }
+.pop__name {
+  margin: 0;
+  min-width: 0;
+  font-size: 17px; font-weight: 500; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+.pop__date {
+  flex: none; white-space: nowrap;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(253,214,99,.3);
+  background: rgba(0,0,0,.28);
+  backdrop-filter: blur(4px);
+  font-size: 11.5px; font-weight: 300; letter-spacing: .01em;
+  color: #FDD663;
+  transition: background .12s var(--ease), border-color .12s var(--ease);
+}
+.pop__date:hover { background: rgba(253,214,99,.2); border-color: rgba(253,214,99,.7); }
+.pop__date:disabled { cursor: default; border-color: transparent; background: none; }
 /* The sign rides beside the date, and filters to itself when tapped. */
 .pop__sign {
   align-self: center;
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px;
-  border-radius: 11px;
+  flex: none; white-space: nowrap;
+  padding: 2px 7px;
+  border-radius: 10px;
   border: 1px solid rgba(255,255,255,.3);
   background: rgba(0,0,0,.3);
   backdrop-filter: blur(4px);
-  font-size: 11px; font-weight: 300;
+  font-size: 10px; font-weight: 300;
   color: rgba(255,255,255,.9);
   text-shadow: none;
   transition: background .12s var(--ease), border-color .12s var(--ease);
@@ -1048,14 +1057,15 @@ button.mrow:disabled { opacity: .4; cursor: default; background: none; }
   margin-left: 3px;
 }
 .pop__alias {
+  flex: none; white-space: nowrap;
   font-size: 11.5px; font-weight: 300; letter-spacing: .01em;
-  color: rgba(255,255,255,.82);
+  color: rgba(255,255,255,.7);
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
-  margin-top: 1px;
 }
 /* The middle name, unlabelled — it reads as part of the name block. */
 .pop__middle {
-  font-size: 13px; font-weight: 300; font-style: italic; letter-spacing: .015em;
+  flex: none; white-space: nowrap;
+  font-size: 12.5px; font-weight: 300; font-style: italic; letter-spacing: .015em;
   color: rgba(255,255,255,.9);
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
 }

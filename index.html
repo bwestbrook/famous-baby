@@ -225,16 +225,6 @@
       </div><!-- /.topstack -->
 
       <!-- Map controls — vertical column, right edge, centred -->
-      <div class="mapctl" v-show="!selectedPerson">
-        <div class="mapctl__stack">
-          <button class="mapctl__btn mapctl__btn--t" @click="zoomGlobe(-1)" title="Zoom in">
-            <svg class="ico ico--16"><use href="#i-plus"/></svg>
-          </button>
-          <button class="mapctl__btn mapctl__btn--b" @click="zoomGlobe(1)" title="Zoom out">
-            <svg class="ico ico--16"><use href="#i-minus"/></svg>
-          </button>
-        </div>
-      </div>
     </main>
 
     <!-- ============== BOTTOM DOCK ==============
@@ -259,7 +249,7 @@
       </div>
 
       <!-- ---------- HITS — three names, straight above the search line ---------- -->
-      <div v-if="showResults && !selectedPerson" class="hits" :class="{ 'is-expanded': hitsExpanded }">
+      <div v-if="showResults && !selectedPerson" class="hits">
         <!-- Name order + A–Z jump. Only earns its space once the list scrolls. -->
         <div v-if="filtered.length > HITS_LIMIT" class="hitbar">
           <!-- Three names now, so the labels drop the word "name" to leave the
@@ -336,16 +326,6 @@
           <span>No matches</span>
           <button class="btn btn--text" @click="clearAll">Clear filters</button>
         </div>
-
-        <button
-          v-if="filtered.length > HITS_LIMIT"
-          class="hits__more"
-          @click="hitsExpanded = !hitsExpanded"
-        >
-          <span v-if="!hitsExpanded">{{ filtered.length }} names · taller list</span>
-          <span v-else>Shorter list</span>
-          <svg class="ico ico--14 hits__chev" :class="{ 'is-up': hitsExpanded }"><use href="#i-chev-right"/></svg>
-        </button>
       </div>
 
       <!-- ---------- PERSON POPUP — opens right where the list was ---------- -->
@@ -456,21 +436,138 @@
             <svg class="ico ico--18"><use :href="isFavorite(selectedPerson) ? '#i-heart' : '#i-heart-o'"/></svg>
           </button>
           <div class="pop__titles">
-            <!-- Name, middle name, birth date and sign all on one line. -->
+            <!-- Line one: the name and what they're known as. -->
             <div class="pop__line">
               <h2 class="pop__name">{{ selectedPerson.name }}</h2>
               <span v-if="middleNameOf(selectedPerson)" class="pop__middle">{{ middleNameOf(selectedPerson) }}</span>
-              <span class="pop__date">{{ formatBirthDate(selectedPerson) }}</span>
+              <span v-if="selectedPerson.stageName" class="pop__alias">“{{ selectedPerson.stageName }}”</span>
+            </div>
+            <!-- Line two: when they were born, and under what sign. -->
+            <div class="pop__line pop__line--sub">
+              <button
+                class="pop__date"
+                :disabled="!selectedPerson.birthMonth"
+                @click="filterBirthday(selectedPerson)"
+                :title="selectedPerson.birthMonth ? 'Show everyone born ' + MONTH_NAMES[selectedPerson.birthMonth] + (selectedPerson.birthDay ? ' ' + selectedPerson.birthDay : '') : ''"
+              >{{ formatBirthDate(selectedPerson) }}</button>
               <button
                 v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
                 class="pop__sign"
                 @click="filterZodiac(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"
                 :title="'Show ' + zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) + ' names'"
               >
-                <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
+                <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
               </button>
             </div>
-            <div v-if="selectedPerson.stageName" class="pop__alias">known as {{ selectedPerson.stageName }}</div>
+          </div>
+        </div>
+
+        <!-- Card body: the bio, the ask box, the tag rows, and the links out
+             to other people. Lost in the header rework; restored from 223b469. -->
+        <div class="pop__body">
+          <p class="kcard__bio">{{ selectedPerson.bio }}</p>
+
+          <div class="kask">
+            <button class="btn btn--out" @click="toggleAsk" :aria-expanded="askOpen ? 'true' : 'false'">
+              {{ askOpen ? 'Cancel' : 'Ask about ' + selectedPerson.name.split(' ')[0] }}
+            </button>
+            <div v-if="askOpen" class="kask__panel">
+              <form class="kask__form" @submit.prevent="submitAsk">
+                <input type="text" class="kask__input" v-model="askInput"
+                       placeholder="e.g. What was their biggest moment?" :disabled="askLoading" maxlength="200" />
+                <button type="submit" class="btn btn--fill" :disabled="askLoading || !askInput.trim()">
+                  {{ askLoading ? '…' : 'Ask' }}
+                </button>
+              </form>
+              <p v-if="askError" class="kask__err">{{ askError }}</p>
+              <p v-if="askAnswer" class="kask__ans">{{ askAnswer }}</p>
+            </div>
+          </div>
+
+          <dl class="kdl">
+            <template v-if="selectedPerson.teams && selectedPerson.teams.length">
+              <dt>Teams</dt>
+              <dd><button
+                v-for="t in selectedPerson.teams"
+                :key="t.name"
+                class="tag"
+                @click="searchFor(t.name)"
+                :title="'Search ' + t.name"
+              >{{ t.name }}<em v-if="t.years"> · {{ t.years[0] }}–{{ t.years[1] }}</em></button></dd>
+            </template>
+            <template v-if="selectedPerson.awards && selectedPerson.awards.length">
+              <dt>Awards</dt>
+              <dd><button
+                v-for="a in selectedPerson.awards"
+                :key="a.name + a.year"
+                class="tag"
+                @click="searchFor(a.name)"
+                :title="'Search ' + a.name"
+              >{{ a.name }}<em v-if="a.year"> · {{ a.year }}</em></button></dd>
+            </template>
+            <template v-if="selectedPerson.collaborators && selectedPerson.collaborators.length">
+              <dt>With</dt>
+              <dd><button
+                v-for="c in selectedPerson.collaborators"
+                :key="c"
+                class="tag tag--ghost"
+                :class="{ 'is-linked': hasPerson(c) }"
+                @click="openOrSearch(c)"
+                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
+              >{{ c }}</button></dd>
+            </template>
+            <template v-if="selectedPerson.contemporaries && selectedPerson.contemporaries.length">
+              <dt>Contemporaries</dt>
+              <dd><button
+                v-for="c in selectedPerson.contemporaries"
+                :key="c"
+                class="tag tag--ghost"
+                :class="{ 'is-linked': hasPerson(c) }"
+                @click="openOrSearch(c)"
+                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
+              >{{ c }}</button></dd>
+            </template>
+            <template v-if="selectedPerson.friends && selectedPerson.friends.length">
+              <dt>Friends</dt>
+              <dd><button
+                v-for="c in selectedPerson.friends"
+                :key="c"
+                class="tag tag--ghost"
+                :class="{ 'is-linked': hasPerson(c) }"
+                @click="openOrSearch(c)"
+                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
+              >{{ c }}</button></dd>
+            </template>
+            <template v-if="selectedPerson.foes && selectedPerson.foes.length">
+              <dt>Foes</dt>
+              <dd><button
+                v-for="c in selectedPerson.foes"
+                :key="c"
+                class="tag tag--ghost"
+                :class="{ 'is-linked': hasPerson(c) }"
+                @click="openOrSearch(c)"
+                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
+              >{{ c }}</button></dd>
+            </template>
+          </dl>
+
+          <div v-if="similarForSelected.exact.length || similarForSelected.similar.length" class="ksim">
+            <div v-if="similarForSelected.exact.length">
+              <h3 class="ksim__h">Same first name</h3>
+              <button v-for="p in similarForSelected.exact" :key="p.id" class="ksim__row" @click="openPerson(p)">
+                <i class="ksim__dot" :style="{ background: colorForField(p.field) }"></i>
+                <span class="ksim__n">{{ p.name }}</span>
+                <span class="ksim__m">{{ p.field }} · b. {{ p.birthYear }}</span>
+              </button>
+            </div>
+            <div v-if="similarForSelected.similar.length">
+              <h3 class="ksim__h">Sounds similar</h3>
+              <button v-for="p in similarForSelected.similar" :key="p.id" class="ksim__row" @click="openPerson(p)">
+                <i class="ksim__dot" :style="{ background: colorForField(p.field) }"></i>
+                <span class="ksim__n">{{ p.name }}</span>
+                <span class="ksim__m">{{ p.field }} · b. {{ p.birthYear }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </article>
@@ -539,7 +636,7 @@
         <button
           class="sbar__btn"
           @click="randomGlobeView"
-          title="Spin the globe somewhere else"
+          title="Spin to a random country"
         >
           <svg class="ico ico--18"><use href="#i-public"/></svg>
         </button>
