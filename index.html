@@ -77,6 +77,7 @@
       <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z"/></symbol>
       <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></symbol>
       <symbol id="i-heart-o" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></symbol>
+      <symbol id="i-cal" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM7 12h5v5H7z"/></symbol>
       <symbol id="i-cake" viewBox="0 0 24 24"><path d="M12 6c1.11 0 2-.9 2-2 0-.38-.1-.73-.29-1.03L12 0l-1.71 2.97c-.19.3-.29.65-.29 1.03 0 1.1.9 2 2 2zm6 6v5H6v-5h12m1-2H5a2 2 0 0 0-2 2v9h2v-2h14v2h2v-9a2 2 0 0 0-2-2zM8 9h2V7.5H8V9zm6 0h2V7.5h-2V9z"/></symbol>
       <symbol id="i-layers" viewBox="0 0 24 24"><path d="m11.99 18.54-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></symbol>
       <symbol id="i-sort" viewBox="0 0 24 24"><path d="M3 18h6v-2H3zM3 6v2h18V6zm0 7h12v-2H3z"/></symbol>
@@ -329,30 +330,50 @@
             </button>
           </li>
         </ol>
-          <!-- Letter dial: swipe it, and whatever stops under the notch wins. -->
-          <div class="dialwrap">
-            <div
-              class="dial"
-              ref="dialTrack"
-              @scroll.passive="onDialScroll"
-              @pointerdown="dialPointerDown"
-              @pointermove="dialPointerMove"
-              @pointerup="dialPointerUp"
-              @pointercancel="dialPointerUp"
-              @pointerleave="dialPointerUp"
-            >
-              <span class="dial__pad" aria-hidden="true"></span>
+          <!-- Letter dial: swipe it, and whatever stops under the notch wins.
+               The two dice-rolls sit on top of it — both spin this column, so
+               they belong to it rather than to the bar below. -->
+          <div class="dialcol">
+            <div class="dialcol__roll">
               <button
-                v-for="L in AZ"
-                :key="L"
-                class="dial__l"
-                :class="{ 'is-off': !hitLetters.has(L), 'is-sel': dialLetter === L }"
-                :title="'Jump to ' + L"
-                @click="onDialClick(L)"
-              >{{ L }}</button>
-              <span class="dial__pad" aria-hidden="true"></span>
+                @click="randomLetter"
+                :disabled="hitLetters.size < 2"
+                title="Spin the dial to a random letter"
+              >
+                <svg class="ico ico--14"><use href="#i-shuffle"/></svg>
+              </button>
+              <button
+                @click="surpriseMe"
+                :disabled="!filtered.length"
+                title="Open a random name from these results"
+              >
+                <svg class="ico ico--14"><use href="#i-face"/></svg>
+              </button>
             </div>
-            <span class="dial__notch" aria-hidden="true"></span>
+            <div class="dialwrap">
+              <div
+                class="dial"
+                ref="dialTrack"
+                @scroll.passive="onDialScroll"
+                @pointerdown="dialPointerDown"
+                @pointermove="dialPointerMove"
+                @pointerup="dialPointerUp"
+                @pointercancel="dialPointerUp"
+                @pointerleave="dialPointerUp"
+              >
+                <span class="dial__pad" aria-hidden="true"></span>
+                <button
+                  v-for="L in AZ"
+                  :key="L"
+                  class="dial__l"
+                  :class="{ 'is-off': !hitLetters.has(L), 'is-sel': dialLetter === L }"
+                  :title="'Jump to ' + L"
+                  @click="onDialClick(L)"
+                >{{ L }}</button>
+                <span class="dial__pad" aria-hidden="true"></span>
+              </div>
+              <span class="dial__notch" aria-hidden="true"></span>
+            </div>
           </div>
         </div>
 
@@ -362,29 +383,13 @@
         </div>
 
         <!-- Name order sits under the names it reorders. Only earns its space
-             once the list is long enough to scroll. The two dice-rolls on the
-             right work on this result set alone. -->
-        <div v-if="filtered.length" class="hitbar">
-          <div v-if="filtered.length > HITS_LIMIT" class="hitbar__mode">
-            <button :class="{ 'is-on': nameMode === 'first' }" @click="setNameMode('first')" title="Sort by first name">First</button>
-            <button :class="{ 'is-on': nameMode === 'middle' }" @click="setNameMode('middle')" title="Sort by middle name">Middle</button>
-            <button :class="{ 'is-on': nameMode === 'last' }" @click="setNameMode('last')" title="Sort by last name">Last</button>
-          </div>
-          <div class="hitbar__roll">
-            <button
-              @click="randomLetter"
-              :disabled="hitLetters.size < 2"
-              title="Spin the dial to a random letter"
-            >
-              <svg class="ico ico--16"><use href="#i-shuffle"/></svg>
-            </button>
-            <button
-              @click="surpriseMe"
-              :disabled="!filtered.length"
-              title="Open a random name from these results"
-            >
-              <svg class="ico ico--16"><use href="#i-face"/></svg>
-            </button>
+             once the list is long enough to scroll. -->
+        <div v-if="filtered.length > HITS_LIMIT" class="hitbar">
+          <span class="hitbar__label">Sort by</span>
+          <div class="hitbar__mode">
+            <button :class="{ 'is-on': nameMode === 'first' }" @click="setNameMode('first')" title="Sort by first name">First name</button>
+            <button :class="{ 'is-on': nameMode === 'middle' }" @click="setNameMode('middle')" title="Sort by middle name">Middle name</button>
+            <button :class="{ 'is-on': nameMode === 'last' }" @click="setNameMode('last')" title="Sort by last name">Last name</button>
           </div>
         </div>
       </div>
@@ -430,15 +435,6 @@
                 >
                   <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
                 </button>
-                <!-- Same pill as the sign, next along: the question box itself
-                     opens down in the body, where there's room for an answer. -->
-                <button
-                  class="pop__ask"
-                  :class="{ 'is-on': askOpen }"
-                  @click="toggleAsk"
-                  :aria-expanded="askOpen ? 'true' : 'false'"
-                  :title="askOpen ? 'Close the question box' : 'Ask about ' + selectedPerson.name.split(' ')[0]"
-                >{{ askOpen ? 'Cancel' : 'Ask about ' + selectedPerson.name.split(' ')[0] }}</button>
               </div>
             </div>
             <button
@@ -536,18 +532,31 @@
 
           <!-- The trigger lives up in the header row; this is just the box it
                opens. -->
-          <div v-if="askOpen" class="kask">
-            <div class="kask__panel">
-              <form class="kask__form" @submit.prevent="submitAsk">
-                <input type="text" class="kask__input" v-model="askInput"
-                       placeholder="e.g. What was their biggest moment?" :disabled="askLoading" maxlength="200" />
-                <button type="submit" class="btn btn--fill" :disabled="askLoading || !askInput.trim()">
-                  {{ askLoading ? '…' : 'Ask' }}
-                </button>
-              </form>
-              <p v-if="askError" class="kask__err">{{ askError }}</p>
-              <p v-if="askAnswer" class="kask__ans">{{ askAnswer }}</p>
-            </div>
+          <!-- A question box rather than a button that opens one: the prompt
+               that used to label the button is the placeholder now. -->
+          <div class="kask">
+            <form class="kask__form" @submit.prevent="submitAsk">
+              <svg class="ico ico--16 kask__ico"><use href="#i-search"/></svg>
+              <input
+                type="text"
+                class="kask__input"
+                v-model="askInput"
+                :placeholder="'Ask about ' + selectedPerson.name.split(' ')[0]"
+                :disabled="askLoading"
+                maxlength="200"
+                aria-label="Ask a question about this person"
+              />
+              <button
+                type="submit"
+                class="kask__go"
+                :disabled="askLoading || !askInput.trim()"
+                title="Ask"
+              >
+                <svg class="ico ico--16"><use href="#i-chev-right"/></svg>
+              </button>
+            </form>
+            <p v-if="askError" class="kask__err">{{ askError }}</p>
+            <p v-if="askAnswer" class="kask__ans">{{ askAnswer }}</p>
           </div>
 
           <dl class="kdl">
@@ -644,7 +653,7 @@
                The middle is the way in; the dice stays among the closest. -->
           <div v-if="currentMatch" class="knav">
             <div class="knav__head">
-              <span class="knav__title">Same line of work</span>
+              <span class="knav__title">Similar people</span>
               <span class="knav__pos">{{ matchIndex + 1 }} / {{ careerMatches.length }}</span>
             </div>
             <div class="knav__row">
@@ -668,7 +677,7 @@
               <button class="knav__arw" @click="matchStep(1)" title="Next match">
                 <svg class="ico ico--16"><use href="#i-chev-right"/></svg>
               </button>
-              <button class="knav__arw knav__arw--dice" @click="randomMatch" title="Random close match">
+              <button class="knav__arw knav__arw--dice" @click="randomMatch" title="Open a random close match">
                 <svg class="ico ico--16"><use href="#i-face"/></svg>
               </button>
             </div>
@@ -676,44 +685,7 @@
         </div>
       </article>
 
-      <!-- ---------- TIMELINE ----------
-           Quiet at rest, full strength on approach or while a range is set. -->
-      <div class="tl-wrap">
-        <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
-          <span v-if="selectedPerson" class="tl__label">Born</span>
-          <span v-else class="tl__val tl__val--min">{{ yearMin }}</span>
-          <div class="tl__track">
-            <div class="tl__ticks">
-              <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }"></i>
-            </div>
-            <div class="tl__rail">
-              <div class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
-              <i v-if="selectedPerson" class="tl__pin" :style="{ left: tlBirthPct + '%' }"></i>
-              <input
-                type="range" class="tl__in"
-                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMin"
-                @input="setYearMin($event.target.value)" aria-label="Earliest birth year"
-              />
-              <input
-                type="range" class="tl__in"
-                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMax"
-                @input="setYearMax($event.target.value)" aria-label="Latest birth year"
-              />
-            </div>
-          </div>
-          <span class="tl__val">{{ selectedPerson ? tlLabel : yearMax }}</span>
-          <!-- The sign travels with the date here too, glyph only for width. -->
-          <span
-            v-if="selectedPerson && zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
-            class="tl__sign"
-            :title="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
-          >
-            <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>
-          </span>
-        </div>
-      </div>
-
-      <!-- ---------- SEARCH LINE — the last thing on screen ---------- -->
+      <!-- ---------- SEARCH LINE ---------- -->
       <div class="sbar">
         <input
           class="sbar__input"
@@ -761,6 +733,79 @@
         >
           <svg class="ico ico--18"><use href="#i-close"/></svg>
         </button>
+      </div>
+
+      <!-- ---------- TIMELINE — under the search line ----------
+           Quiet at rest, full strength on approach or while a range is set. -->
+      <div class="tl-wrap">
+        <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
+          <span v-if="selectedPerson" class="tl__label">Born</span>
+          <!-- Roll a birthday. Left of the rail, mirroring the picker on the right. -->
+          <button
+            v-else
+            class="tl__btn"
+            @click="randomBornDate"
+            title="A random date"
+          >
+            <svg class="ico ico--14"><use href="#i-shuffle"/></svg>
+          </button>
+          <div class="tl__track">
+            <!-- The range reads above the ends of the rail it describes. -->
+            <span class="tl__end tl__end--min">{{ tlMin }}</span>
+            <span class="tl__end tl__end--max">{{ tlMax }}</span>
+            <div class="tl__ticks">
+              <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }"></i>
+            </div>
+            <div class="tl__rail">
+              <div class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
+              <i v-if="selectedPerson" class="tl__pin" :style="{ left: tlBirthPct + '%' }"></i>
+              <input
+                type="range" class="tl__in"
+                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMin"
+                @input="setYearMin($event.target.value)" aria-label="Earliest birth year"
+              />
+              <input
+                type="range" class="tl__in"
+                :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMax"
+                @input="setYearMax($event.target.value)" aria-label="Latest birth year"
+              />
+            </div>
+          </div>
+          <span v-if="selectedPerson" class="tl__val">{{ tlLabel }}</span>
+          <!-- Pick an exact day. The native picker gives a real calendar; only
+               the month and day are used, the year comes off the rail. -->
+          <!-- Whatever the roll or the picker landed on, said out loud — a
+               filter you can't see is a filter that looks broken. Tap to drop it. -->
+          <button
+            v-if="!selectedPerson && bornDateLabel"
+            class="tl__born"
+            @click="clearBornFilters"
+            :title="'Born ' + bornDateLabel + ' — tap to clear'"
+          >{{ bornDateLabel }}</button>
+          <label
+            v-if="!selectedPerson"
+            class="tl__btn tl__btn--cal"
+            @click.prevent="openBornPicker"
+            :title="bornDateLabel ? 'Born ' + bornDateLabel : 'Pick a date'"
+          >
+            <svg class="ico ico--14"><use href="#i-cal"/></svg>
+            <input
+              type="date"
+              class="tl__date"
+              :value="bornDateValue"
+              @change="setBornDate($event.target.value)"
+              aria-label="Pick a birth date"
+            />
+          </label>
+          <!-- The sign travels with the date here too, glyph only for width. -->
+          <span
+            v-if="selectedPerson && zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+            class="tl__sign"
+            :title="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+          >
+            <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>
+          </span>
+        </div>
       </div>
     </div>
 

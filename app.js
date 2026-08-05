@@ -1394,13 +1394,11 @@ const app = createApp({
       tick();
     }
     onMounted(() => nextTick(() => {
-      // Open on somebody rather than a blank globe: a random card, and the
-      // camera follows them home. openingGlobeView() still runs first so
-      // HOME_VIEW — where closing the card pulls back to — is a real place
-      // rather than wherever the last session left off.
+      // Open on a random country rather than a blank screen. This runs before
+      // the globe exists, which is deliberate: it parks HOME_VIEW on that
+      // country, so initGlobe's opening move lands there on its own.
       openingGlobeView();
       ensureGlobe();
-      surpriseMe();
       syncCatArrows();
       syncSubArrows();
     }));
@@ -1456,7 +1454,6 @@ const app = createApp({
       refineOpen.value = false;
       if (p && p.country) flyToCountry(p.country, 0.55);
       // Reset the per-person Q&A state whenever a different person opens.
-      askOpen.value = false;
       askInput.value = '';
       askAnswer.value = '';
       askError.value = '';
@@ -1502,7 +1499,10 @@ const app = createApp({
       () => {
         if (selectedPerson.value) selectedPerson.value = null;
         hitsExpanded.value = false;
-        nextTick(resetDial);
+        nextTick(() => {
+          if (dialWantsRandom) { dialWantsRandom = false; randomLetter(); }
+          else resetDial();
+        });
       }
     );
 
@@ -1511,23 +1511,11 @@ const app = createApp({
     // at window.FAMOUS_BABY_QA_ENDPOINT (e.g. an internal Lambda that forwards
     // to Anthropic / OpenAI). If no endpoint is set, we keep the UI alive but
     // explain that an LLM hookup is required so the prototype can demo locally.
-    const askOpen = ref(false);
     const askInput = ref('');
     const askAnswer = ref('');
     const askError = ref('');
     const askLoading = ref(false);
 
-    function toggleAsk() {
-      askOpen.value = !askOpen.value;
-      if (askOpen.value) {
-        askError.value = '';
-        // Focus the input on next tick.
-        setTimeout(() => {
-          const el = document.querySelector('.modal__ask-input');
-          if (el) el.focus();
-        }, 0);
-      }
-    }
 
     async function submitAsk() {
       const q = askInput.value.trim();
@@ -1714,14 +1702,18 @@ const app = createApp({
       matchIndex.value = (matchIndex.value + dir + n) % n;
     }
     // The dice only reaches into the close half of the list — a random pick from
-    // the tail wouldn't be someone much like them.
+    // the tail wouldn't be someone much like them. Unlike the arrows, which
+    // scrub the strip, this one opens the card: it's a jump, not a step.
     function randomMatch() {
       const n = careerMatches.value.length;
       if (!n) return;
       const pool = Math.max(1, Math.min(n, Math.ceil(n / 2)));
       let i = Math.floor(Math.random() * pool);
       if (n > 1 && i === matchIndex.value) i = (i + 1) % pool;
+      // Read the person out before opening — that reassignment rebuilds the list.
+      const pick = careerMatches.value[i];
       matchIndex.value = i;
+      if (pick) openPerson(pick.person);
     }
     function openMatch() {
       if (currentMatch.value) openPerson(currentMatch.value.person);
@@ -1785,11 +1777,20 @@ const app = createApp({
     }
     // Toggling a parent Field always clears subfield selections so the user
     // gets a clean drilldown for the new context.
+    // Picking a category or a genre drops the dial somewhere random inside the
+    // new set rather than on its first letter — a category is for browsing,
+    // and opening on A every time shows the same handful of names. Other
+    // filters (typing, the timeline, a country) still park on the first.
+    let dialWantsRandom = false;
     function toggleField(f) {
       toggleArrayItem(selectedFields, f);
       selectedSubfields.value = [];
+      dialWantsRandom = true;
     }
-    const toggleSubfield = (sf) => toggleArrayItem(selectedSubfields, sf);
+    const toggleSubfield = (sf) => {
+      toggleArrayItem(selectedSubfields, sf);
+      dialWantsRandom = true;
+    };
     const toggleGender   = (g)  => toggleArrayItem(selectedGenders, g);
 
     // ---- Filtering pipeline ----
@@ -1926,6 +1927,47 @@ const app = createApp({
 
     // Century ticks across the rail; every other one carries a label so the
     // scale reads without crowding.
+    // ---- A birthday, rolled or picked ----
+    // The rail runs on years, but a date is what people actually go looking
+    // for, so the two ends of it carry the day.
+    function setBornDate(value) {          // yyyy-mm-dd, straight off the picker
+      if (!value) { selectedBornMonths.value = []; selectedBornDays.value = []; return; }
+      const [, m, d] = value.split('-').map(Number);
+      if (!m || !d) return;
+      selectedBornMonths.value = [m];
+      selectedBornDays.value = [d];
+    }
+    // Rolled from a real birthday rather than from the calendar, so the throw
+    // always lands on someone — most of the 366 days have nobody behind them.
+    function randomBornDate() {
+      const dated = PEOPLE.filter(p => p.birthMonth && p.birthDay);
+      if (!dated.length) return;
+      const p = dated[Math.floor(Math.random() * dated.length)];
+      selectedBornMonths.value = [p.birthMonth];
+      selectedBornDays.value = [p.birthDay];
+    }
+    // Chrome only opens the native calendar from the picker indicator, which is
+    // a few pixels at the end of the field — a click anywhere else in a date
+    // input does nothing at all. showPicker() opens it from the whole button.
+    function openBornPicker(e) {
+      const input = e.currentTarget.querySelector('input[type="date"]');
+      if (!input) return;
+      try { input.showPicker(); }
+      catch { input.focus(); }        // older browsers: the indicator still works
+    }
+    // What the picker shows — only when the filter is exactly one day. 2000 is
+    // a leap year, so Feb 29 survives the round trip.
+    const bornDateValue = computed(() => {
+      const m = selectedBornMonths.value, d = selectedBornDays.value;
+      if (m.length !== 1 || d.length !== 1) return '';
+      return '2000-' + String(m[0]).padStart(2, '0') + '-' + String(d[0]).padStart(2, '0');
+    });
+    const bornDateLabel = computed(() => {
+      const m = selectedBornMonths.value, d = selectedBornDays.value;
+      if (m.length !== 1 || d.length !== 1) return '';
+      return MONTH_NAMES[m[0]] + ' ' + d[0];
+    });
+
     const YEAR_TICKS = (() => {
       const out = [];
       for (let y = 1400; y <= 2000; y += 100) {
@@ -2031,6 +2073,7 @@ const app = createApp({
       favoritePeople, countryList, countryMax,
       showResults, yearsActive, clearYears, YEAR_TICKS,
       tlMin, tlMax, tlMinPct, tlMaxPct, tlBirthPct, tlLabel,
+      setBornDate, randomBornDate, openBornPicker, bornDateValue, bornDateLabel,
       activeFilters, hasActiveFilters,
       // selection helpers (templates)
       isFieldSelected, isSubfieldSelected, isGenderSelected,
@@ -2064,8 +2107,7 @@ const app = createApp({
       openPerson, closePerson, toggleTheme,
       hasPerson, personByName, openOrSearch, searchFor, filterZodiac, filterBirthday,
       // ask-a-question
-      askOpen, askInput, askAnswer, askError, askLoading,
-      toggleAsk, submitAsk,
+      askInput, askAnswer, askError, askLoading, submitAsk,
       // display helpers
       metaPills, tagsFor, fullNameParts, fullNameOf, middleNameOf, selectedNameParts, rowMeta,
     };

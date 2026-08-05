@@ -397,41 +397,62 @@ body {
   padding: 5px 8px;
   border-bottom: 1px solid rgba(255,255,255,.12);
 }
-.hitbar__mode { display: flex; gap: 3px; flex: none; }
+/* Says what the three buttons do, so they don't have to be read as a guess. */
+.hitbar__label {
+  flex: none; align-self: center;
+  font-size: 8.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(255,255,255,.42);
+}
+/* The three share the leftover width evenly — "Middle name" is the longest and
+   sets the pace, so none of them ends up looking clipped next to it. */
+.hitbar__mode { display: flex; gap: 3px; flex: 1; min-width: 0; }
 .hitbar__mode button {
+  flex: 1; min-width: 0;
   height: var(--hitbar-h);
-  padding: 0 8px;
+  padding: 0 4px;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,.18);
   font-size: 8.5px; font-weight: 400; letter-spacing: .05em; text-transform: uppercase;
-  white-space: nowrap;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   color: rgba(255,255,255,.5);
   transition: background .12s var(--ease), color .12s var(--ease), border-color .12s var(--ease);
 }
 .hitbar__mode button:hover { color: #fff; border-color: rgba(255,255,255,.4); }
 .hitbar__mode button.is-on { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.5); color: #fff; }
 
-/* The two dice-rolls, pinned to the far end of the bar: spin the dial, or open
-   a name — both drawn from whatever the current filters left standing. */
-.hitbar__roll { display: flex; gap: 3px; flex: none; margin-left: auto; }
-.hitbar__roll button {
-  width: var(--hitbar-h); height: var(--hitbar-h);
+/* ---------- letter dial ----------
+   A lock dial: the alphabet slides behind a fixed notch, and the letter that
+   settles under it is the jump target. Snap points keep it landing cleanly.
+   The column is the two dice-rolls stacked on the dial they drive. */
+.dialcol {
+  flex: none;
+  width: 30px;
+  display: flex; flex-direction: column;
+  min-height: 0;
+}
+.dialcol__roll {
+  flex: none;
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 2px 2px 3px;
+  border-left: 1px solid rgba(255,255,255,.12);
+}
+.dialcol__roll button {
+  height: 22px;
   display: grid; place-items: center;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.18);
-  color: rgba(255,255,255,.5);
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.16);
+  color: rgba(255,255,255,.55);
   transition: background .12s var(--ease), color .12s var(--ease), border-color .12s var(--ease);
 }
-.hitbar__roll button:hover:not(:disabled) {
+.dialcol__roll button:hover:not(:disabled) {
   background: rgba(255,255,255,.16);
   border-color: rgba(255,255,255,.4);
   color: #fff;
 }
-.hitbar__roll button:disabled { opacity: .3; cursor: default; }
+.dialcol__roll button:disabled { opacity: .3; cursor: default; }
+.dialcol .dialwrap { flex: 1; min-height: 0; width: 100%; }
 
-/* ---------- letter dial ----------
-   A lock dial: the alphabet slides behind a fixed notch, and the letter that
-   settles under it is the jump target. Snap points keep it landing cleanly. */
 .dialwrap {
   position: relative;
   flex: none;
@@ -488,6 +509,7 @@ body {
 /* List and its letter rail, side by side. */
 .hitsbody { display: flex; align-items: stretch; min-height: 0; }
 .hitsbody .hits__list { flex: 1; min-width: 0; }
+.hitsbody .dialcol,
 .hitsbody .dialwrap {
   background: rgba(255,255,255,.05);
   border-left: 1px solid rgba(255,255,255,.12);
@@ -553,9 +575,12 @@ body {
    ========================================================================= */
 .tl-wrap { display: flex; justify-content: center; }
 .tl {
+  /* The rail carries its year labels above it, so it sits this far below the
+     middle of the row. Everything flanking it follows it down by half. */
+  --tl-head: 17px;
   width: 100%;
   display: flex; align-items: center; gap: 10px;
-  padding: 6px 12px 8px 12px;
+  padding: 6px 12px 12px 12px;
   border-radius: 20px;
   background: rgba(18,19,22,.40);
   border: 1px solid rgba(255,255,255,.07);
@@ -576,6 +601,50 @@ body {
   line-height: 1;
 }
 
+/* Roll on the left, calendar on the right — same size, so the rail sits
+   centred between them. */
+/* Centred on the rail rather than on the row — see --tl-head above. */
+.tl__btn, .tl__born, .tl__label, .tl__val, .tl__sign {
+  position: relative;
+  top: calc(var(--tl-head) / 2);
+}
+.tl__btn {
+  flex: none;
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: rgba(255,255,255,.6);
+  transition: background .12s var(--ease), color .12s var(--ease);
+  cursor: pointer;
+}
+.tl__btn:hover { background: rgba(255,255,255,.14); color: #fff; }
+/* The date the roll or the picker landed on. */
+.tl__born {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(253,214,99,.35);
+  background: rgba(253,214,99,.14);
+  font-size: 10.5px; font-weight: 300; white-space: nowrap;
+  color: #FDD663;
+  transition: background .12s var(--ease), border-color .12s var(--ease);
+}
+.tl__born:hover { background: rgba(253,214,99,.26); border-color: rgba(253,214,99,.7); }
+/* The native picker draws the calendar; the icon is what's actually seen.
+   The indicator has to be stretched over the whole field — at its default size
+   it's a few pixels at the end, which is why clicking the icon did nothing. */
+.tl__date {
+  position: absolute; inset: 0;
+  opacity: 0; width: 100%; height: 100%;
+  border: none; padding: 0; background: none;
+  cursor: pointer;
+}
+.tl__date::-webkit-calendar-picker-indicator {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; margin: 0; padding: 0;
+  cursor: pointer;
+}
+
 .tl__label {
   flex: none;
   font-size: 10px; text-transform: uppercase; letter-spacing: .13em;
@@ -583,8 +652,22 @@ body {
 }
 .tl:hover .tl__label, .tl.is-on .tl__label { color: rgba(255,255,255,.8); }
 
-.tl__track { flex: 1; min-width: 0; position: relative; padding-top: 6px; }
-.tl__ticks { position: absolute; left: 0; right: 0; top: 0; height: 6px; }
+/* The rail leads and everything that describes it hangs underneath: ticks, then
+   the two years at the ends. */
+.tl__track { flex: 1; min-width: 0; position: relative; padding-bottom: var(--tl-head); }
+.tl__ticks { position: absolute; left: 0; right: 0; top: 5px; height: 6px; }
+/* The range reads under the ends of the rail rather than beside them — smaller
+   than the old flanking labels, since it's a caption now, not a control. */
+.tl__end {
+  position: absolute; bottom: 0;
+  font-size: 9px; font-weight: 300; letter-spacing: .02em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255,255,255,.6);
+  pointer-events: none;
+}
+.tl__end--min { left: 0; }
+.tl__end--max { right: 0; }
+.tl:hover .tl__end, .tl.is-on .tl__end { color: rgba(255,255,255,.85); }
 .tl__tick { position: absolute; bottom: 1px; width: 1px; height: 4px; background: rgba(255,255,255,.22); }
 .tl__rail { position: relative; height: 3px; border-radius: 2px; background: rgba(255,255,255,.2); }
 .tl__fill { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--blue-dark); pointer-events: none; }
@@ -770,7 +853,7 @@ body {
 .pop__date:disabled { cursor: default; border-color: transparent; background: none; }
 /* The sign rides beside the date, and filters to itself when tapped. The ask
    pill is the same object one step along — one spec, so they can't drift. */
-.pop__sign, .pop__ask {
+.pop__sign {
   align-self: center;
   display: inline-flex; align-items: center; gap: 4px;
   flex: none; white-space: nowrap;
@@ -784,9 +867,7 @@ body {
   text-shadow: none;
   transition: background .12s var(--ease), border-color .12s var(--ease);
 }
-.pop__sign:hover, .pop__ask:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); color: #fff; }
-/* Open: the pill reads as pressed, so it's obvious what the box below belongs to. */
-.pop__ask.is-on { background: rgba(255,255,255,.9); border-color: #fff; color: #202124; }
+.pop__sign:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); color: #fff; }
 
 .pop__body {
   flex: 1; min-height: 0; overflow-y: auto;
@@ -867,13 +948,17 @@ body {
 
 .pop .btn--out { border-color: rgba(255,255,255,.25); color: var(--blue-dark); }
 .pop .btn--out:hover { background: rgba(138,180,248,.16); }
-.pop .kask__input {
+/* On the card the field is glass like everything else around it. */
+.pop .kask__form {
   background: rgba(255,255,255,.08);
-  border-color: rgba(255,255,255,.2);
-  color: #fff;
+  border-color: rgba(255,255,255,.22);
 }
-.pop .kask__input::placeholder { color: rgba(255,255,255,.45); }
-.pop .kask__input:focus { border-color: var(--blue-dark); }
+.pop .kask__form:focus-within { border-color: var(--blue-dark); }
+.pop .kask__ico { color: rgba(255,255,255,.5); }
+.pop .kask__input { color: #f1f3f4; }
+.pop .kask__input::placeholder { color: rgba(255,255,255,.55); }
+.pop .kask__go { color: var(--blue-dark); }
+.pop .kask__go:hover { background: rgba(138,180,248,.18); }
 .pop .kask__err { color: rgba(255,255,255,.6); }
 .pop .kask__ans { background: rgba(255,255,255,.08); color: rgba(255,255,255,.9); }
 
@@ -965,15 +1050,31 @@ body {
 
 .kcard__bio { margin: 0 0 12px; font-size: 12.5px; line-height: 1.6; color: #3c4043; }
 
-.kask { margin-top: 16px; margin-bottom: 0; }
-.kask__panel { display: flex; flex-direction: column; gap: 8px; }
-.kask__form { display: flex; gap: 6px; }
+.kask { margin: 16px 0 0; display: flex; flex-direction: column; gap: 8px; }
+/* One field, the way the search line reads: icon, input, go. */
+.kask__form {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 4px 0 10px;
+  border: 1px solid var(--line); border-radius: 18px;
+  background: var(--panel);
+}
+.kask__form:focus-within { border-color: var(--blue); }
+.kask__ico { color: var(--text-3); flex: none; }
 .kask__input {
   flex: 1; min-width: 0;
-  padding: 7px 12px; font-size: 12.5px;
-  border: 1px solid var(--line); border-radius: 16px; background: var(--panel); outline: none;
+  padding: 8px 0; font-size: 12.5px;
+  border: none; background: none; outline: none;
 }
-.kask__input:focus { border-color: var(--blue); }
+.kask__go {
+  flex: none;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: var(--blue);
+  transition: background .12s var(--ease), opacity .12s var(--ease);
+}
+.kask__go:hover { background: var(--blue-tint); }
+.kask__go:disabled { opacity: .35; cursor: default; }
 .kask__err { margin: 0; font-size: 11.5px; color: var(--text-2); }
 .kask__ans {
   margin: 0; padding: 10px 12px;
