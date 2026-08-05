@@ -456,6 +456,16 @@
                 >
                   <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
                 </button>
+                <!-- What they did, in the field's own colour — the same colour
+                     the card is tinted with and the thumbnails use. -->
+                <button
+                  v-if="selectedPerson.field"
+                  class="pop__field"
+                  @click="filterField(selectedPerson)"
+                  :title="'Show ' + selectedPerson.field + ' names'"
+                >
+                  <svg class="ico ico--12"><use :href="'#' + iconForField(selectedPerson.field)"/></svg>{{ selectedPerson.field }}
+                </button>
               </div>
               <!-- Line three: the question box, built to the same height as the
                    pills above it so the three lines read as one block. The

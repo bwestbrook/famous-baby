@@ -2665,6 +2665,86 @@ export const PEOPLE = [
     collaborators:['George Harrison'], contemporaries:['Mick Jagger','Jimmy Page','George Harrison'], friends:['George Harrison'], foes:[],
     bio:"Blues-obsessed guitar god of Cream and 'Layla' — he played the weeping, uncredited solo on his friend George Harrison's Beatles track." },
 
+
+  // ---- Breadth pass, batch 1: pre-1800, countries the roster had thin or empty.
+  //      Facts from Wikidata (QIDs verified against P31=Q5), bios written from the
+  //      English Wikipedia summaries. ----
+
+  { id:'omar-khayyam', name:'Omar Khayyám', middleName:'', gender:'male', birthYear:1048, birthMonth:5, birthDay:18, birthPlace:'Nishapur, Iran', country:'Iran', field:'Science', subfield:'Mathematician',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Solved cubic equations three centuries before Europe, then wrote the quatrains everyone remembers him for. Working in Seljuk Nishapur, he built the Jalali calendar — more accurate than the Gregorian one that followed it by five hundred years — and laid geometric foundations later mistaken for original European work. The Rubáiyát made him a poet in the English-speaking world and buried the mathematician." },
+
+  { id:'ibn-battuta', name:'Ibn Battuta', middleName:'', gender:'male', birthYear:1304, birthMonth:2, birthDay:24, birthPlace:'Tangier, Morocco', country:'Morocco', field:'Literature', subfield:'Memoirist',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Left Tangier at 21 for the hajj and did not come home for 24 years. He crossed Africa, Arabia, India, the Maldives and China — further than any traveller of the medieval world, Marco Polo included — serving as a judge in Delhi and an envoy to the Yuan court along the way. Dictated near the end of his life, the Rihla is the closest thing the fourteenth century has to a world atlas." },
+
+  { id:'mansa-musa', name:'Mansa Musa', middleName:'', gender:'male', birthYear:1280, birthPlace:'Mali Empire', country:'Mali', field:'Politics', subfield:'Monarch',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"The ninth ruler of the Mali Empire, at its height and possibly the richest man who ever lived. His 1324 pilgrimage to Mecca crossed Cairo with so much gold that he crashed the Egyptian market for a decade. He brought scholars and architects home with him, turning Timbuktu into a university city that outlived the empire." },
+
+  { id:'zheng-he', name:'Zheng He', middleName:'', gender:'male', birthYear:1371, birthPlace:'Kunming, China', country:'China', field:'Politics', subfield:'Diplomat',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Ming admiral whose treasure fleets reached East Africa sixty years before Columbus sailed. Born Ma He to a Muslim family in Yunnan, taken as a boy and made a eunuch of the imperial court, he rose to command seven voyages across the Indian Ocean in ships several times the size of anything Europe could float. The court burned the records after his death and the fleet was left to rot." },
+
+  { id:'sejong-the-great', name:'Sejong the Great', middleName:'', gender:'male', birthYear:1397, birthMonth:4, birthDay:10, birthPlace:'Seoul, South Korea', country:'South Korea', field:'Politics', subfield:'Monarch',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Fourth king of Joseon, and the one who gave Korea its alphabet. Convinced that a script borrowed from Chinese kept literacy to the aristocracy, he had Hangul designed so that — in the promulgation's own words — a wise man could learn it in a morning and a fool in ten days. He is on the ten-thousand-won note, and the day of his alphabet is a national holiday." },
+
+  { id:'guru-nanak', name:'Guru Nanak', middleName:'', gender:'male', birthYear:1469, birthMonth:4, birthDay:15, birthPlace:'Nankana Sahib, Pakistan', country:'Pakistan', field:'Religion', subfield:'Sikh',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Founder of Sikhism and the first of its ten Gurus. Born near Lahore into a Hindu family in a Muslim-ruled province, he spent two decades walking as far as Baghdad and Mecca, preaching one god, no caste and no priesthood. The communal kitchen he insisted on — anyone, any caste, seated on the same floor — still runs in every gurdwara in the world." },
+
+  { id:'nicolaus-copernicus', name:'Nicolaus Copernicus', middleName:'', gender:'male', birthYear:1473, birthMonth:2, birthDay:19, birthPlace:'Toruń, Poland', country:'Poland', field:'Science', subfield:'Astronomer',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Moved the Earth. A canon of Warmia cathedral who did astronomy around the day job, he worked out a Sun-centred model and then sat on it for decades, publishing only as he was dying in 1543. The book was slow to catch — it took Galileo and Kepler to make it dangerous — but every argument about our place in the universe since starts with him." },
+
+  { id:'mimar-sinan', name:'Mimar Sinan', middleName:'', gender:'male', birthYear:1490, birthPlace:'Ağırnas, Turkey', country:'Turkey', field:'Architecture', subfield:'Classical',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Chief architect to three Ottoman sultans, and the man who answered the Hagia Sophia. Conscripted as a boy and trained as a military engineer building bridges on campaign, he came to architecture near fifty and then put up more than three hundred buildings. He counted the Selimiye Mosque at Edirne — its dome wider than Justinian's — as the work of his mastery." },
+
+  { id:'andrea-palladio', name:'Andrea Palladio', middleName:'', gender:'male', birthYear:1508, birthMonth:11, birthPlace:'Padua, Italy', country:'Italy', field:'Architecture', subfield:'Classical',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"A stonemason's apprentice who became the most imitated architect in history. Working for the Venetian gentry, he built villas that read as temples to farming, and wrote the Four Books of Architecture to explain them. Two centuries later Thomas Jefferson designed Monticello and the University of Virginia straight out of that book; the White House is Palladian too." },
+
+  { id:'sofonisba-anguissola', name:'Sofonisba Anguissola', middleName:'', gender:'female', birthYear:1531, birthPlace:'Cremona, Italy', country:'Italy', field:'Arts', subfield:'Painter',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"The first woman of the Renaissance to win an international reputation as a painter. Barred from studying anatomy or drawing from the nude, she turned instead to her own family and made portraits that feel like caught conversation. Michelangelo saw her drawings and sent her exercises; Philip II brought her to Madrid as court painter. Van Dyck visited her at 92 and said he learned more from her than from any master." },
+
+  { id:'el-greco', name:'Doménikos Theotokópoulos', stageName:'El Greco', middleName:'', gender:'male', birthYear:1541, birthMonth:10, birthDay:1, birthPlace:'Heraklion, Greece', country:'Greece', field:'Arts', subfield:'Painter',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"A Cretan icon painter who went to Venice, then Rome, then Toledo, and arrived at something nobody had seen. The elongated bodies and acid colour read as a mistake for three hundred years until the modernists claimed him — Picasso studied him, Cézanne copied him. He signed in Greek letters to the end, often adding the word for Cretan." },
+
+  { id:'miguel-de-cervantes', name:'Miguel de Cervantes', middleName:'', gender:'male', birthYear:1547, birthMonth:9, birthDay:29, birthPlace:'Alcalá de Henares, Spain', country:'Spain', field:'Literature', subfield:'Novelist',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Wrote the first modern novel after a life that reads like fiction. He took three gunshots at Lepanto and lost the use of his left hand, spent five years enslaved in Algiers after pirates took his ship, and was jailed twice as a failing tax collector. Don Quixote came out when he was 58, and it has been called the best book ever written more often than any other." },
+
+  { id:'tycho-brahe', name:'Tycho Brahe', middleName:'', gender:'male', birthYear:1546, birthMonth:12, birthDay:14, birthPlace:'Knutstorp Castle, Scania', country:'Denmark', field:'Science', subfield:'Astronomer',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Measured the sky more precisely than anyone before telescopes, and lost his nose in a duel over a maths dispute. Granted an island by the Danish king, he built an observatory there and logged two decades of naked-eye positions accurate to an arcminute. Kepler inherited the data and found the elliptical orbits in it — the numbers Tycho never quite believed." },
+
+  { id:'nzinga-mbande', name:'Nzinga Mbande', middleName:'', gender:'female', birthYear:1582, birthPlace:'Kingdom of Ndongo, Angola', country:'Angola', field:'Politics', subfield:'Monarch',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Queen of Ndongo and Matamba who fought the Portuguese slave trade for four decades. Sent to negotiate and offered no chair, she is said to have had a servant kneel and sat on him rather than take the floor. She allied with the Dutch, took in runaways, and held her territory until she died at about 81 — Angola's national heroine, with a Luanda street to prove it." },
+
+  { id:'sor-juana', name:'Juana Inés de Asbaje y Ramírez', stageName:'Sor Juana Inés de la Cruz', middleName:'Inés', gender:'female', birthYear:1651, birthMonth:11, birthDay:12, birthPlace:'Nepantla, Mexico', country:'Mexico', field:'Literature', subfield:'Poet',
+    teams:[], awards:[],
+    collaborators:[], contemporaries:[], friends:[], foes:[],
+    bio:"Took vows partly to keep her library. Self-taught from her grandfather's books and a prodigy at the viceregal court, she became a nun in Mexico City and wrote the finest Baroque verse in the Spanish language, plus a defence of women's right to learn that got her silenced by the bishops. She gave up her four thousand books near the end and died nursing sisters in an epidemic." },
+
 ].filter(p => p.field !== '__skip__');  // drop placeholder rows used during editing
 
 // Convenience: distinct values for filter chips.

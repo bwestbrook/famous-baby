@@ -89,6 +89,8 @@ const COUNTRY_COORDS = {
   'Honduras':       [15.2,  -86.2],
   'Barbados':       [13.2,  -59.5],
   'Martinique':     [14.6,  -61.0],
+  'Mali':           [17.6,   -4.0],
+  'Angola':         [-11.2,  17.9],
 };
 // Country outlines for the globe. world-atlas ships TopoJSON (small); the
 // topojson-client UMD loaded in index.html converts it to the GeoJSON
@@ -371,7 +373,7 @@ const app = createApp({
     const selectedSubfields = ref([]);          // genres/leagues/etc. inside a field
     const selectedGenders   = ref([]);
     // Year range is now a slider — initialize to the full range (treated as "any").
-    const YEAR_FLOOR = 1400;
+    const YEAR_FLOOR = 1000;
     const YEAR_CEIL = 2030;
     const yearMin           = ref(YEAR_FLOOR);
     const yearMax           = ref(YEAR_CEIL);
@@ -1499,6 +1501,16 @@ const app = createApp({
     function filterZodiac(sign) {
       if (sign) selectedZodiacs.value = [sign];
     }
+    // Same move for the category pill on the card. The pill names the major
+    // field, so the tap filters to exactly that and no narrower — a button
+    // that quietly does more than it says is a button you stop trusting.
+    // Set rather than toggled: the pill states what they are, so pressing it
+    // can only mean "show me these", never "clear it".
+    function filterField(person) {
+      if (!person || !person.field) return;
+      selectedFields.value = [person.field];
+      selectedSubfields.value = [];
+    }
 
     // Closing undoes the whole arrival: pull back out to the full globe, start
     // it spinning again, and let the timeline off the birth year.
@@ -2026,7 +2038,7 @@ const app = createApp({
 
     const YEAR_TICKS = (() => {
       const out = [];
-      for (let y = 1400; y <= 2000; y += 100) {
+      for (let y = 1100; y <= 2000; y += 100) {
         out.push({
           y,
           pct: ((y - YEAR_FLOOR) / (YEAR_CEIL - YEAR_FLOOR)) * 100,
@@ -2163,7 +2175,7 @@ const app = createApp({
       clearType, clearTime, clearCategories, typeFilterCount, timeFilterCount,
       toggleField, toggleSubfield, toggleGender,
       openPerson, closePerson, toggleTheme,
-      hasPerson, personByName, openOrSearch, searchFor, filterZodiac, filterBirthday,
+      hasPerson, personByName, openOrSearch, searchFor, filterZodiac, filterBirthday, filterField,
       // ask-a-question
       askInput, askAnswer, askError, askLoading, submitAsk,
       // display helpers

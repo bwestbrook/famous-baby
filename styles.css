@@ -890,6 +890,28 @@ body {
   transition: background .12s var(--ease), border-color .12s var(--ease);
 }
 .pop__sign:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); color: #fff; }
+/* Third along: what they did. Same pill, but carrying the field's own colour —
+   the one already tinting the card behind it and the thumbnail in the list. */
+.pop__field {
+  align-self: center;
+  display: inline-flex; align-items: center; gap: 4px;
+  flex: none; white-space: nowrap;
+  height: var(--pill-h);
+  max-width: 45%;
+  padding: 0 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.3);
+  background: color-mix(in srgb, var(--field-color, #8ab4f8) 42%, transparent);
+  backdrop-filter: blur(4px);
+  font-size: 10px; font-weight: 300;
+  color: #fff;
+  overflow: hidden; text-overflow: ellipsis;
+  transition: background .12s var(--ease), border-color .12s var(--ease);
+}
+.pop__field:hover {
+  background: color-mix(in srgb, var(--field-color, #8ab4f8) 68%, transparent);
+  border-color: rgba(255,255,255,.7);
+}
 
 .pop__body {
   flex: 1; min-height: 0; overflow-y: auto;
