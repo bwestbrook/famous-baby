@@ -1105,6 +1105,30 @@ body {
 .kdl { margin: 0 0 14px; display: grid; grid-template-columns: 70px minmax(0,1fr); gap: 6px 10px; align-items: start; }
 .kdl dt { font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); padding-top: 4px; }
 .kdl dd { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+/* Past two rows a list stops wrapping and becomes a rail: two rows deep, the
+   rest carried off to the right. Applied by measurement — see capRows(). */
+.kdl dd.is-railed {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  grid-template-rows: repeat(2, auto);
+  justify-content: start;
+  gap: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+.kdl dd.is-railed::-webkit-scrollbar { display: none; }
+.kdl dd.is-railed > * { scroll-snap-align: start; }
+/* Only while there's more to reach — a permanent fade would clip the last
+   name once you've scrolled to the end. */
+.kdl dd.is-railed.has-more {
+  -webkit-mask-image: linear-gradient(to right, #000 86%, transparent);
+          mask-image: linear-gradient(to right, #000 86%, transparent);
+}
 .tag { font-size: 10.5px; padding: 3px 8px; border-radius: 10px; background: var(--panel-2); color: var(--text); }
 .tag em { font-style: normal; color: var(--text-3); }
 .tag--ghost { background: var(--panel-3); color: var(--text-2); }

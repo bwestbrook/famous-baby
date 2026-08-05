@@ -1624,6 +1624,43 @@ const app = createApp({
     }
     const similarForSelected = computed(() => similarNamesFor(selectedPerson.value));
 
+    // ---- Name rows that would run away with the card ----
+    // A well-connected person can put two dozen names under one label, and
+    // wrapped they push everything below them off the screen. Past two rows the
+    // list stops wrapping and becomes a two-row rail you scroll sideways —
+    // measured, not counted, because name lengths vary far too much for that.
+    const popCard = ref(null);
+    const ROW_GAP = 4;
+    function capRows(el) {
+      if (!el) return;
+      el.classList.remove('is-railed');
+      const kid = el.firstElementChild;
+      if (!kid) return;
+      // The natural wrapped height, now that the rail class is off.
+      const twoRows = kid.offsetHeight * 2 + ROW_GAP;
+      if (el.scrollHeight > twoRows + 1) el.classList.add('is-railed');
+      markRailEnd(el);
+    }
+    // Fades the trailing edge while there's more to scroll to, so a rail doesn't
+    // look like a list that simply stops.
+    function markRailEnd(el) {
+      const more = el.scrollWidth - el.clientWidth - el.scrollLeft > 2;
+      el.classList.toggle('has-more', more);
+    }
+    function capNameRows() {
+      const root = popCard.value;
+      if (!root) return;
+      for (const dd of root.querySelectorAll('.kdl dd')) {
+        capRows(dd);
+        if (!dd.dataset.railBound) {
+          dd.dataset.railBound = '1';
+          dd.addEventListener('scroll', () => markRailEnd(dd), { passive: true });
+        }
+      }
+    }
+    // Every card is a different set of lists, so re-measure on each one.
+    watch(selectedPerson, () => nextTick(capNameRows));
+
     // ---- Career neighbours ----
     // Who else lived this working life? Names play no part here — the score is
     // built from the shape of the career: the room they worked in, the people
@@ -2068,6 +2105,7 @@ const app = createApp({
       catPointerDown, catPointerMove, catPointerUp,
       // computed
       filtered, availableSubfields, subRows, countForSubfield, similarForSelected,
+      popCard,                                  // measured to cap the name rows
       // career neighbours strip at the foot of the card
       careerMatches, currentMatch, matchIndex, matchStep, randomMatch, openMatch,
       favoritePeople, countryList, countryMax,

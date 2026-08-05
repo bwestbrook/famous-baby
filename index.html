@@ -398,6 +398,7 @@
       <article
         v-if="selectedPerson"
         class="pop"
+        ref="popCard"
         :style="{ '--field-color': colorForField(selectedPerson.field) }"
         role="dialog"
         aria-modal="false"
