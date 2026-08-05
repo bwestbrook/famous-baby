@@ -1212,6 +1212,18 @@ body {
 .about__p em { font-style: italic; color: #fff; }
 /* The closing line is the only thing that steps forward, and only in colour. */
 .about__p--last { color: #fff; }
+/* On a phone the dock runs the full width of the screen, which is right for the
+   search line and the results but leaves the two reading surfaces — the person
+   card and the info sheet — looking like slabs. Both stand 30px off each edge
+   instead, so they read as cards rather than as the screen itself. They stop
+   aligning with the search line below them; that's the trade.
+   This has to sit below .ovl__sheet's own width, which it ties on specificity
+   and would otherwise lose to on source order. */
+@media (max-width: 560px) {
+  .pop { margin-left: 20px; margin-right: 20px; }
+  .ovl__sheet--about { width: calc(100% - 60px); margin: 0 auto; }
+}
+
 .panel__collapse {
   width: 30px; height: 30px; display: grid; place-items: center;
   border-radius: 50%; color: rgba(255,255,255,.7); flex: none;
