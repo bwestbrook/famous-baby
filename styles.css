@@ -575,22 +575,26 @@ body {
    ========================================================================= */
 .tl-wrap { display: flex; justify-content: center; }
 .tl {
-  /* The rail carries its year labels above it, so it sits this far below the
-     middle of the row. Everything flanking it follows it down by half. */
+  /* The rail carries its ticks and years below it, so it sits this far above
+     the middle of the row. Everything flanking it follows it up by half. */
   --tl-head: 17px;
   width: 100%;
   display: flex; align-items: center; gap: 10px;
-  padding: 6px 12px 12px 12px;
+  padding: 12px 12px 6px 12px;
   border-radius: 20px;
-  background: rgba(18,19,22,.40);
-  border: 1px solid rgba(255,255,255,.07);
-  backdrop-filter: blur(8px);
+  /* Same pane as the search line it sits above: tinted glass, barely blurred,
+     with an outline strong enough to read against the globe. */
+  background: rgba(52,55,62,.46);
+  backdrop-filter: blur(3px) saturate(120%);
+  -webkit-backdrop-filter: blur(3px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.3);
+  box-shadow: 0 2px 12px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.12);
   color: rgba(255,255,255,.75);
-  opacity: .55;
+  opacity: .82;
   transition: opacity .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
 }
-.tl:hover, .tl:focus-within { opacity: 1; background: rgba(18,19,22,.74); border-color: rgba(255,255,255,.16); }
-.tl.is-on { opacity: 1; background: rgba(18,19,22,.66); border-color: rgba(138,180,248,.3); }
+.tl:hover, .tl:focus-within { opacity: 1; background: rgba(58,61,69,.56); border-color: rgba(255,255,255,.62); }
+.tl.is-on { opacity: 1; background: rgba(58,61,69,.56); border-color: rgba(138,180,248,.5); }
 
 /* The rail sits below the tick labels inside .tl__track, so anything flanking
    it gets nudged down by half the tick strip to line up with the rail itself
@@ -606,7 +610,7 @@ body {
 /* Centred on the rail rather than on the row — see --tl-head above. */
 .tl__btn, .tl__born, .tl__label, .tl__val, .tl__sign {
   position: relative;
-  top: calc(var(--tl-head) / 2);
+  top: calc(var(--tl-head) / -2);
 }
 .tl__btn {
   flex: none;
