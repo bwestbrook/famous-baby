@@ -170,13 +170,21 @@ body {
   padding: 7px 2px 5px;
   min-width: 0;
   border-radius: 12px;
-  background: #000;
-  border: 1px solid rgba(255,255,255,.45);
+  /* Same pane as the search line: clear glass with a grey tint. */
+  background: rgba(52,55,62,.42);
+  backdrop-filter: blur(2px) saturate(120%);
+  -webkit-backdrop-filter: blur(2px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.28);
   color: #e8eaed;
-  box-shadow: 0 1px 3px rgba(0,0,0,.5);
-  transition: border-color .12s var(--ease), color .12s var(--ease), transform .12s var(--ease);
+  box-shadow: 0 1px 4px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1);
+  transition: background .12s var(--ease), border-color .12s var(--ease), color .12s var(--ease), transform .12s var(--ease);
 }
-.qcat:hover { transform: translateY(-1px); border-color: rgba(255,255,255,.8); color: #fff; }
+.qcat:hover {
+  transform: translateY(-1px);
+  background: rgba(70,74,83,.52);
+  border-color: rgba(255,255,255,.55);
+  color: #fff;
+}
 .qcat__ico { color: currentColor; opacity: .9; }
 .qcat__label {
   font-size: 9px; font-weight: 300; letter-spacing: .01em; line-height: 1.1;
@@ -184,9 +192,10 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .qcat.is-on {
-  border-color: #fff;
+  background: rgba(96,101,112,.58);
+  border-color: rgba(255,255,255,.85);
   color: #fff;
-  box-shadow: 0 0 0 1px rgba(255,255,255,.35), 0 1px 4px rgba(0,0,0,.6);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.28), 0 1px 4px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.16);
 }
 .qcat.is-on .qcat__ico { opacity: 1; }
 .qcat.is-on .qcat__label { font-weight: 500; }
@@ -199,6 +208,48 @@ body {
   .qcat__ico { width: 16px; height: 16px; }
   .qcat__label { font-size: 8px; letter-spacing: .015em; }
 }
+
+/* ---------- sub-categories: the picked field's genres / leagues ----------
+   One line, scrolled sideways. Same glass as the tiles above, a size down, so
+   it reads as a second tier rather than a second row of categories. */
+.subbar { display: flex; align-items: center; gap: 4px; padding: 0 0 1px; }
+/* Arrows match the category strip's, one size down. */
+.qbar__arrow--sm { width: 22px; height: 22px; }
+.subbar__track {
+  flex: 1; min-width: 0;
+  display: flex; gap: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  padding: 1px 1px 2px;
+}
+.subbar__track::-webkit-scrollbar { display: none; }
+.subchip {
+  flex: none;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px;
+  border-radius: 11px;
+  background: rgba(52,55,62,.42);
+  backdrop-filter: blur(2px) saturate(120%);
+  -webkit-backdrop-filter: blur(2px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.24);
+  color: rgba(255,255,255,.82);
+  font-size: 10px; font-weight: 300; letter-spacing: .01em; line-height: 1.5;
+  white-space: nowrap;
+  transition: background .12s var(--ease), border-color .12s var(--ease), color .12s var(--ease);
+}
+/* The count is the useful part of the label, not decoration — a league with
+   two names behind it should say so before it's tapped. */
+.subchip em { font-style: normal; font-size: 8.5px; color: rgba(255,255,255,.45); }
+.subchip:hover { background: rgba(70,74,83,.52); border-color: rgba(255,255,255,.5); color: #fff; }
+.subchip.is-on {
+  background: rgba(96,101,112,.58);
+  border-color: rgba(255,255,255,.8);
+  color: #fff;
+}
+.subchip.is-on em { color: rgba(255,255,255,.72); }
 
 /* ---------- map controls — vertical column, right edge, centred ---------- */
 .mapctl {
@@ -245,11 +296,15 @@ body {
   height: 48px;
   padding: 0 6px 0 12px;
   border-radius: 26px;
-  background: #000;
-  border: 1px solid rgba(255,255,255,.45);
-  box-shadow: 0 2px 10px rgba(0,0,0,.55);
+  /* Tinted glass, not frosted: barely any blur, so the globe stays readable
+     through it. The grey is what holds the white type, not the blur. */
+  background: rgba(52,55,62,.46);
+  backdrop-filter: blur(3px) saturate(120%);
+  -webkit-backdrop-filter: blur(3px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.3);
+  box-shadow: 0 2px 12px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.12);
 }
-.sbar:focus-within { border-color: rgba(255,255,255,.8); }
+.sbar:focus-within { border-color: rgba(255,255,255,.62); background: rgba(58,61,69,.56); }
 .sbar__ico { color: rgba(255,255,255,.65); margin-right: 8px; }
 .sbar__btn--lucky { margin-right: 4px; margin-left: -6px; }
 .sbar__input {
@@ -300,6 +355,13 @@ body {
 
 /* ---------- hits — three names above the search line ---------- */
 .hits {
+  /* One source of truth for the panel's height: three rows and the two
+     dividers between them. The list caps to it and the dial divides by it. */
+  --row-h: 52px;
+  --list-h: calc(var(--row-h) * 3 + 2px);
+  /* Five letters across that height. Clamped so the expanded list doesn't
+     blow the letters up to thumb-sized. */
+  --dial-pitch: clamp(24px, calc(var(--list-h) / 5), 40px);
   background: #000;
   border: 1px solid rgba(255,255,255,.4);
   color: #e8eaed;
@@ -307,13 +369,13 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,.55);
   overflow: hidden;
 }
+.hits.is-expanded { --list-h: 42vh; }
 /* Three rows tall, always. A fourth name doesn't grow the box — it scrolls,
    and the bar on the right is what says so. --row-h must match .row's height. */
 .hits__list {
-  --row-h: 52px;
   position: relative;
   list-style: none; margin: 0; padding: 0;
-  max-height: calc(var(--row-h) * 3 + 2px);   /* + the two dividers between */
+  max-height: var(--list-h);
   overflow-y: auto;
   scroll-snap-type: y proximity;
   scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.34) rgba(255,255,255,.07);
@@ -351,21 +413,41 @@ body {
 .hitbar__mode button:hover { color: #fff; border-color: rgba(255,255,255,.4); }
 .hitbar__mode button.is-on { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.5); color: #fff; }
 
+/* The two dice-rolls, pinned to the far end of the bar: spin the dial, or open
+   a name — both drawn from whatever the current filters left standing. */
+.hitbar__roll { display: flex; gap: 3px; flex: none; margin-left: auto; }
+.hitbar__roll button {
+  width: var(--hitbar-h); height: var(--hitbar-h);
+  display: grid; place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.5);
+  transition: background .12s var(--ease), color .12s var(--ease), border-color .12s var(--ease);
+}
+.hitbar__roll button:hover:not(:disabled) {
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.4);
+  color: #fff;
+}
+.hitbar__roll button:disabled { opacity: .3; cursor: default; }
+
 /* ---------- letter dial ----------
    A lock dial: the alphabet slides behind a fixed notch, and the letter that
    settles under it is the jump target. Snap points keep it landing cleanly. */
 .dialwrap {
   position: relative;
   flex: none;
-  width: 26px;
+  width: 30px;                    /* the taller pitch wants a touch more room */
   border-radius: 0;
   background: rgba(255,255,255,.06);
   box-shadow: inset 0 1px 2px rgba(0,0,0,.5);
   overflow: hidden;
 }
 .dial {
+  /* Absolute so the alphabet's own 26-letter height can't stretch the panel:
+     the rail is as tall as the list, and the letters scroll inside it. */
+  position: absolute; inset: 0;
   display: flex; flex-direction: column; align-items: stretch;
-  height: 100%;
   overflow-y: auto; overflow-x: hidden;
   scroll-snap-type: y mandatory;
   overscroll-behavior-y: contain;
@@ -379,26 +461,26 @@ body {
 .dial::-webkit-scrollbar { display: none; }
 .dial:active { cursor: grabbing; }
 /* Half a viewport top and bottom, so A and Z can reach the notch. */
-.dial__pad { flex: 0 0 calc(50% - 8px); }
+.dial__pad { flex: 0 0 calc(50% - var(--dial-pitch) / 2); }
 
 .dial__l {
-  flex: 0 0 16px;                 /* one letter's pitch — matches dialCell() */
+  flex: 0 0 var(--dial-pitch);    /* one letter's pitch — dialCell() measures it */
   scroll-snap-align: center;
   display: grid; place-items: center;
   width: 100%; padding: 0;
-  font-size: 9px; font-weight: 300; line-height: 1;
+  font-size: 12px; font-weight: 300; line-height: 1;
   font-variant-numeric: tabular-nums;
   color: rgba(255,255,255,.45);
   transition: color .12s var(--ease), transform .12s var(--ease), opacity .12s var(--ease);
 }
 .dial__l.is-off { color: rgba(255,255,255,.16); }
 /* Under the notch: bigger, brighter, and it stays legible even when empty. */
-.dial__l.is-sel { color: #fff; font-weight: 500; font-size: 11.5px; }
+.dial__l.is-sel { color: #fff; font-weight: 500; font-size: 15px; }
 .dial__l.is-sel.is-off { color: rgba(255,255,255,.35); }
 
 .dial__notch {
   position: absolute; top: 50%; left: 0; right: 0;
-  height: 16px; margin-top: -8px;
+  height: var(--dial-pitch); margin-top: calc(var(--dial-pitch) / -2);
   border-top: 1px solid rgba(255,255,255,.28);
   border-bottom: 1px solid rgba(255,255,255,.28);
   background: rgba(255,255,255,.07);
@@ -448,6 +530,9 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .row:hover .row__name { color: #fff; }
+/* The middle name is part of the name, so it's set exactly like the first and
+   last — the <em> only carries meaning, never a different face. */
+.row__mid { font-style: normal; font-weight: inherit; color: inherit; }
 .row__meta {
   font-size: 11px; color: rgba(255,255,255,.5);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -886,6 +971,18 @@ body {
   border-bottom: 1px solid rgba(255,255,255,.16);
 }
 .ovl__title { margin: 0; font-size: 15px; font-weight: 400; flex: 1; color: #fff; }
+.ovl__title em { font-style: normal; font-weight: 500; }
+
+/* The "what this is" sheet: one paragraph, sized to be read rather than
+   scanned, so it runs looser and warmer than the panel copy around it. */
+.ovl__sheet--about { max-height: 70%; }
+.about__p {
+  margin: 0;
+  padding: 16px 18px 22px;
+  font-size: 13.5px; font-weight: 300; line-height: 1.62; letter-spacing: .01em;
+  color: rgba(255,255,255,.86);
+}
+.about__p em { font-style: italic; color: #fff; }
 .panel__collapse {
   width: 30px; height: 30px; display: grid; place-items: center;
   border-radius: 50%; color: rgba(255,255,255,.7); flex: none;
@@ -1062,12 +1159,10 @@ button.mrow:disabled { opacity: .4; cursor: default; background: none; }
   color: rgba(255,255,255,.7);
   text-shadow: 0 1px 3px rgba(0,0,0,.6);
 }
-/* The middle name, unlabelled — it reads as part of the name block. */
+/* Sits inside .pop__name, between the given and family name, and set the same
+   as both — one continuous name, not a name with an aside in it. */
 .pop__middle {
-  flex: none; white-space: nowrap;
-  font-size: 12.5px; font-weight: 300; font-style: italic; letter-spacing: .015em;
-  color: rgba(255,255,255,.9);
-  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  font-style: normal; font-weight: inherit; color: inherit;
 }
 
 /* =========================================================================

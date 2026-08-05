@@ -273,13 +273,16 @@ function buildHaystack(person) {
   const collabText = person.collaborators.join(' ');
   return {
     full: [
-      person.name, person.stageName || '', person.birthPlace, person.country,
+      person.name, person.middleName || '', person.stageName || '',
+      person.birthPlace, person.country,
       person.field, person.subfield,
       teamText, awardText, collabText, person.bio,
       String(person.birthYear),
     ].join(' ').toLowerCase(),
     parts: {
-      name: (person.name + ' ' + (person.stageName || '')).toLowerCase(),
+      // Middle names sit in the name bucket, so searching one scores the same
+      // as a first or last name rather than falling through to the bio.
+      name: (person.name + ' ' + (person.middleName || '') + ' ' + (person.stageName || '')).toLowerCase(),
       place: (person.birthPlace + ' ' + person.country).toLowerCase(),
       field: (person.field + ' ' + person.subfield).toLowerCase(),
       teams: teamText.toLowerCase(),
@@ -526,11 +529,17 @@ const app = createApp({
     // Picking a place from the list (or from a knowledge card) both filters
     // and moves the camera. Re-picking the active country clears the filter
     // but keeps the camera where it is.
+    // Picking a country is a fresh start, not another filter stacked on the
+    // last one: everything else clears so the country is the only thing
+    // narrowing the roster. Picking the one already selected clears it.
     function pickCountry(country) {
       if (!country) return;
       const wasSelected = selectedCountry.value === country;
-      selectGlobeCountry(country);
-      if (!wasSelected) flyToCountry(country);
+      clearAll();
+      if (!wasSelected) {
+        selectedCountry.value = country;
+        flyToCountry(country);
+      }
     }
 
     // Where the globe opens, picked once per load. Drawing from MAJOR_CITIES
@@ -538,31 +547,69 @@ const app = createApp({
     // — most of a random lat/lng is ocean.
     const HOME_VIEW = (() => {
       const c = MAJOR_CITIES[Math.floor(Math.random() * MAJOR_CITIES.length)];
+      // altitude is replaced by fillAltitude() as soon as the canvas exists
       return c ? { lat: c.lat, lng: c.lng, altitude: 2.4 } : { lat: 20, lng: 0, altitude: 2.4 };
     })();
 
-    // Somewhere else entirely — re-rolls the opening view, so whatever the
-    // camera comes "back" to afterwards is the new place too.
-    // Spin to somewhere else and filter to it, so the throw always lands on
-    // names. Only countries the roster actually has are in the draw, and the
-    // one you're already looking at is excluded.
-    function randomGlobeView() {
+    // Only countries the roster actually has are in the draw, and the one
+    // you're already looking at is excluded.
+    function drawRandomCountry() {
       const pool = countryList.value.filter(
         c => COUNTRY_COORDS[c.country] && c.country !== selectedCountry.value
       );
-      if (!pool.length) return;
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      const coords = COUNTRY_COORDS[pick.country];
+      return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+    }
+    // Re-aims the opening view, so whatever the camera comes "back" to
+    // afterwards is the new place too.
+    function aimHomeAt(country) {
+      const coords = COUNTRY_COORDS[country];
+      if (!coords) return;
       HOME_VIEW.lat = coords[0];
       HOME_VIEW.lng = coords[1];
+    }
+
+    // The button: spin somewhere else and filter to it, so the throw lands on
+    // names rather than an empty country.
+    function randomGlobeView() {
+      const pick = drawRandomCountry();
+      if (!pick) return;
+      aimHomeAt(pick.country);
       selectedCountry.value = pick.country;
       flyToCountry(pick.country);
     }
 
+    // The opening move: the same random country, but no filter. Starting the
+    // session filtered means the roster is a handful of names and the first
+    // search comes back empty for a reason nobody can see.
+    function openingGlobeView() {
+      const pick = drawRandomCountry();
+      if (pick) aimHomeAt(pick.country);
+    }
+
     // Pull the camera back out to the view this session started on.
+    // The altitude at which the globe's silhouette just covers the canvas —
+    // corners included, so no background shows anywhere. Worked out from the
+    // camera rather than hard-coded, since the canvas is a different shape on
+    // a phone, on a desktop and mid-resize.
+    //   sin(θ) = R / d  for the sphere's angular radius, and the corner ray
+    //   sits at atan(tan(fov/2) · √(1 + aspect²)).
+    function fillAltitude() {
+      const el = globeInstance && globeInstance._el;
+      if (!el || !el.clientHeight) return 2.4;
+      let fov = 50;                                  // globe.gl's default
+      try { fov = globeInstance.camera().fov || fov; } catch {}
+      const aspect = el.clientWidth / el.clientHeight;
+      const tanCorner = Math.tan((fov / 2) * Math.PI / 180) * Math.sqrt(1 + aspect * aspect);
+      const distance = 1 / Math.sin(Math.atan(tanCorner));
+      // A hair closer than exact, so a rounding error can't leave a sliver of
+      // sky along an edge.
+      return Math.max(0.05, (distance - 1) * 0.97);
+    }
+
     function resetGlobeView() {
       if (!globeInstance) return;
       try {
+        HOME_VIEW.altitude = fillAltitude();
         globeInstance.pointOfView({ ...HOME_VIEW }, 700);
         syncLabelScaleTo(HOME_VIEW.altitude);
       } catch {}
@@ -593,11 +640,16 @@ const app = createApp({
       if (d === hoveredPoly.value) return 'rgba(138,180,248,0.40)';
       return 'rgba(138,180,248,0.13)';
     }
+    // Border colours have to survive the whole blue-marble texture: near-black
+    // jungle at one end, blown-out Sahara/Arabian sand at the other. Pale
+    // strokes only read against the dark half, so these sit at mid luminance
+    // with enough chroma to separate by hue as well — darker than sand,
+    // brighter than forest, never the same colour as either.
     function polyStrokeColor(d) {
       const entry = polyEntry(d);
-      if (entry && entry.country === selectedCountry.value) return '#FDD663';
-      if (!entry) return 'rgba(255,255,255,0.16)';
-      return d === hoveredPoly.value ? '#CFE0FF' : 'rgba(160,196,255,0.7)';
+      if (entry && entry.country === selectedCountry.value) return '#FF9B21';
+      if (!entry) return 'rgba(146,170,196,0.55)';
+      return d === hoveredPoly.value ? '#12C8DC' : '#4F94E8';
     }
     function polyAltitude(d) {
       const entry = polyEntry(d);
@@ -913,7 +965,7 @@ const app = createApp({
         .pathPointLat(p => p[1])
         .pathPointLng(p => p[0])
         .pathPointAlt(0.006)
-        .pathColor(() => 'rgba(255,255,255,0.26)')
+        .pathColor(() => 'rgba(132,158,186,0.5)')
         .pathStroke(0.5)
         .pathTransitionDuration(0)
         // Wheel/pinch zoom: keep the city labels legible on the way down.
@@ -972,7 +1024,8 @@ const app = createApp({
     // ---- Name order ----
     // Sorting and the A–Z jump read the same key, so the letter someone files
     // under is always the letter they're found at.
-    const NAME_SUFFIXES = new Set(['jr', 'jr.', 'sr', 'sr.', 'ii', 'iii', 'iv']);
+    const NAME_SUFFIXES = new Set(['jr', 'jr.', 'sr', 'sr.', 'ii', 'iii', 'iv', 'junior', 'senior']);
+    const isNameSuffix = (tok) => NAME_SUFFIXES.has(String(tok || '').trim().toLowerCase());
     function surnameOf(person) {
       const parts = String((person && person.name) || '').trim().split(/\s+/);
       while (parts.length > 1 && NAME_SUFFIXES.has(parts[parts.length - 1].toLowerCase())) parts.pop();
@@ -1011,7 +1064,16 @@ const app = createApp({
         const letter = letterOf(r.person);
         const head = letter !== prev;      // first row of its letter — the jump target
         prev = letter;
-        return { person: r.person, letter, head };
+        // Split here rather than in the template: the rows re-render on every
+        // keystroke, and this only changes when the filter does.
+        const parts = fullNameParts(r.person);
+        return {
+          person: r.person, letter, head,
+          first: parts ? parts.first : '',
+          mid:   parts ? parts.middle : '',
+          last:  parts ? parts.last : '',
+          sfx:   parts ? parts.suffix : '',
+        };
       });
     });
     // Which letters the current filter actually has anyone under.
@@ -1071,6 +1133,14 @@ const app = createApp({
       centerLetter(L);
       if (hitLetters.value.has(L)) jumpToLetter(L);
     }
+    // The dial's own dice roll: spin to a letter this result set actually has,
+    // never the one already under the notch — a roll that lands where it
+    // started reads as a broken button.
+    function randomLetter() {
+      const pool = AZ.filter(L => hitLetters.value.has(L) && L !== dialLetter.value);
+      if (!pool.length) return;
+      pickLetter(pool[Math.floor(Math.random() * pool.length)]);
+    }
 
     // A mouse has no swipe, so it drags the dial instead.
     let dialDrag = false, dialDownY = 0, dialDownScroll = 0, dialMoved = false;
@@ -1121,6 +1191,8 @@ const app = createApp({
     const refineOpen = ref(false);
     // Account / settings sheet behind the three-bar button in the title row.
     const menuOpen = ref(false);
+    // What the app is, for anyone who lands on a globe with no explanation.
+    const aboutOpen = ref(false);
     // Which face of the account sheet is showing.
     const menuView = ref('root');            // root | favorites | searches | settings
     function openMenu(view) { menuView.value = view; menuOpen.value = true; }
@@ -1244,6 +1316,26 @@ const app = createApp({
       el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
     }
 
+    // Same arrows for the sub-category strip below it. Kept separate rather
+    // than generalised — two tracks isn't enough repetition to be worth the
+    // indirection, and they may drift apart.
+    const subTrack = ref(null);
+    const canSubPrev = ref(false);
+    const canSubNext = ref(false);
+    function syncSubArrows() {
+      const el = subTrack.value;
+      if (!el) { canSubPrev.value = canSubNext.value = false; return; }
+      canSubPrev.value = el.scrollLeft > 4;
+      canSubNext.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
+    }
+    function subPage(dir) {
+      const el = subTrack.value;
+      if (!el) return;
+      el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
+    }
+    // (The re-measure watcher lives with orderedSubfields, below — watch()
+    //  reads its source immediately, so it can't run before that const exists.)
+
     // Mouse drag-to-scroll. Touch is left to the browser so momentum and
     // scroll-snap behave natively.
     let catDragging = false, catDownX = 0, catDownScroll = 0, catMoved = false;
@@ -1292,12 +1384,14 @@ const app = createApp({
       // Open on a random country rather than a blank screen. This runs before
       // the globe exists, which is deliberate: it parks HOME_VIEW on that
       // country, so initGlobe's opening move lands there on its own.
-      randomGlobeView();
+      openingGlobeView();
       ensureGlobe();
       syncCatArrows();
+      syncSubArrows();
     }));
-    window.addEventListener('resize', syncCatArrows);
-    onUnmounted(() => window.removeEventListener('resize', syncCatArrows));
+    function syncStripArrows() { syncCatArrows(); syncSubArrows(); }
+    window.addEventListener('resize', syncStripArrows);
+    onUnmounted(() => window.removeEventListener('resize', syncStripArrows));
 
     // Just the category strip's selections — genders and everything else stay.
     function clearCategories() {
@@ -1477,7 +1571,8 @@ const app = createApp({
     // ---- Esc key closes the modal ----
     function onKeydown(e) {
       if (e.key !== 'Escape') return;
-      if (menuOpen.value) menuOpen.value = false;
+      if (aboutOpen.value) aboutOpen.value = false;
+      else if (menuOpen.value) menuOpen.value = false;
       else if (refineOpen.value) refineOpen.value = false;
       else if (selectedPerson.value) closePerson();
       else if (hitsExpanded.value) hitsExpanded.value = false;
@@ -1485,25 +1580,45 @@ const app = createApp({
     onMounted(() => document.addEventListener('keydown', onKeydown));
     onUnmounted(() => document.removeEventListener('keydown', onKeydown));
 
-    // ---- Pre-compute soundex / first-name index for similar-name lookup ----
-    const NAME_INDEX = PEOPLE.map(p => ({
-      person: p,
-      first: firstName(p.name),
-      sx: soundex(firstName(p.name)),
-    }));
+    // ---- Pre-compute soundex / given-name index for similar-name lookup ----
+    // Every given name someone answers to: the leading token plus any middle
+    // names, since a middle name counts the same as a first name here. Suffixes
+    // ('Jr.', 'III') live in the same data slot but aren't names, so they're out.
+    function givenNamesOf(person) {
+      const out = [firstName((person && person.name) || '')];
+      for (const tok of String((person && person.middleName) || '').trim().split(/\s+/)) {
+        if (!tok || isNameSuffix(tok)) continue;
+        const n = firstName(tok);
+        if (n && !out.includes(n)) out.push(n);
+      }
+      return out.filter(Boolean);
+    }
+    const NAME_INDEX = PEOPLE.map(p => {
+      const names = givenNamesOf(p);
+      return { person: p, names, sx: names.map(soundex) };
+    });
     function similarNamesFor(person) {
       if (!person) return { exact: [], similar: [] };
-      const fn = firstName(person.name);
-      const sx = soundex(fn);
+      const mine = givenNamesOf(person);
+      const mineSx = mine.map(soundex);
       const exact = [];
       const similar = [];
       for (const n of NAME_INDEX) {
         if (n.person.id === person.id) continue;
-        if (n.first === fn) exact.push(n.person);
-        else if (n.sx === sx && n.first[0] === fn[0]) similar.push(n.person);
+        // First-name-to-first-name is the strongest kind of match, so it sorts
+        // ahead of the ones a middle name brought in when the list is capped.
+        if (n.names.some(x => mine.includes(x))) {
+          exact.push({ person: n.person, rank: n.names[0] === mine[0] ? 0 : 1 });
+        }
+        // Phonetic near-miss on any pairing of their names and ours, with the
+        // same initial so soundex collisions don't drag in unrelated names.
+        else if (n.sx.some((s, i) => mineSx.some((t, j) => s === t && n.names[i][0] === mine[j][0]))) similar.push(n.person);
       }
       // Cap each list so the modal doesn't get unwieldy.
-      return { exact: exact.slice(0, 12), similar: similar.slice(0, 12) };
+      return {
+        exact: exact.sort((a, b) => a.rank - b.rank).slice(0, 12).map(e => e.person),
+        similar: similar.slice(0, 12),
+      };
     }
     const similarForSelected = computed(() => similarNamesFor(selectedPerson.value));
 
@@ -1520,6 +1635,32 @@ const app = createApp({
         for (const sf of (SUBFIELDS_BY_FIELD[f] || [])) seen.add(sf);
       }
       return [...seen].sort();
+    });
+
+    // How many people sit under each subfield of the selected field(s). Drives
+    // both the strip's order and the count on each chip — a genre with two
+    // names in it shouldn't lead.
+    const subfieldCounts = computed(() => {
+      const m = new Map();
+      const fields = selectedFields.value;
+      if (!fields.length) return m;
+      for (const p of PEOPLE) {
+        if (!p.subfield || !fields.includes(p.field)) continue;
+        m.set(p.subfield, (m.get(p.subfield) || 0) + 1);
+      }
+      return m;
+    });
+    const countForSubfield = (sf) => subfieldCounts.value.get(sf) || 0;
+    const orderedSubfields = computed(() =>
+      [...availableSubfields.value].sort(
+        (a, b) => countForSubfield(b) - countForSubfield(a) || a.localeCompare(b)
+      )
+    );
+    // The strip's contents change with the category, so re-measure after the
+    // new chips have actually been laid out.
+    watch(orderedSubfields, () => {
+      if (subTrack.value) subTrack.value.scrollLeft = 0;
+      nextTick(syncSubArrows);
     });
 
     // (Subfield reset is handled in toggleField below — switching contexts
@@ -1701,14 +1842,20 @@ const app = createApp({
     // Split a person's display name into first/last around their middle name.
     // Returns null when there's no middleName (so the template can v-if it out)
     // or when name doesn't have at least two whitespace-separated tokens.
+    // A handful of records carry a suffix in the middleName slot ('Jr.',
+    // 'III', 'Junior'); those trail the family name instead of splitting it,
+    // so we never render "Walt Jr. Frazier".
     function fullNameParts(person) {
       if (!person || !person.middleName) return null;
       const parts = person.name.trim().split(/\s+/);
       if (parts.length < 2) return null;
+      const mid = String(person.middleName).trim();
+      const isSuffix = isNameSuffix(mid);
       return {
         first: parts[0],
-        middle: person.middleName,
+        middle: isSuffix ? '' : mid,
         last: parts.slice(1).join(' '),
+        suffix: isSuffix ? mid : '',
       };
     }
 
@@ -1729,8 +1876,11 @@ const app = createApp({
     function fullNameOf(person) {
       const parts = fullNameParts(person);
       if (!parts) return (person && person.name) || '';
-      return `${parts.first} ${parts.middle} ${parts.last}`;
+      return [parts.first, parts.middle, parts.last, parts.suffix].filter(Boolean).join(' ');
     }
+    // The open card titles with the middle name in place, so it reads the way
+    // a birth certificate does rather than as a trailing footnote.
+    const selectedNameParts = computed(() => fullNameParts(selectedPerson.value));
 
     function metaPills(person) {
       const pills = [];
@@ -1771,10 +1921,11 @@ const app = createApp({
       colorForField, iconForField,
       // quick categories
       catTrack, canCatPrev, canCatNext, catPage, quickPick, syncCatArrows,
+      subTrack, canSubPrev, canSubNext, subPage, syncSubArrows,
       orderedFields, countForField,
       catPointerDown, catPointerMove, catPointerUp,
       // computed
-      filtered, availableSubfields, similarForSelected,
+      filtered, availableSubfields, orderedSubfields, countForSubfield, similarForSelected,
       favoritePeople, countryList, countryMax,
       showResults, yearsActive, clearYears, YEAR_TICKS,
       tlMin, tlMax, tlMinPct, tlMaxPct, tlBirthPct, tlLabel,
@@ -1797,12 +1948,12 @@ const app = createApp({
       MONTH_NAMES, zodiacFor, zodiacIcon, zodiacWiki, formatBirthDate, daysInMonth,
       surpriseMe,
       // dock
-      hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen,
+      hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen, aboutOpen,
       menuView, openMenu,
       savedSearches, saveCurrentSearch, applySavedSearch, deleteSavedSearch,
       searchLabel, isSearchSaved,
       clearSavedData, signOut, confirmSignOut, nameMode,
-      dialTrack, dialLetter, onDialScroll, onDialClick,
+      dialTrack, dialLetter, onDialScroll, onDialClick, randomLetter,
       dialPointerDown, dialPointerMove, dialPointerUp,
       // hits list: A–Z jump and first/last name order
       AZ, hitLetters, hitsList, jumpToLetter, nameMode, setNameMode,
@@ -1814,7 +1965,7 @@ const app = createApp({
       askOpen, askInput, askAnswer, askError, askLoading,
       toggleAsk, submitAsk,
       // display helpers
-      metaPills, tagsFor, fullNameParts, fullNameOf, middleNameOf, rowMeta,
+      metaPills, tagsFor, fullNameParts, fullNameOf, middleNameOf, selectedNameParts, rowMeta,
     };
   },
 });
