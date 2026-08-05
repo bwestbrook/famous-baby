@@ -436,6 +436,29 @@
                   <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
                 </button>
               </div>
+              <!-- Line three: the question box, built to the same height as the
+                   pills above it so the three lines read as one block. The
+                   answer lands down in the body, where it can scroll. -->
+              <form class="kask__form" @submit.prevent="submitAsk">
+                <svg class="ico ico--12 kask__ico"><use href="#i-search"/></svg>
+                <input
+                  type="text"
+                  class="kask__input"
+                  v-model="askInput"
+                  :placeholder="'Ask about ' + selectedPerson.name.split(' ')[0]"
+                  :disabled="askLoading"
+                  maxlength="200"
+                  aria-label="Ask a question about this person"
+                />
+                <button
+                  type="submit"
+                  class="kask__go"
+                  :disabled="askLoading || !askInput.trim()"
+                  title="Ask"
+                >
+                  <svg class="ico ico--12"><use href="#i-chev-right"/></svg>
+                </button>
+              </form>
             </div>
             <button
               class="pop__fav"
@@ -528,36 +551,16 @@
         <!-- Card body: the bio, the ask box, the tag rows, and the links out
              to other people. Lost in the header rework; restored from 223b469. -->
         <div class="pop__body">
-          <p class="kcard__bio">{{ selectedPerson.bio }}</p>
-
-          <!-- The trigger lives up in the header row; this is just the box it
-               opens. -->
-          <!-- A question box rather than a button that opens one: the prompt
-               that used to label the button is the placeholder now. -->
-          <div class="kask">
-            <form class="kask__form" @submit.prevent="submitAsk">
-              <svg class="ico ico--16 kask__ico"><use href="#i-search"/></svg>
-              <input
-                type="text"
-                class="kask__input"
-                v-model="askInput"
-                :placeholder="'Ask about ' + selectedPerson.name.split(' ')[0]"
-                :disabled="askLoading"
-                maxlength="200"
-                aria-label="Ask a question about this person"
-              />
-              <button
-                type="submit"
-                class="kask__go"
-                :disabled="askLoading || !askInput.trim()"
-                title="Ask"
-              >
-                <svg class="ico ico--16"><use href="#i-chev-right"/></svg>
-              </button>
-            </form>
+          <!-- The box that asked lives in the header; what comes back lands
+               here, where a long answer can scroll instead of stretching the
+               card's fixed top. -->
+          <div v-if="askError || askAnswer || askLoading" class="kask">
+            <p v-if="askLoading" class="kask__err">Asking…</p>
             <p v-if="askError" class="kask__err">{{ askError }}</p>
             <p v-if="askAnswer" class="kask__ans">{{ askAnswer }}</p>
           </div>
+
+          <p class="kcard__bio">{{ selectedPerson.bio }}</p>
 
           <dl class="kdl">
             <template v-if="selectedPerson.teams && selectedPerson.teams.length">
