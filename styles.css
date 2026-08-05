@@ -438,7 +438,7 @@ body {
   border-left: 1px solid rgba(255,255,255,.12);
 }
 .dialcol__roll button {
-  height: 22px;
+  height: 20px;
   display: grid; place-items: center;
   border-radius: 6px;
   border: 1px solid rgba(255,255,255,.16);
@@ -451,6 +451,19 @@ body {
   color: #fff;
 }
 .dialcol__roll button:disabled { opacity: .3; cursor: default; }
+/* One notch either side of the rail. Kept to 14px because the column only has
+   158px to spend and the letters need what's left. */
+.dialcol__arw {
+  flex: none;
+  height: 14px;
+  display: grid; place-items: center;
+  color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.05);
+  border-left: 1px solid rgba(255,255,255,.12);
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.dialcol__arw:hover:not(:disabled) { background: rgba(255,255,255,.18); color: #fff; }
+.dialcol__arw:disabled { opacity: .25; cursor: default; }
 .dialcol .dialwrap { flex: 1; min-height: 0; width: 100%; }
 
 .dialwrap {

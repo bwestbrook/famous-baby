@@ -1133,6 +1133,25 @@ const app = createApp({
       centerLetter(L);
       if (hitLetters.value.has(L)) jumpToLetter(L);
     }
+    // One notch at a time, for anyone who'd rather tap than drag. It steps to
+    // the next letter the results actually have — stopping on a greyed letter
+    // would move the dial without moving the list, which reads as a dead press.
+    function dialStep(dir) {
+      const from = AZ.indexOf(dialLetter.value);
+      for (let i = from + dir; i >= 0 && i < AZ.length; i += dir) {
+        if (hitLetters.value.has(AZ[i])) { pickLetter(AZ[i]); return; }
+      }
+    }
+    const hasLetterBeyond = (dir) => {
+      const from = AZ.indexOf(dialLetter.value);
+      for (let i = from + dir; i >= 0 && i < AZ.length; i += dir) {
+        if (hitLetters.value.has(AZ[i])) return true;
+      }
+      return false;
+    };
+    const canDialUp = computed(() => hasLetterBeyond(-1));
+    const canDialDown = computed(() => hasLetterBeyond(1));
+
     // The dial's own dice roll: spin to a letter this result set actually has,
     // never the one already under the notch — a roll that lands where it
     // started reads as a broken button.
@@ -2137,6 +2156,7 @@ const app = createApp({
       searchLabel, isSearchSaved,
       clearSavedData, signOut, confirmSignOut, nameMode,
       dialTrack, dialLetter, onDialScroll, onDialClick, randomLetter,
+      dialStep, canDialUp, canDialDown,
       dialPointerDown, dialPointerMove, dialPointerUp,
       // hits list: A–Z jump and first/last name order
       AZ, hitLetters, hitsList, jumpToLetter, nameMode, setNameMode,
