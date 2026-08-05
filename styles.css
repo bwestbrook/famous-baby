@@ -212,7 +212,8 @@ body {
 /* ---------- sub-categories: the picked field's genres / leagues ----------
    One line, scrolled sideways. Same glass as the tiles above, a size down, so
    it reads as a second tier rather than a second row of categories. */
-.subbar { display: flex; align-items: center; gap: 4px; padding: 0 0 1px; }
+.subbar { display: flex; flex-direction: column; gap: 3px; padding: 0 0 1px; }
+.subbar__row { display: flex; align-items: center; gap: 4px; }
 /* Arrows match the category strip's, one size down. */
 .qbar__arrow--sm { width: 22px; height: 22px; }
 .subbar__track {
@@ -240,16 +241,13 @@ body {
   white-space: nowrap;
   transition: background .12s var(--ease), border-color .12s var(--ease), color .12s var(--ease);
 }
-/* The count is the useful part of the label, not decoration — a league with
-   two names behind it should say so before it's tapped. */
-.subchip em { font-style: normal; font-size: 8.5px; color: rgba(255,255,255,.45); }
+/* Counts moved to the tooltip — they still set the order of the chips. */
 .subchip:hover { background: rgba(70,74,83,.52); border-color: rgba(255,255,255,.5); color: #fff; }
 .subchip.is-on {
   background: rgba(96,101,112,.58);
   border-color: rgba(255,255,255,.8);
   color: #fff;
 }
-.subchip.is-on em { color: rgba(255,255,255,.72); }
 
 /* ---------- map controls — vertical column, right edge, centred ---------- */
 .mapctl {
@@ -720,8 +718,17 @@ body {
   position: absolute; inset: 0;
   background: linear-gradient(to bottom, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,0) 100%);
 }
+/* The header row: back, who they are, save. It leads the card — the face and
+   the map follow underneath, so the name is the first thing read, not a
+   caption on a photo. */
+.pop__head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px 9px;
+  color: #fff;
+  background: linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.42));
+}
 .pop__back, .pop__fav {
-  position: absolute; top: 8px;
+  flex: none; align-self: flex-start;
   width: 30px; height: 30px;
   display: grid; place-items: center;
   border-radius: 50%;
@@ -729,23 +736,18 @@ body {
   backdrop-filter: blur(4px);
   transition: background .12s var(--ease);
 }
-.pop__back { left: 8px; }
-.pop__fav  { right: 8px; }
 .pop__back:hover, .pop__fav:hover { background: rgba(0,0,0,.55); }
 .pop__fav.is-on { color: #ff6d60; }
-/* The name reads under the pair, where it gets the card's full width. */
-.pop__titles {
-  padding: 9px 14px 10px;
-  color: #fff;
-  background: linear-gradient(to bottom, rgba(0,0,0,.28), rgba(0,0,0,.42));
-}
+.pop__titles { flex: 1; min-width: 0; }
 /* Two lines: who they are, then when. Neither wraps — the name is the only
    part allowed to give ground, and only in the extreme. */
 .pop__line {
   display: flex; align-items: baseline; flex-wrap: nowrap; gap: 6px;
   min-width: 0;
 }
-.pop__line--sub { margin-top: 3px; align-items: center; }
+/* The sub-line carries three pills now and shares its row with two buttons, so
+   this is the one line allowed to wrap rather than overflow. */
+.pop__line--sub { margin-top: 3px; align-items: center; flex-wrap: wrap; row-gap: 4px; }
 .pop__name {
   margin: 0;
   min-width: 0;
@@ -766,8 +768,9 @@ body {
 }
 .pop__date:hover { background: rgba(253,214,99,.2); border-color: rgba(253,214,99,.7); }
 .pop__date:disabled { cursor: default; border-color: transparent; background: none; }
-/* The sign rides beside the date, and filters to itself when tapped. */
-.pop__sign {
+/* The sign rides beside the date, and filters to itself when tapped. The ask
+   pill is the same object one step along — one spec, so they can't drift. */
+.pop__sign, .pop__ask {
   align-self: center;
   display: inline-flex; align-items: center; gap: 4px;
   flex: none; white-space: nowrap;
@@ -781,7 +784,9 @@ body {
   text-shadow: none;
   transition: background .12s var(--ease), border-color .12s var(--ease);
 }
-.pop__sign:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); color: #fff; }
+.pop__sign:hover, .pop__ask:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); color: #fff; }
+/* Open: the pill reads as pressed, so it's obvious what the box below belongs to. */
+.pop__ask.is-on { background: rgba(255,255,255,.9); border-color: #fff; color: #202124; }
 
 .pop__body {
   flex: 1; min-height: 0; overflow-y: auto;
@@ -846,23 +851,6 @@ body {
 }
 .minimap__city.is-own { fill: #FDD663; font-weight: 500; }
 
-/* Zoom, bottom-right of the tile */
-.minimap__zoom {
-  position: absolute; right: 5px; bottom: 26px;
-  display: flex; flex-direction: column; gap: 1px;
-  z-index: 2;
-}
-.minimap__zbtn {
-  width: 22px; height: 20px;
-  display: grid; place-items: center;
-  color: rgba(255,255,255,.85);
-  background: rgba(0,0,0,.55);
-  border: 1px solid rgba(255,255,255,.22);
-  transition: background .12s var(--ease);
-}
-.minimap__zbtn:first-child { border-radius: 6px 6px 2px 2px; }
-.minimap__zbtn:last-child  { border-radius: 2px 2px 6px 6px; }
-.minimap__zbtn:hover { background: rgba(40,42,48,.9); color: #fff; }
 .minimap__cap {
   position: absolute; left: 0; right: 0; bottom: 0;
   display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -874,12 +862,6 @@ body {
 .minimap__cap .ico { color: rgba(253,214,99,.9); }
 /* Long place names truncate here — the full string is a chip in the body. */
 .minimap__place { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.minimap__cap em {
-  font-style: normal; font-size: 9.5px;
-  color: rgba(255,255,255,.42);
-  border: 1px solid rgba(255,255,255,.2);
-  border-radius: 6px; padding: 0 4px;
-}
 
 .pop .kcard__bio { color: #f1f3f4; }
 
@@ -900,6 +882,74 @@ body {
 .pop .tag em { color: rgba(255,255,255,.55); }
 .pop .tag--ghost { background: rgba(255,255,255,.06); color: rgba(255,255,255,.7); }
 
+/* ---------- career neighbours: the strip that closes the card ----------
+   One name at a time with arrows either side, so it reads as a place you are
+   in a list rather than a wall of alternatives. */
+.knav {
+  margin-top: 4px; padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+.knav__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 7px;
+}
+.knav__title {
+  font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em;
+  color: rgba(255,255,255,.5);
+}
+.knav__pos {
+  font-size: 10px; font-weight: 300; font-variant-numeric: tabular-nums;
+  color: rgba(255,255,255,.4);
+}
+.knav__row { display: flex; align-items: stretch; gap: 5px; }
+.knav__arw {
+  flex: none;
+  width: 30px;
+  display: grid; place-items: center;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.6);
+  transition: background .12s var(--ease), color .12s var(--ease), border-color .12s var(--ease);
+}
+.knav__arw:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.4); color: #fff; }
+/* The dice sits a step apart — it jumps rather than steps. */
+.knav__arw--dice { margin-left: 3px; }
+.knav__pick {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  text-align: left;
+  transition: background .12s var(--ease), border-color .12s var(--ease);
+}
+.knav__pick:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.34); }
+.knav__thumb {
+  position: relative; flex: none;
+  width: 34px; height: 34px;
+  border-radius: 6px; overflow: hidden;
+  display: grid; place-items: center;
+}
+.knav__thumb img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity .2s var(--ease);
+}
+.knav__thumb img.is-loaded { opacity: 1; }
+.knav__thumb img.is-broken { display: none; }
+.knav__initial { color: #fff; font-size: 14px; font-weight: 500; user-select: none; }
+.knav__txt { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.knav__name {
+  font-size: 13px; font-weight: 400; color: #f1f3f4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Why this person surfaced — the clause that scored highest. */
+.knav__why {
+  font-size: 10.5px; font-weight: 300; color: rgba(255,255,255,.55);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
 .kcard__facts { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
 .kfact {
   display: inline-flex; align-items: center; gap: 5px;
@@ -916,7 +966,7 @@ body {
 .kcard__bio { margin: 0 0 12px; font-size: 12.5px; line-height: 1.6; color: #3c4043; }
 
 .kask { margin-top: 16px; margin-bottom: 0; }
-.kask__panel { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.kask__panel { display: flex; flex-direction: column; gap: 8px; }
 .kask__form { display: flex; gap: 6px; }
 .kask__input {
   flex: 1; min-width: 0;
@@ -983,6 +1033,14 @@ body {
   color: rgba(255,255,255,.86);
 }
 .about__p em { font-style: italic; color: #fff; }
+/* The opener asks the question the app exists to answer, so it leads: a shade
+   larger and brighter, with the explanation running on underneath it. */
+.about__p--lead {
+  padding-bottom: 0;
+  font-size: 14.5px; line-height: 1.55;
+  color: #fff;
+}
+.about__p--lead + .about__p { padding-top: 14px; }
 .panel__collapse {
   width: 30px; height: 30px; display: grid; place-items: center;
   border-radius: 50%; color: rgba(255,255,255,.7); flex: none;

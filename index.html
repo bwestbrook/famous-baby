@@ -229,23 +229,40 @@
       <!-- Sub-categories for whichever field is open — Film's roles, Sport's
            leagues, Music's genres. Only appears once a category is picked, and
            scrolls sideways rather than wrapping onto a second line. -->
-      <div v-if="orderedSubfields.length" class="subbar">
-        <button class="qbar__arrow qbar__arrow--sm" @click="subPage(-1)" :disabled="!canSubPrev" title="Previous">
-          <svg class="ico ico--14"><use href="#i-chev-left"/></svg>
-        </button>
-        <div class="subbar__track" ref="subTrack" @scroll.passive="syncSubArrows">
+      <div v-if="subRows.length" class="subbar">
+        <!-- A row per selected category; each scrolls and pages on its own. -->
+        <div v-for="row in subRows" :key="row.field" class="subbar__row">
           <button
-            v-for="sf in orderedSubfields"
-            :key="sf"
-            class="subchip"
-            :class="{ 'is-on': isSubfieldSelected(sf) }"
-            @click="toggleSubfield(sf)"
-            :title="sf + ' — ' + countForSubfield(sf) + ' names'"
-          >{{ sf }}<em>{{ countForSubfield(sf) }}</em></button>
+            class="qbar__arrow qbar__arrow--sm"
+            @click="subPage(row.field, -1)"
+            :disabled="!canSubPrev(row.field)"
+            :title="'Previous ' + row.field"
+          >
+            <svg class="ico ico--14"><use href="#i-chev-left"/></svg>
+          </button>
+          <div
+            class="subbar__track"
+            :ref="el => setSubTrack(row.field, el)"
+            @scroll.passive="syncSubRow(row.field)"
+          >
+            <button
+              v-for="sf in row.subs"
+              :key="sf"
+              class="subchip"
+              :class="{ 'is-on': isSubfieldSelected(sf) }"
+              @click="toggleSubfield(sf)"
+              :title="sf + ' — ' + countForSubfield(row.field, sf) + ' names'"
+            >{{ sf }}</button>
+          </div>
+          <button
+            class="qbar__arrow qbar__arrow--sm"
+            @click="subPage(row.field, 1)"
+            :disabled="!canSubNext(row.field)"
+            :title="'More ' + row.field"
+          >
+            <svg class="ico ico--14"><use href="#i-chev-right"/></svg>
+          </button>
         </div>
-        <button class="qbar__arrow qbar__arrow--sm" @click="subPage(1)" :disabled="!canSubNext" title="More">
-          <svg class="ico ico--14"><use href="#i-chev-right"/></svg>
-        </button>
       </div>
 
       </div><!-- /.topstack -->
@@ -380,8 +397,60 @@
         role="dialog"
         aria-modal="false"
       >
-        <!-- Face and birthplace, two portrait tiles side by side. -->
+        <!-- Who they are first, then the two portrait tiles: face and birthplace. -->
         <div class="pop__hero">
+          <div class="pop__head">
+            <button class="pop__back" @click="closePerson" title="Back to results">
+              <svg class="ico ico--18"><use href="#i-back"/></svg>
+            </button>
+            <div class="pop__titles">
+              <!-- Line one: the name and what they're known as. -->
+              <div class="pop__line">
+                <h2 class="pop__name">
+                  <template v-if="selectedNameParts && selectedNameParts.middle">{{ selectedNameParts.first }} <em class="pop__middle">{{ selectedNameParts.middle }}</em> {{ selectedNameParts.last }}</template>
+                  <template v-else-if="selectedNameParts && selectedNameParts.suffix">{{ selectedPerson.name }} <em class="pop__middle">{{ selectedNameParts.suffix }}</em></template>
+                  <template v-else>{{ selectedPerson.name }}</template>
+                </h2>
+                <span v-if="selectedPerson.stageName" class="pop__alias">“{{ selectedPerson.stageName }}”</span>
+              </div>
+              <!-- Line two: when they were born, under what sign, and the way in
+                   to a question about them. -->
+              <div class="pop__line pop__line--sub">
+                <button
+                  class="pop__date"
+                  :disabled="!selectedPerson.birthMonth"
+                  @click="filterBirthday(selectedPerson)"
+                  :title="selectedPerson.birthMonth ? 'Show everyone born ' + MONTH_NAMES[selectedPerson.birthMonth] + (selectedPerson.birthDay ? ' ' + selectedPerson.birthDay : '') : ''"
+                >{{ formatBirthDate(selectedPerson) }}</button>
+                <button
+                  v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+                  class="pop__sign"
+                  @click="filterZodiac(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"
+                  :title="'Show ' + zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) + ' names'"
+                >
+                  <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
+                </button>
+                <!-- Same pill as the sign, next along: the question box itself
+                     opens down in the body, where there's room for an answer. -->
+                <button
+                  class="pop__ask"
+                  :class="{ 'is-on': askOpen }"
+                  @click="toggleAsk"
+                  :aria-expanded="askOpen ? 'true' : 'false'"
+                  :title="askOpen ? 'Close the question box' : 'Ask about ' + selectedPerson.name.split(' ')[0]"
+                >{{ askOpen ? 'Cancel' : 'Ask about ' + selectedPerson.name.split(' ')[0] }}</button>
+              </div>
+            </div>
+            <button
+              class="pop__fav"
+              :class="{ 'is-on': isFavorite(selectedPerson) }"
+              @click="toggleFavorite(selectedPerson)"
+              title="Save"
+            >
+              <svg class="ico ico--18"><use :href="isFavorite(selectedPerson) ? '#i-heart' : '#i-heart-o'"/></svg>
+            </button>
+          </div>
+
           <div class="pop__media" :class="{ 'is-solo': !miniView }">
             <div class="pop__shot">
               <!-- Stands in until (or unless) a photo loads. -->
@@ -451,62 +520,13 @@
                 </g>
               </svg>
 
-              <div class="minimap__zoom">
-                <button class="minimap__zbtn" @click.stop="zoomMini(1)" title="Zoom in">
-                  <svg class="ico ico--12"><use href="#i-plus"/></svg>
-                </button>
-                <button class="minimap__zbtn" @click.stop="zoomMini(-1)" title="Zoom out">
-                  <svg class="ico ico--12"><use href="#i-minus"/></svg>
-                </button>
-              </div>
-
               <span class="minimap__cap">
                 <svg class="ico ico--12"><use href="#i-public"/></svg>
                 <span class="minimap__place">{{ selectedPerson.birthPlace }}</span>
-                <em v-if="miniMarker && !miniMarker.exact">approx.</em>
               </span>
             </div>
           </div>
 
-          <button class="pop__back" @click="closePerson" title="Back to results">
-            <svg class="ico ico--18"><use href="#i-back"/></svg>
-          </button>
-          <button
-            class="pop__fav"
-            :class="{ 'is-on': isFavorite(selectedPerson) }"
-            @click="toggleFavorite(selectedPerson)"
-            title="Save"
-          >
-            <svg class="ico ico--18"><use :href="isFavorite(selectedPerson) ? '#i-heart' : '#i-heart-o'"/></svg>
-          </button>
-          <div class="pop__titles">
-            <!-- Line one: the name and what they're known as. -->
-            <div class="pop__line">
-              <h2 class="pop__name">
-                <template v-if="selectedNameParts && selectedNameParts.middle">{{ selectedNameParts.first }} <em class="pop__middle">{{ selectedNameParts.middle }}</em> {{ selectedNameParts.last }}</template>
-                <template v-else-if="selectedNameParts && selectedNameParts.suffix">{{ selectedPerson.name }} <em class="pop__middle">{{ selectedNameParts.suffix }}</em></template>
-                <template v-else>{{ selectedPerson.name }}</template>
-              </h2>
-              <span v-if="selectedPerson.stageName" class="pop__alias">“{{ selectedPerson.stageName }}”</span>
-            </div>
-            <!-- Line two: when they were born, and under what sign. -->
-            <div class="pop__line pop__line--sub">
-              <button
-                class="pop__date"
-                :disabled="!selectedPerson.birthMonth"
-                @click="filterBirthday(selectedPerson)"
-                :title="selectedPerson.birthMonth ? 'Show everyone born ' + MONTH_NAMES[selectedPerson.birthMonth] + (selectedPerson.birthDay ? ' ' + selectedPerson.birthDay : '') : ''"
-              >{{ formatBirthDate(selectedPerson) }}</button>
-              <button
-                v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
-                class="pop__sign"
-                @click="filterZodiac(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"
-                :title="'Show ' + zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) + ' names'"
-              >
-                <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
-              </button>
-            </div>
-          </div>
         </div>
 
         <!-- Card body: the bio, the ask box, the tag rows, and the links out
@@ -514,11 +534,10 @@
         <div class="pop__body">
           <p class="kcard__bio">{{ selectedPerson.bio }}</p>
 
-          <div class="kask">
-            <button class="btn btn--out" @click="toggleAsk" :aria-expanded="askOpen ? 'true' : 'false'">
-              {{ askOpen ? 'Cancel' : 'Ask about ' + selectedPerson.name.split(' ')[0] }}
-            </button>
-            <div v-if="askOpen" class="kask__panel">
+          <!-- The trigger lives up in the header row; this is just the box it
+               opens. -->
+          <div v-if="askOpen" class="kask">
+            <div class="kask__panel">
               <form class="kask__form" @submit.prevent="submitAsk">
                 <input type="text" class="kask__input" v-model="askInput"
                        placeholder="e.g. What was their biggest moment?" :disabled="askLoading" maxlength="200" />
@@ -599,7 +618,7 @@
             <!-- Name neighbours in the same shape as the rows above: a label
                  and buttons. No birth year — here the name is the whole point. -->
             <template v-if="similarForSelected.exact.length">
-              <dt>Same first or middle name</dt>
+              <dt>Name match</dt>
               <dd><button
                 v-for="p in similarForSelected.exact"
                 :key="p.id"
@@ -619,6 +638,41 @@
               >{{ p.name }}</button></dd>
             </template>
           </dl>
+
+          <!-- Career neighbours. Step through the people whose working lives
+               look most like this one — the name plays no part in the ranking.
+               The middle is the way in; the dice stays among the closest. -->
+          <div v-if="currentMatch" class="knav">
+            <div class="knav__head">
+              <span class="knav__title">Same line of work</span>
+              <span class="knav__pos">{{ matchIndex + 1 }} / {{ careerMatches.length }}</span>
+            </div>
+            <div class="knav__row">
+              <button class="knav__arw" @click="matchStep(-1)" title="Closer match">
+                <svg class="ico ico--16"><use href="#i-chev-left"/></svg>
+              </button>
+              <button class="knav__pick" @click="openMatch" :title="'Open ' + currentMatch.person.name">
+                <span class="knav__thumb" :style="{ background: colorForField(currentMatch.person.field) }">
+                  <img
+                    :src="'./photos/' + currentMatch.person.id + '.jpg'" alt="" loading="lazy"
+                    @load="$event.target.classList.add('is-loaded')"
+                    @error="$event.target.classList.add('is-broken')"
+                  />
+                  <span class="knav__initial">{{ currentMatch.person.name[0] }}</span>
+                </span>
+                <span class="knav__txt">
+                  <span class="knav__name">{{ currentMatch.person.name }}</span>
+                  <span class="knav__why">{{ currentMatch.why }} · b. {{ currentMatch.person.birthYear }}</span>
+                </span>
+              </button>
+              <button class="knav__arw" @click="matchStep(1)" title="Next match">
+                <svg class="ico ico--16"><use href="#i-chev-right"/></svg>
+              </button>
+              <button class="knav__arw knav__arw--dice" @click="randomMatch" title="Random close match">
+                <svg class="ico ico--16"><use href="#i-face"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
       </article>
 
@@ -722,14 +776,20 @@
           </button>
         </div>
         <div class="ovl__scroll">
+          <p class="about__p about__p--lead">
+            Ever notice that NFL rosters are full of names nobody else thought of?
+            That the actresses of the forties have the most elegant ones going? That
+            the names which sound uncommon now turn out to be the ones attached to
+            history? That's the whole idea.
+          </p>
           <p class="about__p">
-            An almanac for naming. {{ PEOPLE_COUNT }} people — sprinters and physicists,
-            novelists and heads of state, painters, pop stars, inventors and outlaws —
-            and every one of them findable by anything <em>except</em> their name: a
-            birthday, a star sign, a hometown, a team, an award, a decade, a middle name
-            you half remember. Sweep the timeline across six centuries, spin the globe to
-            a country and see who it produced, or open anyone and follow the thread to
-            whoever shares their first name, their middle name, or just the sound of it.
+            An almanac for naming. Sprinters and physicists, novelists and heads of
+            state, painters, pop stars, inventors and outlaws — and every one of them
+            findable by anything <em>except</em> their name: a birthday, a star sign,
+            a hometown, a team, an award, a decade, a middle name you half remember.
+            Sweep the timeline across six centuries, spin the globe to a country and
+            see who it produced, or open anyone and follow the thread to whoever
+            shares their first name, their middle name, or just the sound of it.
             Start anywhere — the roster narrows as you go.
           </p>
         </div>

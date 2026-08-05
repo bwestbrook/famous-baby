@@ -136,6 +136,21 @@ const SUBFIELDS_BY_FIELD = (() => {
   return out;
 })();
 
+// Counts per field → subfield. Static, so it's built once from the dataset.
+// Keyed by field rather than by subfield alone: "Activist" turns up under more
+// than one field, and each row should count only its own.
+const SUBFIELD_COUNTS = (() => {
+  const map = new Map();
+  for (const p of PEOPLE) {
+    if (!p.field || !p.subfield) continue;
+    if (!map.has(p.field)) map.set(p.field, new Map());
+    const inner = map.get(p.field);
+    inner.set(p.subfield, (inner.get(p.subfield) || 0) + 1);
+  }
+  return map;
+})();
+const subCount = (field, sf) => (SUBFIELD_COUNTS.get(field) || new Map()).get(sf) || 0;
+
 const MONTH_NAMES = [
   '', 'January','February','March','April','May','June',
   'July','August','September','October','November','December',
@@ -787,7 +802,6 @@ const app = createApp({
     // or Russia that leaves the birthplace an unreadable speck, so the card
     // opens part-way zoomed: enough to frame a region around the city while
     // still reading as somewhere inside the country. Small countries open at 1.
-    const MINI_ZOOM_MIN = 0.35, MINI_ZOOM_MAX = 24;
     const MINI_TARGET_SPAN = 26;   // degrees across — comfortable for a city
     const miniAutoZoom = computed(() => {
       const v = miniView.value;
@@ -795,33 +809,19 @@ const app = createApp({
       const span = Math.max(v.w, v.h);
       return Math.min(4, Math.max(1, span / MINI_TARGET_SPAN));
     });
-    // Null until the user touches the buttons, so a card that opens before the
-    // outlines finish loading still picks up the right default afterwards.
-    const miniZoomOverride = ref(null);
-    const miniZoom = computed(() =>
-      miniZoomOverride.value === null ? miniAutoZoom.value : miniZoomOverride.value
-    );
-    function zoomMini(dir) {
-      const next = miniZoom.value * (dir > 0 ? 1.6 : 1 / 1.6);
-      miniZoomOverride.value = Math.min(MINI_ZOOM_MAX, Math.max(MINI_ZOOM_MIN, next));
-    }
-    // (the watch that clears the override per card lives with selectedPerson,
-    // which is declared further down — watch() runs immediately, so it can't
-    // sit here)
-
-    // The frame actually rendered: the fitted box, scaled by the zoom and
-    // centred on the birthplace so zooming in dives toward the person.
+    // The frame actually rendered: the fitted box, scaled to that zoom and
+    // centred on the birthplace.
     const miniFrame = computed(() => {
       const v = miniView.value;
       if (!v) return null;
-      const z = miniZoom.value;
+      const z = miniAutoZoom.value;
       const w = v.w / z, h = v.h / z;
       const loc = birthLocation(selectedPerson.value);
       const fx = loc ? projX(loc.lng) : v.x + v.w / 2;
       const fy = loc ? projY(loc.lat) : v.y + v.h / 2;
       let x = fx - w / 2, y = fy - h / 2;
-      // Zoomed in, hold the frame inside the country's own box; zoomed out,
-      // there's nothing to clamp against, so just stay centred.
+      // Zoomed in, hold the frame inside the country's own box; at 1 there's
+      // nothing to clamp against, so just stay centred.
       x = w < v.w ? Math.min(Math.max(x, v.x), v.x + v.w - w) : v.x + v.w / 2 - w / 2;
       y = h < v.h ? Math.min(Math.max(y, v.y), v.y + v.h - h) : v.y + v.h / 2 - h / 2;
       return {
@@ -1319,21 +1319,34 @@ const app = createApp({
     // Same arrows for the sub-category strip below it. Kept separate rather
     // than generalised — two tracks isn't enough repetition to be worth the
     // indirection, and they may drift apart.
-    const subTrack = ref(null);
-    const canSubPrev = ref(false);
-    const canSubNext = ref(false);
-    function syncSubArrows() {
-      const el = subTrack.value;
-      if (!el) { canSubPrev.value = canSubNext.value = false; return; }
-      canSubPrev.value = el.scrollLeft > 4;
-      canSubNext.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
+    // Each sub-row scrolls on its own, so the arrow state is per field rather
+    // than one pair of refs. The elements sit in a plain Map — they aren't
+    // reactive data; only the can-scroll flags need to reach the template.
+    const subTrackEls = new Map();
+    const subArrowState = ref({});
+    function setSubTrack(field, el) {
+      if (el) subTrackEls.set(field, el);
+      else subTrackEls.delete(field);
     }
-    function subPage(dir) {
-      const el = subTrack.value;
+    function syncSubRow(field) {
+      const el = subTrackEls.get(field);
+      const next = { ...subArrowState.value };
+      if (!el) delete next[field];
+      else next[field] = [
+        el.scrollLeft > 4,
+        el.scrollLeft + el.clientWidth < el.scrollWidth - 4,
+      ];
+      subArrowState.value = next;
+    }
+    function syncSubArrows() { for (const field of subTrackEls.keys()) syncSubRow(field); }
+    const canSubPrev = (field) => !!(subArrowState.value[field] || [])[0];
+    const canSubNext = (field) => !!(subArrowState.value[field] || [])[1];
+    function subPage(field, dir) {
+      const el = subTrackEls.get(field);
       if (!el) return;
       el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
     }
-    // (The re-measure watcher lives with orderedSubfields, below — watch()
+    // (The re-measure watcher lives with subRows, below — watch()
     //  reads its source immediately, so it can't run before that const exists.)
 
     // Mouse drag-to-scroll. Touch is left to the browser so momentum and
@@ -1381,11 +1394,13 @@ const app = createApp({
       tick();
     }
     onMounted(() => nextTick(() => {
-      // Open on a random country rather than a blank screen. This runs before
-      // the globe exists, which is deliberate: it parks HOME_VIEW on that
-      // country, so initGlobe's opening move lands there on its own.
+      // Open on somebody rather than a blank globe: a random card, and the
+      // camera follows them home. openingGlobeView() still runs first so
+      // HOME_VIEW — where closing the card pulls back to — is a real place
+      // rather than wherever the last session left off.
       openingGlobeView();
       ensureGlobe();
+      surpriseMe();
       syncCatArrows();
       syncSubArrows();
     }));
@@ -1434,7 +1449,6 @@ const app = createApp({
     // ---- Person info modal ----
     const selectedPerson = ref(null);
     // Each card opens at the country-fits-the-tile zoom.
-    watch(selectedPerson, () => { miniZoomOverride.value = null; });
     function openPerson(p) {
       selectedPerson.value = p;
       // The camera drops in on their birth country and the spin stops, so the
@@ -1622,6 +1636,97 @@ const app = createApp({
     }
     const similarForSelected = computed(() => similarNamesFor(selectedPerson.value));
 
+    // ---- Career neighbours ----
+    // Who else lived this working life? Names play no part here — the score is
+    // built from the shape of the career: the room they worked in, the people
+    // they worked with, the silverware, and when. Each clause also names
+    // itself, so the strip can say why this person turned up.
+    const nameSet = (list) => new Set((list || []).map(x => String(x).toLowerCase()));
+    function careerMatch(me, them) {
+      let score = 0;
+      let why = '';
+      const claim = (points, reason) => { score += points; if (!why) why = reason; };
+
+      // Worked together — the strongest signal there is, and it reads both ways.
+      const myCollabs = nameSet(me.collaborators);
+      const theirCollabs = nameSet(them.collaborators);
+      if (myCollabs.has(them.name.toLowerCase()) || theirCollabs.has(me.name.toLowerCase())) {
+        claim(9, 'worked together');
+      } else {
+        const shared = [...myCollabs].filter(c => theirCollabs.has(c));
+        if (shared.length) claim(5, 'both worked with ' + shared[0].replace(/\b\w/g, c => c.toUpperCase()));
+      }
+
+      // Same room: a shared team beats a shared league beats a shared field.
+      const myTeams = nameSet((me.teams || []).map(t => t.name));
+      const sharedTeam = (them.teams || []).map(t => t.name).find(n => myTeams.has(n.toLowerCase()));
+      if (sharedTeam) claim(7, sharedTeam);
+      if (me.subfield && me.subfield === them.subfield) claim(5, them.subfield);
+      else if (me.field && me.field === them.field) claim(3, them.field);
+
+      // Same trophy on the shelf.
+      const myAwards = nameSet((me.awards || []).map(a => a.name));
+      const sharedAward = (them.awards || []).map(a => a.name).find(n => myAwards.has(n.toLowerCase()));
+      if (sharedAward) claim(4, sharedAward);
+
+      // Contemporaries: a career only overlaps another if the years do.
+      const gap = Math.abs((me.birthYear || 0) - (them.birthYear || 0));
+      if (gap <= 5) claim(3, 'same generation');
+      else if (gap <= 15) claim(2, 'overlapping years');
+      else if (gap <= 30) claim(1, 'adjacent eras');
+
+      if (me.country && me.country === them.country) claim(1, them.country);
+      return { score, why };
+    }
+    // Ranked, and capped — past a couple of dozen the tail stops being "like them".
+    const MATCH_MAX = 24;
+    const careerMatches = computed(() => {
+      const me = selectedPerson.value;
+      if (!me) return [];
+      const out = [];
+      for (const p of PEOPLE) {
+        if (p.id === me.id) continue;
+        const { score, why } = careerMatch(me, p);
+        // A shared era alone isn't a career in common.
+        if (score < 3) continue;
+        out.push({ person: p, score, why });
+      }
+      // Ties break on era, never on name — alphabetical order here would let
+      // the one thing this list ignores back in through the side door.
+      const era = (r) => Math.abs((me.birthYear || 0) - (r.person.birthYear || 0));
+      out.sort((a, b) => b.score - a.score || era(a) - era(b));
+      return out.slice(0, MATCH_MAX);
+    });
+    // Where the strip is parked. A new card is a new list, so it starts over.
+    const matchIndex = ref(0);
+    watch(selectedPerson, () => { matchIndex.value = 0; });
+    // Clamped: the watcher above resets the index before the card re-renders,
+    // but the list has already changed by then — never index off the end of it.
+    const currentMatch = computed(() => {
+      const list = careerMatches.value;
+      if (!list.length) return null;
+      return list[Math.min(matchIndex.value, list.length - 1)] || null;
+    });
+    // Wraps rather than clamping: a short list shouldn't dead-end at both edges.
+    function matchStep(dir) {
+      const n = careerMatches.value.length;
+      if (!n) return;
+      matchIndex.value = (matchIndex.value + dir + n) % n;
+    }
+    // The dice only reaches into the close half of the list — a random pick from
+    // the tail wouldn't be someone much like them.
+    function randomMatch() {
+      const n = careerMatches.value.length;
+      if (!n) return;
+      const pool = Math.max(1, Math.min(n, Math.ceil(n / 2)));
+      let i = Math.floor(Math.random() * pool);
+      if (n > 1 && i === matchIndex.value) i = (i + 1) % pool;
+      matchIndex.value = i;
+    }
+    function openMatch() {
+      if (currentMatch.value) openPerson(currentMatch.value.person);
+    }
+
     // Selection-membership helpers (used in templates).
     const isFieldSelected    = (f)  => selectedFields.value.includes(f);
     const isSubfieldSelected = (sf) => selectedSubfields.value.includes(sf);
@@ -1637,29 +1742,24 @@ const app = createApp({
       return [...seen].sort();
     });
 
-    // How many people sit under each subfield of the selected field(s). Drives
-    // both the strip's order and the count on each chip — a genre with two
-    // names in it shouldn't lead.
-    const subfieldCounts = computed(() => {
-      const m = new Map();
-      const fields = selectedFields.value;
-      if (!fields.length) return m;
-      for (const p of PEOPLE) {
-        if (!p.subfield || !fields.includes(p.field)) continue;
-        m.set(p.subfield, (m.get(p.subfield) || 0) + 1);
-      }
-      return m;
-    });
-    const countForSubfield = (sf) => subfieldCounts.value.get(sf) || 0;
-    const orderedSubfields = computed(() =>
-      [...availableSubfields.value].sort(
-        (a, b) => countForSubfield(b) - countForSubfield(a) || a.localeCompare(b)
-      )
+    // One row per selected category, so picking Film and Sports gives two
+    // strips rather than one blended alphabet. Counts still set the order —
+    // the thin tail shouldn't lead — they're just not printed on the chips.
+    const subRows = computed(() =>
+      selectedFields.value
+        .map(field => ({
+          field,
+          subs: [...(SUBFIELDS_BY_FIELD[field] || [])].sort(
+            (a, b) => subCount(field, b) - subCount(field, a) || a.localeCompare(b)
+          ),
+        }))
+        .filter(row => row.subs.length)
     );
-    // The strip's contents change with the category, so re-measure after the
-    // new chips have actually been laid out.
-    watch(orderedSubfields, () => {
-      if (subTrack.value) subTrack.value.scrollLeft = 0;
+    const countForSubfield = (field, sf) => subCount(field, sf);
+    // Rows come and go with the categories, so re-measure once the new chips
+    // have actually been laid out.
+    watch(subRows, () => {
+      for (const el of subTrackEls.values()) el.scrollLeft = 0;
       nextTick(syncSubArrows);
     });
 
@@ -1921,11 +2021,13 @@ const app = createApp({
       colorForField, iconForField,
       // quick categories
       catTrack, canCatPrev, canCatNext, catPage, quickPick, syncCatArrows,
-      subTrack, canSubPrev, canSubNext, subPage, syncSubArrows,
+      setSubTrack, canSubPrev, canSubNext, subPage, syncSubRow, syncSubArrows,
       orderedFields, countForField,
       catPointerDown, catPointerMove, catPointerUp,
       // computed
-      filtered, availableSubfields, orderedSubfields, countForSubfield, similarForSelected,
+      filtered, availableSubfields, subRows, countForSubfield, similarForSelected,
+      // career neighbours strip at the foot of the card
+      careerMatches, currentMatch, matchIndex, matchStep, randomMatch, openMatch,
       favoritePeople, countryList, countryMax,
       showResults, yearsActive, clearYears, YEAR_TICKS,
       tlMin, tlMax, tlMinPct, tlMaxPct, tlBirthPct, tlLabel,
@@ -1940,7 +2042,7 @@ const app = createApp({
       selectedCountry, clearCountry, globeData, zoomGlobe,
       pickCountry, flyToCountry, resetGlobeView, randomGlobeView,
       miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
-      miniCities, miniZoom, zoomMini,
+      miniCities,
       selectedBornMonths, selectedBornDays, selectedZodiacs, ZODIACS,
       toggleBornMonth, toggleBornDay, toggleZodiac,
       isBornMonthSelected, isBornDaySelected, isZodiacSelected,
