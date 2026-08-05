@@ -1168,24 +1168,50 @@ body {
 .ovl__title { margin: 0; font-size: 15px; font-weight: 400; flex: 1; color: #fff; }
 .ovl__title em { font-style: normal; font-weight: 500; }
 
+/* The "what this is" sheet drops from the top instead of rising from the
+   bottom — it answers the button up in the title bar, so it comes from where
+   it was asked for. Everything mirrors: the corners, the seam, the shadow and
+   the direction it travels. */
+.ovl--top { align-items: flex-start; }
+.ovl--top .ovl__sheet {
+  border-radius: 0 0 16px 16px;
+  border-top: none;
+  /* Width and style only — the colour stays whatever the sheet itself sets,
+     so the seam along the bottom matches the two sides. */
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  box-shadow: 0 2px 18px rgba(0,0,0,.6);
+  animation: ovl-down .2s var(--ease);
+}
+@keyframes ovl-down { from { transform: translateY(-14px); } to { transform: none; } }
+
 /* The "what this is" sheet: one paragraph, sized to be read rather than
-   scanned, so it runs looser and warmer than the panel copy around it. */
-.ovl__sheet--about { max-height: 70%; }
+   scanned, so it runs looser and warmer than the panel copy around it. It
+   wears the same tinted glass as the search line and the category tiles
+   rather than the flat black the other sheets use. */
+.ovl__sheet--about {
+  /* The copy is written to land in one screenful, and on the smallest phones
+     (320×568) it needs 82% of the screen to do it — so the ceiling sits above
+     that rather than turning the last paragraph into a scroll. */
+  max-height: 88%;
+  background: rgba(52,55,62,.46);
+  backdrop-filter: blur(3px) saturate(120%);
+  -webkit-backdrop-filter: blur(3px) saturate(120%);
+  border-color: rgba(255,255,255,.3);
+}
+/* One voice, one setting: every paragraph is the same size, weight and colour,
+   so the page reads as a single held breath rather than a headline and a
+   caption. Sized to land inside the sheet without scrolling. */
 .about__p {
   margin: 0;
-  padding: 16px 18px 22px;
-  font-size: 13.5px; font-weight: 300; line-height: 1.62; letter-spacing: .01em;
+  padding: 14px 18px 0;
+  font-size: 13px; font-weight: 300; line-height: 1.6; letter-spacing: .01em;
   color: rgba(255,255,255,.86);
 }
+.about__p:last-child { padding-bottom: 18px; }
 .about__p em { font-style: italic; color: #fff; }
-/* The opener asks the question the app exists to answer, so it leads: a shade
-   larger and brighter, with the explanation running on underneath it. */
-.about__p--lead {
-  padding-bottom: 0;
-  font-size: 14.5px; line-height: 1.55;
-  color: #fff;
-}
-.about__p--lead + .about__p { padding-top: 14px; }
+/* The closing line is the only thing that steps forward, and only in colour. */
+.about__p--last { color: #fff; }
 .panel__collapse {
   width: 30px; height: 30px; display: grid; place-items: center;
   border-radius: 50%; color: rgba(255,255,255,.7); flex: none;
