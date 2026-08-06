@@ -672,6 +672,12 @@ body {
 }
 /* What the panel is, on the left; what you can do to it, on the right — the
    same reading order as the bar across the top of the screen. */
+.hitbar__label em {
+  font-style: normal;
+  margin-left: 5px;
+  color: rgba(255,255,255,.55);
+  font-variant-numeric: tabular-nums;
+}
 /* Says what the three buttons do, so they don't have to be read as a guess. */
 .hitbar__label {
   flex: none; align-self: center;

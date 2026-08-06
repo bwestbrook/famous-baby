@@ -2576,6 +2576,11 @@ const app = createApp({
       clearEras();
       clearBornFilters();
       clearCountry();
+      // The panels go with the filters they hold. A lit spine over an open
+      // drawer of genres, none of which is filtering anything, is the screen
+      // telling you something that isn't true.
+      openDrawers.value = [];
+      drawerQuery.value = {};
     }
 
     // ---- Toggle helpers ----
