@@ -278,7 +278,7 @@
           @click="randomOpen = true"
           title="Random"
         >
-          <span class="rail__txt">Random</span>
+          <svg class="ico ico--16 rail__dice"><use href="#i-shuffle"/></svg>
         </button>
       </div>
 
@@ -288,6 +288,29 @@
         class="hits"
         :class="'is-' + hitsSize"
       >
+        <!-- The panel's own title row, read like the bar at the top of the
+             screen: what it is on the left, what you can do to it on the
+             right. Collapsed, this row is the whole panel. -->
+        <div class="hitbar">
+          <span class="hitbar__label">Results</span>
+          <div class="hitbar__size">
+            <button
+              :class="{ 'is-on': hitsSize === 'bar' }"
+              @click="setHitsSize('bar')"
+              title="Collapse to a bar"
+            ><svg class="ico ico--14"><use href="#i-minus"/></svg></button>
+            <button
+              :class="{ 'is-on': hitsSize === 'three' }"
+              @click="setHitsSize('three')"
+              title="Three names"
+            ><svg class="ico ico--14"><use href="#i-sort"/></svg></button>
+            <button
+              :class="{ 'is-on': hitsSize === 'max' }"
+              @click="setHitsSize('max')"
+              title="As many as fit"
+            ><svg class="ico ico--14"><use href="#i-chev-up"/></svg></button>
+          </div>
+        </div>
         <div v-if="filtered.length" v-show="hitsSize !== 'bar'" class="hitsbody">
         <ol class="hits__list" ref="hitsList">
           <li
@@ -297,15 +320,6 @@
             :data-letter="r.head ? r.letter : null"
             @click="openPerson(r.person)"
           >
-            <!-- The photo, or nothing at all. A tile carrying an initial says
-                 only what the name beside it already says. -->
-            <span class="row__thumb">
-              <img
-                :src="'./photos/' + r.person.id + '.jpg'" alt="" loading="lazy"
-                @load="$event.target.classList.add('is-loaded')"
-                @error="$event.target.classList.add('is-broken')"
-              />
-            </span>
             <span class="row__main">
               <span class="row__name">
                 <template v-if="r.mid">{{ r.first }} <em class="row__mid">{{ r.mid }}</em> {{ r.last }}</template>
@@ -388,6 +402,25 @@
                 <svg class="ico ico--14"><use href="#i-face"/></svg>
               </button>
             </div>
+            <!-- Sort order, initial only: the column is too narrow for words
+                 and F, M, L are the same three choices. -->
+            <div class="dialcol__sort">
+              <button
+                :class="{ 'is-on': nameMode === 'first' }"
+                @click="setNameMode('first')"
+                title="Sort by first name"
+              >F</button>
+              <button
+                :class="{ 'is-on': nameMode === 'middle' }"
+                @click="setNameMode('middle')"
+                title="Sort by middle name"
+              >M</button>
+              <button
+                :class="{ 'is-on': nameMode === 'last' }"
+                @click="setNameMode('last')"
+                title="Sort by last name"
+              >L</button>
+            </div>
           </div>
         </div>
 
@@ -396,37 +429,7 @@
           <button class="btn btn--text" @click="clearAll">Clear filters</button>
         </div>
 
-        <!-- Name order sits under the names it reorders, and the size control
-             sits with it. The bar never leaves: collapsed, it's the whole of
-             the panel and the way back out. -->
-        <div class="hitbar">
-          <template v-if="hitsSize !== 'bar' && filtered.length > HITS_LIMIT">
-            <span class="hitbar__label">Sort by</span>
-            <div class="hitbar__mode">
-              <button :class="{ 'is-on': nameMode === 'first' }" @click="setNameMode('first')" title="Sort by first name">First name</button>
-              <button :class="{ 'is-on': nameMode === 'middle' }" @click="setNameMode('middle')" title="Sort by middle name">Middle name</button>
-              <button :class="{ 'is-on': nameMode === 'last' }" @click="setNameMode('last')" title="Sort by last name">Last name</button>
-            </div>
-          </template>
-          <span v-else class="hitbar__label hitbar__label--count">{{ filtered.length }} names</span>
-          <div class="hitbar__size">
-            <button
-              :class="{ 'is-on': hitsSize === 'bar' }"
-              @click="setHitsSize('bar')"
-              title="Collapse to a bar"
-            ><svg class="ico ico--14"><use href="#i-minus"/></svg></button>
-            <button
-              :class="{ 'is-on': hitsSize === 'three' }"
-              @click="setHitsSize('three')"
-              title="Three names"
-            ><svg class="ico ico--14"><use href="#i-sort"/></svg></button>
-            <button
-              :class="{ 'is-on': hitsSize === 'max' }"
-              @click="setHitsSize('max')"
-              title="As many as fit"
-            ><svg class="ico ico--14"><use href="#i-chev-up"/></svg></button>
-          </div>
-        </div>
+
       </div>
 
 
@@ -1275,22 +1278,22 @@
             <button class="rndp__btn" @click="randomEra">
               <svg class="ico ico--18"><use href="#i-cal"/></svg>
               <span class="rndp__l">Era</span>
-              <span class="rndp__s">Drop the timeline on a stretch of years</span>
+              <span class="rndp__s" :class="{ 'is-rolled': lastRoll.era }">{{ lastRoll.era ? 'Landed on ' + lastRoll.era : 'Drop the timeline on a stretch of years' }}</span>
             </button>
             <button class="rndp__btn" @click="randomPlace">
               <svg class="ico ico--18"><use href="#i-public"/></svg>
               <span class="rndp__l">Place</span>
-              <span class="rndp__s">Spin the globe to a country</span>
+              <span class="rndp__s" :class="{ 'is-rolled': lastRoll.place }">{{ lastRoll.place ? 'Landed on ' + lastRoll.place : 'Spin the globe to a country' }}</span>
             </button>
             <button class="rndp__btn" @click="randomGender">
               <svg class="ico ico--18"><use href="#i-avatar"/></svg>
               <span class="rndp__l">Gender</span>
-              <span class="rndp__s">Take one at random</span>
+              <span class="rndp__s" :class="{ 'is-rolled': lastRoll.gender }">{{ lastRoll.gender ? 'Landed on ' + lastRoll.gender : 'Take one at random' }}</span>
             </button>
             <button class="rndp__btn" @click="randomCategory">
               <svg class="ico ico--18"><use href="#i-layers"/></svg>
               <span class="rndp__l">Calling</span>
-              <span class="rndp__s">Land on a trade and its genres</span>
+              <span class="rndp__s" :class="{ 'is-rolled': lastRoll.calling }">{{ lastRoll.calling ? 'Landed on ' + lastRoll.calling : 'Land on a trade and its genres' }}</span>
             </button>
             <button class="rndp__btn rndp__btn--all" @click="randomEverything(); randomOpen = false">
               <svg class="ico ico--18"><use href="#i-shuffle"/></svg>

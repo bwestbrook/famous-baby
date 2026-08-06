@@ -1973,6 +1973,7 @@ const app = createApp({
     // column, and what it opens covers the whole screen rather than lying
     // along the bottom — not choosing deserves the same room as choosing.
     const randomOpen = ref(false);
+    watch(randomOpen, (open) => { if (open) lastRoll.value = {}; });
 
     // ---- The rail's own scroll ----
     // A dozen spines don't fit any screen, so the column scrolls — and says so
@@ -2059,12 +2060,17 @@ const app = createApp({
     // Rolls a named era, not a raw window of years: the timeline is picked from
     // eras now, so a bare year range would filter the list while lighting
     // nothing — a roll you can't see is a roll that looks broken.
+    // What each roll landed on. The panel covers the whole screen, so the globe
+    // spinning and the drawers lighting all happen behind it — without this the
+    // buttons look inert no matter what they actually did.
+    const lastRoll = ref({});
     function randomEra() {
       const pool = ERAS.filter(e => countForEra(e) && !isEraOn(e));
       if (!pool.length) return;
       const e = draw(pool);
       selectedEras.value = [e.name];
       if (!isDrawerOpen('time')) toggleDrawer('time');
+      lastRoll.value = { ...lastRoll.value, era: e.name };
     }
     function randomPlace() {
       const pick = drawRandomCountry();
@@ -2072,12 +2078,15 @@ const app = createApp({
       aimHomeAt(pick.country);
       selectedCountry.value = pick.country;
       flyToCountry(pick.country);
+      lastRoll.value = { ...lastRoll.value, place: pick.country };
     }
     function randomGender() {
       const pool = GENDERS.filter(g => g !== selectedGenders.value[0]);
-      selectedGenders.value = pool.length ? [draw(pool)] : [];
+      const g = pool.length ? draw(pool) : '';
+      selectedGenders.value = g ? [g] : [];
       // Open the drawer it lands in, or the pick happens somewhere you can't see.
       if (!isDrawerOpen('gender')) toggleDrawer('gender');
+      lastRoll.value = { ...lastRoll.value, gender: g ? genderLabel(g) : '' };
     }
     function randomCategory() {
       const pool = orderedFields.filter(f => !selectedFields.value.includes(f));
@@ -2089,6 +2098,7 @@ const app = createApp({
       selectedFields.value = [];
       selectedSubfields.value = [];          // the old genre belongs to the old calling
       toggleDrawer(FIELD_TAB + field);
+      lastRoll.value = { ...lastRoll.value, calling: field };
     }
     // The whole handful at once, and then whoever it leaves standing.
     function randomEverything() {
@@ -2908,7 +2918,7 @@ const app = createApp({
       selectedChinese,
       surpriseMe,
       // the random drawer
-      randomEra, randomPlace, randomGender, randomCategory, randomEverything,
+      randomEra, randomPlace, randomGender, randomCategory, randomEverything, lastRoll,
       // dock
       hitsExpanded, visibleHits, menuOpen, aboutOpen,
       hitsSize, setHitsSize, drawersFolded, unfoldDrawers,
