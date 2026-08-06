@@ -248,18 +248,6 @@
            on its own. More than fit the edge of a phone, so the column scrolls
            on its own without moving anything else. -->
       <div class="railwrap" v-if="!selectedPerson">
-        <!-- Frozen at the head of the column, the way a spreadsheet holds its
-             top row: whatever the rest of the rail is scrolled to, the way out
-             of choosing is still there. -->
-        <button
-          class="rail__tab rail__tab--pin"
-          :class="{ 'is-on': randomOpen }"
-          @click="randomOpen = true"
-          title="Random"
-        >
-          <span class="rail__txt">Random</span>
-          <svg class="ico ico--12 rail__ico"><use href="#i-shuffle"/></svg>
-        </button>
         <!-- An arrow at each end, so the column reads as something that moves.
              They grey out at the ends rather than disappearing — a step that
              comes and goes is a step you can't aim for. -->
@@ -276,27 +264,22 @@
             :title="(isDrawerOpen(d.id) ? 'Close ' : 'Open ') + d.label"
           >
             <span class="rail__txt">{{ d.label }}</span>
-            <svg class="ico ico--12 rail__ico"><use :href="'#' + d.icon"/></svg>
           </button>
         </div>
         <button class="rail__step" @click="railStep(1)" :disabled="!canRailDown" title="Scroll down">
           <svg class="ico ico--14"><use href="#i-chev-down"/></svg>
         </button>
-      </div>
-
-      <!-- ---------- ACTIVE FILTERS ---------- -->
-      <div v-if="hasActiveFilters && !selectedPerson" class="chiprow">
+        <!-- Frozen at the foot of the column: whatever the rest of the rail is
+             scrolled to, the way out of choosing sits in the corner, right
+             above the search line. -->
         <button
-          v-for="f in activeFilters"
-          :key="f.key"
-          class="fchip"
-          @click="f.clear"
-          :title="'Remove ' + f.group + ': ' + f.label"
+          class="rail__tab rail__tab--pin"
+          :class="{ 'is-on': randomOpen }"
+          @click="randomOpen = true"
+          title="Random"
         >
-          <span class="fchip__g">{{ f.group }}</span>{{ f.label }}
-          <svg class="ico ico--12 fchip__x"><use href="#i-close"/></svg>
+          <span class="rail__txt">Random</span>
         </button>
-        <button class="fchip fchip--clear" @click="clearAll">Clear</button>
       </div>
 
       <!-- ---------- HITS — three names, straight above the search line ---------- -->
@@ -338,25 +321,10 @@
           </li>
         </ol>
           <!-- Letter dial: swipe it, and whatever stops under the notch wins.
-               The two dice-rolls sit on top of it — both spin this column, so
-               they belong to it rather than to the bar below. -->
+               The two dice-rolls sit at the foot of the column, under the rail
+               they spin — the alphabet reads from the top down, and the things
+               that jump it belong after it. -->
           <div class="dialcol">
-            <div class="dialcol__roll">
-              <button
-                @click="randomLetter"
-                :disabled="hitLetters.size < 2"
-                title="Spin the dial to a random letter"
-              >
-                <svg class="ico ico--14"><use href="#i-shuffle"/></svg>
-              </button>
-              <button
-                @click="surpriseMe"
-                :disabled="!filtered.length"
-                title="Open a random name from these results"
-              >
-                <svg class="ico ico--14"><use href="#i-face"/></svg>
-              </button>
-            </div>
             <!-- A notch either side of the rail, for tapping through the
                  alphabet instead of dragging it. -->
             <button
@@ -399,6 +367,22 @@
             >
               <svg class="ico ico--12"><use href="#i-chev-down"/></svg>
             </button>
+            <div class="dialcol__roll">
+              <button
+                @click="randomLetter"
+                :disabled="hitLetters.size < 2"
+                title="Spin the dial to a random letter"
+              >
+                <svg class="ico ico--14"><use href="#i-shuffle"/></svg>
+              </button>
+              <button
+                @click="surpriseMe"
+                :disabled="!filtered.length"
+                title="Open a random name from these results"
+              >
+                <svg class="ico ico--14"><use href="#i-face"/></svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -418,6 +402,24 @@
           </div>
         </div>
       </div>
+      <!-- ---------- ACTIVE FILTERS — under the results, not over them.
+           What you picked and the way to drop it belong with the outcome,
+           so the names stay put instead of being shoved down a row each
+           time a filter lands. ---------- -->
+      <div v-if="hasActiveFilters && !selectedPerson" class="chiprow">
+        <button
+          v-for="f in activeFilters"
+          :key="f.key"
+          class="fchip"
+          @click="f.clear"
+          :title="'Remove ' + f.group + ': ' + f.label"
+        >
+          <span class="fchip__g">{{ f.group }}</span>{{ f.label }}
+          <svg class="ico ico--12 fchip__x"><use href="#i-close"/></svg>
+        </button>
+        <button class="fchip fchip--clear" @click="clearAll">Clear</button>
+      </div>
+
 
       <!-- ---------- PERSON POPUP — opens right where the list was ---------- -->
       <article
@@ -734,141 +736,149 @@
         </div>
       </article>
 
-      <!-- ---------- gender ---------- -->
-      <div v-if="isDrawerOpen('gender') && !selectedPerson" class="drawer">
-        <div class="drawer__head">
-          <span class="drawer__title">Gender</span>
-          <button class="drawer__x" @click="closeDrawer('gender')" title="Close">
-            <svg class="ico ico--14"><use href="#i-close"/></svg>
-          </button>
-        </div>
-        <div class="rnd">
-          <button
-            v-for="g in GENDERS"
-            :key="g"
-            class="rnd__btn"
-            :class="{ 'is-on': isGenderSelected(g) }"
-            @click="toggleGender(g)"
-          >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
-        </div>
-      </div>
-
-      <!-- ---------- inside one calling ----------
-           A calling's spine opens what's inside it, not a list of its
-           neighbours: the genres, leagues and roles it's actually made of.
-           The calling itself is already the filter, so these narrow it. -->
-      <div v-if="openField && !selectedPerson" class="drawer">
-        <div class="drawer__head">
-          <span class="drawer__title">{{ openField }}</span>
-          <span class="drawer__n">{{ countForField(openField) }} names</span>
-          <button class="drawer__x" @click="closeDrawer('f:' + openField)" title="Close">
-            <svg class="ico ico--14"><use href="#i-close"/></svg>
-          </button>
-        </div>
-        <div class="rnd">
-          <button
-            v-for="sf in subfieldsFor(openField)"
-            :key="sf"
-            class="rnd__btn"
-            :class="{ 'is-on': isSubfieldSelected(sf) }"
-            @click="toggleSubfield(sf)"
-            :title="sf + ' — ' + countForSubfield(openField, sf) + ' names'"
-          >{{ sf }}<span class="rnd__n">{{ countForSubfield(openField, sf) }}</span></button>
-        </div>
-        <div v-if="!subfieldsFor(openField).length" class="drawer__none">
-          Nothing inside this one yet — the whole calling is the filter.
-        </div>
-      </div>
-
-      <div v-if="isDrawerOpen('time') && !selectedPerson" class="drawer">
-        <div class="drawer__head">
-          <span class="drawer__title">Era</span>
-          <button class="drawer__x" @click="closeDrawer('time')" title="Close">
-            <svg class="ico ico--14"><use href="#i-close"/></svg>
-          </button>
-        </div>
-
-        <!-- Time as categories: pick a stretch by its name and the rail
-             below highlights where it falls. -->
-        <div class="erabar">
-          <button
-            v-for="e in ERAS"
-            :key="e.name"
-            class="erachip"
-            :class="{ 'is-on': isEraOn(e) }"
-            :style="{ '--era': eraColor(e) }"
-            @click="pickEra(e)"
-            :disabled="!countForEra(e)"
-            :title="e.name + ' — ' + e.from + ' to ' + e.to + ', ' + countForEra(e) + ' names'"
-          >{{ e.name }}<em>{{ countForEra(e) }}</em></button>
-        </div>
-        <div class="tl-wrap">
-          <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
-            <span v-if="selectedPerson" class="tl__label">Born</span>
-            <!-- Roll a birthday. Left of the rail, mirroring the picker on the right. -->
-            <button
-              v-else
-              class="tl__btn"
-              @click="randomBornDate"
-              title="A random date"
-            >
-              <svg class="ico ico--14"><use href="#i-shuffle"/></svg>
+      <!-- Open drawers stack here and nowhere else: the stack is capped
+           short of the band at the top and scrolls inside itself, so no
+           number of them open at once can climb over the wordmark. -->
+      <div class="drawers" v-if="!selectedPerson">
+        <!-- ---------- gender ---------- -->
+        <div v-if="isDrawerOpen('gender') && !selectedPerson" class="drawer">
+          <div class="drawer__head">
+            <span class="drawer__title">Gender</span>
+            <button class="drawer__x" @click="closeDrawer('gender')" title="Close">
+              <svg class="ico ico--14"><use href="#i-close"/></svg>
             </button>
-            <div class="tl__track">
-              <!-- The range reads above the ends of the rail it describes. -->
-              <span class="tl__end tl__end--min">{{ tlMin }}</span>
-              <span class="tl__end tl__end--max">{{ tlMax }}</span>
-              <div class="tl__ticks">
-                <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }"></i>
-              </div>
-              <div class="tl__rail">
-                <div v-if="!eraBands.length" class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
-                <!-- One band per picked era, each in its own colour, so the
-                     rail shows which stretches of time are lit. -->
-                <i
-                  v-for="b in eraBands"
-                  :key="b.name"
-                  class="tl__band"
-                  :style="{ left: b.left + '%', width: b.width + '%', background: b.color }"
-                  :title="b.name"
-                ></i>
-                <i v-if="selectedPerson" class="tl__pin" :style="{ left: tlBirthPct + '%' }"></i>
-              </div>
-            </div>
-            <span v-if="selectedPerson" class="tl__val">{{ tlLabel }}</span>
-            <!-- Pick an exact day. The native picker gives a real calendar; only
-                 the month and day are used, the year comes off the rail. -->
-            <!-- Whatever the roll or the picker landed on, said out loud — a
-                 filter you can't see is a filter that looks broken. Tap to drop it. -->
+          </div>
+          <div class="rnd">
             <button
-              v-if="!selectedPerson && bornDateLabel"
-              class="tl__born"
-              @click="clearBornFilters"
-              :title="'Born ' + bornDateLabel + ' — tap to clear'"
-            >{{ bornDateLabel }}</button>
-            <label
-              v-if="!selectedPerson"
-              class="tl__btn tl__btn--cal"
-              @click.prevent="openBornPicker"
-              :title="bornDateLabel ? 'Born ' + bornDateLabel : 'Pick a date'"
-            >
-              <svg class="ico ico--14"><use href="#i-cal"/></svg>
-              <input
-                type="date"
-                class="tl__date"
-                :value="bornDateValue"
-                @change="setBornDate($event.target.value)"
-                aria-label="Pick a birth date"
-              />
-            </label>
-            <!-- The sign travels with the date here too, glyph only for width. -->
-            <span
-              v-if="selectedPerson && zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
-              class="tl__sign"
-              :title="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
-            >
-              <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>
-            </span>
+              v-for="g in GENDERS"
+              :key="g"
+              class="rnd__btn"
+              :class="{ 'is-on': isGenderSelected(g) }"
+              @click="toggleGender(g)"
+            >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
+          </div>
+        </div>
+
+        <!-- ---------- inside one calling ----------
+             A calling's spine opens what's inside it, not a list of its
+             neighbours: the genres, leagues and roles it's actually made of.
+             The calling itself is already the filter, so these narrow it. -->
+        <div v-if="openField && !selectedPerson" class="drawer">
+          <div class="drawer__head">
+            <span class="drawer__title">{{ openField }}</span>
+            <span class="drawer__n">{{ countForField(openField) }} names</span>
+            <button class="drawer__x" @click="closeDrawer('f:' + openField)" title="Close">
+              <svg class="ico ico--14"><use href="#i-close"/></svg>
+            </button>
+          </div>
+          <!-- Music has thirty genres and Sport as many leagues, so they run
+               two rows deep and carry on sideways rather than growing the drawer
+               upward — the same rail the eras use. -->
+          <div class="erabar">
+            <button
+              v-for="sf in subfieldsFor(openField)"
+              :key="sf"
+              class="erachip"
+              :class="{ 'is-on': isSubfieldSelected(sf) }"
+              @click="toggleSubfield(sf)"
+              :title="sf + ' — ' + countForSubfield(openField, sf) + ' names'"
+            >{{ sf }}</button>
+          </div>
+          <div v-if="!subfieldsFor(openField).length" class="drawer__none">
+            Nothing inside this one yet — the whole calling is the filter.
+          </div>
+        </div>
+
+        <div v-if="isDrawerOpen('time') && !selectedPerson" class="drawer">
+          <div class="drawer__head">
+            <span class="drawer__title">Era</span>
+            <button class="drawer__x" @click="closeDrawer('time')" title="Close">
+              <svg class="ico ico--14"><use href="#i-close"/></svg>
+            </button>
+          </div>
+
+          <!-- Time as categories: pick a stretch by its name and the rail
+               below highlights where it falls. -->
+          <div class="erabar">
+            <button
+              v-for="e in ERAS"
+              :key="e.name"
+              class="erachip"
+              :class="{ 'is-on': isEraOn(e) }"
+              :style="{ '--era': eraColor(e) }"
+              @click="pickEra(e)"
+              :disabled="!countForEra(e)"
+              :title="e.name + ' — ' + e.from + ' to ' + e.to + ', ' + countForEra(e) + ' names'"
+            >{{ e.name }}</button>
+          </div>
+          <div class="tl-wrap">
+            <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
+              <span v-if="selectedPerson" class="tl__label">Born</span>
+              <!-- Roll a birthday. Left of the rail, mirroring the picker on the right. -->
+              <button
+                v-else
+                class="tl__btn"
+                @click="randomBornDate"
+                title="A random date"
+              >
+                <svg class="ico ico--14"><use href="#i-shuffle"/></svg>
+              </button>
+              <div class="tl__track">
+                <!-- The range reads above the ends of the rail it describes. -->
+                <span class="tl__end tl__end--min">{{ tlMin }}</span>
+                <span class="tl__end tl__end--max">{{ tlMax }}</span>
+                <div class="tl__ticks">
+                  <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }"></i>
+                </div>
+                <div class="tl__rail">
+                  <div v-if="!eraBands.length" class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
+                  <!-- One band per picked era, each in its own colour, so the
+                       rail shows which stretches of time are lit. -->
+                  <i
+                    v-for="b in eraBands"
+                    :key="b.name"
+                    class="tl__band"
+                    :style="{ left: b.left + '%', width: b.width + '%', background: b.color }"
+                    :title="b.name"
+                  ></i>
+                  <i v-if="selectedPerson" class="tl__pin" :style="{ left: tlBirthPct + '%' }"></i>
+                </div>
+              </div>
+              <span v-if="selectedPerson" class="tl__val">{{ tlLabel }}</span>
+              <!-- Pick an exact day. The native picker gives a real calendar; only
+                   the month and day are used, the year comes off the rail. -->
+              <!-- Whatever the roll or the picker landed on, said out loud — a
+                   filter you can't see is a filter that looks broken. Tap to drop it. -->
+              <button
+                v-if="!selectedPerson && bornDateLabel"
+                class="tl__born"
+                @click="clearBornFilters"
+                :title="'Born ' + bornDateLabel + ' — tap to clear'"
+              >{{ bornDateLabel }}</button>
+              <label
+                v-if="!selectedPerson"
+                class="tl__btn tl__btn--cal"
+                @click.prevent="openBornPicker"
+                :title="bornDateLabel ? 'Born ' + bornDateLabel : 'Pick a date'"
+              >
+                <svg class="ico ico--14"><use href="#i-cal"/></svg>
+                <input
+                  type="date"
+                  class="tl__date"
+                  :value="bornDateValue"
+                  @change="setBornDate($event.target.value)"
+                  aria-label="Pick a birth date"
+                />
+              </label>
+              <!-- The sign travels with the date here too, glyph only for width. -->
+              <span
+                v-if="selectedPerson && zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+                class="tl__sign"
+                :title="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+              >
+                <svg class="ico ico--14 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>
+              </span>
+            </div>
           </div>
         </div>
       </div>

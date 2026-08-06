@@ -95,18 +95,14 @@ body {
    a hairline closes it off at the bottom and it sits above everything the dock
    holds, so the left-hand column scrolls under it and stops being visible at
    exactly that line. */
+/* Nothing but a position: the bar inside paints itself, so there's no second
+   surface underneath showing as a strip and nothing solid blocking the globe. */
 .topstack {
   position: absolute;
   left: 0; right: 0; top: 0;
   z-index: 24;
-  display: flex; flex-direction: column; gap: 8px;
-  padding: 10px 8px 8px;
-  /* Solid, unlike everything else over the globe: the search line and the
-     spines are glass because the map should read through them, and this band
-     is the edge where that stops. */
-  background: #0b0d12;
-  border-bottom: 1px solid rgba(255,255,255,.16);
-  box-shadow: 0 2px 12px rgba(0,0,0,.45);
+  display: flex; flex-direction: column;
+  padding: 0;
   pointer-events: none;
 }
 .topstack > * { pointer-events: auto; }
@@ -114,12 +110,20 @@ body {
 /* ---------- wordmark + account controls, right-aligned ---------- */
 .titlebar {
   display: flex; align-items: center; gap: 2px;
-  padding: 1px 0 3px;
+  padding: 8px 12px 8px 16px;
+  /* The search line's tint and blur, so the chrome reads as one material. */
+  background: rgba(52,55,62,.46);
+  backdrop-filter: blur(3px) saturate(120%);
+  -webkit-backdrop-filter: blur(3px) saturate(120%);
+  /* The one place the glass differs from the search line: no outline at all.
+     A border drawn round a band that runs to both screen edges has nothing to
+     enclose, so it reads as a stray grey rule. */
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,.5);
 }
 .titlebar__mark {
   font-size: 14px; font-weight: 500; letter-spacing: .01em;
   color: #fff;
-  text-shadow: 0 1px 3px rgba(0,0,0,.6);
   margin-right: auto;      /* pins the mark left, controls stay right */
   padding-left: 4px;
 }
@@ -226,20 +230,14 @@ body {
 }
 /* The pinned head of the column: brighter than the spines below it, and it
    doesn't move with them. Filled while its page is open. */
-.rail__tab--pin {
-  background: rgba(96,101,112,.62);
-  border-color: rgba(255,255,255,.6);
-  color: #fff;
-  flex: none;
-}
+/* Pinned, not picked: at rest it looks like every other spine, and only lights
+   up while the random panel is open. */
+.rail__tab--pin { flex: none; }
 .rail__tab--pin:hover { background: rgba(120,126,140,.7); border-color: #fff; }
 .rail__tab--pin.is-on { background: #fff; color: #000; border-color: #fff; }
-.rail__tab--pin.is-on .rail__ico { color: #000; opacity: 1; }
 
-/* The glyph rides the foot of the spine, so a calling is recognisable before
-   the sideways label is read. */
-.rail__ico { opacity: .75; }
-.rail__tab.is-on .rail__ico { opacity: 1; }
+/* Words only on the spines — a dozen glyphs down one edge read as decoration
+   rather than as a list. */
 
 /* The two dice-rolls, stacked under the spines they sit with. Square rather
    than spine-shaped: they do a thing, they don't open a thing. */
@@ -477,7 +475,26 @@ body {
 /* The rail runs the dock's full height now, so everything that stacks beside
    it starts where it ends rather than under it. The search line sits below its
    foot and keeps the full width. */
-.drawer, .hits, .chiprow { margin-left: 22px; }
+.drawers, .hits, .chiprow { margin-left: 22px; }
+
+/* Every open drawer lives in this one stack, and the stack is bounded: it can
+   reach up to just short of the top band and no further, whatever is open.
+   Past that it scrolls, and this is the one place over the globe that shows a
+   scrollbar — a stack you can push past its own edge should say so. */
+.drawers {
+  display: flex; flex-direction: column; gap: 8px;
+  min-height: 0;
+  max-height: calc(100vh - var(--band-h) - var(--sbar-h) - 118px);
+  max-height: calc(100dvh - var(--band-h) - var(--sbar-h) - 118px);
+  overflow-y: auto; overscroll-behavior: contain;
+  padding-right: 3px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.34) transparent;
+}
+.drawers::-webkit-scrollbar { width: 7px; }
+.drawers::-webkit-scrollbar-thumb { background: rgba(255,255,255,.34); border-radius: 4px; }
+.drawers::-webkit-scrollbar-track { background: transparent; }
+/* A drawer inside the stack keeps its own shape but not its own margins. */
+.drawers > .drawer { flex: none; }
 
 /* ---------- search line — last thing on screen ---------- */
 .sbar {
@@ -629,10 +646,11 @@ body {
   display: flex; flex-direction: column;
   min-height: 0;
 }
+/* At the foot of the column now, so the padding leads rather than trails. */
 .dialcol__roll {
   flex: none;
   display: flex; flex-direction: column; gap: 2px;
-  padding: 2px 2px 3px;
+  padding: 3px 2px 2px;
   border-left: 1px solid rgba(255,255,255,.12);
 }
 .dialcol__roll button {
