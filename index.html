@@ -293,13 +293,14 @@
             :data-letter="r.head ? r.letter : null"
             @click="openPerson(r.person)"
           >
-            <span class="row__thumb" :style="{ background: colorForField(r.person.field) }">
+            <!-- The photo, or nothing at all. A tile carrying an initial says
+                 only what the name beside it already says. -->
+            <span class="row__thumb">
               <img
                 :src="'./photos/' + r.person.id + '.jpg'" alt="" loading="lazy"
                 @load="$event.target.classList.add('is-loaded')"
                 @error="$event.target.classList.add('is-broken')"
               />
-              <span class="row__initial">{{ r.person.name[0] }}</span>
             </span>
             <span class="row__main">
               <span class="row__name">
@@ -402,23 +403,6 @@
           </div>
         </div>
       </div>
-      <!-- ---------- ACTIVE FILTERS — under the results, not over them.
-           What you picked and the way to drop it belong with the outcome,
-           so the names stay put instead of being shoved down a row each
-           time a filter lands. ---------- -->
-      <div v-if="hasActiveFilters && !selectedPerson" class="chiprow">
-        <button
-          v-for="f in activeFilters"
-          :key="f.key"
-          class="fchip"
-          @click="f.clear"
-          :title="'Remove ' + f.group + ': ' + f.label"
-        >
-          <span class="fchip__g">{{ f.group }}</span>{{ f.label }}
-          <svg class="ico ico--12 fchip__x"><use href="#i-close"/></svg>
-        </button>
-        <button class="fchip fchip--clear" @click="clearAll">Clear</button>
-      </div>
 
 
       <!-- ---------- PERSON POPUP — opens right where the list was ---------- -->
@@ -473,6 +457,17 @@
                 >
                   <em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}
                 </span>
+                <!-- Sits with the signs because it's the same kind of fact: a
+                     thing they were born as, and a way into everyone else who
+                     shares it. -->
+                <button
+                  v-if="selectedPerson.gender"
+                  class="pop__sign pop__sign--g"
+                  @click="filterGender(selectedPerson)"
+                  :title="'Show ' + genderLabel(selectedPerson.gender).toLowerCase() + ' names'"
+                >
+                  <svg class="ico ico--12"><use href="#i-avatar"/></svg>{{ genderLabel(selectedPerson.gender) }}
+                </button>
                 <!-- What they did, in the field's own colour — the same colour
                      the card is tinted with and the thumbnails use. -->
                 <button
@@ -484,29 +479,6 @@
                   <svg class="ico ico--12"><use :href="'#' + iconForField(selectedPerson.field)"/></svg>{{ selectedPerson.field }}
                 </button>
               </div>
-              <!-- Line three: the question box, built to the same height as the
-                   pills above it so the three lines read as one block. The
-                   answer lands down in the body, where it can scroll. -->
-              <form class="kask__form" @submit.prevent="submitAsk">
-                <svg class="ico ico--12 kask__ico"><use href="#i-search"/></svg>
-                <input
-                  type="text"
-                  class="kask__input"
-                  v-model="askInput"
-                  :placeholder="'Ask about ' + selectedPerson.name.split(' ')[0]"
-                  :disabled="askLoading"
-                  maxlength="200"
-                  aria-label="Ask a question about this person"
-                />
-                <button
-                  type="submit"
-                  class="kask__go"
-                  :disabled="askLoading || !askInput.trim()"
-                  title="Ask"
-                >
-                  <svg class="ico ico--12"><use href="#i-chev-right"/></svg>
-                </button>
-              </form>
             </div>
             <button
               class="pop__fav"
@@ -517,6 +489,28 @@
               <svg class="ico ico--18"><use :href="isFavorite(selectedPerson) ? '#i-heart' : '#i-heart-o'"/></svg>
             </button>
           </div>
+        <!-- The question spans the whole card: it takes typing, and the width
+             left between two round buttons isn't enough to type into. -->
+        <form class="kask__form kask__form--wide" @submit.prevent="submitAsk">
+          <svg class="ico ico--12 kask__ico"><use href="#i-search"/></svg>
+          <input
+            type="text"
+            class="kask__input"
+            v-model="askInput"
+            :placeholder="'Ask about ' + selectedPerson.name.split(' ')[0]"
+            :disabled="askLoading"
+            maxlength="200"
+            aria-label="Ask a question about this person"
+          />
+          <button
+            type="submit"
+            class="kask__go"
+            :disabled="askLoading || !askInput.trim()"
+            title="Ask"
+          >
+            <svg class="ico ico--12"><use href="#i-chev-right"/></svg>
+          </button>
+        </form>
 
           <div class="pop__media" :class="{ 'is-solo': !miniView }">
             <div class="pop__shot">
@@ -759,32 +753,29 @@
           </div>
         </div>
 
-        <!-- ---------- inside one calling ----------
-             A calling's spine opens what's inside it, not a list of its
-             neighbours: the genres, leagues and roles it's actually made of.
-             The calling itself is already the filter, so these narrow it. -->
-        <div v-if="openField && !selectedPerson" class="drawer">
+
+        <!-- ---------- inside a calling ----------
+             One panel per open calling, each holding its own genres, leagues
+             and roles. Pick as many as you like; a white button is the whole
+             of the feedback, so nothing else has to list them back. -->
+        <div v-for="f in (selectedPerson ? [] : openFields)" :key="f" class="drawer">
           <div class="drawer__head">
-            <span class="drawer__title">{{ openField }}</span>
-            <span class="drawer__n">{{ countForField(openField) }} names</span>
-            <button class="drawer__x" @click="closeDrawer('f:' + openField)" title="Close">
+            <span class="drawer__title">{{ f }}</span>
+            <button class="drawer__x" @click="toggleDrawer('f:' + f)" title="Close">
               <svg class="ico ico--14"><use href="#i-close"/></svg>
             </button>
           </div>
-          <!-- Music has thirty genres and Sport as many leagues, so they run
-               two rows deep and carry on sideways rather than growing the drawer
-               upward — the same rail the eras use. -->
-          <div class="erabar">
+          <div v-if="subfieldsFor(f).length" class="erabar">
             <button
-              v-for="sf in subfieldsFor(openField)"
+              v-for="sf in subfieldsFor(f)"
               :key="sf"
-              class="erachip"
+              class="erachip erachip--sub"
               :class="{ 'is-on': isSubfieldSelected(sf) }"
               @click="toggleSubfield(sf)"
-              :title="sf + ' — ' + countForSubfield(openField, sf) + ' names'"
+              :title="sf"
             >{{ sf }}</button>
           </div>
-          <div v-if="!subfieldsFor(openField).length" class="drawer__none">
+          <div v-else class="drawer__none">
             Nothing inside this one yet — the whole calling is the filter.
           </div>
         </div>

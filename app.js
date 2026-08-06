@@ -1924,30 +1924,31 @@ const app = createApp({
     ]);
     const openDrawers = ref([]);
     const isDrawerOpen = (id) => openDrawers.value.includes(id);
-    // Whichever calling is showing its insides, if any.
-    const openField = computed(() => {
-      const id = openDrawers.value.find(x => x.startsWith(FIELD_TAB));
-      return id ? id.slice(FIELD_TAB.length) : '';
-    });
+    // Every calling that's open, in the order it was opened — each one shows
+    // its own genres, and several can be open at once.
+    const openFields = computed(() =>
+      openDrawers.value.filter(x => x.startsWith(FIELD_TAB)).map(x => x.slice(FIELD_TAB.length))
+    );
     const subfieldsFor = (field) => (SUBFIELDS_BY_FIELD[field] || [])
       .slice()
       .sort((a, b) => subCount(field, b) - subCount(field, a) || a.localeCompare(b));
     function toggleDrawer(id) {
       const wasOpen = isDrawerOpen(id);
-      let next = wasOpen
+      openDrawers.value = wasOpen
         ? openDrawers.value.filter(x => x !== id)
         : [...openDrawers.value, id];
-      // Opening a calling puts the others away — one set of genres at a time.
-      if (!wasOpen && id.startsWith(FIELD_TAB)) {
-        next = next.filter(x => x === id || !x.startsWith(FIELD_TAB));
-      }
-      openDrawers.value = next;
-      // The spine is the filter too: opening a calling narrows to it, closing
-      // it lets go again. Anything picked inside goes with it.
+      // A calling's spine both filters to it and opens its genres, and several
+      // callings can be open together. Closing one takes its own genres with
+      // it and leaves the other callings' picks alone.
       if (id.startsWith(FIELD_TAB)) {
         const field = id.slice(FIELD_TAB.length);
-        selectedSubfields.value = [];
-        selectedFields.value = wasOpen ? [] : [field];
+        selectedFields.value = wasOpen
+          ? selectedFields.value.filter(f => f !== field)
+          : [...selectedFields.value, field];
+        if (wasOpen) {
+          const mine = new Set(SUBFIELDS_BY_FIELD[field] || []);
+          selectedSubfields.value = selectedSubfields.value.filter(sf => !mine.has(sf));
+        }
         hitsExpanded.value = false;
       }
     }
@@ -1988,14 +1989,6 @@ const app = createApp({
         selectedSubfields.value = [];
       }
     };
-    // Dropping the calling anywhere else — the chip row, Clear, a saved search
-    // — puts its drawer away too, or the spine sits lit with nothing behind it.
-    watch(selectedFields, (fields) => {
-      const f = openField.value;
-      if (f && !fields.includes(f)) {
-        openDrawers.value = openDrawers.value.filter(x => x !== FIELD_TAB + f);
-      }
-    });
     window.addEventListener('resize', syncStripArrows);
     onUnmounted(() => window.removeEventListener('resize', syncStripArrows));
 
@@ -2115,6 +2108,16 @@ const app = createApp({
     function filterZodiac(sign) {
       if (sign) selectedZodiacs.value = [sign];
     }
+    // The gender pill on the card: says what they were born as, and filters to
+    // everyone else who shares it. Set rather than toggled, like the others —
+    // the pill states a fact, so pressing it can only mean "show me these".
+    const GENDER_LABELS = { male: 'Male', female: 'Female', nonbinary: 'Non-binary' };
+    const genderLabel = (g) => GENDER_LABELS[g] || g;
+    function filterGender(person) {
+      if (!person || !person.gender) return;
+      selectedGenders.value = [person.gender];
+    }
+
     // Same move for the category pill on the card. The pill names the major
     // field, so the tap filters to exactly that and no narrower — a button
     // that quietly does more than it says is a button you stop trusting.
@@ -2842,7 +2845,7 @@ const app = createApp({
       colorForField, iconForField,
       // quick categories
       railTabs, openDrawers, isDrawerOpen, toggleDrawer, closeDrawer,
-      openField, subfieldsFor,
+      openFields, subfieldsFor,
       railTrack, railStep, canRailUp, canRailDown, syncRailArrows,
       randomOpen,
       catTrack, canCatPrev, canCatNext, catPage, quickPick, syncCatArrows,
@@ -2900,7 +2903,7 @@ const app = createApp({
       clearType, clearTime, clearCategories, typeFilterCount, timeFilterCount,
       toggleField, toggleSubfield, toggleGender,
       openPerson, closePerson, toggleTheme,
-      hasPerson, personByName, openOrSearch, searchFor, filterZodiac, filterBirthday, filterField,
+      hasPerson, personByName, openOrSearch, searchFor, filterZodiac, filterBirthday, filterField, filterGender, genderLabel,
       // ask-a-question
       askInput, askAnswer, askError, askLoading, submitAsk,
       // display helpers

@@ -203,12 +203,13 @@ body {
 }
 .rail::-webkit-scrollbar { width: 0; height: 0; }
 .rail__tab {
-  display: flex; flex-direction: column-reverse; align-items: center; gap: 6px;
-  /* Shorter than they were, since there are a dozen of them now — the label
-     still sets the height, this only stops the short ones from stubbing. */
-  min-height: 58px;
+  display: flex; flex-direction: column-reverse; align-items: center;
+  /* The word sets the height and nothing else does: no minimum to stretch the
+     short ones, no maximum to clip the long ones, and flex-shrink off so a
+     crowded column can't squeeze a label out of its own tab. */
   flex: none;
-  padding: 8px 3px 10px;
+  height: auto;
+  padding: 10px 3px;
   border-radius: 0 12px 12px 0;
   /* Same tinted glass as the search line, so the tabs read as chrome. */
   background: rgba(52,55,62,.46);
@@ -227,6 +228,9 @@ body {
   writing-mode: vertical-rl;
   font-size: 9.5px; font-weight: 400; letter-spacing: .09em; text-transform: uppercase;
   white-space: nowrap;
+  /* Vertical text still measures as a line box; this stops a long calling from
+     being cut off at the tab's edge. */
+  overflow: visible;
 }
 /* The pinned head of the column: brighter than the spines below it, and it
    doesn't move with them. Filled while its page is open. */
@@ -468,10 +472,14 @@ body {
   z-index: 20;
   display: flex; flex-direction: column; justify-content: flex-end;
   gap: 8px;
-  padding: 8px var(--dock-pad) calc(var(--dock-pad) + 2px);
+  /* The top band is the ceiling: the stack grows up to it and stops. Whatever
+     is open, the results can't ride up underneath the bar. */
+  padding: calc(var(--band-h) + 8px) var(--dock-pad) calc(var(--dock-pad) + 2px);
   pointer-events: none;
 }
-.dock > * { pointer-events: auto; }
+/* Everything in the dock keeps its size; only the drawer stack gives ground,
+   so a wall of open callings never squeezes the names or the search line. */
+.dock > * { flex: none; pointer-events: auto; }
 /* The rail runs the dock's full height now, so everything that stacks beside
    it starts where it ends rather than under it. The search line sits below its
    foot and keeps the full width. */
@@ -483,9 +491,11 @@ body {
    scrollbar — a stack you can push past its own edge should say so. */
 .drawers {
   display: flex; flex-direction: column; gap: 8px;
+  /* The one item allowed to shrink, and the only one that scrolls: whatever
+     room is left between the top band and the names is what the callings get,
+     worked out by the layout rather than guessed at with a magic number. */
+  flex: 0 1 auto;
   min-height: 0;
-  max-height: calc(100vh - var(--band-h) - var(--sbar-h) - 118px);
-  max-height: calc(100dvh - var(--band-h) - var(--sbar-h) - 118px);
   overflow-y: auto; overscroll-behavior: contain;
   padding-right: 3px;
   scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.34) transparent;
@@ -758,11 +768,13 @@ body {
 .row + .row { border-top: 1px solid rgba(255,255,255,.12); }
 .row:hover { background: rgba(255,255,255,.08); }
 
+/* Nothing but a frame for the photo: no field colour, no initial. Until the
+   image lands — or if it never does — the slot is simply empty, which is
+   quieter than a coloured tile repeating the first letter of the name. */
 .row__thumb {
   position: relative;
   width: 36px; height: 36px;
   border-radius: 6px; overflow: hidden;
-  display: grid; place-items: center;
 }
 .row__thumb img {
   position: absolute; inset: 0;
@@ -771,7 +783,6 @@ body {
 }
 .row__thumb img.is-loaded { opacity: 1; }
 .row__thumb img.is-broken { display: none; }
-.row__initial { color: #fff; font-size: 15px; font-weight: 500; user-select: none; }
 
 .row__main { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .row__name {
@@ -843,6 +854,14 @@ body {
   color: #fff;
 }
 .erachip.is-on em { color: rgba(255,255,255,.8); }
+/* Inside a calling, a picked genre simply goes white — that's the entire
+   feedback, so it has to be unmistakable rather than a tint. */
+.erachip--sub.is-on {
+  background: #fff;
+  border-color: #fff;
+  color: #111;
+}
+.erachip--sub.is-on:hover { background: #fff; border-color: #fff; color: #111; }
 .erachip:disabled { opacity: .3; cursor: default; }
 
 .tl-wrap { display: flex; justify-content: center; }
@@ -1169,6 +1188,25 @@ body {
   font-size: 13px; line-height: 1;
   color: #fff;
 }
+/* The gender pill keeps the sign's shape but its own tint, so the row of facts
+   doesn't read as three of the same thing. */
+.pop__sign--g {
+  background: rgba(138,180,248,.22);
+  border-color: rgba(138,180,248,.55);
+}
+.pop__sign--g:hover { background: rgba(138,180,248,.4); border-color: rgba(174,203,250,.9); }
+
+/* Full width, under the name block: a field you type into shouldn't be sized
+   by whatever room two round buttons left behind. */
+.kask__form--wide {
+  margin: 0 12px 10px;
+  height: 30px;
+  padding: 0 3px 0 10px;
+  gap: 6px;
+}
+.kask__form--wide .kask__input { font-size: 12px; }
+.kask__form--wide .kask__go { width: 26px; height: 26px; }
+
 /* Third along: what they did. Same pill, but carrying the field's own colour —
    the one already tinting the card behind it and the thumbnail in the list. */
 .pop__field {
