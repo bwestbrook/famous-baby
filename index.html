@@ -293,6 +293,21 @@
              right. Collapsed, this row is the whole panel. -->
         <div class="hitbar">
           <span class="hitbar__label">Results</span>
+          <!-- Keep this search, or drop the lot. Both sit with the size
+               controls, since they act on the panel's whole contents. -->
+          <div class="hitbar__acts">
+            <button
+              :class="{ 'is-on': isSearchSaved }"
+              :disabled="!hasActiveFilters"
+              @click="saveCurrentSearch()"
+              :title="isSearchSaved ? 'Already saved to your profile' : 'Save this search to your profile'"
+            ><svg class="ico ico--14"><use :href="isSearchSaved ? '#i-heart' : '#i-search-heart'"/></svg></button>
+            <button
+              :disabled="!hasActiveFilters"
+              @click="clearAll()"
+              title="Clear every filter"
+            ><svg class="ico ico--14"><use href="#i-close"/></svg></button>
+          </div>
           <div class="hitbar__size">
             <button
               :class="{ 'is-on': hitsSize === 'bar' }"
@@ -393,13 +408,6 @@
                 title="Spin the dial to a random letter"
               >
                 <svg class="ico ico--14"><use href="#i-shuffle"/></svg>
-              </button>
-              <button
-                @click="surpriseMe"
-                :disabled="!filtered.length"
-                title="Open a random name from these results"
-              >
-                <svg class="ico ico--14"><use href="#i-face"/></svg>
               </button>
             </div>
           </div>
@@ -634,21 +642,12 @@
                 :title="'Search ' + a.name"
               >{{ a.name }}<em v-if="a.year"> · {{ a.year }}</em></button></dd>
             </template>
-            <template v-if="selectedPerson.collaborators && selectedPerson.collaborators.length">
-              <dt>With</dt>
+            <!-- Worked with, or simply lived alongside — one row, since the
+                 same names were turning up under both labels. -->
+            <template v-if="alongside(selectedPerson).length">
+              <dt>Alongside</dt>
               <dd><button
-                v-for="c in selectedPerson.collaborators"
-                :key="c"
-                class="tag tag--ghost"
-                :class="{ 'is-linked': hasPerson(c) }"
-                @click="openOrSearch(c)"
-                :title="hasPerson(c) ? 'Open ' + c : 'Search ' + c"
-              >{{ c }}</button></dd>
-            </template>
-            <template v-if="selectedPerson.contemporaries && selectedPerson.contemporaries.length">
-              <dt>Contemporaries</dt>
-              <dd><button
-                v-for="c in selectedPerson.contemporaries"
+                v-for="c in alongside(selectedPerson)"
                 :key="c"
                 class="tag tag--ghost"
                 :class="{ 'is-linked': hasPerson(c) }"
@@ -777,6 +776,49 @@
         </div>
 
 
+        <!-- ---------- country ----------
+             The same list the globe draws from, so tapping one here and
+             tapping it on the map are the same act. -->
+        <div v-if="isDrawerOpen('country') && !selectedPerson" class="drawer">
+          <div class="drawer__head">
+            <span class="drawer__title">Country</span>
+            <button class="drawer__x" @click="closeDrawer('country')" title="Close">
+              <svg class="ico ico--14"><use href="#i-close"/></svg>
+            </button>
+          </div>
+          <!-- A little search, once the panel holds more than the eye scans. -->
+          <label v-if="countryList.length > SEARCH_FROM" class="drawer__find">
+            <svg class="ico ico--12"><use href="#i-search"/></svg>
+            <input
+              type="text"
+              :value="queryFor('country')"
+              @input="setDrawerQuery('country', $event.target.value)"
+              :placeholder="'Search ' + 'countries'"
+              autocomplete="off" spellcheck="false"
+            />
+            <button
+              v-if="queryFor('country')"
+              type="button"
+              class="drawer__findx"
+              @click="setDrawerQuery('country', '')"
+              title="Clear"
+            ><svg class="ico ico--12"><use href="#i-close"/></svg></button>
+          </label>
+          <div class="erabar">
+            <button
+              v-for="c in narrow('country', countryList, 'country')"
+              :key="c.country"
+              class="erachip erachip--sub"
+              :class="{ 'is-on': isCountryOn(c.country) }"
+              @click="pickCountry(c.country)"
+              :title="c.country + ' — ' + c.count + ' names'"
+            >{{ c.country }}</button>
+          </div>
+          <div v-if="!narrow('country', countryList, 'country').length" class="drawer__none">
+            No country by that name.
+          </div>
+        </div>
+
         <!-- ---------- inside a calling ----------
              One panel per open calling, each holding its own genres, leagues
              and roles. Pick as many as you like; a white button is the whole
@@ -788,9 +830,27 @@
               <svg class="ico ico--14"><use href="#i-close"/></svg>
             </button>
           </div>
+          <!-- A little search, once the panel holds more than the eye scans. -->
+          <label v-if="subfieldsFor(f).length > SEARCH_FROM" class="drawer__find">
+            <svg class="ico ico--12"><use href="#i-search"/></svg>
+            <input
+              type="text"
+              :value="queryFor('f:' + f)"
+              @input="setDrawerQuery('f:' + f, $event.target.value)"
+              :placeholder="'Search ' + f"
+              autocomplete="off" spellcheck="false"
+            />
+            <button
+              v-if="queryFor('f:' + f)"
+              type="button"
+              class="drawer__findx"
+              @click="setDrawerQuery('f:' + f, '')"
+              title="Clear"
+            ><svg class="ico ico--12"><use href="#i-close"/></svg></button>
+          </label>
           <div v-if="subfieldsFor(f).length" class="erabar">
             <button
-              v-for="sf in subfieldsFor(f)"
+              v-for="sf in narrow('f:' + f, subfieldsFor(f))"
               :key="sf"
               class="erachip erachip--sub"
               :class="{ 'is-on': isSubfieldSelected(sf) }"
@@ -811,11 +871,28 @@
             </button>
           </div>
 
+          <label v-if="ERAS.length > SEARCH_FROM" class="drawer__find">
+            <svg class="ico ico--12"><use href="#i-search"/></svg>
+            <input
+              type="text"
+              :value="queryFor('time')"
+              @input="setDrawerQuery('time', $event.target.value)"
+              placeholder="Search eras"
+              autocomplete="off" spellcheck="false"
+            />
+            <button
+              v-if="queryFor('time')"
+              type="button"
+              class="drawer__findx"
+              @click="setDrawerQuery('time', '')"
+              title="Clear"
+            ><svg class="ico ico--12"><use href="#i-close"/></svg></button>
+          </label>
           <!-- Time as categories: pick a stretch by its name and the rail
                below highlights where it falls. -->
           <div class="erabar">
             <button
-              v-for="e in ERAS"
+              v-for="e in narrow('time', ERAS, 'name')"
               :key="e.name"
               class="erachip"
               :class="{ 'is-on': isEraOn(e) }"

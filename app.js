@@ -707,7 +707,11 @@ const app = createApp({
     }
 
     // ---- 3D globe (country outlines are the click target) ----
-    const selectedCountry = ref('');
+    // Several countries at once, in the order they were picked. The first is
+    // the anchor: whatever else gets added, the camera keeps that one in shot.
+    const selectedCountries = ref([]);
+    const selectedCountry = computed(() => selectedCountries.value[0] || '');
+    const isCountryOn = (c) => selectedCountries.value.includes(c);
     const hoveredPoly = ref(null);
     let globeInstance = null;
 
@@ -728,9 +732,11 @@ const app = createApp({
     const globeData = computed(() => [...countryCounts.value.values()]);
 
     function selectGlobeCountry(c) {
-      selectedCountry.value = (selectedCountry.value === c) ? '' : c;
+      selectedCountries.value = isCountryOn(c)
+        ? selectedCountries.value.filter(x => x !== c)
+        : [...selectedCountries.value, c];
     }
-    function clearCountry() { selectedCountry.value = ''; }
+    function clearCountry() { selectedCountries.value = []; }
 
     // Countries ranked by how many people the dataset has from each — the
     // "Places" panel list, and the source of the bar widths in it.
@@ -792,19 +798,75 @@ const app = createApp({
       } catch {}
     }
 
-    // Picking a place from the list (or from a knowledge card) both filters
-    // and moves the camera. Re-picking the active country clears the filter
-    // but keeps the camera where it is.
-    // Picking a country is a fresh start, not another filter stacked on the
-    // last one: everything else clears so the country is the only thing
-    // narrowing the roster. Picking the one already selected clears it.
+    // ---- Framing a set of countries ----
+    // Points on a sphere, so "fit them all in" has a hard limit: past a certain
+    // spread the far side is behind the horizon and no camera distance helps.
+    // Countries join the shot in the order they were picked and one is dropped
+    // the moment it would push the group past that limit — which keeps the
+    // first-picked country on screen, whatever else is selected.
+    const RAD = Math.PI / 180;
+    const toVec = ([lat, lng]) => {
+      const a = lat * RAD, b = lng * RAD;
+      return [Math.cos(a) * Math.cos(b), Math.cos(a) * Math.sin(b), Math.sin(a)];
+    };
+    const dot = (u, v) => u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
+    const angleTo = (u, v) => Math.acos(Math.max(-1, Math.min(1, dot(u, v))));
+    const meanDir = (vs) => {
+      const sum = vs.reduce((a, v) => [a[0] + v[0], a[1] + v[1], a[2] + v[2]], [0, 0, 0]);
+      const len = Math.hypot(sum[0], sum[1], sum[2]);
+      return len < 1e-9 ? vs[0] : [sum[0] / len, sum[1] / len, sum[2] / len];
+    };
+    // Past ~68° from the centre of the shot a country sits too near the rim to
+    // read, so that's the widest group we'll try to hold.
+    const MAX_SPREAD = 68 * RAD;
+
+    function frameCountries(countries) {
+      if (!globeInstance) return;
+      const pts = countries.map(c => ({ c, v: COUNTRY_COORDS[c] && toVec(COUNTRY_COORDS[c]) }))
+        .filter(p => p.v);
+      if (!pts.length) return;
+
+      const kept = [pts[0].v];
+      let centre = pts[0].v;
+      for (let i = 1; i < pts.length; i++) {
+        const trial = [...kept, pts[i].v];
+        const c = meanDir(trial);
+        if (Math.max(...trial.map(v => angleTo(c, v))) <= MAX_SPREAD) {
+          kept.push(pts[i].v);
+          centre = c;
+        }
+      }
+      const spread = Math.max(...kept.map(v => angleTo(centre, v)));
+      const lat = Math.asin(Math.max(-1, Math.min(1, centre[2]))) / RAD;
+      const lng = Math.atan2(centre[1], centre[0]) / RAD;
+      // The camera has to stand back far enough that the whole spread falls
+      // inside the visible cap: cos(half-angle) = 1 / distance.
+      const need = Math.min(MAX_SPREAD, spread + 12 * RAD);
+      const altitude = kept.length === 1
+        ? 0.85
+        : Math.max(0.4, Math.min(2.6, 1 / Math.cos(need) - 1));
+      try {
+        globeInstance.pointOfView({ lat, lng, altitude }, 900);
+        syncLabelScaleTo(altitude);
+      } catch {}
+    }
+
+    // Picking a place — from the list, the globe, or a card — adds it to the
+    // selection rather than replacing it, and re-frames the camera around
+    // everything picked. Tapping a lit country lets go of that one alone.
     function pickCountry(country) {
       if (!country) return;
-      const wasSelected = selectedCountry.value === country;
-      clearAll();
-      if (!wasSelected) {
-        selectedCountry.value = country;
-        flyToCountry(country);
+      selectGlobeCountry(country);
+      const now = selectedCountries.value;
+      if (now.length) {
+        frameCountries(now);
+        // Open the country panel too, wherever the click came from: picking a
+        // country off the globe and off the list are the same act, so they
+        // should leave the screen in the same state.
+        if (!isDrawerOpen('country')) toggleDrawer('country');
+      } else if (isDrawerOpen('country')) {
+        // Nothing left selected — the panel goes with it.
+        toggleDrawer('country');
       }
     }
 
@@ -821,7 +883,7 @@ const app = createApp({
     // you're already looking at is excluded.
     function drawRandomCountry() {
       const pool = countryList.value.filter(
-        c => COUNTRY_COORDS[c.country] && c.country !== selectedCountry.value
+        c => COUNTRY_COORDS[c.country] && !isCountryOn(c.country)
       );
       return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
     }
@@ -840,7 +902,7 @@ const app = createApp({
       const pick = drawRandomCountry();
       if (!pick) return;
       aimHomeAt(pick.country);
-      selectedCountry.value = pick.country;
+      selectedCountries.value = [pick.country];
       flyToCountry(pick.country);
     }
 
@@ -941,7 +1003,7 @@ const app = createApp({
     function polyCapColor(d) {
       const entry = polyEntry(d);
       if (!entry) return 'rgba(255,255,255,0.012)';
-      if (entry.country === selectedCountry.value) return 'rgba(253,214,99,0.45)';
+      if (isCountryOn(entry.country)) return 'rgba(253,214,99,0.45)';
       if (d === hoveredPoly.value) return 'rgba(138,180,248,0.40)';
       return 'rgba(138,180,248,0.13)';
     }
@@ -952,14 +1014,14 @@ const app = createApp({
     // brighter than forest, never the same colour as either.
     function polyStrokeColor(d) {
       const entry = polyEntry(d);
-      if (entry && entry.country === selectedCountry.value) return '#FF9B21';
+      if (entry && isCountryOn(entry.country)) return '#FF9B21';
       if (!entry) return 'rgba(146,170,196,0.55)';
       return d === hoveredPoly.value ? '#12C8DC' : '#4F94E8';
     }
     function polyAltitude(d) {
       const entry = polyEntry(d);
       if (!entry) return 0.004;
-      if (entry.country === selectedCountry.value || d === hoveredPoly.value) return 0.015;
+      if (isCountryOn(entry.country) || d === hoveredPoly.value) return 0.015;
       return 0.007;
     }
     function repaintPolygons() {
@@ -1735,7 +1797,7 @@ const app = createApp({
         genders: [...selectedGenders.value],
         yearMin: yearMin.value,
         yearMax: yearMax.value,
-        country: selectedCountry.value,
+        countries: [...selectedCountries.value],
         months: [...selectedBornMonths.value],
         days: [...selectedBornDays.value],
         zodiacs: [...selectedZodiacs.value],
@@ -1761,7 +1823,8 @@ const app = createApp({
       selectedGenders.value = [...(st.genders || [])];
       yearMin.value = typeof st.yearMin === 'number' ? st.yearMin : YEAR_FLOOR;
       yearMax.value = typeof st.yearMax === 'number' ? st.yearMax : YEAR_CEIL;
-      selectedCountry.value = st.country || '';
+      // Older saved searches carry a single country; newer ones a list.
+      selectedCountries.value = Array.isArray(st.countries) ? st.countries : (st.country ? [st.country] : []);
       selectedBornMonths.value = [...(st.months || [])];
       selectedBornDays.value = [...(st.days || [])];
       selectedZodiacs.value = [...(st.zodiacs || [])];
@@ -1932,9 +1995,24 @@ const app = createApp({
     // callings don't, since the second one's genres would have nothing to do
     // with the first one's.
     const FIELD_TAB = 'f:';
+    // A little search inside a panel, once it holds more chips than the eye can
+    // scan. Kept per panel: typing in Music shouldn't narrow the eras.
+    const drawerQuery = ref({});
+    const queryFor = (id) => drawerQuery.value[id] || '';
+    function setDrawerQuery(id, v) {
+      drawerQuery.value = { ...drawerQuery.value, [id]: v };
+    }
+    const SEARCH_FROM = 7;                 // fewer than this and a box is noise
+    const narrow = (id, list, key) => {
+      const q = queryFor(id).trim().toLowerCase();
+      if (!q) return list;
+      return list.filter(x => String(key ? x[key] : x).toLowerCase().includes(q));
+    };
+
     const railTabs = computed(() => [
       { id: 'time',   label: 'Era', icon: 'i-cal' },
       { id: 'gender', label: 'Gender',   icon: 'i-avatar' },
+      { id: 'country', label: 'Country', icon: 'i-public' },
       ...orderedFields.map(f => ({
         id: FIELD_TAB + f, label: f, icon: iconForField(f), field: f,
       })),
@@ -2038,7 +2116,7 @@ const app = createApp({
     onUnmounted(disposeGlobe);
 
     // Repaint the outlines whenever selection changes.
-    watch(selectedCountry, repaintPolygons);
+    watch(selectedCountries, repaintPolygons, { deep: true });
 
     // ---- Surprise Me — random person matching current filters ----
     function surpriseMe() {
@@ -2082,7 +2160,7 @@ const app = createApp({
       const pick = drawRandomCountry();
       if (!pick) return;
       aimHomeAt(pick.country);
-      selectedCountry.value = pick.country;
+      selectedCountries.value = [pick.country];
       flyToCountry(pick.country);
       afterRoll();
     }
@@ -2187,15 +2265,12 @@ const app = createApp({
     // was open it steps aside so the new result set is visible.
     watch(
       [query, selectedFields, selectedSubfields, selectedGenders,
-       yearMin, yearMax, selectedCountry, selectedBornMonths, selectedBornDays,
+       yearMin, yearMax, selectedCountries, selectedBornMonths, selectedBornDays,
        selectedZodiacs, onlyFavorites, bornTodayActive],
       () => {
         if (selectedPerson.value) selectedPerson.value = null;
         hitsExpanded.value = false;
-        nextTick(() => {
-          if (dialWantsRandom) { dialWantsRandom = false; randomLetter(); }
-          else resetDial();
-        });
+        nextTick(resetDial);
       }
     );
 
@@ -2511,19 +2586,17 @@ const app = createApp({
     }
     // Toggling a parent Field always clears subfield selections so the user
     // gets a clean drilldown for the new context.
-    // Picking a category or a genre drops the dial somewhere random inside the
-    // new set rather than on its first letter — a category is for browsing,
-    // and opening on A every time shows the same handful of names. Other
-    // filters (typing, the timeline, a country) still park on the first.
-    let dialWantsRandom = false;
+    // Every filter now parks the dial on the first letter its results have.
+    // Picking a genre used to throw it at a random letter, on the theory that a
+    // category is for browsing — but picking a second genre then moved the list
+    // somewhere unrelated to the thing just pressed, which reads as the list
+    // wandering off on its own.
     function toggleField(f) {
       toggleArrayItem(selectedFields, f);
       selectedSubfields.value = [];
-      dialWantsRandom = true;
     }
     const toggleSubfield = (sf) => {
       toggleArrayItem(selectedSubfields, sf);
-      dialWantsRandom = true;
     };
     const toggleGender   = (g)  => toggleArrayItem(selectedGenders, g);
 
@@ -2552,7 +2625,8 @@ const app = createApp({
       if (genders.length   > 0 && !genders.includes(person.gender))     return null;
       if (minY !== null && minY !== '' && person.birthYear < +minY) return null;
       if (maxY !== null && maxY !== '' && person.birthYear > +maxY) return null;
-      if (selectedCountry.value && person.country !== selectedCountry.value) return null;
+      const countries = selectedCountries.value;
+      if (countries.length && !countries.includes(person.country)) return null;
       if (queryYears.length === 2) {
         const [a, b] = [Math.min(...queryYears), Math.max(...queryYears)];
         if (person.birthYear < a || person.birthYear > b) return null;
@@ -2638,8 +2712,8 @@ const app = createApp({
       if (bornTodayActive.value) {
         out.push({ key: 'bt', group: 'Born', label: 'Today', clear: () => { bornTodayActive.value = false; } });
       }
-      if (selectedCountry.value) {
-        out.push({ key: 'c', group: 'Place', label: selectedCountry.value, clear: clearCountry });
+      for (const c of selectedCountries.value) {
+        out.push({ key: 'c:' + c, group: 'Place', label: c, clear: () => selectGlobeCountry(c) });
       }
       if (onlyFavorites.value) {
         out.push({ key: 'fv', group: 'View', label: 'Favorites only', clear: () => { onlyFavorites.value = false; } });
@@ -2825,6 +2899,23 @@ const app = createApp({
     // Everyone the user has hearted, in dataset order.
     const favoritePeople = computed(() => PEOPLE.filter(p => favorites.value.has(p.id)));
 
+    // Collaborators and contemporaries were two rows saying the same thing —
+    // people whose lives ran alongside this one, some by working together and
+    // some by sharing the years. The distinction was never visible in the data:
+    // the same names turn up in both. One list, deduped, in the order given.
+    function alongside(person) {
+      if (!person) return [];
+      const seen = new Set();
+      const out = [];
+      for (const n of [...(person.collaborators || []), ...(person.contemporaries || [])]) {
+        const key = String(n).trim().toLowerCase();
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        out.push(n);
+      }
+      return out;
+    }
+
     // One-line secondary text under a name in the result rows.
     function rowMeta(person) {
       return [
@@ -2890,6 +2981,7 @@ const app = createApp({
       colorForField, iconForField,
       // quick categories
       railTabs, openDrawers, isDrawerOpen, toggleDrawer, closeDrawer,
+      queryFor, setDrawerQuery, narrow, SEARCH_FROM,
       openFields, subfieldsFor,
       railTrack, railStep, canRailUp, canRailDown, syncRailArrows,
       randomOpen,
@@ -2915,7 +3007,7 @@ const app = createApp({
       // new features
       favorites, onlyFavorites, isFavorite, toggleFavorite, toggleOnlyFavorites,
       bornTodayActive, toggleBornToday,
-      selectedCountry, clearCountry, globeData, zoomGlobe,
+      selectedCountry, selectedCountries, isCountryOn, clearCountry, globeData, zoomGlobe,
       pickCountry, flyToCountry, resetGlobeView, randomGlobeView,
       miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
       miniCities,
@@ -2953,7 +3045,7 @@ const app = createApp({
       // ask-a-question
       askInput, askAnswer, askError, askLoading, submitAsk,
       // display helpers
-      metaPills, tagsFor, fullNameParts, fullNameOf, middleNameOf, selectedNameParts, rowMeta,
+      metaPills, tagsFor, alongside, fullNameParts, fullNameOf, middleNameOf, selectedNameParts, rowMeta,
     };
   },
 });

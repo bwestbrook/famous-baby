@@ -258,6 +258,33 @@ body {
 /* The two dice-rolls, stacked under the spines they sit with. Square rather
    than spine-shaped: they do a thing, they don't open a thing. */
 
+/* A panel's own little search: same glass as everything else, sized to sit
+   between the title row and the chips without becoming a second search line. */
+.drawer__find {
+  display: flex; align-items: center; gap: 6px;
+  height: 26px;
+  padding: 0 4px 0 8px;
+  border-radius: 8px;
+  background: rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.5);
+}
+.drawer__find:focus-within { border-color: rgba(255,255,255,.5); background: rgba(0,0,0,.38); }
+.drawer__find input {
+  flex: 1; min-width: 0;
+  border: none; background: none; outline: none;
+  font-size: 11px; font-weight: 300; color: #f1f3f4;
+}
+.drawer__find input::placeholder { color: rgba(255,255,255,.4); }
+.drawer__findx {
+  flex: none;
+  width: 20px; height: 20px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: rgba(255,255,255,.55);
+}
+.drawer__findx:hover { background: rgba(255,255,255,.16); color: #fff; }
+
 /* ---------- the drawer itself, along the bottom ---------- */
 .drawer {
   display: flex; flex-direction: column; gap: 6px;
@@ -671,7 +698,21 @@ body {
 
 /* Three sizes, one segmented control: out of the way, three names, or the
    screen. It rides the same bar as the sort order. */
-.hitbar__size { display: flex; gap: 2px; flex: none; margin-left: auto; }
+/* Save this search, or wipe it. They sit left of the size controls, with a
+   divider between: these change what the panel holds, those change how much of
+   it you see. */
+.hitbar__acts { display: flex; gap: 2px; flex: none; margin-left: auto; padding-right: 5px; }
+.hitbar__acts button {
+  width: 26px; height: var(--hitbar-h);
+  display: grid; place-items: center;
+  border-radius: 7px;
+  color: rgba(255,255,255,.5);
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.hitbar__acts button:hover:not(:disabled) { background: rgba(255,255,255,.16); color: #fff; }
+.hitbar__acts button:disabled { opacity: .3; cursor: default; }
+.hitbar__acts button.is-on { color: #ff6d60; }
+.hitbar__size { display: flex; gap: 2px; flex: none; border-left: 1px solid rgba(255,255,255,.14); padding-left: 5px; }
 .hitbar__size button {
   width: 26px; height: var(--hitbar-h);
   display: grid; place-items: center;
