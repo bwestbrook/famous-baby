@@ -237,6 +237,181 @@ function zodiacWiki(sign) {
   return sign ? 'https://en.wikipedia.org/wiki/' + sign + '_(astrology)' : '';
 }
 
+/* =========================================================================
+   CHINESE ZODIAC
+   The animal turns over at lunar new year, not on 1 January, so anyone born
+   in January or the first half of February belongs to the year before —
+   roughly one name in seven. That date is the second new moon after the
+   December solstice (the third when a leap month falls in between), which is
+   worth computing properly rather than guessing: Meeus, Astronomical
+   Algorithms, chapters 25, 27 and 49.
+   Two known limits. Dates before 1582 assume the roster's birthdays are
+   proleptic Gregorian, and the Chinese calendar itself ran on mean rather
+   than true new moons until 1645 — so a birthday within a day of an ancient
+   new year can land on the wrong side of it. Everything from 1645 on is
+   solid, and the modern era matches the published dates exactly.
+   ========================================================================= */
+const ZODIAC_RAD = Math.PI / 180;
+const zsin = (deg) => Math.sin(deg * ZODIAC_RAD);
+
+// New moon k lunations from 2000 Jan 6, as a Julian Ephemeris Day (Meeus 49).
+function newMoonJDE(k) {
+  const T = k / 1236.85;
+  const T2 = T * T, T3 = T2 * T, T4 = T3 * T;
+  let jde = 2451550.09766 + 29.530588861 * k
+    + 0.00015437 * T2 - 0.000000150 * T3 + 0.00000000073 * T4;
+  const E  = 1 - 0.002516 * T - 0.0000074 * T2;
+  const M  = 2.5534 + 29.10535670 * k - 0.0000014 * T2 - 0.00000011 * T3;
+  const Mp = 201.5643 + 385.81693528 * k + 0.0107582 * T2 + 0.00001238 * T3 - 0.000000058 * T4;
+  const F  = 160.7108 + 390.67050284 * k - 0.0016118 * T2 - 0.00000227 * T3 + 0.000000011 * T4;
+  const O  = 124.7746 - 1.56375588 * k + 0.0020672 * T2 + 0.00000215 * T3;
+  jde += -0.40720 * zsin(Mp)
+    + 0.17241 * E * zsin(M)
+    + 0.01608 * zsin(2 * Mp)
+    + 0.01039 * zsin(2 * F)
+    + 0.00739 * E * zsin(Mp - M)
+    - 0.00514 * E * zsin(Mp + M)
+    + 0.00208 * E * E * zsin(2 * M)
+    - 0.00111 * zsin(Mp - 2 * F)
+    - 0.00057 * zsin(Mp + 2 * F)
+    + 0.00056 * E * zsin(2 * Mp + M)
+    - 0.00042 * zsin(3 * Mp)
+    + 0.00042 * E * zsin(M + 2 * F)
+    + 0.00038 * E * zsin(M - 2 * F)
+    - 0.00024 * E * zsin(2 * Mp - M)
+    - 0.00017 * zsin(O)
+    - 0.00007 * zsin(Mp + 2 * M)
+    + 0.00004 * zsin(2 * Mp - 2 * F)
+    + 0.00004 * zsin(3 * M)
+    + 0.00003 * zsin(Mp + M - 2 * F)
+    + 0.00003 * zsin(2 * Mp + 2 * F)
+    - 0.00003 * zsin(Mp + M + 2 * F)
+    + 0.00003 * zsin(Mp - M + 2 * F)
+    - 0.00002 * zsin(Mp - M - 2 * F)
+    - 0.00002 * zsin(3 * Mp + M)
+    + 0.00002 * zsin(4 * Mp);
+  return jde;
+}
+// December solstice (Meeus 27, mean) — within half an hour, and nothing here
+// turns on less than a day.
+function decemberSolsticeJDE(year) {
+  const Y = (year - 2000) / 1000;
+  return 2451900.05952 + 365242.74049 * Y - 0.06223 * Y * Y
+    - 0.00823 * Y ** 3 + 0.00032 * Y ** 4;
+}
+// Apparent solar longitude (Meeus 25, low precision — 0.01° is ample for
+// asking which 30° sector the sun is in).
+function sunLongitude(jde) {
+  const T = (jde - 2451545) / 36525;
+  const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+  const M  = 357.52911 + 35999.05029 * T - 0.0001537 * T * T;
+  const C  = (1.914602 - 0.004817 * T - 0.000014 * T * T) * zsin(M)
+    + (0.019993 - 0.000101 * T) * zsin(2 * M)
+    + 0.000289 * zsin(3 * M);
+  const O = 125.04 - 1934.136 * T;
+  const lon = (L0 + C - 0.00569 - 0.00478 * zsin(O)) % 360;
+  return lon < 0 ? lon + 360 : lon;
+}
+// TT − UT, in days (Espenak/Meeus polynomials).
+function deltaTDays(year) {
+  let u, s;
+  if (year < 1600)      { u = (year - 1000) / 100; s = 1574.2 - 556.01*u + 71.23472*u*u + 0.319781*u**3 - 0.8503463*u**4 - 0.005050998*u**5 + 0.0083572073*u**6; }
+  else if (year < 1700) { u = year - 1600; s = 120 - 0.9808*u - 0.01532*u*u + u**3/7129; }
+  else if (year < 1800) { u = year - 1700; s = 8.83 + 0.1603*u - 0.0059285*u*u + 0.00013336*u**3 - u**4/1174000; }
+  else if (year < 1860) { u = year - 1800; s = 13.72 - 0.332447*u + 0.0068612*u*u + 0.0041116*u**3 - 0.00037436*u**4 + 0.0000121272*u**5 - 0.0000001699*u**6 + 0.000000000875*u**7; }
+  else if (year < 1900) { u = year - 1860; s = 7.62 + 0.5737*u - 0.251754*u*u + 0.01680668*u**3 - 0.0004473624*u**4 + u**5/233174; }
+  else if (year < 1920) { u = year - 1900; s = -2.79 + 1.494119*u - 0.0598939*u*u + 0.0061966*u**3 - 0.000197*u**4; }
+  else if (year < 1941) { u = year - 1920; s = 21.20 + 0.84493*u - 0.076100*u*u + 0.0020936*u**3; }
+  else if (year < 1961) { u = year - 1950; s = 29.07 + 0.407*u - u*u/233 + u**3/2547; }
+  else if (year < 1986) { u = year - 1975; s = 45.45 + 1.067*u - u*u/260 - u**3/718; }
+  else if (year < 2005) { u = year - 2000; s = 63.86 + 0.3345*u - 0.060374*u*u + 0.0017275*u**3 + 0.000651814*u**4 + 0.00002373599*u**5; }
+  else                  { u = year - 2005; s = 64.69 + 0.2930*u; }
+  return s / 86400;
+}
+// The calendar is reckoned by the date in Beijing, never by the instant: a new
+// moon at 19:47 and a solstice at 06:23 on the same day belong to that day,
+// and the month beginning then is the one holding the solstice. Getting this
+// wrong is what puts 1985 a whole animal out.
+function chinaDay(jdeTT) {
+  const year = 2000 + (jdeTT - 2451545) / 365.25;
+  return Math.floor(jdeTT - deltaTDays(year) + 8 / 24 + 0.5);
+}
+const newMoonDay = (k) => chinaDay(newMoonJDE(k));
+function lastNewMoonK(day) {
+  let k = Math.floor((day - 2451550) / 29.530588861);
+  while (newMoonDay(k) > day) k--;
+  while (newMoonDay(k + 1) <= day) k++;
+  return k;
+}
+// Month 11 is the one holding the December solstice. Thirteen lunations to the
+// next month 11 means a leap month somewhere in between; it's the first month
+// with no major solar term, and when it falls before month 1 it pushes the new
+// year a moon later. Returns { month, day } in the Gregorian year given.
+const CNY_CACHE = new Map();
+function chineseNewYear(year) {
+  if (CNY_CACHE.has(year)) return CNY_CACHE.get(year);
+  const k11 = lastNewMoonK(chinaDay(decemberSolsticeJDE(year - 1)));
+  const k11next = lastNewMoonK(chinaDay(decemberSolsticeJDE(year)));
+  let offset = 2;
+  if (k11next - k11 === 13) {
+    for (let i = 1; i <= 12; i++) {
+      const a = sunLongitude(newMoonJDE(k11 + i));
+      const b = sunLongitude(newMoonJDE(k11 + i + 1));
+      if (Math.floor(a / 30) === Math.floor(b / 30)) {   // no term crossed
+        if (i <= 2) offset = 3;
+        break;
+      }
+    }
+  }
+  // Julian Day → Gregorian calendar date.
+  const jd = newMoonDay(k11 + offset) - 0.5;
+  const z = Math.floor(jd + 0.5);
+  const alpha = Math.floor((z - 1867216.25) / 36524.25);
+  const A = z + 1 + alpha - Math.floor(alpha / 4);
+  const B = A + 1524;
+  const C = Math.floor((B - 122.1) / 365.25);
+  const D = Math.floor(365.25 * C);
+  const E = Math.floor((B - D) / 30.6001);
+  const day = B - D - Math.floor(30.6001 * E);
+  const month = E < 14 ? E - 1 : E - 13;
+  const out = { month, day };
+  CNY_CACHE.set(year, out);
+  return out;
+}
+
+// The twelve, in cycle order from the Rat. The character is the sign's own
+// symbol — a written glyph, not a picture of the animal, which is what the
+// zodiac has always been and what sits properly beside the Greek ones.
+const CHINESE_ZODIAC = [
+  { animal: 'Rat',     glyph: '鼠' },
+  { animal: 'Ox',      glyph: '牛' },
+  { animal: 'Tiger',   glyph: '虎' },
+  { animal: 'Rabbit',  glyph: '兔' },
+  { animal: 'Dragon',  glyph: '龍' },
+  { animal: 'Snake',   glyph: '蛇' },
+  { animal: 'Horse',   glyph: '馬' },
+  { animal: 'Goat',    glyph: '羊' },
+  { animal: 'Monkey',  glyph: '猴' },
+  { animal: 'Rooster', glyph: '雞' },
+  { animal: 'Dog',     glyph: '狗' },
+  { animal: 'Pig',     glyph: '豬' },
+];
+// A January or February birthday needs the day of the month to be placed at
+// all — without it there's no telling which side of the new year it fell, and
+// a coin-flip animal is worse than none. Every other month rides on the year,
+// as does a birth with no month recorded at all: the year is what's known, and
+// the year is what the animal is named for.
+function chineseZodiacFor(year, month, day) {
+  if (!year) return null;
+  let y = year;
+  if (month === 1 || month === 2) {
+    if (!day) return null;
+    const ny = chineseNewYear(year);
+    if (month < ny.month || (month === ny.month && day < ny.day)) y -= 1;
+  }
+  return CHINESE_ZODIAC[((y - 4) % 12 + 12) % 12];
+}
+
 // How many days are in a given month (defaults to 31 for "any" pickers).
 // Doesn't need leap-year awareness — for a birthday picker, Feb 29 is valid.
 function daysInMonth(month) {
@@ -729,10 +904,17 @@ const app = createApp({
       return Math.max(0.05, (distance - 1) * 0.97);
     }
 
+    // The globe opens a quarter closer than the distance at which it merely
+    // fills the canvas — near enough that a continent reads as a place rather
+    // than as a curve. The sphere overflows the edges at this range, which is
+    // the point: there was never meant to be sky in the corners.
+    const OPENING_ZOOM = 0.75;
+    function openingAltitude() { return Math.max(0.05, fillAltitude() * OPENING_ZOOM); }
+
     function resetGlobeView() {
       if (!globeInstance) return;
       try {
-        HOME_VIEW.altitude = fillAltitude();
+        HOME_VIEW.altitude = openingAltitude();
         globeInstance.pointOfView({ ...HOME_VIEW }, 700);
         syncLabelScaleTo(HOME_VIEW.altitude);
       } catch {}
@@ -1318,16 +1500,97 @@ const app = createApp({
     const refineOpen = ref(false);
     // Account / settings sheet behind the three-bar button in the title row.
     const menuOpen = ref(false);
+    // ---- Session ----
+    // Being logged in survives closing the tab, the way a mail tab does: the
+    // browser holds it until you log out, and only logging out ends it. The
+    // stored shape is { user } — an absent key means a browser that has never
+    // been here, while { user: null } means one that has, and left.
+    const STORAGE_SESSION = 'fb-session-v1';
+    const SEED_USER = { name: 'Benjamin Westbrook', email: 'jamin.westbrook@gmail.com' };
+    // A browser arriving for the first time arrives as the person who built
+    // this, already inside. Logging out writes { user: null } over the seed,
+    // so it never comes back uninvited.
+    let seededThisLoad = false;
+    function loadSession() {
+      try {
+        const raw = localStorage.getItem(STORAGE_SESSION);
+        if (raw == null) {
+          seededThisLoad = true;
+          localStorage.setItem(STORAGE_SESSION, JSON.stringify({ user: SEED_USER }));
+          return { ...SEED_USER };
+        }
+        const saved = JSON.parse(raw);
+        return saved && saved.user ? saved.user : null;
+      } catch { return null; }
+    }
+    const sessionUser = ref(loadSession());
+    const isLoggedIn = computed(() => !!sessionUser.value);
+    function persistSession() {
+      try {
+        localStorage.setItem(STORAGE_SESSION, JSON.stringify({ user: sessionUser.value }));
+      } catch {}
+    }
     // What the app is, for anyone who lands on a globe with no explanation.
-    // It leads every load: the page opens on the writing, not on a bare globe,
-    // and the questions behind it are the first thing anyone is asked.
-    // The writing and the questions share the one page — nothing to step
-    // through, so closing is the only thing the sheet has to remember.
-    const aboutOpen = ref(true);
+    // Two faces: the writing, and the profile form behind its button. A visit
+    // always starts on the writing, whichever face it was left on.
+    // It leads the load for anyone logged out — a stranger gets the writing
+    // and the door, not a bare globe — and stays out of the way for anyone
+    // the browser already knows.
+    const aboutOpen = ref(!sessionUser.value);
+    const aboutStep = ref('read');           // read | profile
     function closeAbout() { aboutOpen.value = false; }
+    watch(aboutOpen, (open) => { if (!open) aboutStep.value = 'read'; });
+    // The door. No server behind it yet, so logging in is a name this browser
+    // agrees to hold — see the sheet, which says as much.
+    const loginOpen = ref(false);
+    const loginEmail = ref('');
+    const loginName = ref('');
+    const loginError = ref('');
+    function openLogin() {
+      const u = sessionUser.value;
+      loginEmail.value = u ? u.email : '';
+      loginName.value = u ? u.name : '';
+      loginError.value = '';
+      loginOpen.value = true;
+    }
+    function submitLogin() {
+      const email = loginEmail.value.trim();
+      // Not validation for a server's sake — nothing is sent anywhere. It's
+      // only enough to be sure the address is the one you meant to be known by.
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        loginError.value = 'That address is missing something.';
+        return;
+      }
+      sessionUser.value = { email, name: loginName.value.trim() || email.split('@')[0] };
+      persistSession();
+      loginError.value = '';
+      loginOpen.value = false;
+      aboutOpen.value = false;
+      // A name at the door is a name for the profile, unless one's already there.
+      const first = profile.value.searchers[0];
+      if (first && !first.name && sessionUser.value.name) first.name = sessionUser.value.name;
+    }
+    // Logging out ends the session and nothing else: the shortlist, the saved
+    // searches and the profile stay put, waiting for the way back in. Clearing
+    // them is its own deliberate button in settings.
+    function logOut() {
+      sessionUser.value = null;
+      persistSession();
+      confirmSignOut.value = false;
+      menuOpen.value = false;
+      loginOpen.value = false;
+      aboutStep.value = 'read';
+      aboutOpen.value = true;
+    }
     // Which face of the account sheet is showing.
     const menuView = ref('root');            // root | favorites | searches | settings
-    function openMenu(view) { menuView.value = view; menuOpen.value = true; }
+    // `andConfirmSignOut` is the log-out button's path: same sheet, already
+    // asking whether you meant it.
+    function openMenu(view, andConfirmSignOut = false) {
+      menuView.value = view;
+      confirmSignOut.value = andConfirmSignOut;
+      menuOpen.value = true;
+    }
     watch(menuOpen, (open) => { if (!open) menuView.value = 'root'; });
 
     // ---- Profile ----
@@ -1345,6 +1608,9 @@ const app = createApp({
     });
     function loadProfile() {
       const base = blankProfile();
+      // First load in this browser: the seeded session comes with a profile
+      // already started in its name, so nobody lands on an empty form.
+      if (seededThisLoad) base.searchers[0].name = SEED_USER.name;
       try {
         const raw = localStorage.getItem(STORAGE_PROFILE);
         if (!raw) return base;
@@ -1484,13 +1750,14 @@ const app = createApp({
       persistSearches();
     }
     const confirmSignOut = ref(false);
-    function signOut() {
+    // Wiping the browser clean: everything this device holds, session included.
+    // Distinct from logging out, which only closes the session behind you.
+    function forgetThisDevice() {
       clearSavedData();
       clearProfile();
       clearAll();
       nameMode.value = 'first';
-      confirmSignOut.value = false;
-      menuOpen.value = false;
+      logOut();
     }
     const refineCount = computed(() => typeFilterCount.value + timeFilterCount.value);
 
@@ -1816,7 +2083,10 @@ const app = createApp({
     // ---- Esc key closes the modal ----
     function onKeydown(e) {
       if (e.key !== 'Escape') return;
-      if (aboutOpen.value) aboutOpen.value = false;
+      // Innermost first: the login sheet sits on top of the info page.
+      if (loginOpen.value) loginOpen.value = false;
+      else if (aboutStep.value === 'profile') aboutStep.value = 'read';
+      else if (aboutOpen.value) aboutOpen.value = false;
       else if (menuOpen.value) menuOpen.value = false;
       else if (refineOpen.value) refineOpen.value = false;
       else if (selectedPerson.value) closePerson();
@@ -2303,6 +2573,12 @@ const app = createApp({
     // The open card titles with the middle name in place, so it reads the way
     // a birth certificate does rather than as a trailing footnote.
     const selectedNameParts = computed(() => fullNameParts(selectedPerson.value));
+    // The animal the open card was born under. Computed once rather than
+    // called three times from the template — it runs an ephemeris.
+    const selectedChinese = computed(() => {
+      const p = selectedPerson.value;
+      return p ? chineseZodiacFor(p.birthYear, p.birthMonth, p.birthDay) : null;
+    });
 
     function metaPills(person) {
       const pills = [];
@@ -2373,15 +2649,19 @@ const app = createApp({
       isBornMonthSelected, isBornDaySelected, isZodiacSelected,
       clearBornFilters,
       MONTH_NAMES, zodiacFor, zodiacIcon, zodiacWiki, formatBirthDate, daysInMonth,
+      selectedChinese,
       surpriseMe,
       // dock
       hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen, aboutOpen,
-      closeAbout,
+      aboutStep, closeAbout,
+      // session
+      sessionUser, isLoggedIn, loginOpen, openLogin, submitLogin, logOut,
+      loginEmail, loginName, loginError,
       profile, hasProfile, profileSummary, startFromProfile, clearProfile,
       menuView, openMenu,
       savedSearches, saveCurrentSearch, applySavedSearch, deleteSavedSearch,
       searchLabel, isSearchSaved,
-      clearSavedData, signOut, confirmSignOut, nameMode,
+      clearSavedData, forgetThisDevice, confirmSignOut, nameMode,
       dialTrack, dialLetter, onDialScroll, onDialClick, randomLetter,
       dialStep, canDialUp, canDialDown,
       dialPointerDown, dialPointerMove, dialPointerUp,

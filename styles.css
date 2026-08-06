@@ -124,6 +124,8 @@ body {
 }
 .titlebar__btn:hover { background: rgba(255,255,255,.14); color: #fff; }
 .titlebar__btn.is-on { color: #ff6d60; }
+/* A profile that's been filled in reads as present rather than as a prompt. */
+.titlebar__btn.is-set { color: #fff; }
 .titlebar__badge {
   position: absolute; top: 0; right: -1px;
   min-width: 13px; height: 13px; padding: 0 3px;
@@ -960,6 +962,17 @@ body {
   transition: background .12s var(--ease), border-color .12s var(--ease);
 }
 .pop__sign:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); color: #fff; }
+/* Same pill, but a label rather than a control: nothing to filter to, so it
+   sits quieter and doesn't light up under the cursor. */
+.pop__sign--cn { cursor: default; border-color: rgba(255,255,255,.22); }
+.pop__sign--cn:hover { background: rgba(0,0,0,.3); border-color: rgba(255,255,255,.22); color: rgba(255,255,255,.9); }
+/* The character carries the weight the Greek glyphs carry, so it's set a size
+   up and upright — it's a symbol here, not a word in a sentence. */
+.pop__cn {
+  font-style: normal; font-weight: 400;
+  font-size: 13px; line-height: 1;
+  color: #fff;
+}
 /* Third along: what they did. Same pill, but carrying the field's own colour —
    the one already tinting the card behind it and the thumbnail in the list. */
 .pop__field {
@@ -1295,9 +1308,9 @@ body {
    wears the same tinted glass as the search line and the category tiles
    rather than the flat black the other sheets use. */
 .ovl__sheet--about {
-  /* Two short paragraphs and a form: taller than the screen on a phone by
-     design, so this one is meant to scroll. The ceiling still leaves the globe
-     showing at the bottom, and the footer stays pinned below the scroll. */
+  /* The writing lands well inside this; the form behind it doesn't, and is
+     meant to scroll. Either way the ceiling leaves the globe showing at the
+     bottom and the footer stays pinned below the scroll. */
   max-height: 92%;
   background: rgba(52,55,62,.46);
   backdrop-filter: blur(3px) saturate(120%);
@@ -1381,6 +1394,16 @@ body {
   transition: border-color .12s var(--ease), background .12s var(--ease);
 }
 .pform__in::placeholder { color: rgba(255,255,255,.38); }
+/* A field that can be left alone says so in the label, quietly. */
+.pform__opt {
+  font-weight: 300; letter-spacing: 0; text-transform: none;
+  color: rgba(255,255,255,.35);
+}
+.pform__err {
+  margin: 10px 0 0;
+  font-size: 12px; font-weight: 300; line-height: 1.4;
+  color: #ff9d94;
+}
 .pform__in:focus { outline: none; border-color: #fff; background: rgba(255,255,255,.08); }
 .pform__row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
 .pform__sub { font-size: 11.5px; font-weight: 300; color: rgba(255,255,255,.5); flex: none; }
@@ -1410,6 +1433,24 @@ body {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 10px 12px; border-top: 1px solid rgba(255,255,255,.16);
 }
+/* The way in, the way on, the way past: three equal shares of the row, so none
+   of them reads as the small print next to the others. The padding drops since
+   the width now comes from the share rather than from the label. */
+.ovl__foot--even { gap: 6px; }
+.ovl__foot--even > .btn {
+  flex: 1 1 0; min-width: 0;
+  padding: 7px 4px;
+  /* On the narrowest phones a third of the row isn't wide enough for "Create
+     profile" on one line, so it takes two rather than being cut off. No
+     breakpoint needed — there's room above 360px and it never wraps there. */
+  white-space: normal; line-height: 1.2; text-align: center;
+}
+/* flex-basis:0 hands each button an equal share and then adds its border on
+   top, so the outlined pair would sit 2px wider than the filled one. A
+   transparent border of the same width puts all three back on terms. */
+.ovl__foot--even > .btn--fill { border: 1px solid transparent; }
+.ovl .btn--out { border-color: rgba(255,255,255,.4); color: #fff; }
+.ovl .btn--out:hover { background: rgba(255,255,255,.12); border-color: #fff; }
 
 /* ---------- dark treatment for the controls inside the sheet ---------- */
 .ovl .grp__label { color: rgba(255,255,255,.55); }

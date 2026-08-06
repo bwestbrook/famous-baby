@@ -76,6 +76,19 @@
       <symbol id="i-chev-left" viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></symbol>
       <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z"/></symbol>
       <symbol id="i-chev-up" viewBox="0 0 24 24"><path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></symbol>
+      <!-- Saved searches: the search icon with a heart on the end of its
+           handle, so it reads as "searches you kept" beside the plain heart
+           that means people you kept. The lens stays clear — a glass you can
+           see through — and the heart is the full-size path scaled down rather
+           than redrawn, so both hearts in the title bar are the same shape. -->
+      <symbol id="i-search-heart" viewBox="0 0 24 24">
+        <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        <g transform="translate(14.8 14.74) scale(0.35)">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/>
+        </g>
+      </symbol>
+      <symbol id="i-login" viewBox="0 0 24 24"><path d="M11 7 9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></symbol>
       <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></symbol>
       <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></symbol>
       <symbol id="i-heart-o" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></symbol>
@@ -179,8 +192,24 @@
       <!-- Wordmark and account controls, right-aligned at the very top -->
       <div class="titlebar">
         <span class="titlebar__mark"><em>famous</em>Baby</span>
-        <button class="titlebar__btn" @click="aboutOpen = true" title="What this is">
-          <svg class="ico ico--18"><use href="#i-info"/></svg>
+        <!-- Who's doing the naming. "What this is" moved into this sheet, so
+             the bar spends its width on the things you come back to. -->
+        <button
+          class="titlebar__btn"
+          :class="{ 'is-set': hasProfile }"
+          @click="openMenu('settings')"
+          :title="hasProfile ? 'Your profile — ' + profileSummary : 'Set up your profile'"
+        >
+          <svg class="ico ico--18"><use href="#i-avatar"/></svg>
+        </button>
+        <!-- Saved searches, straight to the list rather than by way of a menu. -->
+        <button
+          class="titlebar__btn"
+          @click="openMenu('searches')"
+          :title="savedSearches.length ? savedSearches.length + ' saved searches' : 'No saved searches yet'"
+        >
+          <svg class="ico ico--18"><use href="#i-search-heart"/></svg>
+          <span v-if="savedSearches.length" class="titlebar__badge">{{ savedSearches.length }}</span>
         </button>
         <button
           class="titlebar__btn"
@@ -191,8 +220,14 @@
           <svg class="ico ico--18"><use :href="onlyFavorites ? '#i-heart' : '#i-heart-o'"/></svg>
           <span v-if="favorites.size" class="titlebar__badge">{{ favorites.size }}</span>
         </button>
-        <button class="titlebar__btn" @click="menuOpen = true" title="Account and settings">
-          <svg class="ico ico--18"><use href="#i-menu"/></svg>
+        <!-- One button, one meaning: in or out. Logged in, it goes straight
+             to the question; logged out, it opens the door. -->
+        <button
+          class="titlebar__btn"
+          @click="isLoggedIn ? openMenu('settings', true) : openLogin()"
+          :title="isLoggedIn ? 'Log out' : 'Log in'"
+        >
+          <svg class="ico ico--18"><use :href="isLoggedIn ? '#i-logout' : '#i-login'"/></svg>
         </button>
       </div>
 
@@ -402,6 +437,16 @@
                 >
                   <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
                 </button>
+                <!-- The other zodiac, on the same birthday. Its own written
+                     character stands in for a glyph — nothing to filter to
+                     yet, so this one reads rather than clicks. -->
+                <span
+                  v-if="selectedChinese"
+                  class="pop__sign pop__sign--cn"
+                  :title="'Born in the year of the ' + selectedChinese.animal"
+                >
+                  <em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}
+                </span>
                 <!-- What they did, in the field's own colour — the same colour
                      the card is tinted with and the thumbnails use. -->
                 <button
@@ -888,15 +933,23 @@
     <div class="ovl ovl--top" v-show="aboutOpen" @click.self="closeAbout()">
       <div class="ovl__sheet ovl__sheet--about" role="dialog" aria-modal="true">
         <div class="ovl__head">
-          <h2 class="ovl__title">famous<em>Baby</em></h2>
+          <button
+            v-if="aboutStep === 'profile'"
+            class="panel__collapse"
+            @click="aboutStep = 'read'"
+            title="Back"
+          ><svg class="ico ico--18"><use href="#i-back"/></svg></button>
+          <h2 class="ovl__title">
+            <span v-if="aboutStep === 'read'">famous<em>Baby</em></span>
+            <span v-else>Your famous<em>Baby</em></span>
+          </h2>
           <button class="panel__collapse" @click="closeAbout()" title="Close">
             <svg class="ico ico--18"><use href="#i-close"/></svg>
           </button>
         </div>
-        <!-- The writing and the questions are one page: two short paragraphs,
-             then the only form the app ever asks for. Every field optional,
-             saved as it's typed, editable later in account settings. -->
-        <div class="ovl__scroll">
+
+        <!-- What lands first: the writing, and three ways out of it. -->
+        <div class="ovl__scroll" v-show="aboutStep === 'read'">
           <p class="about__p">
             What's in a name? More than anyone lets on. A century, a country, a
             trade the family kept for four generations, and every hand it passed
@@ -907,11 +960,23 @@
             lives, every era and every corner of the map. Start anywhere, go as
             far back as you like, and see what your famous Baby can do.
           </p>
+        </div>
+
+        <!-- Behind the button: the same form account settings shows, so the
+             one you fill in on the way in is the one you come back to. -->
+        <div class="ovl__scroll" v-show="aboutStep === 'profile'">
           <profile-form :model="profile"></profile-form>
         </div>
 
-        <div class="ovl__foot">
-          <button class="btn btn--text" @click="closeAbout()">{{ hasProfile ? 'Close' : 'Skip' }}</button>
+        <!-- Three buttons of the same make, so none of them reads as the
+             small print: the way past, the way in, and the way on. -->
+        <div class="ovl__foot ovl__foot--even" v-if="aboutStep === 'read'">
+          <button v-if="!isLoggedIn" class="btn btn--out" @click="openLogin()">Log in</button>
+          <button class="btn btn--fill" @click="aboutStep = 'profile'">Create profile</button>
+          <button class="btn btn--out" @click="closeAbout()">Skip</button>
+        </div>
+        <div class="ovl__foot" v-else>
+          <button class="btn btn--text" @click="aboutStep = 'read'">Back</button>
           <button class="btn btn--fill" @click="startFromProfile()">
             {{ hasProfile ? 'Save and get started' : 'Create profile and get started' }}
           </button>
@@ -958,7 +1023,7 @@
             </button>
 
             <button class="mrow" @click="menuView = 'searches'">
-              <svg class="ico ico--18"><use href="#i-search"/></svg>
+              <svg class="ico ico--18"><use href="#i-search-heart"/></svg>
               <span class="mrow__label">Saved searches</span>
               <span class="mrow__meta">{{ savedSearches.length }}</span>
               <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
@@ -970,9 +1035,26 @@
               <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
             </button>
 
-            <button class="mrow mrow--warn" @click="menuView = 'settings'; confirmSignOut = true">
-              <svg class="ico ico--18"><use href="#i-back"/></svg>
-              <span class="mrow__label">Log off</span>
+            <!-- The (i) gave up its place in the title bar to the profile, so
+                 the ethos lives here now. -->
+            <button class="mrow" @click="menuOpen = false; aboutOpen = true">
+              <svg class="ico ico--18"><use href="#i-info"/></svg>
+              <span class="mrow__label">What this is</span>
+              <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
+            </button>
+
+            <button
+              v-if="isLoggedIn"
+              class="mrow mrow--warn"
+              @click="menuView = 'settings'; confirmSignOut = true"
+            >
+              <svg class="ico ico--18"><use href="#i-logout"/></svg>
+              <span class="mrow__label">Log out</span>
+              <span class="mrow__meta">{{ sessionUser.email }}</span>
+            </button>
+            <button v-else class="mrow" @click="menuOpen = false; openLogin()">
+              <svg class="ico ico--18"><use href="#i-login"/></svg>
+              <span class="mrow__label">Log in</span>
             </button>
           </template>
 
@@ -1073,29 +1155,53 @@
                 <span class="mrow__label">Clear favorites and searches</span>
                 <span class="mrow__meta">{{ favorites.size + savedSearches.length }}</span>
               </button>
+              <button class="mrow mrow--inset mrow--warn" @click="forgetThisDevice()">
+                <svg class="ico ico--18"><use href="#i-close"/></svg>
+                <span class="mrow__label">Forget this device</span>
+              </button>
               <div class="mgrp__hint">
-                Everything is kept in this browser — there is no account behind it
-                yet, so nothing follows you to another device.
+                Everything is kept in this browser — there is no server behind it
+                yet, so nothing follows you to another device. Forgetting clears
+                the lot and logs you out.
               </div>
             </div>
 
             <div class="mgrp">
-              <div class="mgrp__label">Log off</div>
-              <template v-if="!confirmSignOut">
-                <button class="mrow mrow--inset mrow--warn" @click="confirmSignOut = true">
-                  <svg class="ico ico--18"><use href="#i-back"/></svg>
-                  <span class="mrow__label">Log off this device</span>
+              <div class="mgrp__label">Session</div>
+              <div v-if="isLoggedIn" class="mrow mrow--static mrow--inset">
+                <svg class="ico ico--18"><use href="#i-avatar"/></svg>
+                <span class="mrow__label">{{ sessionUser.name || sessionUser.email }}</span>
+                <span class="mrow__meta">Logged in</span>
+              </div>
+              <template v-if="!isLoggedIn">
+                <button class="mrow mrow--inset" @click="openLogin()">
+                  <svg class="ico ico--18"><use href="#i-login"/></svg>
+                  <span class="mrow__label">Log in</span>
                 </button>
+                <div class="mgrp__hint">
+                  Logged out on this browser. Everything you saved is still here,
+                  waiting for the way back in.
+                </div>
+              </template>
+              <template v-else-if="!confirmSignOut">
+                <button class="mrow mrow--inset mrow--warn" @click="confirmSignOut = true">
+                  <svg class="ico ico--18"><use href="#i-logout"/></svg>
+                  <span class="mrow__label">Log out</span>
+                </button>
+                <div class="mgrp__hint">
+                  The session holds through closing the tab — logging out is the
+                  only thing that ends it.
+                </div>
               </template>
               <template v-else>
                 <div class="mconfirm">
                   <p class="mconfirm__q">
-                    There is no sign-in yet, so logging off clears the shortlist,
-                    the saved searches and the current filters. Go ahead?
+                    Log out of this browser? Your profile, your shortlist and your
+                    saved searches all stay where they are.
                   </p>
                   <div class="mconfirm__row">
                     <button class="btn btn--text" @click="confirmSignOut = false">Cancel</button>
-                    <button class="btn btn--fill" @click="signOut()">Log off</button>
+                    <button class="btn btn--fill" @click="logOut()">Log out</button>
                   </div>
                 </div>
               </template>
@@ -1103,6 +1209,58 @@
 
             <div class="mnote">Roster · {{ PEOPLE_COUNT }} names</div>
           </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== LOG IN ==============
+         No server behind the door yet, so there's no password to ask for:
+         logging in is a name this browser agrees to hold, and it holds it
+         until you log out — closing the tab doesn't end it. -->
+    <div class="ovl" v-show="loginOpen" @click.self="loginOpen = false">
+      <div class="ovl__sheet ovl__sheet--menu" role="dialog" aria-modal="true">
+        <div class="ovl__head">
+          <h2 class="ovl__title">Log in</h2>
+          <button class="panel__collapse" @click="loginOpen = false" title="Close">
+            <svg class="ico ico--18"><use href="#i-close"/></svg>
+          </button>
+        </div>
+        <form class="ovl__scroll" @submit.prevent="submitLogin">
+          <div class="pform">
+            <div class="pform__grp">
+              <div class="pform__label">Email</div>
+              <input
+                class="pform__in"
+                type="email"
+                placeholder="you@example.com"
+                v-model="loginEmail"
+                autocomplete="email"
+                spellcheck="false"
+              />
+            </div>
+            <div class="pform__grp">
+              <div class="pform__label">Name <span class="pform__opt">optional</span></div>
+              <input
+                class="pform__in"
+                type="text"
+                placeholder="What we should call you"
+                v-model="loginName"
+                autocomplete="name"
+              />
+            </div>
+            <p v-if="loginError" class="pform__err">{{ loginError }}</p>
+          </div>
+          <div class="mnote">
+            No password, because there's no server on the other side yet —
+            nothing you type here leaves this browser. It keeps you logged in
+            through closing the tab, and lets go when you log out.
+          </div>
+          <!-- Enter submits, and a submit button is how a form knows that. -->
+          <button type="submit" hidden></button>
+        </form>
+        <div class="ovl__foot">
+          <button class="btn btn--text" @click="loginOpen = false">Cancel</button>
+          <button class="btn btn--fill" @click="submitLogin()">Log in</button>
         </div>
       </div>
     </div>

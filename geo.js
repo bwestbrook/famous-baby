@@ -146,8 +146,10 @@ export const US_STATE_CITIES = [
 // listing it twice would draw it twice, so the state count here is 49.
 
 // Below this altitude a state is worth reading, and the fourth cities join the
-// labels; above it they'd be noise over an ocean-to-ocean view.
-export const US_LABEL_ALTITUDE = 1.1;
+// labels; above it they'd be noise over an ocean-to-ocean view. It has to sit
+// clear of the opening altitude (~0.79 on the phone canvas) or every state
+// label would be on screen the moment the globe appears.
+export const US_LABEL_ALTITUDE = 0.6;
 
 // ---- Exact birthplace strings → coordinates ----
 // Keyed to the `birthPlace` values in data.js. Covers the places that recur;
