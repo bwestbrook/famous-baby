@@ -283,8 +283,12 @@
       </div>
 
       <!-- ---------- HITS — three names, straight above the search line ---------- -->
-      <div v-if="showResults && !selectedPerson" class="hits">
-        <div v-if="filtered.length" class="hitsbody">
+      <div
+        v-if="showResults && !selectedPerson"
+        class="hits"
+        :class="'is-' + hitsSize"
+      >
+        <div v-if="filtered.length" v-show="hitsSize !== 'bar'" class="hitsbody">
         <ol class="hits__list" ref="hitsList">
           <li
             v-for="r in visibleHits"
@@ -392,14 +396,35 @@
           <button class="btn btn--text" @click="clearAll">Clear filters</button>
         </div>
 
-        <!-- Name order sits under the names it reorders. Only earns its space
-             once the list is long enough to scroll. -->
-        <div v-if="filtered.length > HITS_LIMIT" class="hitbar">
-          <span class="hitbar__label">Sort by</span>
-          <div class="hitbar__mode">
-            <button :class="{ 'is-on': nameMode === 'first' }" @click="setNameMode('first')" title="Sort by first name">First name</button>
-            <button :class="{ 'is-on': nameMode === 'middle' }" @click="setNameMode('middle')" title="Sort by middle name">Middle name</button>
-            <button :class="{ 'is-on': nameMode === 'last' }" @click="setNameMode('last')" title="Sort by last name">Last name</button>
+        <!-- Name order sits under the names it reorders, and the size control
+             sits with it. The bar never leaves: collapsed, it's the whole of
+             the panel and the way back out. -->
+        <div class="hitbar">
+          <template v-if="hitsSize !== 'bar' && filtered.length > HITS_LIMIT">
+            <span class="hitbar__label">Sort by</span>
+            <div class="hitbar__mode">
+              <button :class="{ 'is-on': nameMode === 'first' }" @click="setNameMode('first')" title="Sort by first name">First name</button>
+              <button :class="{ 'is-on': nameMode === 'middle' }" @click="setNameMode('middle')" title="Sort by middle name">Middle name</button>
+              <button :class="{ 'is-on': nameMode === 'last' }" @click="setNameMode('last')" title="Sort by last name">Last name</button>
+            </div>
+          </template>
+          <span v-else class="hitbar__label hitbar__label--count">{{ filtered.length }} names</span>
+          <div class="hitbar__size">
+            <button
+              :class="{ 'is-on': hitsSize === 'bar' }"
+              @click="setHitsSize('bar')"
+              title="Collapse to a bar"
+            ><svg class="ico ico--14"><use href="#i-minus"/></svg></button>
+            <button
+              :class="{ 'is-on': hitsSize === 'three' }"
+              @click="setHitsSize('three')"
+              title="Three names"
+            ><svg class="ico ico--14"><use href="#i-sort"/></svg></button>
+            <button
+              :class="{ 'is-on': hitsSize === 'max' }"
+              @click="setHitsSize('max')"
+              title="As many as fit"
+            ><svg class="ico ico--14"><use href="#i-chev-up"/></svg></button>
           </div>
         </div>
       </div>
@@ -723,7 +748,7 @@
                 <svg class="ico ico--16"><use href="#i-chev-right"/></svg>
               </button>
               <button class="knav__arw knav__arw--dice" @click="randomMatch" title="Open a random close match">
-                <svg class="ico ico--16"><use href="#i-face"/></svg>
+                <svg class="ico ico--16"><use href="#i-avatar"/></svg>
               </button>
             </div>
           </div>
@@ -733,7 +758,21 @@
       <!-- Open drawers stack here and nowhere else: the stack is capped
            short of the band at the top and scrolls inside itself, so no
            number of them open at once can climb over the wordmark. -->
-      <div class="drawers" v-if="!selectedPerson">
+      <!-- Folded away while the names hold the screen. Tapping it gives the
+           callings back and puts the list to three, since a panel you can't
+           see is no use open. -->
+      <button
+        v-if="!selectedPerson && drawersFolded && openDrawers.length"
+        class="foldbar"
+        @click="unfoldDrawers"
+        title="Show the callings again"
+      >
+        <svg class="ico ico--14"><use href="#i-layers"/></svg>
+        <span class="foldbar__l">Details</span>
+        <span class="foldbar__n">{{ openDrawers.length }}</span>
+        <svg class="ico ico--14 foldbar__go"><use href="#i-chev-up"/></svg>
+      </button>
+      <div class="drawers" v-if="!selectedPerson && !drawersFolded">
         <!-- ---------- gender ---------- -->
         <div v-if="isDrawerOpen('gender') && !selectedPerson" class="drawer">
           <div class="drawer__head">
@@ -1233,11 +1272,6 @@
             and see who's left standing.
           </p>
           <div class="rndp">
-            <button class="rndp__btn" @click="surpriseMe(); randomOpen = false" :disabled="!filtered.length">
-              <svg class="ico ico--18"><use href="#i-face"/></svg>
-              <span class="rndp__l">Person</span>
-              <span class="rndp__s">Open a name from whatever is showing</span>
-            </button>
             <button class="rndp__btn" @click="randomEra">
               <svg class="ico ico--18"><use href="#i-cal"/></svg>
               <span class="rndp__l">Era</span>
@@ -1261,13 +1295,9 @@
             <button class="rndp__btn rndp__btn--all" @click="randomEverything(); randomOpen = false">
               <svg class="ico ico--18"><use href="#i-shuffle"/></svg>
               <span class="rndp__l">Everything</span>
-              <span class="rndp__s">All four at once, then whoever survives it</span>
+              <span class="rndp__s">All four at once, then open whoever survives</span>
             </button>
           </div>
-        </div>
-        <div class="ovl__foot">
-          <button class="btn btn--out" @click="clearAll">Clear filters</button>
-          <button class="btn btn--fill" @click="randomOpen = false">Done — {{ filtered.length }} names</button>
         </div>
       </div>
     </div>

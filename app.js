@@ -1311,6 +1311,23 @@ const app = createApp({
     const HITS_MAX = 400;      // rows actually rendered; the rest need a filter
     const hitsExpanded = ref(false);
 
+    // ---- How much room the names get ----
+    // Three states rather than a toggle: out of the way but still there, the
+    // three-name default, and as many as the screen will hold. Maxing out is a
+    // decision to read names, so the callings fold down to a bar to make room —
+    // and unfolding them puts the list back to three, since there's no point
+    // opening a panel you can't see.
+    const drawersFolded = ref(false);
+    const hitsSize = ref('three');                 // bar | three | max
+    function setHitsSize(v) {
+      hitsSize.value = v;
+      drawersFolded.value = v === 'max';
+    }
+    function unfoldDrawers() {
+      drawersFolded.value = false;
+      if (hitsSize.value === 'max') hitsSize.value = 'three';
+    }
+
     // ---- Name order ----
     // Sorting and the A–Z jump read the same key, so the letter someone files
     // under is always the letter they're found at.
@@ -2039,13 +2056,15 @@ const app = createApp({
     // A window rather than a point — a single year would usually match nobody.
     // Rolled off the years the roster actually has, so the timeline never
     // lands on an empty stretch of the Middle Ages.
+    // Rolls a named era, not a raw window of years: the timeline is picked from
+    // eras now, so a bare year range would filter the list while lighting
+    // nothing — a roll you can't see is a roll that looks broken.
     function randomEra() {
-      const years = PEOPLE.map(p => p.birthYear).filter(Boolean).sort((a, b) => a - b);
-      if (!years.length) return;
-      const span = 60;
-      const start = draw(years);
-      yearMin.value = Math.max(YEAR_FLOOR, start - Math.floor(span / 2));
-      yearMax.value = Math.min(YEAR_CEIL, yearMin.value + span);
+      const pool = ERAS.filter(e => countForEra(e) && !isEraOn(e));
+      if (!pool.length) return;
+      const e = draw(pool);
+      selectedEras.value = [e.name];
+      if (!isDrawerOpen('time')) toggleDrawer('time');
     }
     function randomPlace() {
       const pick = drawRandomCountry();
@@ -2057,12 +2076,19 @@ const app = createApp({
     function randomGender() {
       const pool = GENDERS.filter(g => g !== selectedGenders.value[0]);
       selectedGenders.value = pool.length ? [draw(pool)] : [];
+      // Open the drawer it lands in, or the pick happens somewhere you can't see.
+      if (!isDrawerOpen('gender')) toggleDrawer('gender');
     }
     function randomCategory() {
-      const pool = orderedFields.filter(f => f !== selectedFields.value[0]);
+      const pool = orderedFields.filter(f => !selectedFields.value.includes(f));
       if (!pool.length) return;
-      selectedFields.value = [draw(pool)];
+      const field = draw(pool);
+      // Through the spine's own toggle, so the calling lights, its panel opens
+      // and the state stays the single thing both of them read.
+      openDrawers.value = openDrawers.value.filter(x => !x.startsWith(FIELD_TAB));
+      selectedFields.value = [];
       selectedSubfields.value = [];          // the old genre belongs to the old calling
+      toggleDrawer(FIELD_TAB + field);
     }
     // The whole handful at once, and then whoever it leaves standing.
     function randomEverything() {
@@ -2885,6 +2911,7 @@ const app = createApp({
       randomEra, randomPlace, randomGender, randomCategory, randomEverything,
       // dock
       hitsExpanded, visibleHits, menuOpen, aboutOpen,
+      hitsSize, setHitsSize, drawersFolded, unfoldDrawers,
       searchInput, runSearch,
       aboutStep, closeAbout,
       // session
