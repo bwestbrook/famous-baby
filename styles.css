@@ -132,6 +132,76 @@ body {
   font-size: 8.5px; font-weight: 500; line-height: 13px; text-align: center;
 }
 
+/* =========================================================================
+   LEFT DRAWERS — the two filter sets, closed to their own names
+   Vertical tabs down the left edge. Tapping one lays its filters along the
+   bottom of the dock; tapping it again, or the drawer's X, puts it away.
+   ========================================================================= */
+/* The spines live inside the dock rather than floating over the map, so the
+   dock's own contents can never end up on top of them. First child of a
+   bottom-anchored column, pulled hard left: the bottom-left corner. */
+.rail {
+  align-self: flex-start;
+  margin-left: calc(var(--dock-pad) * -1);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+}
+.rail__tab {
+  display: flex; flex-direction: column-reverse; align-items: center; gap: 6px;
+  min-height: 74px;
+  padding: 8px 3px 10px;
+  border-radius: 0 12px 12px 0;
+  /* Same tinted glass as the search line, so the tabs read as chrome. */
+  background: rgba(52,55,62,.46);
+  backdrop-filter: blur(3px) saturate(120%);
+  -webkit-backdrop-filter: blur(3px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.3);
+  border-left: none;
+  color: rgba(255,255,255,.8);
+  box-shadow: 2px 0 10px rgba(0,0,0,.4);
+  transition: background .14s var(--ease), color .14s var(--ease), border-color .14s var(--ease);
+}
+.rail__tab:hover { background: rgba(58,61,69,.62); color: #fff; border-color: rgba(255,255,255,.55); }
+.rail__tab.is-on { background: rgba(96,101,112,.62); border-color: rgba(255,255,255,.85); color: #fff; }
+/* The label runs down the tab — that's what buys the width back. */
+.rail__txt {
+  writing-mode: vertical-rl;
+  font-size: 9.5px; font-weight: 400; letter-spacing: .09em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.rail__arw { opacity: .8; }
+
+/* ---------- the drawer itself, along the bottom ---------- */
+.drawer {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 7px 8px 9px;
+  border-radius: 16px;
+  background: rgba(18,19,22,.62);
+  backdrop-filter: blur(10px) saturate(130%);
+  -webkit-backdrop-filter: blur(10px) saturate(130%);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 2px 14px rgba(0,0,0,.5);
+}
+.drawer__head { display: flex; align-items: center; gap: 8px; padding: 0 2px; }
+.drawer__title {
+  flex: 1; min-width: 0;
+  font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: .09em;
+  color: rgba(255,255,255,.5);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.drawer__x {
+  flex: none;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: rgba(255,255,255,.6);
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.drawer__x:hover { background: rgba(255,255,255,.16); color: #fff; }
+/* Inside a drawer the strips have their own frame already, so they drop the
+   spacing they carried when they sat loose on the screen. */
+.drawer .tl-wrap { margin: 0; }
+.drawer .tl { opacity: 1; }
+
 .qbar { display: flex; align-items: center; gap: 4px; }
 .qbar__arrow {
   flex: none;
@@ -1225,10 +1295,10 @@ body {
    wears the same tinted glass as the search line and the category tiles
    rather than the flat black the other sheets use. */
 .ovl__sheet--about {
-  /* The copy is written to land in one screenful, and on the smallest phones
-     (320×568) it needs 82% of the screen to do it — so the ceiling sits above
-     that rather than turning the last paragraph into a scroll. */
-  max-height: 88%;
+  /* Two short paragraphs and a form: taller than the screen on a phone by
+     design, so this one is meant to scroll. The ceiling still leaves the globe
+     showing at the bottom, and the footer stays pinned below the scroll. */
+  max-height: 92%;
   background: rgba(52,55,62,.46);
   backdrop-filter: blur(3px) saturate(120%);
   -webkit-backdrop-filter: blur(3px) saturate(120%);
@@ -1258,6 +1328,73 @@ body {
   .pop { margin-left: 20px; margin-right: 20px; }
   .ovl__sheet--about { width: calc(100% - 60px); margin: 0 auto; }
 }
+
+/* =========================================================================
+   PROFILE FORM — the opening questions, and the same fields in settings
+   Fields sit on the dark sheet, so every control is a hairline on glass
+   rather than a white box punched into the writing above it.
+   ========================================================================= */
+.pform { padding: 14px 18px; color-scheme: dark; }
+/* On the info sheet the form follows the writing, so a hairline marks where
+   reading stops and answering starts. */
+.about__p + .pform { border-top: 1px solid rgba(255,255,255,.14); margin-top: 14px; }
+.pform__grp + .pform__grp, .pform__add + .pform__grp { margin-top: 16px; }
+.pform__label {
+  font-size: 10.5px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+  color: rgba(255,255,255,.5); margin-bottom: 8px;
+}
+/* The row's number on the left, the way out of it on the right. */
+.pform__head { display: flex; align-items: center; gap: 8px; }
+.pform__head .pform__label { flex: 1; min-width: 0; }
+.pform__x {
+  flex: none; width: 24px; height: 24px;
+  display: grid; place-items: center; border-radius: 50%;
+  color: rgba(255,255,255,.4);
+  margin-bottom: 8px;
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.pform__x:hover { background: rgba(255,109,96,.16); color: #ff9d94; }
+
+/* Adding a searcher is an invitation, not a control: a dashed outline that
+   reads as an empty slot waiting to be filled. */
+.pform__add {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border: 1px dashed rgba(255,255,255,.32);
+  border-radius: 8px;
+  color: rgba(255,255,255,.72);
+  font-size: 12.5px; font-weight: 300;
+  transition: border-color .12s var(--ease), background .12s var(--ease), color .12s var(--ease);
+}
+.pform__add:hover { border-color: #fff; background: rgba(255,255,255,.06); color: #fff; }
+.pform__add .ico { color: inherit; }
+.pform__in {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  color: #fff;
+  font: inherit; font-size: 13px; font-weight: 300;
+  transition: border-color .12s var(--ease), background .12s var(--ease);
+}
+.pform__in::placeholder { color: rgba(255,255,255,.38); }
+.pform__in:focus { outline: none; border-color: #fff; background: rgba(255,255,255,.08); }
+.pform__row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.pform__sub { font-size: 11.5px; font-weight: 300; color: rgba(255,255,255,.5); flex: none; }
+/* A date field only ever holds ten characters, so it takes the width it needs
+   and leaves the rest of the row to breathe. */
+.pform__in--date { flex: none; width: auto; min-width: 0; font-variant-numeric: tabular-nums; }
+.pform__in--date::-webkit-calendar-picker-indicator { filter: invert(1); opacity: .55; cursor: pointer; }
+.pform__in--date::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* Inside account settings the group already carries the side padding, and the
+   label above it is the group's own — so the form drops both. */
+.mgrp .pform { padding: 0; }
+.mgrp .pform .pform__grp:first-child { margin-top: 0; }
+.mgrp .pform + .mrow { margin-top: 14px; }
 
 .panel__collapse {
   width: 30px; height: 30px; display: grid; place-items: center;
@@ -1413,7 +1550,12 @@ body {
 .mrow + .mrow { border-top: 1px solid rgba(255,255,255,.1); }
 .mrow .ico { color: rgba(255,255,255,.6); flex: none; }
 .mrow__label { flex: 1; min-width: 0; }
-.mrow__meta { color: rgba(255,255,255,.5); font-variant-numeric: tabular-nums; }
+.mrow__meta {
+  color: rgba(255,255,255,.5); font-variant-numeric: tabular-nums;
+  /* Counts are two characters; a pair of names is not — so the right-hand
+     note gives up half the row at most and trails off there. */
+  max-width: 48%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 button.mrow:hover { background: rgba(255,255,255,.08); color: #fff; }
 button.mrow:disabled { opacity: .4; cursor: default; background: none; }
 .mrow--static { cursor: default; }

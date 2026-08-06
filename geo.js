@@ -84,6 +84,71 @@ export const MAJOR_CITIES = [
   { name: 'Auckland',      lat: -36.85, lng:  174.76 },
 ];
 
+// ---- One US city per state: the fourth most populous ----
+// Not the biggest — the fourth. The first three of any state are the ones
+// everybody can already name; the fourth is where the map starts telling you
+// something. These only label the globe once the camera is close enough for a
+// state to be worth reading (see US_LABEL_ALTITUDE), so they never crowd the
+// world view. Populations are 2020-census vintage; a few states are close
+// enough at fourth place that a later count could reorder them.
+export const US_STATE_CITIES = [
+  { name: 'Mobile',          state: 'Alabama',        lat:  30.69, lng:  -88.04 },
+  { name: 'Wasilla',         state: 'Alaska',         lat:  61.58, lng: -149.44 },
+  { name: 'Chandler',        state: 'Arizona',        lat:  33.31, lng: -111.84 },
+  { name: 'Springdale',      state: 'Arkansas',       lat:  36.19, lng:  -94.13 },
+  { name: 'Fort Collins',    state: 'Colorado',       lat:  40.59, lng: -105.08 },
+  { name: 'Hartford',        state: 'Connecticut',    lat:  41.76, lng:  -72.69 },
+  { name: 'Middletown',      state: 'Delaware',       lat:  39.45, lng:  -75.72 },
+  { name: 'Orlando',         state: 'Florida',        lat:  28.54, lng:  -81.38 },
+  { name: 'Macon',           state: 'Georgia',        lat:  32.84, lng:  -83.63 },
+  { name: 'Hilo',            state: 'Hawaii',         lat:  19.71, lng: -155.08 },
+  { name: 'Idaho Falls',     state: 'Idaho',          lat:  43.49, lng: -112.03 },
+  { name: 'Naperville',      state: 'Illinois',       lat:  41.75, lng:  -88.15 },
+  { name: 'South Bend',      state: 'Indiana',        lat:  41.68, lng:  -86.25 },
+  { name: 'Sioux City',      state: 'Iowa',           lat:  42.50, lng:  -96.40 },
+  { name: 'Olathe',          state: 'Kansas',         lat:  38.88, lng:  -94.82 },
+  { name: 'Owensboro',       state: 'Kentucky',       lat:  37.77, lng:  -87.11 },
+  { name: 'Lafayette',       state: 'Louisiana',      lat:  30.22, lng:  -92.02 },
+  { name: 'South Portland',  state: 'Maine',          lat:  43.63, lng:  -70.27 },
+  { name: 'Silver Spring',   state: 'Maryland',       lat:  39.00, lng:  -77.03 },
+  { name: 'Cambridge',       state: 'Massachusetts',  lat:  42.37, lng:  -71.11 },
+  { name: 'Sterling Heights',state: 'Michigan',       lat:  42.58, lng:  -83.03 },
+  { name: 'Duluth',          state: 'Minnesota',      lat:  46.79, lng:  -92.10 },
+  { name: 'Hattiesburg',     state: 'Mississippi',    lat:  31.33, lng:  -89.29 },
+  { name: 'Columbia',        state: 'Missouri',       lat:  38.95, lng:  -92.33 },
+  { name: 'Bozeman',         state: 'Montana',        lat:  45.68, lng: -111.04 },
+  { name: 'Grand Island',    state: 'Nebraska',       lat:  40.93, lng:  -98.34 },
+  { name: 'North Las Vegas', state: 'Nevada',         lat:  36.20, lng: -115.12 },
+  { name: 'Derry',           state: 'New Hampshire',  lat:  42.88, lng:  -71.33 },
+  { name: 'Elizabeth',       state: 'New Jersey',     lat:  40.66, lng:  -74.21 },
+  { name: 'Santa Fe',        state: 'New Mexico',     lat:  35.69, lng: -105.94 },
+  { name: 'Rochester',       state: 'New York',       lat:  43.16, lng:  -77.61 },
+  { name: 'Durham',          state: 'North Carolina', lat:  35.99, lng:  -78.90 },
+  { name: 'Minot',           state: 'North Dakota',   lat:  48.23, lng: -101.30 },
+  { name: 'Toledo',          state: 'Ohio',           lat:  41.65, lng:  -83.54 },
+  { name: 'Broken Arrow',    state: 'Oklahoma',       lat:  36.06, lng:  -95.79 },
+  { name: 'Gresham',         state: 'Oregon',         lat:  45.50, lng: -122.43 },
+  { name: 'Erie',            state: 'Pennsylvania',   lat:  42.13, lng:  -80.09 },
+  { name: 'Pawtucket',       state: 'Rhode Island',   lat:  41.88, lng:  -71.38 },
+  { name: 'Mount Pleasant',  state: 'South Carolina', lat:  32.83, lng:  -79.83 },
+  { name: 'Brookings',       state: 'South Dakota',   lat:  44.31, lng:  -96.80 },
+  { name: 'Chattanooga',     state: 'Tennessee',      lat:  35.05, lng:  -85.31 },
+  { name: 'Austin',          state: 'Texas',          lat:  30.27, lng:  -97.74 },
+  { name: 'Provo',           state: 'Utah',           lat:  40.23, lng: -111.66 },
+  { name: 'Essex Junction',  state: 'Vermont',        lat:  44.49, lng:  -73.11 },
+  { name: 'Arlington',       state: 'Virginia',       lat:  38.88, lng:  -77.10 },
+  { name: 'Vancouver, WA',   state: 'Washington',     lat:  45.64, lng: -122.66 },
+  { name: 'Parkersburg',     state: 'West Virginia',  lat:  39.27, lng:  -81.56 },
+  { name: 'Kenosha',         state: 'Wisconsin',      lat:  42.58, lng:  -87.82 },
+  { name: 'Gillette',        state: 'Wyoming',        lat:  44.29, lng: -105.50 },
+];
+// California's fourth is San Francisco, which is already a world label above —
+// listing it twice would draw it twice, so the state count here is 49.
+
+// Below this altitude a state is worth reading, and the fourth cities join the
+// labels; above it they'd be noise over an ocean-to-ocean view.
+export const US_LABEL_ALTITUDE = 1.1;
+
 // ---- Exact birthplace strings → coordinates ----
 // Keyed to the `birthPlace` values in data.js. Covers the places that recur;
 // anything unlisted falls back to REGION_COORDS, then the country centroid.

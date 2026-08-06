@@ -6,7 +6,7 @@
 console.log('[famous Baby] app.js loaded, importing modules…');
 
 import { createApp, ref, computed, watch, onMounted, onUnmounted, nextTick } from 'https://unpkg.com/vue@3.4.27/dist/vue.esm-browser.js';
-import { MAJOR_CITIES, CITY_COORDS, REGION_COORDS } from './geo.js';
+import { MAJOR_CITIES, CITY_COORDS, REGION_COORDS, US_STATE_CITIES, US_LABEL_ALTITUDE } from './geo.js';
 import { ADMIN1_LINES } from './admin1.js';
 
 // State / province borders, flattened for globe.gl's path layer.
@@ -92,6 +92,60 @@ const COUNTRY_COORDS = {
   'Mali':           [17.6,   -4.0],
   'Angola':         [-11.2,  17.9],
 };
+
+// ---- Where the visitor is ----
+// The globe opens on the visitor's own corner of the map, worked out without
+// asking them for anything: an IANA time zone names a city, and we already
+// carry coordinates for most of the ones it can name. No permission prompt, no
+// network call, and it resolves before the globe has finished loading.
+// Zones whose city we don't carry — or that name a region rather than a city —
+// get their own coordinates here.
+const TZ_COORDS = {
+  'America/Denver':      [ 39.74, -104.99], 'America/Phoenix':     [ 33.45, -112.07],
+  'America/Anchorage':   [ 61.22, -149.90], 'America/Winnipeg':    [ 49.90,  -97.14],
+  'America/Edmonton':    [ 53.55, -113.49], 'America/Halifax':     [ 44.65,  -63.58],
+  'America/Jamaica':     [ 18.01,  -76.79], 'America/Puerto_Rico': [ 18.47,  -66.11],
+  'America/Panama':      [  8.98,  -79.52], 'America/Costa_Rica':  [  9.93,  -84.08],
+  'America/Guatemala':   [ 14.63,  -90.51], 'America/Caracas':     [ 10.49,  -66.88],
+  'America/Montevideo':  [-34.90,  -56.16], 'America/Lima':        [-12.05,  -77.04],
+  'Europe/Bucharest':    [ 44.43,   26.10], 'Europe/Budapest':     [ 47.50,   19.04],
+  'Europe/Sofia':        [ 42.70,   23.32], 'Europe/Belgrade':     [ 44.79,   20.45],
+  'Europe/Zagreb':       [ 45.81,   15.98], 'Europe/Bratislava':   [ 48.15,   17.11],
+  'Asia/Kuala_Lumpur':   [  3.14,  101.69], 'Asia/Manila':         [ 14.60,  120.98],
+  'Asia/Taipei':         [ 25.03,  121.57], 'Asia/Riyadh':         [ 24.71,   46.68],
+  'Asia/Baghdad':        [ 33.31,   44.37], 'Asia/Kathmandu':      [ 27.72,   85.32],
+  'Asia/Dhaka':          [ 23.81,   90.41], 'Asia/Colombo':        [  6.93,   79.86],
+  'Asia/Ho_Chi_Minh':    [ 10.82,  106.63], 'Asia/Saigon':         [ 10.82,  106.63],
+  'Australia/Brisbane':  [-27.47,  153.03], 'Australia/Perth':     [-31.95,  115.86],
+  'Australia/Adelaide':  [-34.93,  138.60], 'Pacific/Fiji':        [-18.14,  178.44],
+  'Africa/Algiers':      [ 36.75,    3.06], 'Africa/Tunis':        [ 36.81,   10.18],
+  'Africa/Kinshasa':     [ -4.44,   15.27], 'Africa/Dakar':        [ 14.72,  -17.47],
+  'Africa/Khartoum':     [ 15.50,   32.56], 'Atlantic/Reykjavik':  [ 64.15,  -21.94],
+  'Asia/Ulaanbaatar':    [ 47.89,  106.91], 'Asia/Almaty':         [ 43.24,   76.89],
+  'Asia/Tashkent':       [ 41.30,   69.24], 'Asia/Yangon':         [ 16.87,   96.20],
+  'Asia/Yekaterinburg':  [ 56.84,   60.65], 'Europe/Vilnius':      [ 54.69,   25.28],
+  'Europe/Riga':         [ 56.95,   24.11], 'Europe/Tallinn':      [ 59.44,   24.75],
+};
+// Zones that name a city under an older or alternate spelling than ours.
+const TZ_ALIASES = { 'Calcutta': 'Kolkata', 'Kiev': 'Kyiv', 'Bombay': 'Mumbai' };
+const plainName = (s) => String(s || '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/_/g, ' ').trim().toLowerCase();
+
+function homeFromTimeZone() {
+  let tz = '';
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch { return null; }
+  if (!tz) return null;
+  if (TZ_COORDS[tz]) return { lat: TZ_COORDS[tz][0], lng: TZ_COORDS[tz][1], from: tz };
+  const tail = tz.split('/').pop();
+  const want = plainName(TZ_ALIASES[tail] || tail);
+  // Accents are stripped on both sides: the zone says Bogota, our table says
+  // Bogotá, and they're the same place.
+  const city = MAJOR_CITIES.find(c => plainName(c.name) === want);
+  if (city) return { lat: city.lat, lng: city.lng, from: tz };
+  return null;
+}
+
 // Country outlines for the globe. world-atlas ships TopoJSON (small); the
 // topojson-client UMD loaded in index.html converts it to the GeoJSON
 // features three-globe draws.
@@ -310,6 +364,11 @@ function buildHaystack(person) {
   };
 }
 
+// How many people can be named as doing the searching. High enough that no
+// real family hits it, low enough that a stuck key can't fill the sheet.
+// Module scope because the app and the form component both hold the line.
+const SEARCHER_LIMIT = 8;
+
 const HAYSTACKS = new Map(PEOPLE.map(p => [p.id, buildHaystack(p)]));
 
 // Name → person, so a credit on one card can open another. Stage names are
@@ -520,8 +579,23 @@ const app = createApp({
     }
     // Re-sizing rebuilds every label mesh, so ignore the noise: pans and the
     // auto-rotate fire the same event without changing altitude.
+    // The fourth-largest city in each state only earns a label once the camera
+    // is close enough to be looking at states rather than continents. Swapped
+    // on the way past the threshold rather than every frame — re-seeding the
+    // label layer rebuilds every sprite in it.
+    let labelTier = 'world';
+    function syncLabelTier(altitude) {
+      if (!globeInstance || !(altitude > 0)) return;
+      const want = altitude <= US_LABEL_ALTITUDE ? 'states' : 'world';
+      if (want === labelTier) return;
+      labelTier = want;
+      try {
+        globeInstance.labelsData(want === 'states' ? [...MAJOR_CITIES, ...US_STATE_CITIES] : MAJOR_CITIES);
+      } catch {}
+    }
     function syncLabelScale(altitude) {
       if (!globeInstance) return;
+      syncLabelTier(altitude);
       const size = labelSizeFor(altitude);
       if (Math.abs(size - labelSizeApplied) < 0.02) return;
       labelSizeApplied = size;
@@ -595,12 +669,44 @@ const app = createApp({
       flyToCountry(pick.country);
     }
 
-    // The opening move: the same random country, but no filter. Starting the
-    // session filtered means the roster is a handful of names and the first
-    // search comes back empty for a reason nobody can see.
+    // Same, for a place we only have coordinates for.
+    function aimHomeAtCoords(lat, lng) {
+      HOME_VIEW.lat = lat;
+      HOME_VIEW.lng = lng;
+    }
+
+    // The opening move: the visitor's own part of the world, and a random
+    // country only if we can't work out where that is. No filter either way —
+    // starting the session filtered means the roster is a handful of names and
+    // the first search comes back empty for a reason nobody can see.
     function openingGlobeView() {
+      const home = homeFromTimeZone();
+      if (home) {
+        aimHomeAtCoords(home.lat, home.lng);
+        return;
+      }
       const pick = drawRandomCountry();
       if (pick) aimHomeAt(pick.country);
+    }
+
+    // If the visitor has already granted this site location at some point, use
+    // the real thing instead of the time zone's guess. Deliberately never asks:
+    // a permission dialog thrown up before anyone has seen the page is the
+    // fastest way to get told no, and the time zone is close enough on its own.
+    function refineHomeFromDevice() {
+      if (!navigator.geolocation || !navigator.permissions) return;
+      navigator.permissions.query({ name: 'geolocation' }).then((status) => {
+        if (status.state !== 'granted') return;
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            aimHomeAtCoords(latitude, longitude);
+            try { globeInstance && globeInstance.pointOfView({ lat: latitude, lng: longitude, altitude: HOME_VIEW.altitude }, 900); } catch {}
+          },
+          () => {},
+          { timeout: 5000, maximumAge: 600000 }
+        );
+      }).catch(() => {});
     }
 
     // Pull the camera back out to the view this session started on.
@@ -1213,11 +1319,92 @@ const app = createApp({
     // Account / settings sheet behind the three-bar button in the title row.
     const menuOpen = ref(false);
     // What the app is, for anyone who lands on a globe with no explanation.
-    const aboutOpen = ref(false);
+    // It leads every load: the page opens on the writing, not on a bare globe,
+    // and the questions behind it are the first thing anyone is asked.
+    // The writing and the questions share the one page — nothing to step
+    // through, so closing is the only thing the sheet has to remember.
+    const aboutOpen = ref(true);
+    function closeAbout() { aboutOpen.value = false; }
     // Which face of the account sheet is showing.
     const menuView = ref('root');            // root | favorites | searches | settings
     function openMenu(view) { menuView.value = view; menuOpen.value = true; }
     watch(menuOpen, (open) => { if (!open) menuView.value = 'root'; });
+
+    // ---- Profile ----
+    // Who's doing the naming, and who they're naming. Asked once on the way
+    // in, editable forever after in account settings, and kept in this
+    // browser like the favorites and the searches are.
+    // A profile is a list, not a couple: one searcher to start, and as many
+    // more as the family has. Nobody is asked to be somebody's partner to use
+    // the app, and nobody is capped at two.
+    const STORAGE_PROFILE = 'fb-profile-v2';
+    const blankSearcher = () => ({ name: '', dob: '', gender: '' });
+    const blankProfile = () => ({
+      searchers: [blankSearcher()],
+      looking: '',                           // girl | boy | unknown | nonbinary
+    });
+    function loadProfile() {
+      const base = blankProfile();
+      try {
+        const raw = localStorage.getItem(STORAGE_PROFILE);
+        if (!raw) return base;
+        const saved = JSON.parse(raw) || {};
+        // Field-by-field, so a stored shape from an older build can never
+        // leave a searcher object missing and blow up the form's v-model.
+        const list = Array.isArray(saved.searchers) ? saved.searchers : [];
+        const clean = list.slice(0, SEARCHER_LIMIT).map((s) => {
+          const one = blankSearcher();
+          if (s && typeof s === 'object') {
+            for (const k of ['name', 'dob', 'gender']) {
+              if (typeof s[k] === 'string') one[k] = s[k];
+            }
+          }
+          return one;
+        });
+        // The form always has a first row to type in, even from an empty save.
+        if (clean.length) base.searchers = clean;
+        base.looking = typeof saved.looking === 'string' ? saved.looking : '';
+        return base;
+      } catch { return base; }
+    }
+    const profile = ref(loadProfile());
+    function persistProfile() {
+      try { localStorage.setItem(STORAGE_PROFILE, JSON.stringify(profile.value)); } catch {}
+    }
+    // Typing is saved as it happens, so stepping back to the writing — or
+    // closing the sheet on a half-filled form — never loses an answer.
+    watch(profile, persistProfile, { deep: true });
+    const hasProfile = computed(() => {
+      const p = profile.value;
+      return !!(p.looking || p.searchers.some(s => s.name || s.dob || s.gender));
+    });
+    const LOOKING_LABELS = {
+      girl: 'a girl', boy: 'a boy',
+      unknown: 'a baby, name first', nonbinary: 'a non-binary baby',
+    };
+    // Two names fit on the account row; a bigger family gets the first one and
+    // a count, rather than a list that runs off the edge.
+    const profileSummary = computed(() => {
+      const p = profile.value;
+      const names = p.searchers.map(s => s.name).filter(Boolean);
+      if (!names.length) return LOOKING_LABELS[p.looking] || '';
+      if (names.length <= 2) return names.join(' & ');
+      return names[0] + ' +' + (names.length - 1);
+    });
+    function clearProfile() {
+      profile.value = blankProfile();
+      persistProfile();
+    }
+    // Finishing the questions is also the first search: who you're naming
+    // decides which half of the roster the app opens on. "Don't know yet"
+    // asks for everyone, which is what it should mean.
+    function startFromProfile() {
+      persistProfile();
+      const asFilter = { girl: 'female', boy: 'male', nonbinary: 'nonbinary' }[profile.value.looking];
+      if (asFilter) selectedGenders.value = [asFilter];
+      else if (profile.value.looking === 'unknown') selectedGenders.value = [];
+      aboutOpen.value = false;
+    }
 
     // ---- Saved searches ----
     // A search is the whole filter state, stored under the label the dock
@@ -1299,6 +1486,7 @@ const app = createApp({
     const confirmSignOut = ref(false);
     function signOut() {
       clearSavedData();
+      clearProfile();
       clearAll();
       nameMode.value = 'first';
       confirmSignOut.value = false;
@@ -1415,15 +1603,39 @@ const app = createApp({
       tick();
     }
     onMounted(() => nextTick(() => {
-      // Open on a random country rather than a blank screen. This runs before
-      // the globe exists, which is deliberate: it parks HOME_VIEW on that
-      // country, so initGlobe's opening move lands there on its own.
+      // Open on the visitor's own part of the world rather than a blank screen.
+      // This runs before the globe exists, which is deliberate: it parks
+      // HOME_VIEW there, so initGlobe's opening move lands on it unaided.
       openingGlobeView();
       ensureGlobe();
+      refineHomeFromDevice();
       syncCatArrows();
       syncSubArrows();
     }));
     function syncStripArrows() { syncCatArrows(); syncSubArrows(); }
+
+    // ---- Drawers ----
+    // Callings and the timeline used to sit open across the screen. Now they
+    // stand as two spines at the bottom-left corner and only lay their filters
+    // along the bottom when asked for. Either, neither or both — they stack, so
+    // there's no reason one should shut the other.
+    const DRAWERS = [
+      { id: 'fields', label: 'Callings' },
+      { id: 'time',   label: 'Timeline' },
+    ];
+    const openDrawers = ref([]);
+    const isDrawerOpen = (id) => openDrawers.value.includes(id);
+    function toggleDrawer(id) {
+      openDrawers.value = isDrawerOpen(id)
+        ? openDrawers.value.filter(x => x !== id)
+        : [...openDrawers.value, id];
+      // The calling strip measures itself to decide whether its paging arrows
+      // are live; mounted inside a drawer, it has to be asked again.
+      if (isDrawerOpen('fields')) nextTick(syncStripArrows);
+    }
+    const closeDrawer = (id) => {
+      openDrawers.value = openDrawers.value.filter(x => x !== id);
+    };
     window.addEventListener('resize', syncStripArrows);
     onUnmounted(() => window.removeEventListener('resize', syncStripArrows));
 
@@ -2130,6 +2342,7 @@ const app = createApp({
       FIELDS, GENDERS, FIELD_COLORS, today, PEOPLE_COUNT: PEOPLE.length, HITS_LIMIT,
       colorForField, iconForField,
       // quick categories
+      DRAWERS, openDrawers, isDrawerOpen, toggleDrawer, closeDrawer,
       catTrack, canCatPrev, canCatNext, catPage, quickPick, syncCatArrows,
       setSubTrack, canSubPrev, canSubNext, subPage, syncSubRow, syncSubArrows,
       orderedFields, countForField,
@@ -2163,6 +2376,8 @@ const app = createApp({
       surpriseMe,
       // dock
       hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen, aboutOpen,
+      closeAbout,
+      profile, hasProfile, profileSummary, startFromProfile, clearProfile,
       menuView, openMenu,
       savedSearches, saveCurrentSearch, applySavedSearch, deleteSavedSearch,
       searchLabel, isSearchSaved,
@@ -2180,6 +2395,61 @@ const app = createApp({
       askInput, askAnswer, askError, askLoading, submitAsk,
       // display helpers
       metaPills, tagsFor, fullNameParts, fullNameOf, middleNameOf, selectedNameParts, rowMeta,
+    };
+  },
+});
+
+// The same short form is asked twice — once as the opening questions on the
+// info sheet, once inside account settings — so it lives in one template and
+// edits whichever profile object it's handed. Markup stays in index.html with
+// everything else; this only supplies the answers it offers.
+app.component('profile-form', {
+  props: { model: { type: Object, required: true } },
+  template: '#tpl-profile-form',
+  setup(props) {
+    // One row to begin with — a single parent is a whole family, not half of
+    // one — and a button for however many more do the naming here.
+    function addSearcher() {
+      if (props.model.searchers.length >= SEARCHER_LIMIT) return;
+      props.model.searchers.push({ name: '', dob: '', gender: '' });
+    }
+    function removeSearcher(i) {
+      if (props.model.searchers.length <= 1) return;
+      props.model.searchers.splice(i, 1);
+    }
+    const SEARCHER_GENDERS = [
+      { v: 'female', label: 'Woman' },
+      { v: 'male', label: 'Man' },
+      { v: 'nonbinary', label: 'Non-binary' },
+    ];
+    const LOOKING = [
+      { v: 'girl', label: 'Girl' },
+      { v: 'boy', label: 'Boy' },
+      { v: 'unknown', label: "Don't know yet" },
+      { v: 'nonbinary', label: 'Non-binary' },
+    ];
+    // Every answer here is optional, so tapping the one that's already on
+    // takes it back off rather than leaving you stuck with a first guess.
+    const pick = (obj, key, v) => { obj[key] = obj[key] === v ? '' : v; };
+    // Chrome only opens a date picker from the little calendar glyph, so a
+    // tap anywhere on the field asks for it directly. Guarded: Safari has no
+    // showPicker, and it throws unless the call rides a real gesture.
+    const openPicker = (e) => {
+      const el = e.currentTarget;
+      if (!el || typeof el.showPicker !== 'function') return;
+      try { el.showPicker(); } catch {}
+    };
+    // A birthday is picked, never typed — the calendar is the only way in. The
+    // field stays writable in the DOM (readonly would make showPicker throw),
+    // so the keys are swallowed here instead, minus the ones that navigate.
+    const onDateKey = (e) => {
+      if (e.key === 'Tab' || e.key === 'Escape') return;
+      e.preventDefault();
+      if (e.key === 'Enter' || e.key === ' ') openPicker(e);
+    };
+    return {
+      SEARCHER_GENDERS, LOOKING, SEARCHER_LIMIT,
+      addSearcher, removeSearcher, pick, openPicker, onDateKey,
     };
   },
 });
