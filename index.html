@@ -402,25 +402,6 @@
                 <svg class="ico ico--14"><use href="#i-face"/></svg>
               </button>
             </div>
-            <!-- Sort order, initial only: the column is too narrow for words
-                 and F, M, L are the same three choices. -->
-            <div class="dialcol__sort">
-              <button
-                :class="{ 'is-on': nameMode === 'first' }"
-                @click="setNameMode('first')"
-                title="Sort by first name"
-              >F</button>
-              <button
-                :class="{ 'is-on': nameMode === 'middle' }"
-                @click="setNameMode('middle')"
-                title="Sort by middle name"
-              >M</button>
-              <button
-                :class="{ 'is-on': nameMode === 'last' }"
-                @click="setNameMode('last')"
-                title="Sort by last name"
-              >L</button>
-            </div>
           </div>
         </div>
 
@@ -1278,22 +1259,22 @@
             <button class="rndp__btn" @click="randomEra">
               <svg class="ico ico--18"><use href="#i-cal"/></svg>
               <span class="rndp__l">Era</span>
-              <span class="rndp__s" :class="{ 'is-rolled': lastRoll.era }">{{ lastRoll.era ? 'Landed on ' + lastRoll.era : 'Drop the timeline on a stretch of years' }}</span>
+              <span class="rndp__s">Drop the timeline on a stretch of years</span>
             </button>
             <button class="rndp__btn" @click="randomPlace">
               <svg class="ico ico--18"><use href="#i-public"/></svg>
               <span class="rndp__l">Place</span>
-              <span class="rndp__s" :class="{ 'is-rolled': lastRoll.place }">{{ lastRoll.place ? 'Landed on ' + lastRoll.place : 'Spin the globe to a country' }}</span>
+              <span class="rndp__s">Spin the globe to a country</span>
             </button>
             <button class="rndp__btn" @click="randomGender">
               <svg class="ico ico--18"><use href="#i-avatar"/></svg>
               <span class="rndp__l">Gender</span>
-              <span class="rndp__s" :class="{ 'is-rolled': lastRoll.gender }">{{ lastRoll.gender ? 'Landed on ' + lastRoll.gender : 'Take one at random' }}</span>
+              <span class="rndp__s">Take one at random</span>
             </button>
             <button class="rndp__btn" @click="randomCategory">
               <svg class="ico ico--18"><use href="#i-layers"/></svg>
               <span class="rndp__l">Calling</span>
-              <span class="rndp__s" :class="{ 'is-rolled': lastRoll.calling }">{{ lastRoll.calling ? 'Landed on ' + lastRoll.calling : 'Land on a trade and its genres' }}</span>
+              <span class="rndp__s">Land on a trade and its genres</span>
             </button>
             <button class="rndp__btn rndp__btn--all" @click="randomEverything(); randomOpen = false">
               <svg class="ico ico--18"><use href="#i-shuffle"/></svg>

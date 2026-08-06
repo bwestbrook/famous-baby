@@ -1338,11 +1338,11 @@ const app = createApp({
       while (parts.length > 1 && NAME_SUFFIXES.has(parts[parts.length - 1].toLowerCase())) parts.pop();
       return parts[parts.length - 1] || '';
     }
-    const STORAGE_NAMEMODE = 'fb-namemode-v1';
-    const nameMode = ref((() => {
-      try { return localStorage.getItem(STORAGE_NAMEMODE) || 'first'; } catch { return 'first'; }
-    })());                                   // 'first' | 'middle' | 'last'
-    watch(nameMode, (v) => { try { localStorage.setItem(STORAGE_NAMEMODE, v); } catch {} });
+    // First name, and only first name for now: the F/M/L control is off the
+    // panel, so a stored 'last' from an earlier visit would strand someone in
+    // an order with nothing on screen to change it. Kept as a ref, and
+    // setNameMode still works, for when the control comes back.
+    const nameMode = ref('first');           // 'first' | 'middle' | 'last
     function middleNameOf(person) {
       return String((person && person.middleName) || '').trim();
     }
@@ -1973,7 +1973,6 @@ const app = createApp({
     // column, and what it opens covers the whole screen rather than lying
     // along the bottom — not choosing deserves the same room as choosing.
     const randomOpen = ref(false);
-    watch(randomOpen, (open) => { if (open) lastRoll.value = {}; });
 
     // ---- The rail's own scroll ----
     // A dozen spines don't fit any screen, so the column scrolls — and says so
@@ -2060,17 +2059,24 @@ const app = createApp({
     // Rolls a named era, not a raw window of years: the timeline is picked from
     // eras now, so a bare year range would filter the list while lighting
     // nothing — a roll you can't see is a roll that looks broken.
-    // What each roll landed on. The panel covers the whole screen, so the globe
-    // spinning and the drawers lighting all happen behind it — without this the
-    // buttons look inert no matter what they actually did.
-    const lastRoll = ref({});
+    // A roll is the whole visit: it lands, the panel gets out of the way, and
+    // what it did is on screen behind it. Nothing to report inside a sheet
+    // that's already closing.
+    // Everything runs the four in turn, so the individual rolls hold their fire
+    // and it closes once at the end.
+    let rolling = false;
+    function afterRoll() {
+      if (rolling) return;
+      if (hitsSize.value === 'bar') hitsSize.value = 'three';
+      randomOpen.value = false;
+    }
     function randomEra() {
       const pool = ERAS.filter(e => countForEra(e) && !isEraOn(e));
       if (!pool.length) return;
       const e = draw(pool);
       selectedEras.value = [e.name];
       if (!isDrawerOpen('time')) toggleDrawer('time');
-      lastRoll.value = { ...lastRoll.value, era: e.name };
+      afterRoll();
     }
     function randomPlace() {
       const pick = drawRandomCountry();
@@ -2078,7 +2084,7 @@ const app = createApp({
       aimHomeAt(pick.country);
       selectedCountry.value = pick.country;
       flyToCountry(pick.country);
-      lastRoll.value = { ...lastRoll.value, place: pick.country };
+      afterRoll();
     }
     function randomGender() {
       const pool = GENDERS.filter(g => g !== selectedGenders.value[0]);
@@ -2086,7 +2092,7 @@ const app = createApp({
       selectedGenders.value = g ? [g] : [];
       // Open the drawer it lands in, or the pick happens somewhere you can't see.
       if (!isDrawerOpen('gender')) toggleDrawer('gender');
-      lastRoll.value = { ...lastRoll.value, gender: g ? genderLabel(g) : '' };
+      afterRoll();
     }
     function randomCategory() {
       const pool = orderedFields.filter(f => !selectedFields.value.includes(f));
@@ -2098,14 +2104,17 @@ const app = createApp({
       selectedFields.value = [];
       selectedSubfields.value = [];          // the old genre belongs to the old calling
       toggleDrawer(FIELD_TAB + field);
-      lastRoll.value = { ...lastRoll.value, calling: field };
+      afterRoll();
     }
     // The whole handful at once, and then whoever it leaves standing.
     function randomEverything() {
+      rolling = true;
       randomCategory();
       randomEra();
       randomGender();
       randomPlace();
+      rolling = false;
+      afterRoll();
       nextTick(surpriseMe);
     }
 
@@ -2918,7 +2927,7 @@ const app = createApp({
       selectedChinese,
       surpriseMe,
       // the random drawer
-      randomEra, randomPlace, randomGender, randomCategory, randomEverything, lastRoll,
+      randomEra, randomPlace, randomGender, randomCategory, randomEverything,
       // dock
       hitsExpanded, visibleHits, menuOpen, aboutOpen,
       hitsSize, setHitsSize, drawersFolded, unfoldDrawers,
