@@ -27,6 +27,9 @@
   --red:         #ea4335;
 
   --dock-pad:    10px;
+  /* How far the spine column reaches in from the left edge. Everything that
+     stacks beside it clears exactly this much, so the two never overlap. */
+  --rail-w:      15%;
   /* The top band and the search line are the two fixed edges the left-hand
      column runs between, so both are measurements rather than magic numbers. */
   --band-h:      53px;
@@ -169,6 +172,7 @@ body {
   left: 0;
   top: calc(var(--band-h) + 8px);
   bottom: calc(var(--sbar-h) + var(--dock-pad) + 10px);
+  width: var(--rail-w);
   z-index: 2;
   display: flex; flex-direction: column; align-items: stretch; gap: 4px;
   min-width: 0;
@@ -191,7 +195,7 @@ body {
 
 .rail {
   flex: 1; min-height: 0;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 4px;
   /* Every calling has a spine now, which is more than any screen holds: the
      column scrolls on its own and nothing else on the dock moves with it. The
      bar is hidden — the tabs running off the top and bottom edges say plainly
@@ -483,7 +487,7 @@ body {
 /* The rail runs the dock's full height now, so everything that stacks beside
    it starts where it ends rather than under it. The search line sits below its
    foot and keeps the full width. */
-.drawers, .hits, .chiprow { margin-left: 22px; }
+.drawers, .hits, .chiprow { margin-left: calc(var(--rail-w) + 6px); }
 
 /* Every open drawer lives in this one stack, and the stack is bounded: it can
    reach up to just short of the top band and no further, whatever is open.
@@ -671,7 +675,7 @@ body {
 /* What's left of the callings while the names have the screen: one bar, the
    count of what's open, and the way back. */
 .foldbar {
-  margin-left: 22px;
+  margin-left: calc(var(--rail-w) + 6px);
   display: flex; align-items: center; gap: 8px;
   padding: 0 10px 0 12px;
   height: 34px;
