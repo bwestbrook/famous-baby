@@ -244,19 +244,43 @@
 
       <!-- ---------- DRAWER SPINES — bottom-left, above everything the
            dock holds, so the dock can never cover them ---------- -->
-      <div class="rail" v-if="!selectedPerson">
+      <!-- Every filter as a spine: the timeline, gender, and then each calling
+           on its own. More than fit the edge of a phone, so the column scrolls
+           on its own without moving anything else. -->
+      <div class="railwrap" v-if="!selectedPerson">
+        <!-- Frozen at the head of the column, the way a spreadsheet holds its
+             top row: whatever the rest of the rail is scrolled to, the way out
+             of choosing is still there. -->
         <button
-          v-for="d in DRAWERS"
-          :key="d.id"
-          class="rail__tab"
-          :class="{ 'is-on': isDrawerOpen(d.id) }"
-          @click="toggleDrawer(d.id)"
-          :title="(isDrawerOpen(d.id) ? 'Close ' : 'Open ') + d.label"
+          class="rail__tab rail__tab--pin"
+          :class="{ 'is-on': randomOpen }"
+          @click="randomOpen = true"
+          title="Random"
         >
-          <!-- The drawer unfolds below the spine, so the arrow points the way
-               it's about to go and reverses once it's open. -->
-          <svg class="ico ico--12 rail__arw"><use :href="isDrawerOpen(d.id) ? '#i-chev-up' : '#i-chev-down'"/></svg>
-          <span class="rail__txt">{{ d.label }}</span>
+          <span class="rail__txt">Random</span>
+          <svg class="ico ico--12 rail__ico"><use href="#i-shuffle"/></svg>
+        </button>
+        <!-- An arrow at each end, so the column reads as something that moves.
+             They grey out at the ends rather than disappearing — a step that
+             comes and goes is a step you can't aim for. -->
+        <button class="rail__step" @click="railStep(-1)" :disabled="!canRailUp" title="Scroll up">
+          <svg class="ico ico--14"><use href="#i-chev-up"/></svg>
+        </button>
+        <div class="rail" ref="railTrack" @scroll.passive="syncRailArrows">
+          <button
+            v-for="d in railTabs"
+            :key="d.id"
+            class="rail__tab"
+            :class="{ 'is-on': isDrawerOpen(d.id) }"
+            @click="toggleDrawer(d.id)"
+            :title="(isDrawerOpen(d.id) ? 'Close ' : 'Open ') + d.label"
+          >
+            <span class="rail__txt">{{ d.label }}</span>
+            <svg class="ico ico--12 rail__ico"><use :href="'#' + d.icon"/></svg>
+          </button>
+        </div>
+        <button class="rail__step" @click="railStep(1)" :disabled="!canRailDown" title="Scroll down">
+          <svg class="ico ico--14"><use href="#i-chev-down"/></svg>
         </button>
       </div>
 
@@ -710,97 +734,74 @@
         </div>
       </article>
 
-      <!-- ---------- fields ---------- -->
-      <div v-if="isDrawerOpen('fields') && !selectedPerson" class="drawer">
+      <!-- ---------- gender ---------- -->
+      <div v-if="isDrawerOpen('gender') && !selectedPerson" class="drawer">
         <div class="drawer__head">
-          <span class="drawer__title">{{ DRAWERS.find(d => d.id === 'fields').label }}</span>
-          <button class="drawer__x" @click="closeDrawer('fields')" title="Close">
+          <span class="drawer__title">Gender</span>
+          <button class="drawer__x" @click="closeDrawer('gender')" title="Close">
             <svg class="ico ico--14"><use href="#i-close"/></svg>
           </button>
         </div>
-
-        <!-- Five field shortcuts at a time; the arrows page through the rest so
-             the strip never has to wrap or scroll on a narrow canvas. -->
-        <div class="qbar">
-          <button class="qbar__arrow" @click="catPage(-1)" :disabled="!canCatPrev" title="Previous categories">
-            <svg class="ico ico--16"><use href="#i-chev-left"/></svg>
-          </button>
-          <div
-            class="qbar__track"
-            ref="catTrack"
-            @scroll.passive="syncCatArrows"
-            @pointerdown="catPointerDown"
-            @pointermove="catPointerMove"
-            @pointerup="catPointerUp"
-            @pointercancel="catPointerUp"
-            @pointerleave="catPointerUp"
-          >
-            <button
-              v-for="f in orderedFields"
-              :key="f"
-              class="qcat"
-              :class="{ 'is-on': isFieldSelected(f) }"
-              @click="quickPick(f)"
-              :title="f + ' — ' + countForField(f) + ' names'"
-            >
-              <svg class="ico ico--18 qcat__ico"><use :href="'#' + iconForField(f)"/></svg>
-              <span class="qcat__label">{{ f }}</span>
-            </button>
-          </div>
-          <button class="qbar__arrow" @click="catPage(1)" :disabled="!canCatNext" title="More categories">
-            <svg class="ico ico--16"><use href="#i-chev-right"/></svg>
-          </button>
-        </div>
-
-        <!-- Sub-categories for whichever field is open — Film's roles, Sport's
-             leagues, Music's genres. Only appears once a category is picked, and
-             scrolls sideways rather than wrapping onto a second line. -->
-        <div v-if="subRows.length" class="subbar">
-          <!-- A row per selected category; each scrolls and pages on its own. -->
-          <div v-for="row in subRows" :key="row.field" class="subbar__row">
-            <button
-              class="qbar__arrow qbar__arrow--sm"
-              @click="subPage(row.field, -1)"
-              :disabled="!canSubPrev(row.field)"
-              :title="'Previous ' + row.field"
-            >
-              <svg class="ico ico--14"><use href="#i-chev-left"/></svg>
-            </button>
-            <div
-              class="subbar__track"
-              :ref="el => setSubTrack(row.field, el)"
-              @scroll.passive="syncSubRow(row.field)"
-            >
-              <button
-                v-for="sf in row.subs"
-                :key="sf"
-                class="subchip"
-                :class="{ 'is-on': isSubfieldSelected(sf) }"
-                @click="toggleSubfield(sf)"
-                :title="sf + ' — ' + countForSubfield(row.field, sf) + ' names'"
-              >{{ sf }}</button>
-            </div>
-            <button
-              class="qbar__arrow qbar__arrow--sm"
-              @click="subPage(row.field, 1)"
-              :disabled="!canSubNext(row.field)"
-              :title="'More ' + row.field"
-            >
-              <svg class="ico ico--14"><use href="#i-chev-right"/></svg>
-            </button>
-          </div>
+        <div class="rnd">
+          <button
+            v-for="g in GENDERS"
+            :key="g"
+            class="rnd__btn"
+            :class="{ 'is-on': isGenderSelected(g) }"
+            @click="toggleGender(g)"
+          >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
         </div>
       </div>
 
-      <!-- ---------- time ---------- -->
+      <!-- ---------- inside one calling ----------
+           A calling's spine opens what's inside it, not a list of its
+           neighbours: the genres, leagues and roles it's actually made of.
+           The calling itself is already the filter, so these narrow it. -->
+      <div v-if="openField && !selectedPerson" class="drawer">
+        <div class="drawer__head">
+          <span class="drawer__title">{{ openField }}</span>
+          <span class="drawer__n">{{ countForField(openField) }} names</span>
+          <button class="drawer__x" @click="closeDrawer('f:' + openField)" title="Close">
+            <svg class="ico ico--14"><use href="#i-close"/></svg>
+          </button>
+        </div>
+        <div class="rnd">
+          <button
+            v-for="sf in subfieldsFor(openField)"
+            :key="sf"
+            class="rnd__btn"
+            :class="{ 'is-on': isSubfieldSelected(sf) }"
+            @click="toggleSubfield(sf)"
+            :title="sf + ' — ' + countForSubfield(openField, sf) + ' names'"
+          >{{ sf }}<span class="rnd__n">{{ countForSubfield(openField, sf) }}</span></button>
+        </div>
+        <div v-if="!subfieldsFor(openField).length" class="drawer__none">
+          Nothing inside this one yet — the whole calling is the filter.
+        </div>
+      </div>
+
       <div v-if="isDrawerOpen('time') && !selectedPerson" class="drawer">
         <div class="drawer__head">
-          <span class="drawer__title">{{ DRAWERS.find(d => d.id === 'time').label }}</span>
+          <span class="drawer__title">Era</span>
           <button class="drawer__x" @click="closeDrawer('time')" title="Close">
             <svg class="ico ico--14"><use href="#i-close"/></svg>
           </button>
         </div>
 
+        <!-- Time as categories: pick a stretch by its name and the rail
+             below highlights where it falls. -->
+        <div class="erabar">
+          <button
+            v-for="e in ERAS"
+            :key="e.name"
+            class="erachip"
+            :class="{ 'is-on': isEraOn(e) }"
+            :style="{ '--era': eraColor(e) }"
+            @click="pickEra(e)"
+            :disabled="!countForEra(e)"
+            :title="e.name + ' — ' + e.from + ' to ' + e.to + ', ' + countForEra(e) + ' names'"
+          >{{ e.name }}<em>{{ countForEra(e) }}</em></button>
+        </div>
         <div class="tl-wrap">
           <div class="tl" :class="{ 'is-on': yearsActive, 'is-dob': !!selectedPerson }">
             <span v-if="selectedPerson" class="tl__label">Born</span>
@@ -821,18 +822,17 @@
                 <i v-for="t in YEAR_TICKS" :key="t.y" class="tl__tick" :style="{ left: t.pct + '%' }"></i>
               </div>
               <div class="tl__rail">
-                <div class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
+                <div v-if="!eraBands.length" class="tl__fill" :style="{ left: tlMinPct + '%', width: (tlMaxPct - tlMinPct) + '%' }"></div>
+                <!-- One band per picked era, each in its own colour, so the
+                     rail shows which stretches of time are lit. -->
+                <i
+                  v-for="b in eraBands"
+                  :key="b.name"
+                  class="tl__band"
+                  :style="{ left: b.left + '%', width: b.width + '%', background: b.color }"
+                  :title="b.name"
+                ></i>
                 <i v-if="selectedPerson" class="tl__pin" :style="{ left: tlBirthPct + '%' }"></i>
-                <input
-                  type="range" class="tl__in"
-                  :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMin"
-                  @input="setYearMin($event.target.value)" aria-label="Earliest birth year"
-                />
-                <input
-                  type="range" class="tl__in"
-                  :min="YEAR_FLOOR" :max="YEAR_CEIL" step="1" :value="tlMax"
-                  @input="setYearMax($event.target.value)" aria-label="Latest birth year"
-                />
               </div>
             </div>
             <span v-if="selectedPerson" class="tl__val">{{ tlLabel }}</span>
@@ -878,40 +878,16 @@
         <input
           class="sbar__input"
           type="text"
+          ref="searchInput"
           v-model="query"
-          placeholder=""
+          placeholder="Your naming journey starts here…"
           aria-label="Search"
           autocomplete="off"
           spellcheck="false"
+          @keyup.enter="runSearch"
         />
         <button v-if="query" class="sbar__btn" @click="query = ''" title="Clear search">
           <svg class="ico ico--16"><use href="#i-close"/></svg>
-        </button>
-        <span class="sbar__div"></span>
-        <!-- The two dice-rolls, side by side: a random name, a random place. -->
-        <button
-          class="sbar__btn"
-          @click="surpriseMe"
-          :disabled="!filtered.length"
-          title="Open a random name"
-        >
-          <svg class="ico ico--18"><use href="#i-face"/></svg>
-        </button>
-        <button
-          class="sbar__btn"
-          @click="randomGlobeView"
-          title="Spin to a random country"
-        >
-          <svg class="ico ico--18"><use href="#i-public"/></svg>
-        </button>
-        <button
-          class="sbar__btn"
-          :class="{ 'is-on': refineOpen || refineCount }"
-          @click="refineOpen = true"
-          title="Advanced search"
-        >
-          <svg class="ico ico--18"><use href="#i-tune"/></svg>
-          <span v-if="refineCount" class="sbar__badge">{{ refineCount }}</span>
         </button>
         <button
           v-if="hasActiveFilters"
@@ -921,13 +897,24 @@
         >
           <svg class="ico ico--18"><use href="#i-close"/></svg>
         </button>
+        <!-- The search runs as you type; this is the button that says you're
+             finished — same as pressing Enter. It lights up once there's
+             something to look for. -->
+        <button
+          class="sbar__btn sbar__btn--go"
+          :class="{ 'is-on': query.trim() }"
+          @click="runSearch"
+          title="Search"
+          aria-label="Search"
+        >
+          <svg class="ico ico--18"><use href="#i-search"/></svg>
+        </button>
       </div>
 
       <!-- ---------- TIMELINE — under the search line ----------
            Quiet at rest, full strength on approach or while a range is set. -->
     </div>
 
-    <!-- ============== REFINE OVERLAY ============== -->
     <!-- ============== ACCOUNT MENU ============== -->
     <!-- ============== WHAT THIS IS ============== -->
     <div class="ovl ovl--top" v-show="aboutOpen" @click.self="closeAbout()">
@@ -1123,7 +1110,24 @@
           <!-- ---------- account settings ---------- -->
           <template v-else>
             <div class="mgrp">
-              <div class="mgrp__label">Profile</div>
+              <!-- The explanation is behind the (i) rather than sitting under
+                   the form as a paragraph nobody reads twice. -->
+              <div class="mgrp__head">
+                <div class="mgrp__label">Search preferences</div>
+                <button
+                  class="mgrp__i"
+                  :class="{ 'is-on': prefsInfoOpen }"
+                  @click="prefsInfoOpen = !prefsInfoOpen"
+                  title="What these are for"
+                >
+                  <svg class="ico ico--14"><use href="#i-info"/></svg>
+                </button>
+              </div>
+              <p v-if="prefsInfoOpen" class="mgrp__note">
+                These let the app look for names on your terms — your own name,
+                your date of birth and the star sign that comes with it, and the
+                callings you're drawn to.
+              </p>
               <profile-form :model="profile"></profile-form>
               <button
                 v-if="hasProfile"
@@ -1131,12 +1135,8 @@
                 @click="clearProfile()"
               >
                 <svg class="ico ico--18"><use href="#i-close"/></svg>
-                <span class="mrow__label">Clear profile</span>
+                <span class="mrow__label">Clear these details</span>
               </button>
-              <div class="mgrp__hint">
-                Saved the moment you type it, and it comes back the next time the
-                info page opens.
-              </div>
             </div>
 
             <div class="mgrp">
@@ -1213,6 +1213,64 @@
       </div>
     </div>
 
+    <!-- ============== RANDOM ==============
+         Not a drawer along the bottom: the whole screen, because every one of
+         these is a decision handed over to the dice and that shouldn't be a
+         footnote. Each roll narrows its own one thing and leaves the rest, so
+         they stack. -->
+    <div class="ovl ovl--full" v-show="randomOpen" @click.self="randomOpen = false">
+      <div class="ovl__sheet ovl__sheet--full" role="dialog" aria-modal="true">
+        <div class="ovl__head">
+          <h2 class="ovl__title">Random</h2>
+          <button class="panel__collapse" @click="randomOpen = false" title="Close">
+            <svg class="ico ico--18"><use href="#i-close"/></svg>
+          </button>
+        </div>
+        <div class="ovl__scroll">
+          <p class="rndp__lede">
+            Every one of these hands a choice over. Take one, or take them all
+            and see who's left standing.
+          </p>
+          <div class="rndp">
+            <button class="rndp__btn" @click="surpriseMe(); randomOpen = false" :disabled="!filtered.length">
+              <svg class="ico ico--18"><use href="#i-face"/></svg>
+              <span class="rndp__l">Person</span>
+              <span class="rndp__s">Open a name from whatever is showing</span>
+            </button>
+            <button class="rndp__btn" @click="randomEra">
+              <svg class="ico ico--18"><use href="#i-cal"/></svg>
+              <span class="rndp__l">Era</span>
+              <span class="rndp__s">Drop the timeline on a stretch of years</span>
+            </button>
+            <button class="rndp__btn" @click="randomPlace">
+              <svg class="ico ico--18"><use href="#i-public"/></svg>
+              <span class="rndp__l">Place</span>
+              <span class="rndp__s">Spin the globe to a country</span>
+            </button>
+            <button class="rndp__btn" @click="randomGender">
+              <svg class="ico ico--18"><use href="#i-avatar"/></svg>
+              <span class="rndp__l">Gender</span>
+              <span class="rndp__s">Take one at random</span>
+            </button>
+            <button class="rndp__btn" @click="randomCategory">
+              <svg class="ico ico--18"><use href="#i-layers"/></svg>
+              <span class="rndp__l">Calling</span>
+              <span class="rndp__s">Land on a trade and its genres</span>
+            </button>
+            <button class="rndp__btn rndp__btn--all" @click="randomEverything(); randomOpen = false">
+              <svg class="ico ico--18"><use href="#i-shuffle"/></svg>
+              <span class="rndp__l">Everything</span>
+              <span class="rndp__s">All four at once, then whoever survives it</span>
+            </button>
+          </div>
+        </div>
+        <div class="ovl__foot">
+          <button class="btn btn--out" @click="clearAll">Clear filters</button>
+          <button class="btn btn--fill" @click="randomOpen = false">Done — {{ filtered.length }} names</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ============== LOG IN ==============
          No server behind the door yet, so there's no password to ask for:
          logging in is a name this browser agrees to hold, and it holds it
@@ -1265,137 +1323,6 @@
       </div>
     </div>
 
-    <div class="ovl" v-show="refineOpen" @click.self="refineOpen = false">
-      <div class="ovl__sheet" role="dialog" aria-modal="true">
-        <div class="ovl__head">
-          <h2 class="ovl__title">Advanced search</h2>
-          <button class="panel__collapse" @click="refineOpen = false" title="Close">
-            <svg class="ico ico--18"><use href="#i-close"/></svg>
-          </button>
-        </div>
-
-        <div class="ovl__scroll">
-          <div class="grp">
-            <div class="grp__label">Field</div>
-            <div class="chips chips--grid">
-              <button
-                v-for="f in orderedFields"
-                :key="f"
-                class="chip"
-                :class="{ 'is-on': isFieldSelected(f) }"
-                @click="toggleField(f)"
-              ><svg class="ico ico--14"><use :href="'#' + iconForField(f)"/></svg>{{ f }}</button>
-            </div>
-          </div>
-
-          <div v-if="availableSubfields.length" class="grp">
-            <div class="grp__label">Within</div>
-            <div class="chips">
-              <button
-                v-for="sf in availableSubfields"
-                :key="sf"
-                class="chip chip--sm"
-                :class="{ 'is-on': isSubfieldSelected(sf) }"
-                @click="toggleSubfield(sf)"
-              >{{ sf }}</button>
-            </div>
-          </div>
-
-          <div class="grp">
-            <div class="grp__label">Gender</div>
-            <div class="chips">
-              <button
-                v-for="g in GENDERS"
-                :key="g"
-                class="chip chip--sm"
-                :class="{ 'is-on': isGenderSelected(g) }"
-                @click="toggleGender(g)"
-              >{{ g === 'male' ? 'Men' : g === 'female' ? 'Women' : g === 'nonbinary' ? 'Non-binary' : g }}</button>
-            </div>
-          </div>
-
-          <div class="grp">
-            <div class="grp__label">
-              Born on
-              <span class="grp__val" v-if="selectedBornMonths.length || selectedBornDays.length">
-                {{ selectedBornMonths.length }} mo · {{ selectedBornDays.length }} day
-              </span>
-            </div>
-
-            <!-- Month grid, then day grid — pick as many of each as you like. -->
-            <div class="cal">
-              <div class="cal__months">
-                <button
-                  v-for="m in 12"
-                  :key="'m' + m"
-                  class="cal__cell"
-                  :class="{ 'is-on': isBornMonthSelected(m) }"
-                  @click="toggleBornMonth(m)"
-                >{{ MONTH_NAMES[m].slice(0, 3) }}</button>
-              </div>
-              <div class="cal__days">
-                <button
-                  v-for="d in 31"
-                  :key="'d' + d"
-                  class="cal__cell cal__cell--day"
-                  :class="{ 'is-on': isBornDaySelected(d) }"
-                  @click="toggleBornDay(d)"
-                >{{ d }}</button>
-              </div>
-            </div>
-
-            <div class="chips" style="margin-top:10px">
-              <button class="chip chip--sm" :class="{ 'is-on': bornTodayActive }" @click="toggleBornToday">
-                <svg class="ico ico--14"><use href="#i-cake"/></svg> Born today
-              </button>
-            </div>
-          </div>
-
-          <div class="grp">
-            <div class="grp__label">
-              Star sign
-              <span class="grp__val" v-if="selectedZodiacs.length">{{ selectedZodiacs.length }} picked</span>
-            </div>
-            <div class="zgrid">
-              <button
-                v-for="z in ZODIACS"
-                :key="z"
-                class="zbtn"
-                :class="{ 'is-on': isZodiacSelected(z) }"
-                @click="toggleZodiac(z)"
-                :title="z"
-              >
-                <svg class="ico ico--18 ico--stroke"><use :href="zodiacIcon(z)"/></svg>
-                <span class="zbtn__label">{{ z }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="grp">
-            <div class="grp__label">Places <span class="grp__val">{{ countryList.length }} countries</span></div>
-            <ol class="rlist rlist--places">
-              <li
-                v-for="c in countryList"
-                :key="c.country"
-                class="prow"
-                :class="{ 'is-sel': selectedCountry === c.country }"
-                @click="pickCountry(c.country); refineOpen = false"
-              >
-                <svg class="ico ico--16 prow__ico"><use href="#i-public"/></svg>
-                <span class="prow__name">{{ c.country }}</span>
-                <span class="prow__bar"><i :style="{ width: (c.count / countryMax * 100) + '%' }"></i></span>
-                <span class="prow__n">{{ c.count }}</span>
-              </li>
-            </ol>
-          </div>
-        </div>
-
-        <div class="ovl__foot">
-          <button class="btn btn--text" @click="clearAll" :disabled="!hasActiveFilters">Reset</button>
-          <button class="btn btn--fill" @click="refineOpen = false">Show {{ filtered.length }}</button>
-        </div>
-      </div>
-    </div>
 
   </div>
 
@@ -1405,6 +1332,23 @@
        compiles it as the <profile-form> component, never as page content. -->
   <template id="tpl-profile-form">
     <div class="pform">
+      <div class="pform__grp pform__panel">
+        <div class="pform__label">Looking for a name for a</div>
+        <div class="chips chips--grid">
+          <button
+            v-for="l in LOOKING"
+            :key="l.v"
+            class="chip chip--sm"
+            :class="{ 'is-on': model.looking === l.v }"
+            @click="pick(model, 'looking', l.v)"
+          >{{ l.label }}</button>
+        </div>
+      </div>
+      <!-- Who's searching goes last: the preferences above are what the
+           search actually runs on, and this is the part that asks for a
+           name and a birthday. -->
+      <div class="pform__panel pform__panel--who">
+        <div class="pform__label pform__label--head">Name searchers</div>
       <!-- One searcher to start, however many the family has after that. The
            index is the identity here — names are half-typed and repeat — so
            the rows are keyed by position and the list only ever grows or
@@ -1458,18 +1402,6 @@
         <svg class="ico ico--14"><use href="#i-plus"/></svg>
         Add another name searcher
       </button>
-
-      <div class="pform__grp pform__grp--last">
-        <div class="pform__label">Looking for a name for a</div>
-        <div class="chips chips--grid">
-          <button
-            v-for="l in LOOKING"
-            :key="l.v"
-            class="chip chip--sm"
-            :class="{ 'is-on': model.looking === l.v }"
-            @click="pick(model, 'looking', l.v)"
-          >{{ l.label }}</button>
-        </div>
       </div>
     </div>
   </template>

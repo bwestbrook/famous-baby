@@ -27,6 +27,10 @@
   --red:         #ea4335;
 
   --dock-pad:    10px;
+  /* The top band and the search line are the two fixed edges the left-hand
+     column runs between, so both are measurements rather than magic numbers. */
+  --band-h:      53px;
+  --sbar-h:      48px;
   --font: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', arial, sans-serif;
   --sh-1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
   --sh-2: 0 1px 3px rgba(0,0,0,.3), 0 6px 14px 4px rgba(0,0,0,.2);
@@ -87,13 +91,22 @@ body {
 .map__globe canvas { display: block; }
 
 /* ---------- top stack: categories, then the timeline ---------- */
+/* The wordmark and its controls are their own band, not a fade into the globe:
+   a hairline closes it off at the bottom and it sits above everything the dock
+   holds, so the left-hand column scrolls under it and stops being visible at
+   exactly that line. */
 .topstack {
   position: absolute;
   left: 0; right: 0; top: 0;
-  z-index: 6;
+  z-index: 24;
   display: flex; flex-direction: column; gap: 8px;
-  padding: 10px 8px 16px;
-  background: linear-gradient(to bottom, rgba(5,7,12,.78), rgba(5,7,12,.30) 62%, rgba(5,7,12,0));
+  padding: 10px 8px 8px;
+  /* Solid, unlike everything else over the globe: the search line and the
+     spines are glass because the map should read through them, and this band
+     is the edge where that stops. */
+  background: #0b0d12;
+  border-bottom: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 2px 12px rgba(0,0,0,.45);
   pointer-events: none;
 }
 .topstack > * { pointer-events: auto; }
@@ -142,14 +155,55 @@ body {
 /* The spines live inside the dock rather than floating over the map, so the
    dock's own contents can never end up on top of them. First child of a
    bottom-anchored column, pulled hard left: the bottom-left corner. */
-.rail {
-  align-self: flex-start;
-  margin-left: calc(var(--dock-pad) * -1);
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+/* Arrow, column, arrow — the wrapper holds the three so the arrows sit still
+   while the tabs between them move. */
+/* The column owns the left edge outright: it starts under the band and ends on
+   top of the search line, however tall the screen is. Absolute rather than in
+   the dock's flow, so opening a drawer no longer shortens it. */
+.railwrap {
+  position: absolute;
+  left: 0;
+  top: calc(var(--band-h) + 8px);
+  bottom: calc(var(--sbar-h) + var(--dock-pad) + 10px);
+  z-index: 2;
+  display: flex; flex-direction: column; align-items: stretch; gap: 4px;
+  min-width: 0;
 }
+.rail__step {
+  display: flex; align-items: center; justify-content: center;
+  height: 22px;
+  border-radius: 0 10px 10px 0;
+  background: rgba(52,55,62,.46);
+  backdrop-filter: blur(3px) saturate(120%);
+  -webkit-backdrop-filter: blur(3px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.3);
+  border-left: none;
+  color: rgba(255,255,255,.8);
+  box-shadow: 2px 0 10px rgba(0,0,0,.4);
+  transition: background .12s var(--ease), color .12s var(--ease), opacity .12s var(--ease);
+}
+.rail__step:hover:not(:disabled) { background: rgba(58,61,69,.62); color: #fff; }
+.rail__step:disabled { opacity: .3; cursor: default; }
+
+.rail {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  /* Every calling has a spine now, which is more than any screen holds: the
+     column scrolls on its own and nothing else on the dock moves with it. The
+     bar is hidden — the tabs running off the top and bottom edges say plainly
+     enough that there's more, and a scrollbar down the left edge of the globe
+     would read as chrome. */
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 2px 0;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.rail::-webkit-scrollbar { width: 0; height: 0; }
 .rail__tab {
   display: flex; flex-direction: column-reverse; align-items: center; gap: 6px;
-  min-height: 74px;
+  /* Shorter than they were, since there are a dozen of them now — the label
+     still sets the height, this only stops the short ones from stubbing. */
+  min-height: 58px;
+  flex: none;
   padding: 8px 3px 10px;
   border-radius: 0 12px 12px 0;
   /* Same tinted glass as the search line, so the tabs read as chrome. */
@@ -170,7 +224,25 @@ body {
   font-size: 9.5px; font-weight: 400; letter-spacing: .09em; text-transform: uppercase;
   white-space: nowrap;
 }
-.rail__arw { opacity: .8; }
+/* The pinned head of the column: brighter than the spines below it, and it
+   doesn't move with them. Filled while its page is open. */
+.rail__tab--pin {
+  background: rgba(96,101,112,.62);
+  border-color: rgba(255,255,255,.6);
+  color: #fff;
+  flex: none;
+}
+.rail__tab--pin:hover { background: rgba(120,126,140,.7); border-color: #fff; }
+.rail__tab--pin.is-on { background: #fff; color: #000; border-color: #fff; }
+.rail__tab--pin.is-on .rail__ico { color: #000; opacity: 1; }
+
+/* The glyph rides the foot of the spine, so a calling is recognisable before
+   the sideways label is read. */
+.rail__ico { opacity: .75; }
+.rail__tab.is-on .rail__ico { opacity: 1; }
+
+/* The two dice-rolls, stacked under the spines they sit with. Square rather
+   than spine-shaped: they do a thing, they don't open a thing. */
 
 /* ---------- the drawer itself, along the bottom ---------- */
 .drawer {
@@ -203,6 +275,49 @@ body {
    spacing they carried when they sat loose on the screen. */
 .drawer .tl-wrap { margin: 0; }
 .drawer .tl { opacity: 1; }
+
+/* The random drawer: one tile per way of not choosing. They wrap rather than
+   scroll — there are few enough to see all at once, which is the point. */
+.rnd { display: flex; flex-wrap: wrap; gap: 5px; }
+.rnd__btn {
+  flex: 1 1 88px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.28);
+  background: rgba(255,255,255,.04);
+  color: #e8eaed;
+  font-size: 11.5px; font-weight: 300; white-space: nowrap;
+  transition: background .12s var(--ease), border-color .12s var(--ease), color .12s var(--ease);
+}
+.rnd__btn .ico { color: rgba(255,255,255,.65); flex: none; }
+.rnd__btn:hover:not(:disabled) { background: rgba(255,255,255,.12); border-color: #fff; color: #fff; }
+.rnd__btn:hover:not(:disabled) .ico { color: #fff; }
+.rnd__btn:disabled { opacity: .35; cursor: default; }
+/* The same tile does duty for a filter that can be on. */
+.rnd__btn.is-on {
+  background: #fff; border-color: #fff; color: #000; font-weight: 400;
+}
+.rnd__btn.is-on .ico { color: #000; }
+.rnd__n { color: rgba(255,255,255,.45); font-variant-numeric: tabular-nums; }
+.rnd__btn.is-on .rnd__n { color: rgba(0,0,0,.5); }
+.drawer__n {
+  flex: none;
+  font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+}
+.drawer__none {
+  padding: 4px 2px 2px;
+  font-size: 11.5px; font-weight: 300;
+  color: rgba(255,255,255,.5);
+}
+/* The one that rolls the lot reads as the loud one, and takes its own row. */
+.rnd__btn--all {
+  flex: 1 1 100%;
+  border-color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
 
 .qbar { display: flex; align-items: center; gap: 4px; }
 .qbar__arrow {
@@ -359,6 +474,10 @@ body {
   pointer-events: none;
 }
 .dock > * { pointer-events: auto; }
+/* The rail runs the dock's full height now, so everything that stacks beside
+   it starts where it ends rather than under it. The search line sits below its
+   foot and keeps the full width. */
+.drawer, .hits, .chiprow { margin-left: 22px; }
 
 /* ---------- search line — last thing on screen ---------- */
 .sbar {
@@ -380,7 +499,9 @@ body {
 .sbar__input {
   flex: 1; min-width: 0;
   border: 0; outline: none; background: transparent;
-  font-size: 14.5px; font-weight: 300; letter-spacing: .01em;
+  /* Set below the pills around it: the line is an invitation, and what you
+     type into it reads as a note to yourself rather than a headline. */
+  font-size: 12.5px; font-weight: 300; letter-spacing: .01em;
   color: #f1f3f4;
 }
 .sbar__input::placeholder { color: rgba(255,255,255,.45); font-weight: 300; }
@@ -394,6 +515,11 @@ body {
 }
 .sbar__btn:hover { background: rgba(255,255,255,.14); color: #fff; }
 .sbar__btn.is-on { color: #fff; }
+/* The magnifier: dim while there's nothing to look for, filled the moment
+   there is — the line's own answer to "now what?". */
+.sbar__btn--go { color: rgba(255,255,255,.45); }
+.sbar__btn--go.is-on { background: rgba(255,255,255,.16); color: #fff; }
+.sbar__btn--go.is-on:hover { background: rgba(255,255,255,.26); }
 .sbar__btn:disabled { opacity: .35; cursor: default; }
 .sbar__div { width: 1px; height: 22px; background: rgba(255,255,255,.25); margin: 0 4px; flex: none; }
 .sbar__badge {
@@ -658,6 +784,49 @@ body {
 /* =========================================================================
    TIMELINE — quiet scrubber, sits just above the hits
    ========================================================================= */
+/* Named stretches of time, read the way the category chips are. They scroll
+   sideways rather than wrapping, so the drawer stays one band tall. */
+.erabar {
+  /* Two rows deep, filling down-then-right, with the rest carried off to the
+     side — the same rail the long name lists use on the card. */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  grid-template-rows: repeat(2, auto);
+  justify-content: start;
+  gap: 4px;
+  margin-bottom: 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+}
+.erabar::-webkit-scrollbar { display: none; }
+.erachip {
+  flex: none; scroll-snap-align: start;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 9px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.24);
+  background: rgba(255,255,255,.06);
+  font-size: 11px; font-weight: 300; white-space: nowrap;
+  color: rgba(255,255,255,.82);
+  transition: background .12s var(--ease), border-color .12s var(--ease), color .12s var(--ease);
+}
+.erachip em { font-style: normal; font-size: 9.5px; color: rgba(255,255,255,.45); }
+.erachip:hover:not(:disabled) { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.5); color: #fff; }
+/* Lit, a chip wears the colour its band wears on the rail below — that pairing
+   is the only thing saying which highlight belongs to which era. */
+.erachip.is-on {
+  background: color-mix(in srgb, var(--era, #8ab4f8) 30%, transparent);
+  border-color: var(--era, #8ab4f8);
+  color: #fff;
+}
+.erachip.is-on em { color: rgba(255,255,255,.8); }
+.erachip:disabled { opacity: .3; cursor: default; }
+
 .tl-wrap { display: flex; justify-content: center; }
 .tl {
   /* The rail carries its ticks and years below it, so it sits this far above
@@ -759,6 +928,15 @@ body {
 .tl:hover .tl__end, .tl.is-on .tl__end { color: rgba(255,255,255,.85); }
 .tl__tick { position: absolute; bottom: 1px; width: 1px; height: 4px; background: rgba(255,255,255,.22); }
 .tl__rail { position: relative; height: 3px; border-radius: 2px; background: rgba(255,255,255,.2); }
+/* A picked era, drawn on the rail. Rounded so two touching bands still read as
+   two, and pointer-events off so they never eat a press meant for the rail. */
+.tl__band {
+  position: absolute; top: 0; bottom: 0;
+  min-width: 2px;
+  border-radius: 2px;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.35);
+}
 .tl__fill { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--blue-dark); pointer-events: none; }
 .tl__in {
   position: absolute; top: 50%; left: -7px; right: -7px;
@@ -1348,6 +1526,53 @@ body {
    rather than a white box punched into the writing above it.
    ========================================================================= */
 .pform { padding: 14px 18px; color-scheme: dark; }
+/* Nothing in here is a pill sitting in a half-empty row: every control takes
+   the full width it's given, and where several share a row they share it in
+   equal parts. Settings reads as a stack of rows, not as scattered tags. */
+.pform .chips, .mgrp .chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 6px;
+}
+.pform .chips--grid, .mgrp .chips--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pform .chip, .mgrp .chip { width: 100%; justify-content: center; text-align: center; }
+.pform__hint {
+  margin-top: 8px;
+  font-size: 11px; font-weight: 300; line-height: 1.5;
+  color: rgba(255,255,255,.45);
+}
+
+/* Born: the whole row is the calendar. The date input lies over it invisibly,
+   so the tap that looks like it hits the row is the tap that opens the picker
+   — and there's no visible field to type into. */
+.pform__cal {
+  position: relative;
+  display: flex; align-items: center; gap: 8px;
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.55);
+  font-size: 13px; font-weight: 300;
+  cursor: pointer;
+  transition: border-color .12s var(--ease), background .12s var(--ease), color .12s var(--ease);
+}
+.pform__cal:hover { border-color: #fff; background: rgba(255,255,255,.08); color: #fff; }
+.pform__cal.is-set { color: #fff; }
+.pform__cal .ico { color: inherit; flex: none; }
+.pform__cal-label { flex: 1; min-width: 0; }
+.pform__cal-go { opacity: .5; }
+/* Invisible, but the real control: it keeps its own hit area over the row so a
+   phone opens its native picker without any script at all. */
+.pform__cal-in {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0; cursor: pointer;
+  border: none; background: none; padding: 0;
+  color-scheme: dark;
+}
+
 /* On the info sheet the form follows the writing, so a hairline marks where
    reading stops and answering starts. */
 .about__p + .pform { border-top: 1px solid rgba(255,255,255,.14); margin-top: 14px; }
@@ -1405,19 +1630,66 @@ body {
   color: #ff9d94;
 }
 .pform__in:focus { outline: none; border-color: #fff; background: rgba(255,255,255,.08); }
-.pform__row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
-.pform__sub { font-size: 11.5px; font-weight: 300; color: rgba(255,255,255,.5); flex: none; }
-/* A date field only ever holds ten characters, so it takes the width it needs
-   and leaves the rest of the row to breathe. */
-.pform__in--date { flex: none; width: auto; min-width: 0; font-variant-numeric: tabular-nums; }
-.pform__in--date::-webkit-calendar-picker-indicator { filter: invert(1); opacity: .55; cursor: pointer; }
-.pform__in--date::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 
 /* Inside account settings the group already carries the side padding, and the
    label above it is the group's own — so the form drops both. */
 .mgrp .pform { padding: 0; }
 .mgrp .pform .pform__grp:first-child { margin-top: 0; }
 .mgrp .pform + .mrow { margin-top: 14px; }
+
+/* A sheet carrying the profile form takes the whole height it's allowed
+   rather than hugging its content: the form is long enough to scroll on a
+   phone, and a sheet that grows and shrinks as you add a searcher reads as
+   the page jumping under your thumb. */
+.ovl__sheet--fill { height: 92%; max-height: 92%; }
+/* Random takes the screen rather than a corner of it: no rounded corners to
+   sit inside, no glass to see the globe through — for as long as it's open,
+   it is the page. */
+.ovl--full { align-items: stretch; }
+.ovl__sheet--full {
+  width: 100%; height: 100%; max-height: 100%;
+  border: none; border-radius: 0;
+  background: #0b0d12;
+  box-shadow: none;
+  animation: ovl-fade .15s var(--ease);
+}
+.rndp__lede {
+  margin: 0;
+  padding: 16px 18px 4px;
+  font-size: 13px; font-weight: 300; line-height: 1.6;
+  color: rgba(255,255,255,.72);
+}
+/* One tile per roll, two across where there's room for two. */
+.rndp {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+  padding: 12px 18px 18px;
+}
+.rndp__btn {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center; gap: 2px 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+  text-align: left;
+  transition: background .12s var(--ease), border-color .12s var(--ease);
+}
+.rndp__btn .ico { grid-row: 1 / span 2; color: rgba(255,255,255,.6); }
+.rndp__btn:hover:not(:disabled) { background: rgba(255,255,255,.1); border-color: #fff; }
+.rndp__btn:hover:not(:disabled) .ico { color: #fff; }
+.rndp__btn:disabled { opacity: .35; cursor: default; }
+.rndp__l { font-size: 14px; font-weight: 400; color: #fff; }
+.rndp__s { font-size: 11.5px; font-weight: 300; line-height: 1.4; color: rgba(255,255,255,.5); }
+/* The one that rolls the lot spans the row and wears the brighter face. */
+.rndp__btn--all {
+  grid-column: 1 / -1;
+  border-color: rgba(255,255,255,.55);
+  background: rgba(255,255,255,.1);
+}
+.ovl__sheet--menu.ovl__sheet--fill { height: 86%; max-height: 86%; }
 
 .panel__collapse {
   width: 30px; height: 30px; display: grid; place-items: center;
@@ -1727,6 +1999,42 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
   font-size: 11px; font-weight: 300; line-height: 1.5;
   color: rgba(255,255,255,.45);
 }
+/* Group heading with its own (i) — the explanation opens under it instead of
+   living permanently below the form. */
+.mgrp__head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.mgrp__head .mgrp__label { flex: 1; min-width: 0; margin-bottom: 0; }
+.mgrp__i {
+  flex: none;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: rgba(255,255,255,.5);
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.mgrp__i:hover { background: rgba(255,255,255,.14); color: #fff; }
+.mgrp__i.is-on { background: rgba(255,255,255,.18); color: #fff; }
+.mgrp__note {
+  margin: 0 0 10px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.07);
+  border-left: 2px solid rgba(138,180,248,.7);
+  font-size: 11.5px; font-weight: 300; line-height: 1.5;
+  color: rgba(255,255,255,.78);
+}
+
+/* Each preference stands in its own panel, so the form reads as a short stack
+   of choices rather than one long column of fields. */
+.pform__panel {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+}
+.pform__panel + .pform__panel { margin-top: 10px; }
+.pform__panel .pform__grp + .pform__grp { margin-top: 12px; }
+.pform__label--head { color: rgba(255,255,255,.62); }
+
 .mgrp .mrow { padding-left: 12px; padding-right: 12px; }
 .mnote--tight { padding-top: 4px; font-size: 11px; }
 
@@ -1737,7 +2045,10 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
   background: rgba(255,109,96,.08);
 }
 .mconfirm__q { margin: 0 0 10px; font-size: 12px; font-weight: 300; line-height: 1.5; color: rgba(255,255,255,.85); }
-.mconfirm__row { display: flex; justify-content: flex-end; gap: 6px; }
+.mconfirm__row { display: flex; gap: 6px; }
+/* Same rule as everything else in the sheet: a button fills the width it's
+   given, and two of them split it. */
+.mconfirm__row .btn { flex: 1 1 0; }
 
 /* A credited name is always a button to that person's card. Greyed and inert
    when the roster doesn't have them yet. */

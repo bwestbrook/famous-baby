@@ -1478,6 +1478,18 @@ const app = createApp({
     }
 
     const hitsList = ref(null);
+    // The list is already filtering with every keystroke, so the magnifier
+    // isn't what runs the search — it's what says you're done typing. On a
+    // phone that means the keyboard comes down and the results get the screen;
+    // empty, it puts the cursor back where the search starts. Enter is the
+    // same gesture from the keyboard.
+    const searchInput = ref(null);
+    function runSearch() {
+      const el = searchInput.value;
+      if (!query.value.trim()) { if (el) el.focus(); return; }
+      if (el) el.blur();
+      if (hitsList.value) hitsList.value.scrollTop = 0;
+    }
     // Jumping is only meaningful in alphabetical order, so a jump switches the
     // list into it rather than scrolling to an arbitrary spot.
     function jumpToLetter(letter, behavior = 'smooth') {
@@ -1497,7 +1509,6 @@ const app = createApp({
     }
 
     // Refine lives in an overlay sheet behind the tune icon on the search line.
-    const refineOpen = ref(false);
     // Account / settings sheet behind the three-bar button in the title row.
     const menuOpen = ref(false);
     // ---- Session ----
@@ -1582,6 +1593,10 @@ const app = createApp({
       aboutStep.value = 'read';
       aboutOpen.value = true;
     }
+    // The account sheet's preferences explain themselves behind an (i) rather
+    // than in a paragraph under the form.
+    const prefsInfoOpen = ref(false);
+
     // Which face of the account sheet is showing.
     const menuView = ref('root');            // root | favorites | searches | settings
     // `andConfirmSignOut` is the log-out button's path: same sheet, already
@@ -1605,6 +1620,7 @@ const app = createApp({
     const blankProfile = () => ({
       searchers: [blankSearcher()],
       looking: '',                           // girl | boy | unknown | nonbinary
+      likes: [],                             // field names, the callings you'd like
     });
     function loadProfile() {
       const base = blankProfile();
@@ -1630,6 +1646,11 @@ const app = createApp({
         // The form always has a first row to type in, even from an empty save.
         if (clean.length) base.searchers = clean;
         base.looking = typeof saved.looking === 'string' ? saved.looking : '';
+        // Only fields the roster still has — a calling renamed since the save
+        // shouldn't come back as a filter nothing can match.
+        base.likes = Array.isArray(saved.likes)
+          ? saved.likes.filter(f => FIELDS.includes(f))
+          : [];
         return base;
       } catch { return base; }
     }
@@ -1642,7 +1663,8 @@ const app = createApp({
     watch(profile, persistProfile, { deep: true });
     const hasProfile = computed(() => {
       const p = profile.value;
-      return !!(p.looking || p.searchers.some(s => s.name || s.dob || s.gender));
+      return !!(p.looking || p.likes.length ||
+                p.searchers.some(s => s.name || s.dob || s.gender));
     });
     const LOOKING_LABELS = {
       girl: 'a girl', boy: 'a boy',
@@ -1669,6 +1691,8 @@ const app = createApp({
       const asFilter = { girl: 'female', boy: 'male', nonbinary: 'nonbinary' }[profile.value.looking];
       if (asFilter) selectedGenders.value = [asFilter];
       else if (profile.value.looking === 'unknown') selectedGenders.value = [];
+      // The callings you said you liked are the callings you open on.
+      if (profile.value.likes.length) selectedFields.value = [...profile.value.likes];
       aboutOpen.value = false;
     }
 
@@ -1759,7 +1783,6 @@ const app = createApp({
       nameMode.value = 'first';
       logOut();
     }
-    const refineCount = computed(() => typeFilterCount.value + timeFilterCount.value);
 
     // ---- Quick-category strip (top of the map) ----
     // All fields live in one horizontally scrolling track — five fit at a
@@ -1776,6 +1799,9 @@ const app = createApp({
     const orderedFields = [...FIELDS].sort(
       (a, b) => countForField(b) - countForField(a) || a.localeCompare(b)
     );
+    // The profile form takes its callings ready-made — name and glyph — so it
+    // doesn't need the app's icon table handed to it as well.
+    const likeOptions = orderedFields.map(f => ({ name: f, icon: iconForField(f) }));
 
     const catTrack = ref(null);
     const canCatPrev = ref(false);
@@ -1882,27 +1908,94 @@ const app = createApp({
     function syncStripArrows() { syncCatArrows(); syncSubArrows(); }
 
     // ---- Drawers ----
-    // Callings and the timeline used to sit open across the screen. Now they
-    // stand as two spines at the bottom-left corner and only lay their filters
-    // along the bottom when asked for. Either, neither or both — they stack, so
-    // there's no reason one should shut the other.
-    const DRAWERS = [
-      { id: 'fields', label: 'Callings' },
-      { id: 'time',   label: 'Timeline' },
-    ];
+    // The spines down the left edge are the whole filter menu: the timeline,
+    // gender, and then every calling in its own right. A calling's spine
+    // doesn't open a list of callings — it opens what's inside that one, its
+    // genres and leagues and roles. Time and gender stack with a calling; two
+    // callings don't, since the second one's genres would have nothing to do
+    // with the first one's.
+    const FIELD_TAB = 'f:';
+    const railTabs = computed(() => [
+      { id: 'time',   label: 'Era', icon: 'i-cal' },
+      { id: 'gender', label: 'Gender',   icon: 'i-avatar' },
+      ...orderedFields.map(f => ({
+        id: FIELD_TAB + f, label: f, icon: iconForField(f), field: f,
+      })),
+    ]);
     const openDrawers = ref([]);
     const isDrawerOpen = (id) => openDrawers.value.includes(id);
+    // Whichever calling is showing its insides, if any.
+    const openField = computed(() => {
+      const id = openDrawers.value.find(x => x.startsWith(FIELD_TAB));
+      return id ? id.slice(FIELD_TAB.length) : '';
+    });
+    const subfieldsFor = (field) => (SUBFIELDS_BY_FIELD[field] || [])
+      .slice()
+      .sort((a, b) => subCount(field, b) - subCount(field, a) || a.localeCompare(b));
     function toggleDrawer(id) {
-      openDrawers.value = isDrawerOpen(id)
+      const wasOpen = isDrawerOpen(id);
+      let next = wasOpen
         ? openDrawers.value.filter(x => x !== id)
         : [...openDrawers.value, id];
-      // The calling strip measures itself to decide whether its paging arrows
-      // are live; mounted inside a drawer, it has to be asked again.
-      if (isDrawerOpen('fields')) nextTick(syncStripArrows);
+      // Opening a calling puts the others away — one set of genres at a time.
+      if (!wasOpen && id.startsWith(FIELD_TAB)) {
+        next = next.filter(x => x === id || !x.startsWith(FIELD_TAB));
+      }
+      openDrawers.value = next;
+      // The spine is the filter too: opening a calling narrows to it, closing
+      // it lets go again. Anything picked inside goes with it.
+      if (id.startsWith(FIELD_TAB)) {
+        const field = id.slice(FIELD_TAB.length);
+        selectedSubfields.value = [];
+        selectedFields.value = wasOpen ? [] : [field];
+        hitsExpanded.value = false;
+      }
     }
+    // Random is the one spine that never scrolls away: it's pinned above the
+    // column, and what it opens covers the whole screen rather than lying
+    // along the bottom — not choosing deserves the same room as choosing.
+    const randomOpen = ref(false);
+
+    // ---- The rail's own scroll ----
+    // A dozen spines don't fit any screen, so the column scrolls — and says so
+    // with a step arrow at each end rather than a scrollbar down the edge of
+    // the globe. Each press moves most of a screenful, the way the letter dial
+    // steps.
+    const railTrack = ref(null);
+    const canRailUp = ref(false);
+    const canRailDown = ref(false);
+    function syncRailArrows() {
+      const el = railTrack.value;
+      if (!el) { canRailUp.value = false; canRailDown.value = false; return; }
+      canRailUp.value = el.scrollTop > 2;
+      canRailDown.value = el.scrollTop + el.clientHeight < el.scrollHeight - 2;
+    }
+    function railStep(dir) {
+      const el = railTrack.value;
+      if (!el) return;
+      el.scrollBy({ top: dir * Math.max(120, el.clientHeight * 0.62), behavior: 'smooth' });
+    }
+    // The rail unmounts whenever a card is open, so the arrows are re-measured
+    // off the element itself coming and going rather than off what opened it.
+    watch(railTrack, () => nextTick(syncRailArrows));
+    window.addEventListener('resize', syncRailArrows);
+    onUnmounted(() => window.removeEventListener('resize', syncRailArrows));
+
     const closeDrawer = (id) => {
       openDrawers.value = openDrawers.value.filter(x => x !== id);
+      if (id.startsWith(FIELD_TAB)) {
+        selectedFields.value = [];
+        selectedSubfields.value = [];
+      }
     };
+    // Dropping the calling anywhere else — the chip row, Clear, a saved search
+    // — puts its drawer away too, or the spine sits lit with nothing behind it.
+    watch(selectedFields, (fields) => {
+      const f = openField.value;
+      if (f && !fields.includes(f)) {
+        openDrawers.value = openDrawers.value.filter(x => x !== FIELD_TAB + f);
+      }
+    });
     window.addEventListener('resize', syncStripArrows);
     onUnmounted(() => window.removeEventListener('resize', syncStripArrows));
 
@@ -1926,6 +2019,7 @@ const app = createApp({
     );
     const timeFilterCount = computed(() =>
       (yearMin.value !== YEAR_FLOOR || yearMax.value !== YEAR_CEIL ? 1 : 0)
+      + selectedEras.value.length
       + selectedBornMonths.value.length
       + selectedBornDays.value.length
       + selectedZodiacs.value.length
@@ -1944,6 +2038,48 @@ const app = createApp({
       openPerson(pick.person);
     }
 
+    // ---- The random drawer ----
+    // Every roll narrows one thing and leaves the rest alone, so they stack:
+    // a century, then a calling, then a corner of the map. Each replaces its
+    // own last roll rather than piling filters on top of each other.
+    const draw = (list) => list[Math.floor(Math.random() * list.length)];
+    // A window rather than a point — a single year would usually match nobody.
+    // Rolled off the years the roster actually has, so the timeline never
+    // lands on an empty stretch of the Middle Ages.
+    function randomEra() {
+      const years = PEOPLE.map(p => p.birthYear).filter(Boolean).sort((a, b) => a - b);
+      if (!years.length) return;
+      const span = 60;
+      const start = draw(years);
+      yearMin.value = Math.max(YEAR_FLOOR, start - Math.floor(span / 2));
+      yearMax.value = Math.min(YEAR_CEIL, yearMin.value + span);
+    }
+    function randomPlace() {
+      const pick = drawRandomCountry();
+      if (!pick) return;
+      aimHomeAt(pick.country);
+      selectedCountry.value = pick.country;
+      flyToCountry(pick.country);
+    }
+    function randomGender() {
+      const pool = GENDERS.filter(g => g !== selectedGenders.value[0]);
+      selectedGenders.value = pool.length ? [draw(pool)] : [];
+    }
+    function randomCategory() {
+      const pool = orderedFields.filter(f => f !== selectedFields.value[0]);
+      if (!pool.length) return;
+      selectedFields.value = [draw(pool)];
+      selectedSubfields.value = [];          // the old genre belongs to the old calling
+    }
+    // The whole handful at once, and then whoever it leaves standing.
+    function randomEverything() {
+      randomCategory();
+      randomEra();
+      randomGender();
+      randomPlace();
+      nextTick(surpriseMe);
+    }
+
     // ---- Person info modal ----
     const selectedPerson = ref(null);
     // Each card opens at the country-fits-the-tile zoom.
@@ -1951,7 +2087,6 @@ const app = createApp({
       selectedPerson.value = p;
       // The camera drops in on their birth country and the spin stops, so the
       // globe holds still while the card is up.
-      refineOpen.value = false;
       if (p && p.country) flyToCountry(p.country, 0.55);
       // Reset the per-person Q&A state whenever a different person opens.
       askInput.value = '';
@@ -2085,10 +2220,10 @@ const app = createApp({
       if (e.key !== 'Escape') return;
       // Innermost first: the login sheet sits on top of the info page.
       if (loginOpen.value) loginOpen.value = false;
+      else if (randomOpen.value) randomOpen.value = false;
       else if (aboutStep.value === 'profile') aboutStep.value = 'read';
       else if (aboutOpen.value) aboutOpen.value = false;
       else if (menuOpen.value) menuOpen.value = false;
-      else if (refineOpen.value) refineOpen.value = false;
       else if (selectedPerson.value) closePerson();
       else if (hitsExpanded.value) hitsExpanded.value = false;
     }
@@ -2315,6 +2450,7 @@ const app = createApp({
       selectedGenders.value = [];
       yearMin.value = YEAR_FLOOR;
       yearMax.value = YEAR_CEIL;
+      clearEras();
       clearBornFilters();
       clearCountry();
     }
@@ -2353,6 +2489,16 @@ const app = createApp({
       const minY      = yearMin.value;
       const maxY      = yearMax.value;
 
+      // Eras are bands, not a range: a person passes if they were born inside
+      // any one of the picked stretches.
+      const eras = selectedEras.value;
+      if (eras.length > 0) {
+        const inAny = eras.some((name) => {
+          const e = eraFor(name);
+          return e && person.birthYear >= e.from && person.birthYear <= e.to;
+        });
+        if (!inAny) return null;
+      }
       if (fields.length    > 0 && !fields.includes(person.field))       return null;
       if (subfields.length > 0 && !subfields.includes(person.subfield)) return null;
       if (genders.length   > 0 && !genders.includes(person.gender))     return null;
@@ -2421,6 +2567,17 @@ const app = createApp({
           clear: () => { yearMin.value = YEAR_FLOOR; yearMax.value = YEAR_CEIL; },
         });
       }
+      // One chip per era rather than one for the lot: each is picked on its
+      // own, so each has to be droppable on its own.
+      for (const name of selectedEras.value) {
+        const e = eraFor(name);
+        out.push({
+          key: 'era:' + name,
+          group: 'Era',
+          label: name,
+          clear: () => { if (e) pickEra(e); },
+        });
+      }
       for (const m of selectedBornMonths.value) {
         out.push({ key: 'bm:' + m, group: 'Born', label: MONTH_NAMES[m], clear: () => toggleBornMonth(m) });
       }
@@ -2451,7 +2608,7 @@ const app = createApp({
     // ---- Timeline (bottom scrubber) ----
     // Year range is "engaged" whenever either handle has left its end stop.
     const yearsActive = computed(() =>
-      yearMin.value !== YEAR_FLOOR || yearMax.value !== YEAR_CEIL
+      yearMin.value !== YEAR_FLOOR || yearMax.value !== YEAR_CEIL || selectedEras.value.length > 0
     );
     function clearYears() {
       yearMin.value = YEAR_FLOOR;
@@ -2517,6 +2674,72 @@ const app = createApp({
       if (m.length !== 1 || d.length !== 1) return '';
       return MONTH_NAMES[m[0]] + ' ' + d[0];
     });
+
+    // ---- Eras ----
+    // Time as categories rather than as a slider. Nobody thinks in years — they
+    // think "Victorian", "the Jazz Age", "whenever Genghis Khan was" — so the
+    // timeline is picked from named stretches and the rail underneath only
+    // shows where the pick landed, the way the map shows a chosen country.
+    // The spans are birth years and they overlap on purpose: a life doesn't
+    // start when an era is declared.
+    const ERAS = [
+      { name: 'Age of Khans',   from: 1000, to: 1300 },
+      { name: 'Renaissance',    from: 1300, to: 1600 },
+      { name: 'Enlightenment',  from: 1600, to: 1780 },
+      { name: 'Revolutionary',  from: 1750, to: 1820 },
+      { name: 'Victorian',      from: 1820, to: 1900 },
+      { name: 'Jazz Age',       from: 1890, to: 1925 },
+      { name: 'Wartime',        from: 1910, to: 1945 },
+      { name: 'Post-war',       from: 1940, to: 1960 },
+      { name: 'Space Age',      from: 1955, to: 1975 },
+      { name: 'Post-modern',    from: 1970, to: 1995 },
+      { name: 'Digital native', from: 1990, to: 2030 },
+    ];
+    // How many of the roster each era holds, so an empty stretch says so
+    // rather than returning nothing when tapped.
+    const eraCounts = computed(() => {
+      const m = new Map();
+      for (const e of ERAS) m.set(e.name, 0);
+      for (const p of PEOPLE) {
+        const y = p.birthYear;
+        if (!y) continue;
+        for (const e of ERAS) if (y >= e.from && y <= e.to) m.set(e.name, m.get(e.name) + 1);
+      }
+      return m;
+    });
+    const countForEra = (e) => eraCounts.value.get(e.name) || 0;
+    // Several at once: the Renaissance and the Jazz Age are a perfectly
+    // reasonable pair to want, and they're nowhere near each other — which is
+    // why this can't be a min and a max. It's a set of bands.
+    const selectedEras = ref([]);
+    const isEraOn = (e) => selectedEras.value.includes(e.name);
+    function pickEra(e) {
+      selectedEras.value = isEraOn(e)
+        ? selectedEras.value.filter(n => n !== e.name)
+        : [...selectedEras.value, e.name];
+    }
+    const clearEras = () => { selectedEras.value = []; };
+    const eraFor = (name) => ERAS.find(e => e.name === name);
+    // Each band gets its own colour, taken by the era's place in the list so a
+    // given stretch of history is always the same colour. Chip and band share
+    // it, which is what ties the one to the other.
+    const ERA_COLORS = [
+      '#F28B82', '#FBBC04', '#FDD663', '#CCFF90', '#5BB974',
+      '#4ECDC4', '#78D9EC', '#8AB4F8', '#AECBFA', '#C58AF9', '#FF8BCB',
+    ];
+    const eraColor = (e) => ERA_COLORS[ERAS.indexOf(e) % ERA_COLORS.length];
+    // Where each selected era falls along the rail, as percentages.
+    const eraBands = computed(() => selectedEras.value.map((name) => {
+      const e = eraFor(name);
+      if (!e) return null;
+      const span = YEAR_CEIL - YEAR_FLOOR;
+      return {
+        name,
+        left: ((e.from - YEAR_FLOOR) / span) * 100,
+        width: ((e.to - e.from) / span) * 100,
+        color: eraColor(e),
+      };
+    }).filter(Boolean));
 
     const YEAR_TICKS = (() => {
       const out = [];
@@ -2618,10 +2841,13 @@ const app = createApp({
       FIELDS, GENDERS, FIELD_COLORS, today, PEOPLE_COUNT: PEOPLE.length, HITS_LIMIT,
       colorForField, iconForField,
       // quick categories
-      DRAWERS, openDrawers, isDrawerOpen, toggleDrawer, closeDrawer,
+      railTabs, openDrawers, isDrawerOpen, toggleDrawer, closeDrawer,
+      openField, subfieldsFor,
+      railTrack, railStep, canRailUp, canRailDown, syncRailArrows,
+      randomOpen,
       catTrack, canCatPrev, canCatNext, catPage, quickPick, syncCatArrows,
       setSubTrack, canSubPrev, canSubNext, subPage, syncSubRow, syncSubArrows,
-      orderedFields, countForField,
+      orderedFields, countForField, likeOptions,
       catPointerDown, catPointerMove, catPointerUp,
       // computed
       filtered, availableSubfields, subRows, countForSubfield, similarForSelected,
@@ -2630,6 +2856,7 @@ const app = createApp({
       careerMatches, currentMatch, matchIndex, matchStep, randomMatch, openMatch,
       favoritePeople, countryList, countryMax,
       showResults, yearsActive, clearYears, YEAR_TICKS,
+      ERAS, countForEra, isEraOn, pickEra, selectedEras, eraBands, eraColor,
       tlMin, tlMax, tlMinPct, tlMaxPct, tlBirthPct, tlLabel,
       setBornDate, randomBornDate, openBornPicker, bornDateValue, bornDateLabel,
       activeFilters, hasActiveFilters,
@@ -2651,14 +2878,17 @@ const app = createApp({
       MONTH_NAMES, zodiacFor, zodiacIcon, zodiacWiki, formatBirthDate, daysInMonth,
       selectedChinese,
       surpriseMe,
+      // the random drawer
+      randomEra, randomPlace, randomGender, randomCategory, randomEverything,
       // dock
-      hitsExpanded, visibleHits, refineOpen, refineCount, menuOpen, aboutOpen,
+      hitsExpanded, visibleHits, menuOpen, aboutOpen,
+      searchInput, runSearch,
       aboutStep, closeAbout,
       // session
       sessionUser, isLoggedIn, loginOpen, openLogin, submitLogin, logOut,
       loginEmail, loginName, loginError,
       profile, hasProfile, profileSummary, startFromProfile, clearProfile,
-      menuView, openMenu,
+      menuView, openMenu, prefsInfoOpen,
       savedSearches, saveCurrentSearch, applySavedSearch, deleteSavedSearch,
       searchLabel, isSearchSaved,
       clearSavedData, forgetThisDevice, confirmSignOut, nameMode,
@@ -2684,7 +2914,10 @@ const app = createApp({
 // edits whichever profile object it's handed. Markup stays in index.html with
 // everything else; this only supplies the answers it offers.
 app.component('profile-form', {
-  props: { model: { type: Object, required: true } },
+  props: {
+    model: { type: Object, required: true },
+    fields: { type: Array, default: () => [] },
+  },
   template: '#tpl-profile-form',
   setup(props) {
     // One row to begin with — a single parent is a whole family, not half of
@@ -2708,6 +2941,23 @@ app.component('profile-form', {
       { v: 'unknown', label: "Don't know yet" },
       { v: 'nonbinary', label: 'Non-binary' },
     ];
+    // "I like" is a list, not a choice: tap as many callings as you please,
+    // and tapping one again takes it off again.
+    function toggleLike(name) {
+      const likes = props.model.likes;
+      const at = likes.indexOf(name);
+      if (at === -1) likes.push(name);
+      else likes.splice(at, 1);
+    }
+    const likesAll = (name) => props.model.likes.includes(name);
+    // A stored birthday is machine-shaped (1988-03-12); this is how it reads.
+    const MONTHS = ['January','February','March','April','May','June','July',
+      'August','September','October','November','December'];
+    function prettyDob(dob) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob || '');
+      if (!m) return '';
+      return Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1];
+    }
     // Every answer here is optional, so tapping the one that's already on
     // takes it back off rather than leaving you stuck with a first guess.
     const pick = (obj, key, v) => { obj[key] = obj[key] === v ? '' : v; };
@@ -2730,6 +2980,7 @@ app.component('profile-form', {
     return {
       SEARCHER_GENDERS, LOOKING, SEARCHER_LIMIT,
       addSearcher, removeSearcher, pick, openPicker, onDateKey,
+      toggleLike, likesAll, prettyDob,
     };
   },
 });
