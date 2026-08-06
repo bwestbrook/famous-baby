@@ -192,42 +192,20 @@
       <!-- Wordmark and account controls, right-aligned at the very top -->
       <div class="titlebar">
         <span class="titlebar__mark"><em>famous</em>Baby</span>
-        <!-- Who's doing the naming. "What this is" moved into this sheet, so
-             the bar spends its width on the things you come back to. -->
+        <!-- Two buttons, not four: what this is, and everything else. The
+             profile, the saved lists and the way in and out all live behind
+             the one menu — they're the same errand. -->
+        <button class="titlebar__btn" @click="openAbout()" title="What this is">
+          <svg class="ico ico--18"><use href="#i-info"/></svg>
+        </button>
         <button
           class="titlebar__btn"
           :class="{ 'is-set': hasProfile }"
-          @click="openMenu('settings')"
-          :title="hasProfile ? 'Your profile — ' + profileSummary : 'Set up your profile'"
+          @click="openMenu('root')"
+          title="Account, saved names and searches"
         >
-          <svg class="ico ico--18"><use href="#i-avatar"/></svg>
-        </button>
-        <!-- Saved searches, straight to the list rather than by way of a menu. -->
-        <button
-          class="titlebar__btn"
-          @click="openMenu('searches')"
-          :title="savedSearches.length ? savedSearches.length + ' saved searches' : 'No saved searches yet'"
-        >
-          <svg class="ico ico--18"><use href="#i-search-heart"/></svg>
-          <span v-if="savedSearches.length" class="titlebar__badge">{{ savedSearches.length }}</span>
-        </button>
-        <button
-          class="titlebar__btn"
-          :class="{ 'is-on': onlyFavorites }"
-          @click="toggleOnlyFavorites"
-          :title="favorites.size ? favorites.size + ' saved — show only these' : 'No favorites yet'"
-        >
-          <svg class="ico ico--18"><use :href="onlyFavorites ? '#i-heart' : '#i-heart-o'"/></svg>
-          <span v-if="favorites.size" class="titlebar__badge">{{ favorites.size }}</span>
-        </button>
-        <!-- One button, one meaning: in or out. Logged in, it goes straight
-             to the question; logged out, it opens the door. -->
-        <button
-          class="titlebar__btn"
-          @click="isLoggedIn ? openMenu('settings', true) : openLogin()"
-          :title="isLoggedIn ? 'Log out' : 'Log in'"
-        >
-          <svg class="ico ico--18"><use :href="isLoggedIn ? '#i-logout' : '#i-login'"/></svg>
+          <svg class="ico ico--18"><use href="#i-menu"/></svg>
+          <span v-if="favorites.size + savedSearches.length" class="titlebar__badge">{{ favorites.size + savedSearches.length }}</span>
         </button>
       </div>
 
@@ -1021,23 +999,15 @@
     <div class="ovl ovl--top" v-show="aboutOpen" @click.self="closeAbout()">
       <div class="ovl__sheet ovl__sheet--about" role="dialog" aria-modal="true">
         <div class="ovl__head">
-          <button
-            v-if="aboutStep === 'profile'"
-            class="panel__collapse"
-            @click="aboutStep = 'read'"
-            title="Back"
-          ><svg class="ico ico--18"><use href="#i-back"/></svg></button>
-          <h2 class="ovl__title">
-            <span v-if="aboutStep === 'read'">famous<em>Baby</em></span>
-            <span v-else>Your famous<em>Baby</em></span>
-          </h2>
+          <h2 class="ovl__title">famous<em>Baby</em></h2>
           <button class="panel__collapse" @click="closeAbout()" title="Close">
             <svg class="ico ico--18"><use href="#i-close"/></svg>
           </button>
         </div>
 
-        <!-- What lands first: the writing, and three ways out of it. -->
-        <div class="ovl__scroll" v-show="aboutStep === 'read'">
+        <!-- Just the writing. Making a profile is an errand for the menu, not
+             a toll gate on the way into an explanation. -->
+        <div class="ovl__scroll">
           <p class="about__p">
             What's in a name? More than anyone lets on. A century, a country, a
             trade the family kept for four generations, and every hand it passed
@@ -1048,26 +1018,6 @@
             lives, every era and every corner of the map. Start anywhere, go as
             far back as you like, and see what your famous Baby can do.
           </p>
-        </div>
-
-        <!-- Behind the button: the same form account settings shows, so the
-             one you fill in on the way in is the one you come back to. -->
-        <div class="ovl__scroll" v-show="aboutStep === 'profile'">
-          <profile-form :model="profile"></profile-form>
-        </div>
-
-        <!-- Three buttons of the same make, so none of them reads as the
-             small print: the way past, the way in, and the way on. -->
-        <div class="ovl__foot ovl__foot--even" v-if="aboutStep === 'read'">
-          <button v-if="!isLoggedIn" class="btn btn--out" @click="openLogin()">Log in</button>
-          <button class="btn btn--fill" @click="aboutStep = 'profile'">Create profile</button>
-          <button class="btn btn--out" @click="closeAbout()">Skip</button>
-        </div>
-        <div class="ovl__foot" v-else>
-          <button class="btn btn--text" @click="aboutStep = 'read'">Back</button>
-          <button class="btn btn--fill" @click="startFromProfile()">
-            {{ hasProfile ? 'Save and get started' : 'Create profile and get started' }}
-          </button>
         </div>
       </div>
     </div>

@@ -1627,9 +1627,10 @@ const app = createApp({
     // and the door, not a bare globe — and stays out of the way for anyone
     // the browser already knows.
     const aboutOpen = ref(!sessionUser.value);
-    const aboutStep = ref('read');           // read | profile
+    // The info sheet is information and nothing else now — no step behind it,
+    // no profile to fill in on the way through.
     function closeAbout() { aboutOpen.value = false; }
-    watch(aboutOpen, (open) => { if (!open) aboutStep.value = 'read'; });
+    function openAbout() { aboutOpen.value = true; }
     // The door. No server behind it yet, so logging in is a name this browser
     // agrees to hold — see the sheet, which says as much.
     const loginOpen = ref(false);
@@ -1669,7 +1670,6 @@ const app = createApp({
       confirmSignOut.value = false;
       menuOpen.value = false;
       loginOpen.value = false;
-      aboutStep.value = 'read';
       aboutOpen.value = true;
     }
     // The account sheet's preferences explain themselves behind an (i) rather
@@ -2147,6 +2147,10 @@ const app = createApp({
       if (rolling) return;
       if (hitsSize.value === 'bar') hitsSize.value = 'three';
       randomOpen.value = false;
+      // And open someone from what the roll left standing. Deferred, because
+      // the filter has to settle first — and because the filter watcher closes
+      // any open card, so this has to land after it, not before.
+      nextTick(surpriseMe);
     }
     function randomEra() {
       const pool = ERAS.filter(e => countForEra(e) && !isEraOn(e));
@@ -2185,15 +2189,37 @@ const app = createApp({
       afterRoll();
     }
     // The whole handful at once, and then whoever it leaves standing.
+    // Four rolls stacked almost never leave anybody — a Victorian activist from
+    // Burkina Faso is nobody at all. So each one is tried and kept only if
+    // somebody is still standing after it; otherwise it's put back and the next
+    // is tried. What you end up with is as narrow as the roster allows and
+    // never empty.
+    function tryRoll(roll) {
+      const before = {
+        fields:    [...selectedFields.value],
+        subs:      [...selectedSubfields.value],
+        eras:      [...selectedEras.value],
+        genders:   [...selectedGenders.value],
+        countries: [...selectedCountries.value],
+        drawers:   [...openDrawers.value],
+      };
+      roll();
+      if (filtered.value.length) return;
+      selectedFields.value    = before.fields;
+      selectedSubfields.value = before.subs;
+      selectedEras.value      = before.eras;
+      selectedGenders.value   = before.genders;
+      selectedCountries.value = before.countries;
+      openDrawers.value       = before.drawers;
+    }
     function randomEverything() {
       rolling = true;
-      randomCategory();
-      randomEra();
-      randomGender();
-      randomPlace();
+      tryRoll(randomCategory);
+      tryRoll(randomEra);
+      tryRoll(randomGender);
+      tryRoll(randomPlace);
       rolling = false;
       afterRoll();
-      nextTick(surpriseMe);
     }
 
     // ---- Person info modal ----
@@ -2344,7 +2370,6 @@ const app = createApp({
       // Innermost first: the login sheet sits on top of the info page.
       if (loginOpen.value) loginOpen.value = false;
       else if (randomOpen.value) randomOpen.value = false;
-      else if (aboutStep.value === 'profile') aboutStep.value = 'read';
       else if (aboutOpen.value) aboutOpen.value = false;
       else if (menuOpen.value) menuOpen.value = false;
       else if (selectedPerson.value) closePerson();
@@ -3029,7 +3054,7 @@ const app = createApp({
       hitsExpanded, visibleHits, menuOpen, aboutOpen,
       hitsSize, setHitsSize, drawersFolded, unfoldDrawers,
       searchInput, runSearch,
-      aboutStep, closeAbout,
+      closeAbout, openAbout,
       // session
       sessionUser, isLoggedIn, loginOpen, openLogin, submitLogin, logOut,
       loginEmail, loginName, loginError,
