@@ -788,6 +788,10 @@ const app = createApp({
       setTimeout(() => syncLabelScale(altitude), 60);
     }
 
+    // How long the camera takes to arrive. The slideshow waits it out, so it
+    // lives here rather than being written into each pointOfView call.
+    const CAMERA_TWEEN_MS = 900;
+
     // Fly the camera to a country the way Earth does: stop the spin, ease in.
     // `tightness` scales the padding around it — under 1 crops in closer.
     function flyToCountry(country, tightness = 1) {
@@ -799,7 +803,7 @@ const app = createApp({
       const altitude = altitudeToFit((ext ? ext.radius : 5 * RAD) * FRAME_PAD * tightness);
       applyFramedAltitude(altitude);
       try {
-        globeInstance.pointOfView({ lat, lng, altitude }, 900);
+        globeInstance.pointOfView({ lat, lng, altitude }, CAMERA_TWEEN_MS);
         syncLabelScaleTo(altitude);
       } catch {}
     }
@@ -919,7 +923,7 @@ const app = createApp({
       const altitude = altitudeToFit(spread * FRAME_PAD);
       applyFramedAltitude(altitude);
       try {
-        globeInstance.pointOfView({ lat, lng, altitude }, 900);
+        globeInstance.pointOfView({ lat, lng, altitude }, CAMERA_TWEEN_MS);
         syncLabelScaleTo(altitude);
       } catch {}
     }
@@ -1354,6 +1358,20 @@ const app = createApp({
       return state;
     }
 
+    // The countdown to the next face. Only a picked country has one — nowhere
+    // else is going anywhere. Removing the class and forcing a reflow before
+    // re-adding it is what makes the animation actually replay; without the
+    // reflow the browser coalesces the two changes and nothing moves.
+    function startBar(state, delayMs) {
+      const bar = state.bar;
+      bar.classList.remove('is-running');
+      bar.style.animationDelay = '';
+      void bar.offsetWidth;
+      if (!state.selected || state.people.length < 2) return;
+      if (delayMs) bar.style.animationDelay = delayMs + 'ms';
+      bar.classList.add('is-running');
+    }
+
     // Cross-fade: two stacked <image>, the incoming one only promoted once it
     // has actually decoded, so a slow photo never blinks the shape empty.
     function showCollageFace(state, idx) {
@@ -1391,9 +1409,7 @@ const app = createApp({
         // Restart the sweep from zero. Removing the class and forcing a reflow
         // before re-adding it is what makes the animation actually replay —
         // otherwise the browser coalesces the two changes and nothing moves.
-        state.bar.classList.remove('is-running');
-        void state.bar.offsetWidth;
-        if (state.people.length > 1) state.bar.classList.add('is-running');
+        startBar(state, 0);
       };
       // No crop for this one: use the original. If that's missing too, the
       // current face stays up rather than the shape blanking.
@@ -1837,12 +1853,23 @@ const app = createApp({
     // which ones exist — so flip the flags rather than tearing down and
     // rebuilding seventy-odd SVG groups on every click.
     function syncCollageSelection() {
+      const now = performance.now();
       for (const [country, state] of collages) {
         const on = isCountryOn(country);
-        // Newly picked: give it a full dwell on the face it's already showing
-        // before it starts moving, so the click doesn't cause an instant flip.
-        if (on && !state.selected) state.nextAt = null;
+        const was = state.selected;
         state.selected = on;
+        if (on && !was) {
+          // Picked: the country zooms to fill the screen first, and only then
+          // does the slideshow start. Counting the dwell from the click would
+          // spend most of it on a moving camera, and the first face would turn
+          // over just as you arrived.
+          state.nextAt = now + CAMERA_TWEEN_MS + FACE_DWELL;
+          startBar(state, CAMERA_TWEEN_MS);
+        } else if (!on && was) {
+          // Put back down: it keeps whichever face it was showing.
+          state.nextAt = null;
+          startBar(state, 0);
+        }
       }
       syncCollageTimer();
       lastCamKey = '';
@@ -3070,7 +3097,10 @@ const app = createApp({
       selectedPerson.value = p;
       // The camera drops in on their birth country and the spin stops, so the
       // globe holds still while the card is up.
-      if (p && p.country) flyToCountry(p.country, 0.8);
+      // Their country, framed the same way a picked one is — but not picked:
+      // the full-screen zoom and the slideshow belong to clicking a country,
+      // and opening a card is a different errand.
+      if (p && p.country) flyToCountry(p.country, 1);
       // Reset the per-person Q&A state whenever a different person opens.
       askInput.value = '';
       askAnswer.value = '';
