@@ -799,8 +799,11 @@ const app = createApp({
       const ext = countryExtent(country);
       const coords = COUNTRY_COORDS[country];
       if (!ext && !coords) return;
-      const [lat, lng] = vecToLatLng(ext ? ext.centre : toVec(coords));
-      const altitude = altitudeToFit((ext ? ext.radius : 5 * RAD) * FRAME_PAD * tightness);
+      const frame = ext ? countryFrame(country) : null;
+      const [lat, lng] = vecToLatLng(frame ? frame.centre : (ext ? ext.centre : toVec(coords)));
+      const altitude = frame
+        ? altitudeToFitBox(frame.hw * tightness, frame.hh * tightness)
+        : altitudeToFit(5 * RAD * FRAME_PAD * tightness);
       applyFramedAltitude(altitude);
       try {
         globeInstance.pointOfView({ lat, lng, altitude }, CAMERA_TWEEN_MS);
@@ -853,8 +856,10 @@ const app = createApp({
         }
         if (main && main.length) {
           const vs = main.map(([lng, lat]) => toVec([lat, lng]));
+          // meanDir is good enough for the horizon cull, which runs every
+          // frame; framing wants a better centre and gets one lazily below.
           const centre = meanDir(vs);
-          out = { centre, radius: Math.max(...vs.map(v => angleTo(centre, v))) };
+          out = { centre, radius: Math.max(...vs.map(v => angleTo(centre, v))), verts: vs };
         }
       }
       // No outline (or none loaded yet): fall back to the centroid and a guess
@@ -869,16 +874,94 @@ const app = createApp({
       return out;
     }
 
-    // The narrower of the two half-FOVs — a shape has to fit the frame both
-    // ways, and which axis is tighter flips between a phone and a desktop.
-    function halfFov() {
+    // Both half-FOVs. Fitting a country to the narrower of the two throws away
+    // the wider one: the USA is 42° across and 32° tall, and squeezing that
+    // into the vertical field alone parks the camera 18% further out than it
+    // needs to be, with empty screen down both sides.
+    function fovHalves() {
       let fov = 50;                                   // globe.gl's default
       try { fov = globeInstance.camera().fov || fov; } catch {}
-      const vHalf = (fov / 2) * RAD;
+      const v = (fov / 2) * RAD;
       const el = globeInstance && globeInstance._el;
-      if (!el || !el.clientHeight || !el.clientWidth) return vHalf;
-      const aspect = el.clientWidth / el.clientHeight;
-      return Math.min(vHalf, Math.atan(Math.tan(vHalf) * aspect));
+      if (!el || !el.clientHeight || !el.clientWidth) return { v, h: v };
+      return { v, h: Math.atan(Math.tan(v) * (el.clientWidth / el.clientHeight)) };
+    }
+    function halfFov() {
+      const f = fovHalves();
+      return Math.min(f.v, f.h);
+    }
+
+    // The centre that minimises the distance to the furthest vertex. meanDir
+    // leans towards wherever the coastline has the most detail, which on the
+    // USA reads 18% wider than the country actually is. Badoiu-Clarkson: walk
+    // the centre at the furthest point by a shrinking step.
+    function tightCentre(vs, iters = 48) {
+      let c = meanDir(vs);
+      for (let i = 1; i <= iters; i++) {
+        let far = vs[0], fd = -1;
+        for (const v of vs) {
+          const d = angleTo(c, v);
+          if (d > fd) { fd = d; far = v; }
+        }
+        const s = 1 / (i + 1);
+        const n = [c[0] + (far[0] - c[0]) * s, c[1] + (far[1] - c[1]) * s, c[2] + (far[2] - c[2]) * s];
+        const len = Math.hypot(n[0], n[1], n[2]) || 1;
+        c = [n[0] / len, n[1] / len, n[2] / len];
+      }
+      return c;
+    }
+
+    // How far the shape reaches east-west and north-south of its centre, in
+    // the tangent plane — the camera holds north up, so those are the screen's
+    // own axes.
+    const cross = (u, v) => [
+      u[1] * v[2] - u[2] * v[1],
+      u[2] * v[0] - u[0] * v[2],
+      u[0] * v[1] - u[1] * v[0],
+    ];
+    function halfExtents(vs, centre) {
+      let e = cross([0, 0, 1], centre);
+      if (Math.hypot(e[0], e[1], e[2]) < 1e-6) e = [1, 0, 0];   // directly over a pole
+      const len = Math.hypot(e[0], e[1], e[2]) || 1;
+      e = [e[0] / len, e[1] / len, e[2] / len];
+      const n = cross(centre, e);
+      let hw = 0, hh = 0;
+      for (const v of vs) {
+        hw = Math.max(hw, Math.abs(Math.asin(Math.max(-1, Math.min(1, dot(v, e))))));
+        hh = Math.max(hh, Math.abs(Math.asin(Math.max(-1, Math.min(1, dot(v, n))))));
+      }
+      return [hw, hh];
+    }
+
+    // The tight centre and half-extents, worked out once per country the first
+    // time it's framed — the every-frame horizon cull doesn't need them, so
+    // they don't belong in countryExtent's load-time path.
+    const countryFrameCache = new Map();
+    function countryFrame(country) {
+      if (countryFrameCache.has(country)) return countryFrameCache.get(country);
+      const ext = countryExtent(country);
+      let out = null;
+      if (ext && ext.verts && ext.verts.length) {
+        const centre = tightCentre(ext.verts);
+        const [hw, hh] = halfExtents(ext.verts, centre);
+        out = { centre, hw, hh };
+      } else if (ext) {
+        out = { centre: ext.centre, hw: ext.radius, hh: ext.radius };
+      }
+      countryFrameCache.set(country, out);
+      return out;
+    }
+
+    // Stand back just far enough that the shape's box fills the frame — each
+    // axis against its own field of view, and whichever needs more room wins.
+    function altitudeToFitBox(hw, hh) {
+      const f = fovHalves();
+      const need = (t, half) => {
+        const th = Math.max(0.0008, Math.min(MAX_SPREAD, t));
+        return Math.cos(th) + Math.sin(th) / Math.tan(half);
+      };
+      const d = Math.max(need(hw * FRAME_PAD, f.h), need(hh * FRAME_PAD, f.v));
+      return Math.max(MIN_FIT_ALT, Math.min(4, d - 1));
     }
 
     // Camera distance at which a cap of angular radius θ exactly fills the
@@ -894,10 +977,10 @@ const app = createApp({
       return Math.max(MIN_FIT_ALT, Math.min(4, d - 1));
     }
 
-    // Room around the country so it doesn't quite touch the edges. Barely
-    // more than 1: a picked country is meant to fill the screen, and the
-    // collage inside it is the thing you're being shown.
-    const FRAME_PAD = 1.08;
+    // No slack at all: the country's box is fitted to the frame exactly, so
+    // it fills the screen rather than sitting in the middle of it. Drop this
+    // below 1 to let the extremities crop instead.
+    const FRAME_PAD = 1.0;
 
     function frameCountries(countries) {
       if (!globeInstance) return;
@@ -918,9 +1001,13 @@ const app = createApp({
           centre = c;
         }
       }
-      const spread = Math.max(...kept.map(p => angleTo(centre, p.ext.centre) + p.ext.radius));
-      const [lat, lng] = vecToLatLng(centre);
-      const altitude = altitudeToFit(spread * FRAME_PAD);
+      // Frame on the outlines themselves, not on a circle around them.
+      const verts = kept.flatMap(p => (p.ext.verts && p.ext.verts.length) ? p.ext.verts : [p.ext.centre]);
+      const tight = kept.length === 1 ? countryFrame(kept[0].c) : null;
+      const fitCentre = tight ? tight.centre : tightCentre(verts);
+      const [hw, hh] = tight ? [tight.hw, tight.hh] : halfExtents(verts, fitCentre);
+      const [lat, lng] = vecToLatLng(fitCentre);
+      const altitude = altitudeToFitBox(hw, hh);
       applyFramedAltitude(altitude);
       try {
         globeInstance.pointOfView({ lat, lng, altitude }, CAMERA_TWEEN_MS);
@@ -1242,7 +1329,13 @@ const app = createApp({
       if (!rings.length) return null;
       let main = null;
       for (const r of rings) if (!main || r.length > main.length) main = r;
-      const out = { full: rings, lite: [thin(main, AMBIENT_POINTS)] };
+      // Keep the unit vector beside each point: long edges get subdivided
+      // along the great circle at draw time, and slerp needs vectors.
+      const withVecs = (ring) => ({ ll: ring, v: ring.map(p => toVec(p)) });
+      const out = {
+        full: rings.map(withVecs),
+        lite: [withVecs(thin(main, AMBIENT_POINTS))],
+      };
       collageRingsCache.set(country, out);
       return out;
     }
@@ -1253,6 +1346,7 @@ const app = createApp({
     let collageRoot = null;
     let collageSvg = null;
     let collageDefs = null;
+    let collageTimerBar = null;
     const collages = new Map();     // country -> live state
     let collageSeq = 0;             // unique ids for the clip paths
 
@@ -1319,16 +1413,7 @@ const app = createApp({
       // the part a parent actually takes away. The full name sits under it,
       // since the roster stores birth names (Bowie is filed as David Jones)
       // and the two are often not the same person to a reader.
-      cap.innerHTML =
-        '<span class="ccol__given"></span>' +
-        '<span class="ccol__name"></span>' +
-        '<span class="ccol__dob"></span>' +
-        '<span class="ccol__foot">' +
-          '<span class="ccol__country"></span>' +
-          '<span class="ccol__count"></span>' +
-        '</span>' +
-        '<span class="ccol__bar"></span>';
-      cap.querySelector('.ccol__country').textContent = country;
+      cap.innerHTML = '<span class="ccol__given"></span>';
       collageRoot.appendChild(cap);
 
       const state = {
@@ -1339,10 +1424,6 @@ const app = createApp({
         pole: undefined,
         slideA, slideB, front: slideB,
         given: cap.querySelector('.ccol__given'),
-        name: cap.querySelector('.ccol__name'),
-        dob: cap.querySelector('.ccol__dob'),
-        count: cap.querySelector('.ccol__count'),
-        bar: cap.querySelector('.ccol__bar'),
         idx: 0,
         box: null,
       };
@@ -1359,20 +1440,6 @@ const app = createApp({
       });
       collages.set(country, state);
       return state;
-    }
-
-    // The countdown to the next face. Only a picked country has one — nowhere
-    // else is going anywhere. Removing the class and forcing a reflow before
-    // re-adding it is what makes the animation actually replay; without the
-    // reflow the browser coalesces the two changes and nothing moves.
-    function startBar(state, delayMs) {
-      const bar = state.bar;
-      bar.classList.remove('is-running');
-      bar.style.animationDelay = '';
-      void bar.offsetWidth;
-      if (!state.selected || state.people.length < 2) return;
-      if (delayMs) bar.style.animationDelay = delayMs + 'ms';
-      bar.classList.add('is-running');
     }
 
     // Cross-fade: two stacked <image>, the incoming one only promoted once it
@@ -1401,18 +1468,13 @@ const app = createApp({
         next.slide.classList.add('is-front');
         state.front.slide.classList.remove('is-front');
         state.front = next;
-        const given = givenName(p.name);
-        state.given.textContent = given;
-        // Don't say it twice for a mononym.
-        state.name.textContent = given === p.name ? '' : p.name;
-        state.dob.textContent = [birthLine(p), (p.field || '').toUpperCase()].filter(Boolean).join('  ·  ');
-        state.count.textContent = (idx + 1) + ' / ' + state.people.length;
+        // The name and nothing else. Everything a card would tell you is one
+        // click away, and on the globe the rest of it competed with the face.
+        state.given.textContent = givenName(p.name);
+        state.capSized = 0;               // re-fit: a longer name needs smaller type
         state.g.classList.add('is-loaded');
         state.cap.classList.add('is-loaded');
-        // Restart the sweep from zero. Removing the class and forcing a reflow
-        // before re-adding it is what makes the animation actually replay —
-        // otherwise the browser coalesces the two changes and nothing moves.
-        startBar(state, 0);
+        if (state.selected) runTimerBar(0);
       };
       // No crop for this one: use the original. If that's missing too, the
       // current face stays up rather than the shape blanking.
@@ -1457,6 +1519,22 @@ const app = createApp({
     // Under this many pixels across, a country is a speck and the face in it
     // is noise — so it isn't drawn, and its photo is never even fetched.
     const MIN_FACE_PX = 26;
+    // Switch to the true outline once a country is this big on screen, and
+    // back below the lower figure — two values so it can't flicker.
+    const DETAIL_ON_PX = 150;
+    const DETAIL_OFF_PX = 120;
+    // Longest border edge we'll draw as a straight screen-space line before
+    // walking the great circle instead.
+    const MAX_EDGE_PX = 18;
+    // Great-circle interpolation between two unit vectors.
+    function slerp(a, b, t) {
+      const om = angleTo(a, b);
+      if (om < 1e-7) return a;
+      const s = Math.sin(om);
+      const k0 = Math.sin((1 - t) * om) / s;
+      const k1 = Math.sin(t * om) / s;
+      return [a[0] * k0 + b[0] * k1, a[1] * k0 + b[1] * k1, a[2] * k0 + b[2] * k1];
+    }
 
     // Camera position → the lat/lng it is over, inverting three-globe's own
     // placement formula (x = s·sin(90−lat)·cos(90−lng), y = s·cos(90−lat),
@@ -1608,23 +1686,33 @@ const app = createApp({
       // Cut the clip at the height this country is drawn at *right now*,
       // mid-rise included — anything else and the photo floats off its border.
       const alt = clipAltitude(state, performance.now());
-      const rings = state.selected ? state.rings.full : state.rings.lite;
+      // Detail follows how big the country is on screen, not whether it's
+      // picked. A 48-point outline is indistinguishable from the real one at
+      // thumbnail size and visibly cuts the corners once you're close, which
+      // is what pulled the yellow edge off the border at some zooms. Two
+      // thresholds so a country hovering at the boundary doesn't flicker.
+      const onScreen = state.box ? Math.max(state.box.w, state.box.h) : 0;
+      const detailed = state.selected || onScreen > (state.detailed ? DETAIL_OFF_PX : DETAIL_ON_PX);
+      state.detailed = detailed;
+      const rings = detailed ? state.rings.full : state.rings.lite;
+
       let d = '';
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       let seen = 0;
       // The biggest ring on screen, kept so the face can be centred on the
       // landmass rather than on a bounding box whose middle may be sea.
       let mainPts = null;
+      const project = (lat, lng) => {
+        let s;
+        try { s = globeInstance.getScreenCoords(lat, lng, alt); } catch { return null; }
+        return (s && isFinite(s.x) && isFinite(s.y)) ? s : null;
+      };
       for (const ring of rings) {
+        const ll = ring.ll, vecs = ring.v, n = ll.length;
         let started = false;
         const pts = [];
-        for (let i = 0; i < ring.length; i++) {
-          let s;
-          try {
-            s = globeInstance.getScreenCoords(ring[i][0], ring[i][1], alt);
-          } catch { continue; }
-          if (!s || !isFinite(s.x) || !isFinite(s.y)) continue;
-          seen++;
+        let prev = null, prevIdx = -1;
+        const add = (s) => {
           d += (started ? 'L' : 'M') + s.x.toFixed(1) + ' ' + s.y.toFixed(1);
           started = true;
           pts.push([s.x, s.y]);
@@ -1632,6 +1720,31 @@ const app = createApp({
           if (s.x > maxX) maxX = s.x;
           if (s.y < minY) minY = s.y;
           if (s.y > maxY) maxY = s.y;
+        };
+        // <= n so the closing edge is walked too, not left as a straight chord.
+        for (let k = 0; k <= n; k++) {
+          const i = k % n;
+          const s = project(ll[i][0], ll[i][1]);
+          if (!s) continue;
+          seen++;
+          // globe.gl draws each border edge as a great-circle arc on the
+          // sphere; a straight line between two projected endpoints is not
+          // that arc, and the gap grows with the edge. Walk the arc instead.
+          if (prev && prevIdx >= 0) {
+            const span = Math.hypot(s.x - prev.x, s.y - prev.y);
+            if (span > MAX_EDGE_PX) {
+              const steps = Math.min(32, Math.ceil(span / MAX_EDGE_PX));
+              for (let j = 1; j < steps; j++) {
+                const m = slerp(vecs[prevIdx], vecs[i], j / steps);
+                const ml = vecToLatLng(m);
+                const sm = project(ml[0], ml[1]);
+                if (sm) add(sm);
+              }
+            }
+          }
+          if (k < n) add(s);
+          prev = s;
+          prevIdx = i;
         }
         if (started) d += 'Z';
         if (!mainPts || pts.length > mainPts.length) mainPts = pts;
@@ -1755,18 +1868,62 @@ const app = createApp({
       if (hit.person) openPerson(hit.person);
     }
 
+    // The name sits inside the country, under the face — not on a chip beside
+    // it. Type scales with the shape and then shrinks again if the name is too
+    // long for it, so a Bartolomeo fits the same outline a Kim does.
     function placeCaption(state, hostW, hostH) {
       const b = state.box;
       if (!b) return;
-      const cw = state.cap.offsetWidth || 0;
-      const ch = state.cap.offsetHeight || 0;
-      // Centred under the shape, then pulled back inside the canvas so it
-      // can't walk off the bottom when the country fills the frame.
-      let x = (b.minX + b.maxX) / 2 - cw / 2;
-      let y = b.maxY + 12;
-      x = Math.max(8, Math.min(hostW - cw - 8, x));
-      y = Math.max(8, Math.min(hostH - ch - 8, y));
-      state.cap.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+      const cap = state.cap;
+      const want = Math.max(11, Math.min(56, b.w * 0.16));
+      // Re-measure only when the shape has actually changed size, or the name
+      // has: reading offsetWidth every frame during a zoom is a layout thrash.
+      if (!state.capSized || Math.abs(state.capSized - want) > 1) {
+        cap.style.fontSize = want.toFixed(1) + 'px';
+        state.capSized = want;
+        const maxW = b.w * 0.82;
+        const w = cap.offsetWidth || 0;
+        if (w > maxW && w > 0) cap.style.fontSize = Math.max(9, want * (maxW / w)).toFixed(1) + 'px';
+      }
+      const cw = cap.offsetWidth || 0;
+      const ch = cap.offsetHeight || 0;
+      const fr = faceRect(state);
+      const cx = fr ? fr.x + fr.w / 2 : (b.minX + b.maxX) / 2;
+      const below = fr ? fr.y + fr.h + 4 : (b.minY + b.maxY) / 2;
+      // Held inside the outline's own box, then inside the canvas.
+      let x = Math.min(Math.max(cx - cw / 2, b.minX + 4), Math.max(b.minX + 4, b.maxX - cw - 4));
+      let y = Math.min(below, Math.max(b.minY + 4, b.maxY - ch - 4));
+      x = Math.max(4, Math.min(hostW - cw - 4, x));
+      y = Math.max(4, Math.min(hostH - ch - 4, y));
+      cap.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+    }
+
+    // ---- Slideshow timer ----
+    // One bar across the top, under the masthead, rather than a sliver on each
+    // country: only a picked country is running, and the top edge is where a
+    // thing that applies to the whole screen belongs.
+    function ensureCollageTimer() {
+      if (collageTimerBar || !collageRoot) return collageTimerBar;
+      collageTimerBar = document.createElement('div');
+      collageTimerBar.className = 'ccol__timer';
+      collageTimerBar.style.setProperty('--face-dwell', FACE_DWELL + 'ms');
+      collageRoot.appendChild(collageTimerBar);
+      return collageTimerBar;
+    }
+    // Removing the class and forcing a reflow before re-adding it is what makes
+    // the animation replay; without the reflow the browser coalesces the two
+    // changes and nothing moves.
+    function runTimerBar(delayMs) {
+      const bar = ensureCollageTimer();
+      if (!bar) return;
+      bar.classList.remove('is-running');
+      bar.style.animationDelay = '';
+      void bar.offsetWidth;
+      if (delayMs) bar.style.animationDelay = delayMs + 'ms';
+      bar.classList.add('is-running');
+    }
+    function stopTimerBar() {
+      if (collageTimerBar) collageTimerBar.classList.remove('is-running');
     }
 
     let collageRaf = null;
@@ -1879,11 +2036,11 @@ const app = createApp({
           // spend most of it on a moving camera, and the first face would turn
           // over just as you arrived.
           state.nextAt = now + CAMERA_TWEEN_MS + FACE_DWELL;
-          startBar(state, CAMERA_TWEEN_MS);
+          if (state.people.length > 1) runTimerBar(CAMERA_TWEEN_MS);
         } else if (!on && was) {
           // Put back down: it keeps whichever face it was showing.
           state.nextAt = null;
-          startBar(state, 0);
+          if (![...collages.values()].some(x => x.selected)) stopTimerBar();
         }
       }
       syncCollageTimer();
@@ -2224,7 +2381,7 @@ const app = createApp({
       if (collageTimer) { clearInterval(collageTimer); collageTimer = null; }
       if (collageRaf != null) { cancelAnimationFrame(collageRaf); collageRaf = null; }
       clearCollages();
-      if (collageRoot) { collageRoot.remove(); collageRoot = null; collageSvg = null; collageDefs = null; }
+      if (collageRoot) { collageRoot.remove(); collageRoot = null; collageSvg = null; collageDefs = null; collageTimerBar = null; }
       const el = globeInstance._el;
       if (el) {
         el.removeEventListener('pointerdown', onGlobePointerDown);

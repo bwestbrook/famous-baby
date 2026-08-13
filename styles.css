@@ -146,72 +146,56 @@ body {
   filter: drop-shadow(0 0 6px rgba(253,214,99,.45));
 }
 
-/* The caption travels with the shape — app.js parks it under the outline's
-   bounding box and pulls it back inside the canvas at the edges. */
+/* The name, and only the name — set inside the country rather than on a chip
+   beside it. Everything a card would tell you is one click away, and on the
+   globe the rest of it was competing with the face. app.js scales the type to
+   the shape and parks it under the portrait. */
 .ccol__cap {
   position: absolute; top: 0; left: 0;
-  display: flex; flex-direction: column; gap: 2px;
-  min-width: 168px; max-width: 320px;
-  padding: 8px 12px 10px;
-  border-radius: 12px;
-  background: var(--glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid rgba(253,214,99,.42);
-  box-shadow: 0 6px 22px rgba(0,0,0,.62);
+  padding: 0;
+  white-space: nowrap;
   text-align: center;
-  opacity: 0;
   pointer-events: auto;
   cursor: pointer;
+  opacity: 0;
   transition: opacity .45s ease;
-  /* transform is written per frame; never animate it or the caption lags the
-     shape it belongs to. */
+  /* transform is written per frame; never animate it or the name lags the
+     country it belongs to. */
 }
 .ccol__cap.is-loaded { opacity: 1; }
-/* The name reference: the given name, which is the thing this whole site is
-   for. Everything under it is the evidence that a real person carried it. */
 .ccol__given {
-  font-size: 26px; font-weight: 600; line-height: 1.05;
+  font-weight: 600;
+  line-height: 1;
   letter-spacing: -.01em;
-  color: rgba(255,255,255,.98);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: #fff;
+  /* No panel behind it, so the legibility has to come from the type itself:
+     a dark halo carries white letters over any photo underneath. */
+  text-shadow:
+    0 1px 2px rgba(0,0,0,.95),
+    0 0 10px rgba(0,0,0,.85),
+    0 0 26px rgba(0,0,0,.6);
 }
-.ccol__name {
-  font-size: 11px; font-weight: 500; line-height: 1.25;
-  color: rgba(255,255,255,.62);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-/* Empty for a mononym — collapse it so the block doesn't gain a blank line. */
-.ccol__name:empty { display: none; }
-/* Date of birth and calling, the two things the photo can't say. */
-.ccol__dob {
-  font-size: 9px; font-weight: 500; letter-spacing: .1em;
-  color: rgba(253,214,99,.9);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.ccol__foot {
-  display: flex; align-items: baseline; gap: 8px;
-  margin-top: 5px; padding-top: 5px;
-  border-top: 1px solid rgba(255,255,255,.14);
-  font-size: 8px; letter-spacing: .09em; text-transform: uppercase;
-}
-.ccol__country {
-  flex: 1; min-width: 0; text-align: left;
-  color: rgba(255,255,255,.6);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.ccol__count { flex: none; color: rgba(255,255,255,.45); font-variant-numeric: tabular-nums; }
-/* How long this face has left. The duration comes from --face-dwell, set on
-   the element by the same constant that drives the timer. */
-.ccol__bar {
-  position: absolute; left: 10px; right: 10px; bottom: 4px;
+
+/* How long the showing face has left, across the top under the masthead —
+   the slideshow belongs to the whole screen, so its clock does too. Only one
+   country runs at a time, so one bar says it. */
+.ccol__timer {
+  position: absolute;
+  top: calc(var(--band-h) + 2px);
+  left: 0;
   height: 2px;
+  width: 100%;
   transform-origin: 0 50%;
   transform: scaleX(0);
-  background: #fdd663;
-  box-shadow: 0 0 6px rgba(253,214,99,.8);
+  background: linear-gradient(to right, rgba(253,214,99,.35), #fdd663);
+  box-shadow: 0 0 8px rgba(253,214,99,.65);
+  opacity: 0;
+  pointer-events: none;
 }
-.ccol__bar.is-running { animation: ccol-sweep var(--face-dwell, 3400ms) linear forwards; }
+.ccol__timer.is-running {
+  opacity: 1;
+  animation: ccol-sweep var(--face-dwell, 3400ms) linear forwards;
+}
 @keyframes ccol-sweep { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 /* Spun round the back of the globe: the outline stops being a shape, so both
@@ -220,11 +204,7 @@ body {
 .ccol__g.is-behind,
 .ccol__cap.is-behind { opacity: 0; pointer-events: none; }
 
-@media (max-width: 620px) {
-  .ccol__cap { min-width: 140px; max-width: 74vw; padding: 6px 10px 9px; }
-  .ccol__given { font-size: 21px; }
-  .ccol__name { font-size: 10px; }
-}
+
 
 /* ---------- top stack: categories, then the timeline ---------- */
 /* The wordmark and its controls are their own band, not a fade into the globe:
