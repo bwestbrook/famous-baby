@@ -34,6 +34,9 @@ USER_AGENT = 'famous-baby/1.0 (https://github.com/benjaminwestbrook/famous-baby)
 # can load on the globe without a stall.
 DEFAULT_WIDTH = 640
 
+# Titles per API call. The hard cap is 50, but intro extracts stop at 20.
+EXTRACT_LIMIT = 20
+
 # Default set: ten Americans, one per field the US roster carries, so the
 # country popout has a face from Music through Architecture rather than four
 # musicians. Pair entry-id ↔ Wikipedia title.
@@ -89,6 +92,16 @@ def lookup_batch(titles: list[str], width: int) -> dict[str, dict]:
     """
     if not titles:
         return {}
+    # Chunked at 20, not 50. A query takes 50 titles, but intro extracts cap
+    # at 20 per request and the rest come back empty with no error — which
+    # reads exactly like "this article never mentions their birth year" and
+    # quietly threw away 60 good portraits out of 104.
+    if len(titles) > EXTRACT_LIMIT:
+        merged: dict[str, dict] = {}
+        for i in range(0, len(titles), EXTRACT_LIMIT):
+            merged.update(lookup_batch(titles[i:i + EXTRACT_LIMIT], width))
+            time.sleep(0.1)
+        return merged
     params = urllib.parse.urlencode({
         'action': 'query',
         'format': 'json',
@@ -99,6 +112,10 @@ def lookup_batch(titles: list[str], width: int) -> dict[str, dict]:
         'pithumbsize': str(width),
         'exintro': '1',
         'explaintext': '1',
+        # Without this the API returns an extract for the FIRST page only,
+        # whatever else you asked for — so every other candidate in a batch
+        # looked like it had no intro and failed the birth-year check.
+        'exlimit': 'max',
         'titles': '|'.join(titles),
     })
     api = f'https://en.wikipedia.org/w/api.php?{params}'
@@ -233,7 +250,7 @@ def save_image(entry_id: str, img_url: str, out_dir: pathlib.Path, tries: int = 
     raise last if last else RuntimeError('download failed')
 
 
-def run_targets(path: pathlib.Path, out_dir: pathlib.Path, repo: pathlib.Path, width: int) -> int:
+def run_targets(path: pathlib.Path, out_dir: pathlib.Path, repo: pathlib.Path, width: int, force: bool = False) -> int:
     """Walk photo_targets.json, filling each country's quota.
 
     Country by country: one lookup for all its candidates, then take them in
@@ -262,7 +279,10 @@ def run_targets(path: pathlib.Path, out_dir: pathlib.Path, repo: pathlib.Path, w
         for c in candidates:
             if got >= want:
                 break
-            if list(out_dir.glob(f"{c['id']}.*")):
+            # --force pulls the picture again even though we have one: the
+            # face crops are cut from these files, and cropping an
+            # already-downsized picture has no detail left to give.
+            if not force and list(out_dir.glob(f"{c['id']}.*")):
                 got += 1
                 continue
             info = found.get(c['name'])
@@ -285,7 +305,11 @@ def run_targets(path: pathlib.Path, out_dir: pathlib.Path, repo: pathlib.Path, w
             print(f"  {country:24s}  + {c['name']} ({size})")
         if got == 0:
             skipped += 1
-            print(f'  {country:24s}  — none resolved  [{"; ".join(notes[:3])}]')
+        # Always say what didn't resolve. Reporting misses only when a country
+        # came up completely empty hid 91 failures in a refetch that looked
+        # like it had worked.
+        for note in notes:
+            print(f'  {country:24s}  - {note}')
         time.sleep(0.15)      # be a good citizen of someone else's API
 
     n = write_manifest(out_dir, repo)
@@ -296,17 +320,20 @@ def run_targets(path: pathlib.Path, out_dir: pathlib.Path, repo: pathlib.Path, w
     return 0
 
 
-def parse_args(argv: list[str]) -> tuple[list[tuple[str, str]], int, bool, str | None]:
+def parse_args(argv: list[str]) -> tuple[list[tuple[str, str]], int, bool, str | None, bool]:
     """`id=Wiki_Title` pairs plus `--width N`, `--manifest`, `--targets FILE`."""
     width = DEFAULT_WIDTH
     manifest_only = False
     targets_file: str | None = None
+    force = False
     pairs: list[tuple[str, str]] = []
     rest = list(argv)
     while rest:
         a = rest.pop(0)
         if a == '--manifest':
             manifest_only = True
+        elif a == '--force':
+            force = True
         elif a in ('--width', '--targets'):
             if not rest:
                 print(f'  {a} needs a value', file=sys.stderr)
@@ -325,7 +352,7 @@ def parse_args(argv: list[str]) -> tuple[list[tuple[str, str]], int, bool, str |
             pairs.append((eid.strip(), title.strip()))
         else:
             print(f'  ignoring (bad format): {a!r}', file=sys.stderr)
-    return (pairs or DEFAULTS), width, manifest_only, targets_file
+    return (pairs or DEFAULTS), width, manifest_only, targets_file, force
 
 
 def main() -> int:
@@ -333,7 +360,7 @@ def main() -> int:
     out_dir = repo / 'photos'
     out_dir.mkdir(exist_ok=True)
 
-    targets, width, manifest_only, targets_file = parse_args(sys.argv[1:])
+    targets, width, manifest_only, targets_file, force = parse_args(sys.argv[1:])
 
     if manifest_only:
         n = write_manifest(out_dir, repo)
@@ -341,7 +368,7 @@ def main() -> int:
         return 0
 
     if targets_file:
-        return run_targets(pathlib.Path(targets_file), out_dir, repo, width)
+        return run_targets(pathlib.Path(targets_file), out_dir, repo, width, force)
 
     print(f'Fetching {len(targets)} image(s) at ≤{width}px → {out_dir}\n')
 

@@ -1546,6 +1546,9 @@ const app = createApp({
     // Under this many pixels across, a country is a speck and the face in it
     // is noise — so it isn't drawn, and its photo is never even fetched.
     const MIN_FACE_PX = 26;
+    // How far a photograph may be enlarged past its own pixels to fill a
+    // country before it stops being worth it.
+    const MAX_UPSCALE = 1.15;
     // Switch to the true outline once a country is this big on screen, and
     // back below the lower figure — two values so it can't flicker.
     const DETAIL_ON_PX = 150;
@@ -1777,8 +1780,40 @@ const app = createApp({
       // A hair of bleed so no sub-pixel gap shows along the clip edge.
       const B = 1;
       setBox(state.back, minX, minY, w, h);
+
+      // Filling the outline is right up to the point where the photograph
+      // runs out of pixels. A 512px face crop stretched across a country
+      // eight hundred pixels wide is both blown up and cropped hard — you end
+      // up looking at the grain of somebody's cheek. So cover the shape only
+      // while that costs no more than MAX_UPSCALE; past it, draw the picture
+      // whole at that limit and let the country hold it, with space around.
+      const nat = state.natural;
+      let fit = null;
+      if (nat && nat.w && nat.h) {
+        const coverScale = Math.max((w + B * 2) / nat.w, (h + B * 2) / nat.h);
+        if (coverScale > MAX_UPSCALE) {
+          // The pole of inaccessibility is the roomiest point in the country,
+          // which is where a picture that doesn't fill it should sit.
+          if (state.pole === undefined) state.pole = collagePole(state.country, state.rings.full);
+          let cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+          if (state.pole) {
+            const ps = project(state.pole[0], state.pole[1]);
+            if (ps) { cx = ps.x; cy = ps.y; }
+          }
+          const dw = nat.w * MAX_UPSCALE, dh = nat.h * MAX_UPSCALE;
+          fit = { x: cx - dw / 2, y: cy - dh / 2, w: dw, h: dh };
+        }
+      }
       for (const sl of [state.slideA, state.slideB]) {
-        setBox(sl.fg, minX - B, minY - B, w + B * 2, h + B * 2);
+        if (fit) {
+          // Box matches the picture's own aspect, so `meet` neither crops it
+          // nor stretches it.
+          sl.fg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          setBox(sl.fg, fit.x, fit.y, fit.w, fit.h);
+        } else {
+          sl.fg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+          setBox(sl.fg, minX - B, minY - B, w + B * 2, h + B * 2);
+        }
       }
 
       state.box = { minX, minY, maxX, maxY, w, h };

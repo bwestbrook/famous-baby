@@ -36,7 +36,12 @@ async function loadModules(names) {
 
 const [{ PEOPLE }, { HAS_PHOTO }] = await loadModules(['data.js', 'photos.js']);
 
-const perCountry = Math.max(1, Number(process.argv[2]) || 3);
+const args = process.argv.slice(2);
+// --have lists everyone who already has a portrait, so the fetcher can pull
+// them again at a higher resolution. The face crops are cut from these files,
+// and a crop of an already-downsized picture has no detail left to give.
+const haveMode = args.includes('--have');
+const perCountry = Math.max(1, Number(args.find(a => /^\d+$/.test(a))) || 3);
 
 // A rough notability proxy, since the roster carries no sitelink count. Awards
 // weigh most: an entry someone bothered to list awards for is an entry the
@@ -47,6 +52,16 @@ function score(p) {
   const teams = (p.teams || []).length;
   const bio = (p.bio || '').length;
   return awards * 3 + collabs + teams + bio / 200;
+}
+
+if (haveMode) {
+  const have = PEOPLE
+    .filter(p => HAS_PHOTO.has(p.id))
+    .map(p => ({ id: p.id, name: p.name, birthYear: p.birthYear || null, field: p.field || '' }));
+  const { writeFileSync: wf } = await import('node:fs');
+  wf('photo_refetch.json', JSON.stringify([{ country: 'ALL', have: 0, want: have.length, candidates: have }], null, 1) + '\n');
+  console.log(`wrote photo_refetch.json (${have.length} portraits to pull again)`);
+  process.exit(0);
 }
 
 const byCountry = new Map();
