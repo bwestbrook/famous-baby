@@ -754,48 +754,9 @@
         </div>
 
 
-        <!-- ---------- country ----------
-             The same list the globe draws from, so tapping one here and
-             tapping it on the map are the same act. -->
-        <div v-if="isDrawerOpen('country') && !selectedPerson" class="drawer">
-          <div class="drawer__head">
-            <span class="drawer__title">Country</span>
-            <button class="drawer__x" @click="closeDrawer('country')" title="Close">
-              <svg class="ico ico--14"><use href="#i-close"/></svg>
-            </button>
-          </div>
-          <!-- A little search, once the panel holds more than the eye scans. -->
-          <label v-if="countryList.length > SEARCH_FROM" class="drawer__find">
-            <svg class="ico ico--12"><use href="#i-search"/></svg>
-            <input
-              type="text"
-              :value="queryFor('country')"
-              @input="setDrawerQuery('country', $event.target.value)"
-              :placeholder="'Search ' + 'countries'"
-              autocomplete="off" spellcheck="false"
-            />
-            <button
-              v-if="queryFor('country')"
-              type="button"
-              class="drawer__findx"
-              @click="setDrawerQuery('country', '')"
-              title="Clear"
-            ><svg class="ico ico--12"><use href="#i-close"/></svg></button>
-          </label>
-          <div class="erabar">
-            <button
-              v-for="c in narrow('country', countryList, 'country')"
-              :key="c.country"
-              class="erachip erachip--sub"
-              :class="{ 'is-on': isCountryOn(c.country) }"
-              @click="pickCountry(c.country)"
-              :title="c.country + ' — ' + c.count + ' names'"
-            >{{ c.country }}</button>
-          </div>
-          <div v-if="!narrow('country', countryList, 'country').length" class="drawer__none">
-            No country by that name.
-          </div>
-        </div>
+        <!-- No country panel. Places are chosen on the globe, by raising the
+             country itself — a list of buttons beside it would be a second,
+             quieter way to do the same thing. -->
 
         <!-- ---------- inside a calling ----------
              One panel per open calling, each holding its own genres, leagues

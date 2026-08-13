@@ -3,10 +3,18 @@
 fetch_photos.py — download Wikimedia photos for entries by ID.
 
 Usage:
-    python3 fetch_photos.py                # downloads the 10 default entries
+    python3 fetch_photos.py                # downloads the default set
     python3 fetch_photos.py id1=Wiki_Title id2=Other_Title  # custom set
+    python3 fetch_photos.py --width 900 …  # bigger thumbnails
+    python3 fetch_photos.py --manifest     # only rewrite photos.js
 
-Output: ./photos/<id>.<ext> for each entry it can resolve.
+Output: ./photos/<id>.jpg for each entry it can resolve, plus ./photos.js —
+the manifest the site reads to know which entries have a face.
+
+Thumbnails, not originals. The globe's photo layer loads several of these at
+once, and Wikipedia's originals run to 8 MB apiece; asking the thumbnailer for
+a bounded width brings that to tens of KB with no visible loss at the sizes
+this site displays.
 
 Skips files that already exist. Safe to rerun.
 """
@@ -20,43 +28,66 @@ import urllib.request
 
 USER_AGENT = 'famous-baby/1.0 (https://github.com/benjaminwestbrook/famous-baby) Python/urllib'
 
-# Default 10-entry set: 5 pre-1950, 5 post-1950. Pair entry-id ↔ Wikipedia title.
+# Wide enough for the person card on a retina screen; small enough that a dozen
+# can load on the globe without a stall.
+DEFAULT_WIDTH = 640
+
+# Default set: ten Americans, one per field the US roster carries, so the
+# country popout has a face from Music through Architecture rather than four
+# musicians. Pair entry-id ↔ Wikipedia title.
 DEFAULTS: list[tuple[str, str]] = [
-    # pre-1950
-    ('ada-lovelace',      'Ada_Lovelace'),
-    ('marie-curie',       'Marie_Curie'),
-    ('einstein',          'Albert_Einstein'),
-    ('emmy-noether',      'Emmy_Noether'),
-    ('frida-kahlo',       'Frida_Kahlo'),
-    # post-1950
-    ('michael-jordan',    'Michael_Jordan'),
-    ('beyonce',           'Beyoncé'),
-    ('stephen-curry',     'Stephen_Curry'),
-    ('taylor-swift',      'Taylor_Swift'),
-    ('greta-thunberg',    'Greta_Thunberg'),
+    ('barack-obama',          'Barack_Obama'),
+    ('martin-luther-king-jr', 'Martin_Luther_King_Jr.'),
+    ('toni-morrison',         'Toni_Morrison'),
+    ('katherine-johnson',     'Katherine_Johnson'),
+    ('okeeffe',               "Georgia_O'Keeffe"),
+    ('meryl-streep',          'Meryl_Streep'),
+    ('aretha-franklin',       'Aretha_Franklin'),
+    ('steve-jobs',            'Steve_Jobs'),
+    ('frank-lloyd-wright',    'Frank_Lloyd_Wright'),
+    ('julia-child',           'Julia_Child'),
 ]
 
 
-def fetch_image_url(wiki_title: str) -> str | None:
-    """Hit the Wikipedia REST summary endpoint and return the original-image URL."""
-    api = f'https://en.wikipedia.org/api/rest_v1/page/summary/{urllib.parse.quote(wiki_title)}'
+def fetch_image_url(wiki_title: str, width: int) -> str | None:
+    """Return a thumbnail URL no wider than `width` for the article's lead image.
+
+    The REST summary endpoint hands back either a 320px thumb or the full
+    original with no size in between, so go through the action API instead,
+    which renders to whatever width we ask for.
+    """
+    params = urllib.parse.urlencode({
+        'action': 'query',
+        'format': 'json',
+        'formatversion': '2',
+        'redirects': '1',
+        'prop': 'pageimages',
+        'piprop': 'thumbnail',
+        'pithumbsize': str(width),
+        'titles': wiki_title,
+    })
+    api = f'https://en.wikipedia.org/w/api.php?{params}'
     req = urllib.request.Request(api, headers={'User-Agent': USER_AGENT})
     with urllib.request.urlopen(req, timeout=15) as r:
         data = json.loads(r.read().decode('utf-8'))
-    thumb = data.get('originalimage') or data.get('thumbnail')
-    return thumb.get('source') if thumb else None
+    pages = (data.get('query') or {}).get('pages') or []
+    for page in pages:
+        thumb = page.get('thumbnail')
+        if thumb and thumb.get('source'):
+            return thumb['source']
+    return None
 
 
-def download(entry_id: str, wiki_title: str, out_dir: pathlib.Path) -> tuple[str, str]:
+def download(entry_id: str, wiki_title: str, out_dir: pathlib.Path, width: int) -> tuple[str, str]:
     # Skip if already present (any extension).
     existing = list(out_dir.glob(f'{entry_id}.*'))
     if existing:
         return entry_id, f'SKIP (exists: {existing[0].name})'
 
     try:
-        img_url = fetch_image_url(wiki_title)
+        img_url = fetch_image_url(wiki_title, width)
         if not img_url:
-            return entry_id, 'NO_IMAGE in summary'
+            return entry_id, 'NO_IMAGE for title'
         # Always save as .jpg regardless of source extension — the site's <img>
         # tag points at `<id>.jpg`, and browsers will sniff and render whatever
         # bytes are there (PNG, WebP, etc.) so the lookup stays deterministic.
@@ -70,28 +101,68 @@ def download(entry_id: str, wiki_title: str, out_dir: pathlib.Path) -> tuple[str
         return entry_id, f'ERROR {type(e).__name__}: {e}'
 
 
-def parse_args(argv: list[str]) -> list[tuple[str, str]]:
-    """If args are given, expect `id=Wiki_Title` pairs; otherwise return defaults."""
-    if not argv:
-        return DEFAULTS
+def write_manifest(out_dir: pathlib.Path, repo: pathlib.Path) -> int:
+    """Regenerate photos.js from whatever is actually on disk.
+
+    The site can't probe a directory over HTTP, and blind-loading 680 <img>
+    tags to see which 404 is worse, so the folder listing becomes a module.
+    Derived, never hand-edited: rerun this script after adding a face.
+    """
+    ids = sorted(p.stem for p in out_dir.glob('*.jpg'))
+    body = '\n'.join(f"  '{i}'," for i in ids)
+    (repo / 'photos.js').write_text(
+        "// Generated by fetch_photos.py — do not edit by hand.\n"
+        "// Entry ids with a portrait in ./photos/<id>.jpg. The globe's country\n"
+        "// popout reads this to know whose faces it can float over a country.\n"
+        "export const PHOTO_IDS = [\n"
+        f"{body}\n"
+        "];\n"
+        "\nexport const HAS_PHOTO = new Set(PHOTO_IDS);\n",
+        encoding='utf-8',
+    )
+    return len(ids)
+
+
+def parse_args(argv: list[str]) -> tuple[list[tuple[str, str]], int, bool]:
+    """`id=Wiki_Title` pairs plus the `--width N` / `--manifest` flags."""
+    width = DEFAULT_WIDTH
+    manifest_only = False
     pairs: list[tuple[str, str]] = []
-    for a in argv:
-        if '=' not in a:
+    rest = list(argv)
+    while rest:
+        a = rest.pop(0)
+        if a == '--manifest':
+            manifest_only = True
+        elif a == '--width':
+            if not rest:
+                print('  --width needs a number', file=sys.stderr)
+                continue
+            width = int(rest.pop(0))
+        elif a.startswith('--width='):
+            width = int(a.split('=', 1)[1])
+        elif '=' in a:
+            eid, title = a.split('=', 1)
+            pairs.append((eid.strip(), title.strip()))
+        else:
             print(f'  ignoring (bad format): {a!r}', file=sys.stderr)
-            continue
-        eid, title = a.split('=', 1)
-        pairs.append((eid.strip(), title.strip()))
-    return pairs
+    return (pairs or DEFAULTS), width, manifest_only
 
 
 def main() -> int:
-    out_dir = pathlib.Path(__file__).parent / 'photos'
+    repo = pathlib.Path(__file__).parent
+    out_dir = repo / 'photos'
     out_dir.mkdir(exist_ok=True)
 
-    targets = parse_args(sys.argv[1:])
-    print(f'Fetching {len(targets)} image(s) → {out_dir}\n')
+    targets, width, manifest_only = parse_args(sys.argv[1:])
 
-    results = [download(eid, title, out_dir) for eid, title in targets]
+    if manifest_only:
+        n = write_manifest(out_dir, repo)
+        print(f'photos.js rewritten: {n} portrait(s).')
+        return 0
+
+    print(f'Fetching {len(targets)} image(s) at ≤{width}px → {out_dir}\n')
+
+    results = [download(eid, title, out_dir, width) for eid, title in targets]
 
     for eid, status in results:
         print(f'  {eid:24s}  {status}')
@@ -99,7 +170,9 @@ def main() -> int:
     n_ok = sum(1 for _, s in results if s.startswith('OK'))
     n_skip = sum(1 for _, s in results if s.startswith('SKIP'))
     n_err = sum(1 for _, s in results if 'ERROR' in s or 'NO_IMAGE' in s)
+    n_manifest = write_manifest(out_dir, repo)
     print(f'\nDone: {n_ok} downloaded, {n_skip} already present, {n_err} failed.')
+    print(f'photos.js rewritten: {n_manifest} portrait(s).')
     return 0 if n_err == 0 else 1
 
 

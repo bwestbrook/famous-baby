@@ -49,6 +49,9 @@ famous-baby/
 ├── app.js             ← Vue 3 app logic, search, filtering, modal
 ├── styles.css         ← editorial + sports themes (toggleable)
 ├── data.js            ← THE dataset — ~424 famous people
+├── photos/            ← portraits, one per entry id: <id>.jpg
+├── photos.js          ← GENERATED manifest of which ids have a portrait
+├── fetch_photos.py    ← (utility) downloads portraits + rewrites photos.js
 ├── merge_data.js      ← (utility) tooling for batch merges into data.js
 ├── find_short_bios.mjs ← (utility) lists entries with short bios
 ├── verify_lengths.mjs ← (utility) verifies bio character counts
@@ -86,6 +89,21 @@ node --check data.js
 ```
 
 A silent exit means it parses. Any error tells you the line and column to fix.
+
+---
+
+## Photos
+
+Portraits live in `photos/` and are matched to entries **by filename**: `photos/<person.id>.jpg`. A name that doesn't equal an id is a photo that never shows.
+
+`photos.js` is the manifest the site reads to know which entries have a face — the globe's country popout uses it to decide whose portraits to float above a country. It is **generated, never hand-edited**. After adding or renaming a portrait, rerun:
+
+```bash
+python3 fetch_photos.py --manifest      # rebuild photos.js from the folder
+python3 fetch_photos.py id=Wiki_Title   # or fetch a new one (also rebuilds)
+```
+
+Fetched images are Wikipedia thumbnails capped at 640px (`--width` to change). The originals run to 8 MB apiece, which the globe layer can't afford to load several of at once.
 
 ---
 
