@@ -87,6 +87,7 @@ const COUNTRY_COORDS = {
   'Colombia':       [ 4.6,  -74.3],
   'Cuba':           [21.5,  -77.8],
   'Jamaica':        [18.1,  -77.3],
+  'Puerto Rico':    [18.2,  -66.5],
   'Honduras':       [15.2,  -86.2],
   'Barbados':       [13.2,  -59.5],
   'Martinique':     [14.6,  -61.0],
