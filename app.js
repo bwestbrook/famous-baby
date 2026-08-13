@@ -942,10 +942,6 @@ const app = createApp({
       if (!country) return;
       selectGlobeCountry(country);
       const now = selectedCountries.value;
-      // This is the click the collage waits for. Every route into here — the
-      // globe, the country panel, a person's card — is someone deliberately
-      // choosing a place, which is the trigger; a restored session is not.
-      collageArmed.value = now.length > 0;
       // Nothing to open: the country raising off the map, with its faces on
       // it, is the whole of the feedback. There is no panel to keep in step.
       if (now.length) frameCountries(now);
@@ -985,9 +981,6 @@ const app = createApp({
       if (!pick) return;
       aimHomeAt(pick.country);
       selectedCountries.value = [pick.country];
-      // A roll is a deliberate act too — it lands on a country, so it earns
-      // the collage the same as picking one off the map.
-      collageArmed.value = true;
       flyToCountry(pick.country);
     }
 
@@ -997,11 +990,20 @@ const app = createApp({
       HOME_VIEW.lng = lng;
     }
 
-    // The opening move: the visitor's own part of the world, and a random
-    // country only if we can't work out where that is. No filter either way —
-    // starting the session filtered means the roster is a handful of names and
-    // the first search comes back empty for a reason nobody can see.
+    // TEMPORARY OVERRIDE — everyone opens over London.
+    // Normally this is the visitor's own part of the world, worked out from
+    // their time zone (see homeFromTimeZone) and refined by the device if
+    // they've already granted location. That makes every session start
+    // somewhere different, which is exactly wrong while the globe is being
+    // worked on: you can't tell a change from a coincidence. Delete the two
+    // lines below to hand the opening view back to the visitor.
+    const OPENING_OVERRIDE = { lat: 51.51, lng: -0.13 };   // London
+
     function openingGlobeView() {
+      if (OPENING_OVERRIDE) {
+        aimHomeAtCoords(OPENING_OVERRIDE.lat, OPENING_OVERRIDE.lng);
+        return;
+      }
       const home = homeFromTimeZone();
       if (home) {
         aimHomeAtCoords(home.lat, home.lng);
@@ -1191,8 +1193,23 @@ const app = createApp({
       return 'b. ' + p.birthYear;
     }
 
-    // The rings we actually clip to, as [lat, lng] pairs ready to project.
-    // Cached per country: the outline never changes, only the camera does.
+    // The rings we clip to, as [lat, lng] pairs ready to project. Cached per
+    // country: the outline never changes, only the camera does.
+    //
+    // Two versions, because every country runs its slideshow at once now. The
+    // full outline is 10,575 vertices across the world and each one costs a
+    // matrix multiply per frame — fine for the one country you picked, far too
+    // much for all of them. So an ambient country is drawn from its largest
+    // landmass alone, thinned to AMBIENT_POINTS, which is more than enough
+    // shape at the size it occupies when you aren't looking straight at it.
+    const AMBIENT_POINTS = 48;
+    function thin(ring, cap) {
+      if (ring.length <= cap) return ring;
+      const out = [];
+      const step = ring.length / cap;
+      for (let i = 0; i < cap; i++) out.push(ring[Math.floor(i * step)]);
+      return out;
+    }
     const collageRingsCache = new Map();
     function collageRings(country) {
       if (collageRingsCache.has(country)) return collageRingsCache.get(country);
@@ -1205,8 +1222,11 @@ const app = createApp({
         if (poly[0] && poly[0].length > 2) rings.push(poly[0].map(([lng, lat]) => [lat, lng]));
       }
       if (!rings.length) return null;
-      collageRingsCache.set(country, rings);
-      return rings;
+      let main = null;
+      for (const r of rings) if (!main || r.length > main.length) main = r;
+      const out = { full: rings, lite: [thin(main, AMBIENT_POINTS)] };
+      collageRingsCache.set(country, out);
+      return out;
     }
 
     // ---- Overlay ----
@@ -1296,7 +1316,10 @@ const app = createApp({
 
       const state = {
         country, people, rings, id, g, inner, clipPath, edge, back, cap,
-        pole: collagePole(country, rings),
+        // Left undefined on purpose — see projectCollage, which works the pole
+        // out the first time a country is actually worth drawing. Doing all 73
+        // here would block the load for the best part of a second.
+        pole: undefined,
         slideA, slideB, front: slideB,
         given: cap.querySelector('.ccol__given'),
         name: cap.querySelector('.ccol__name'),
@@ -1359,9 +1382,23 @@ const app = createApp({
       probe.src = src;
     }
 
+    // One ticker for all of them, each country turning over on its own clock.
+    // A single interval advancing everything at once would flip 73 slideshows
+    // on the same frame — a stutter to watch and a stampede of image loads.
+    const COLLAGE_TICK = 250;
     function advanceCollages() {
+      const now = performance.now();
       for (const state of collages.values()) {
-        if (state.people.length < 2) continue;
+        if (state.people.length < 2 || !state.loaded) continue;
+        // Don't cycle what nobody can see. Round the back or too small to
+        // read, a country holds its face until it comes into view again.
+        if (state.g.classList.contains('is-behind')) continue;
+        if (state.nextAt == null) {
+          state.nextAt = now + FACE_DWELL * (0.4 + state.phase);
+          continue;
+        }
+        if (now < state.nextAt) continue;
+        state.nextAt = now + FACE_DWELL;
         showCollageFace(state, (state.idx + 1) % state.people.length);
       }
     }
@@ -1369,7 +1406,7 @@ const app = createApp({
     let collageTimer = null;
     function syncCollageTimer() {
       const wanted = [...collages.values()].some(s => s.people.length > 1);
-      if (wanted && !collageTimer) collageTimer = setInterval(advanceCollages, FACE_DWELL);
+      if (wanted && !collageTimer) collageTimer = setInterval(advanceCollages, COLLAGE_TICK);
       if (!wanted && collageTimer) { clearInterval(collageTimer); collageTimer = null; }
     }
 
@@ -1380,6 +1417,20 @@ const app = createApp({
     // only a few degrees wide, and a flat margin pushes the cutoff past 1 and
     // hides everything.
     const COLLAGE_HORIZON_MARGIN = 0.06;
+    // Under this many pixels across, a country is a speck and the face in it
+    // is noise — so it isn't drawn, and its photo is never even fetched.
+    const MIN_FACE_PX = 26;
+
+    // Camera position → the lat/lng it is over, inverting three-globe's own
+    // placement formula (x = s·sin(90−lat)·cos(90−lng), y = s·cos(90−lat),
+    // z = s·sin(90−lat)·sin(90−lng)) rather than trusting a guess at its API.
+    function camLatLng(pos) {
+      const s = Math.hypot(pos.x, pos.y, pos.z) || 1;
+      return [
+        Math.asin(Math.max(-1, Math.min(1, pos.y / s))) / RAD,
+        90 - Math.atan2(pos.z, pos.x) / RAD,
+      ];
+    }
     // Must clear the CSS blur radius on .ccol__bg, or the fill fades out along
     // its own edges.
     const BLUR_BLEED = 34;
@@ -1475,32 +1526,41 @@ const app = createApp({
       return [cx / (3 * a), cy / (3 * a)];
     }
 
+    // Is the whole country on the near face of the globe? One dot product
+    // against the cached extent answers it, instead of a projection per
+    // vertex — which is what makes 73 simultaneous slideshows affordable.
+    //
+    // Retiring the moment any part of the outline crosses the rim is also the
+    // correct behaviour, not just the cheap one: Vector3.project inverts
+    // behind the camera plane, so a half-crossed country folds in on itself.
+    function countryFullyVisible(state, camDir, horizonAngle) {
+      const ext = state.ext;
+      if (!ext) return true;
+      return angleTo(ext.centre, camDir) + ext.radius <= horizonAngle * (1 - COLLAGE_HORIZON_MARGIN);
+    }
+
     function projectCollage(state, pos, dist) {
-      const alt = popAlt.value;
-      const cosHorizon = GLOBE_R / dist;
-      const cutoff = cosHorizon + COLLAGE_HORIZON_MARGIN * (1 - cosHorizon);
+      // Ambient countries lie flat on the map; only a picked one stands on a
+      // plinth, so the clip has to be cut at the height that country is
+      // actually drawn at or the photo floats off its own outline.
+      const alt = state.selected ? popAlt.value : Math.min(0.007, popAlt.value * 0.30);
+      const rings = state.selected ? state.rings.full : state.rings.lite;
       let d = '';
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      let seen = 0, behind = 0;
+      let seen = 0;
       // The biggest ring on screen, kept so the face can be centred on the
       // landmass rather than on a bounding box whose middle may be sea.
       let mainPts = null;
-      for (const ring of state.rings) {
+      for (const ring of rings) {
         let started = false;
         const pts = [];
         for (let i = 0; i < ring.length; i++) {
-          const lat = ring[i][0], lng = ring[i][1];
-          let s, c;
+          let s;
           try {
-            s = globeInstance.getScreenCoords(lat, lng, alt);
-            c = globeInstance.getCoords(lat, lng, 0);
+            s = globeInstance.getScreenCoords(ring[i][0], ring[i][1], alt);
           } catch { continue; }
           if (!s || !isFinite(s.x) || !isFinite(s.y)) continue;
           seen++;
-          // Count how much of the outline has gone round the back, so a
-          // country the user has spun away from retires instead of smearing.
-          const len = Math.hypot(c.x, c.y, c.z) || 1;
-          if ((c.x * pos.x + c.y * pos.y + c.z * pos.z) / (len * dist) < cutoff) behind++;
           d += (started ? 'L' : 'M') + s.x.toFixed(1) + ' ' + s.y.toFixed(1);
           started = true;
           pts.push([s.x, s.y]);
@@ -1513,14 +1573,9 @@ const app = createApp({
         if (!mainPts || pts.length > mainPts.length) mainPts = pts;
       }
       if (!seen || !isFinite(minX)) return false;
-      // Once part of the outline is round the back, the projection of those
-      // vertices stops meaning anything — Vector3.project inverts behind the
-      // camera plane — and the silhouette folds in on itself. Retire the whole
-      // shape as soon as a tenth of it has gone, which is early enough that
-      // the fold never gets drawn. A framed country is comfortably inside the
-      // horizon (Russia is the widest at 36° against a 65° cap), so this only
-      // fires when someone spins the globe away from their pick.
-      if (behind > seen * 0.10) return false;
+      // Too small to read a face in. Below this the shape is a speck and the
+      // photo inside it is noise, so leave it to the map underneath.
+      if (!state.selected && Math.max(maxX - minX, maxY - minY) < MIN_FACE_PX) return false;
 
       state.clipPath.setAttribute('d', d);
       state.edge.setAttribute('d', d);
@@ -1547,6 +1602,11 @@ const app = createApp({
       // parked there gets eaten by the clip. `meet` fits the whole photo
       // inside whatever box we give it, so this is the largest uncropped face
       // the shape can hold.
+      // First frame this country earns a face: find the point furthest from
+      // its coastline. Cached per country, and deferred to here so the cost
+      // lands as countries come into view rather than all at once on load.
+      if (state.pole === undefined) state.pole = collagePole(state.country, state.rings.full);
+
       let c = null;
       if (state.pole) {
         try {
@@ -1657,11 +1717,24 @@ const app = createApp({
         collageSvg.setAttribute('height', hostH);
         collageSvg.setAttribute('viewBox', '0 0 ' + hostW + ' ' + hostH);
       }
+      // One dot product per country decides whether it is worth projecting at
+      // all. With every country running a slideshow, this cull is the
+      // difference between ~1,800 projections a frame and ~16,000.
+      const camDir = toVec(camLatLng(pos));
+      const horizonAngle = Math.acos(Math.max(-1, Math.min(1, GLOBE_R / dist)));
       for (const state of collages.values()) {
-        const ok = projectCollage(state, pos, dist);
+        const ok = countryFullyVisible(state, camDir, horizonAngle)
+          && projectCollage(state, pos, dist);
         state.g.classList.toggle('is-behind', !ok);
-        state.cap.classList.toggle('is-behind', !ok);
-        if (ok) placeCaption(state, hostW, hostH);
+        // Only a picked country is captioned. Seventy-three name cards at once
+        // would bury the globe they are meant to be describing.
+        state.cap.classList.toggle('is-behind', !ok || !state.selected);
+        if (ok) {
+          // First time this one has been worth looking at: fetch its face now
+          // rather than pulling all 73 down on load.
+          if (!state.loaded) { state.loaded = true; showCollageFace(state, state.idx); }
+          if (state.selected) placeCaption(state, hostW, hostH);
+        }
       }
     }
     function startCollageLoop() {
@@ -1678,26 +1751,40 @@ const app = createApp({
       collages.clear();
     }
 
-    // Only a deliberate pick raises a collage. A restored session or the
-    // initial polygon load leaves the globe bare until someone clicks.
-    const collageArmed = ref(false);
-
+    // Every country with a face runs its slideshow, all the time — the globe
+    // is meant to look inhabited before you touch it. Picking one doesn't turn
+    // its collage on; it raises the country, frames the camera on it and gives
+    // it the caption.
     function syncCollageLayer() {
       if (!globeInstance) return;
       clearCollages();
-      if (!collageArmed.value || !ensureCollageRoot()) { syncCollageTimer(); return; }
-      for (const country of selectedCountries.value) {
-        const people = photoPeopleByCountry.value.get(country);
-        if (!people || !people.length) continue;
+      if (!ensureCollageRoot()) { syncCollageTimer(); return; }
+      let i = 0;
+      for (const [country, people] of photoPeopleByCountry.value) {
+        if (!people.length) continue;
         const rings = collageRings(country);
         if (!rings) continue;
         const state = buildCollage(country, people, rings);
-        const resume = collageIndex.get(country) || 0;
-        showCollageFace(state, resume < people.length ? resume : 0);
+        state.selected = isCountryOn(country);
+        state.ext = countryExtent(country);
+        // Nothing is fetched here. The loop loads a country's photo the first
+        // frame it is both in front of the camera and big enough to read.
+        state.idx = Math.min(collageIndex.get(country) || 0, people.length - 1);
+        // Stagger, so 73 slideshows don't all turn over on the same tick —
+        // visually calmer, and it spreads the image loads out.
+        state.phase = (i++ * 0.37) % 1;
       }
       syncCollageTimer();
       lastCamKey = '';        // force a projection on the next frame
       startCollageLoop();
+    }
+
+    // Picking a country changes which collage is raised and captioned, not
+    // which ones exist — so flip the flags rather than tearing down and
+    // rebuilding seventy-odd SVG groups on every click.
+    function syncCollageSelection() {
+      for (const [country, state] of collages) state.selected = isCountryOn(country);
+      lastCamKey = '';
     }
 
     // ---- Where a birthplace actually is ----
@@ -1913,10 +2000,10 @@ const app = createApp({
             repaintPolygons();
           });
         console.log('[famous Baby] country outlines loaded:', features.length);
-        // Deliberately no collage here. A restored session can arrive with
-        // countries already selected, and the slideshow is meant to start on
-        // a click and nothing else — so those countries stay lit but bare
-        // until someone picks one.
+        // Outlines are what the collages are cut from, so this is the earliest
+        // the globe can be populated — every country with a face starts its
+        // slideshow here, before anyone touches anything.
+        syncCollageLayer();
       } catch (err) {
         console.error('[famous Baby] country outlines failed:', err);
       }
@@ -2504,9 +2591,6 @@ const app = createApp({
       yearMax.value = typeof st.yearMax === 'number' ? st.yearMax : YEAR_CEIL;
       // Older saved searches carry a single country; newer ones a list.
       selectedCountries.value = Array.isArray(st.countries) ? st.countries : (st.country ? [st.country] : []);
-      // Reopening a search is not a click on a country: the places light up,
-      // but no slideshow starts until one is actually picked.
-      collageArmed.value = false;
       selectedBornMonths.value = [...(st.months || [])];
       selectedBornDays.value = [...(st.days || [])];
       selectedZodiacs.value = [...(st.zodiacs || [])];
@@ -2663,7 +2747,9 @@ const app = createApp({
       // HOME_VIEW there, so initGlobe's opening move lands on it unaided.
       openingGlobeView();
       ensureGlobe();
-      refineHomeFromDevice();
+      // Skipped while the opening view is pinned: the device's own location
+      // would otherwise pull the camera off London a moment after it arrives.
+      if (!OPENING_OVERRIDE) refineHomeFromDevice();
       syncCatArrows();
       syncSubArrows();
     }));
@@ -2800,7 +2886,7 @@ const app = createApp({
     onUnmounted(disposeGlobe);
 
     // Repaint the outlines whenever selection changes.
-    watch(selectedCountries, () => { repaintPolygons(); syncCollageLayer(); }, { deep: true });
+    watch(selectedCountries, () => { repaintPolygons(); syncCollageSelection(); }, { deep: true });
     // Every polygon height is a fraction of popAlt, and so is where the
     // slideshow stands — so a re-framing has to redraw both, including the
     // paths that move the camera without changing the selection (opening a
@@ -2859,9 +2945,6 @@ const app = createApp({
       if (!pick) return;
       aimHomeAt(pick.country);
       selectedCountries.value = [pick.country];
-      // A roll is a deliberate act too — it lands on a country, so it earns
-      // the collage the same as picking one off the map.
-      collageArmed.value = true;
       flyToCountry(pick.country);
       afterRoll();
     }

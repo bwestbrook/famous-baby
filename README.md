@@ -105,6 +105,18 @@ python3 fetch_photos.py id=Wiki_Title   # or fetch a new one (also rebuilds)
 
 Fetched images are Wikipedia thumbnails capped at 640px (`--width` to change). The originals run to 8 MB apiece, which the globe layer can't afford to load several of at once.
 
+To fill in whole countries rather than named people:
+
+```bash
+node photo_targets.mjs 3                        # who to try, per country
+python3 fetch_photos.py --targets photo_targets.json
+./resize_photos.sh                              # 512px / q72, macOS sips
+```
+
+`photo_targets.mjs` ranks candidates per country and lists countries with no portrait first, so a run cut short still spreads as widely as possible. The fetcher only keeps a photo when the article's opening paragraph contains that person's birth year — matching a name to an article title is usually right, but "no image" is a better answer than the wrong face.
+
+**Always finish with `resize_photos.sh`.** Wikipedia doesn't always honour the width asked for, and the fetcher saves every file as `<id>.jpg` whatever the bytes really are, so PNGs arrive wearing a `.jpg` suffix. Re-encoding took `photos/` from 49 MB to 7 MB with no visible loss at the size the globe draws a face.
+
 ---
 
 ## Themes
