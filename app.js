@@ -963,13 +963,10 @@ const app = createApp({
         const th = Math.max(0.0008, Math.min(MAX_SPREAD, t));
         return Math.cos(th) + Math.sin(th) / Math.tan(half);
       };
-      const dw = need(hw * FRAME_PAD, f.h);
-      const dh = need(hh * FRAME_PAD, f.v);
-      // Fill, don't fit: the closer of the two distances, so the shape covers
-      // the frame and spills past whichever edge it has to.
-      const cover = Math.min(dw, dh) - 1;
-      const contain = Math.max(dw, dh) - 1;
-      return Math.max(MIN_FIT_ALT, Math.min(4, Math.max(cover, contain * COVER_LIMIT)));
+      // Whichever axis needs more room wins, so the whole outline is held —
+      // the photograph fills the country, the country doesn't fill the screen.
+      const d = Math.max(need(hw * FRAME_PAD, f.h), need(hh * FRAME_PAD, f.v));
+      return Math.max(MIN_FIT_ALT, Math.min(4, d - 1));
     }
 
     // Camera distance at which a cap of angular radius θ exactly fills the
@@ -987,16 +984,11 @@ const app = createApp({
       return Math.max(MIN_FIT_ALT, Math.min(4, d - 1));
     }
 
-    // Under 1 on purpose: the country is fitted as if it were smaller than it
-    // is, so it overflows the frame instead of sitting inside it. Fitting it
-    // exactly still left Ireland and half the North Sea beside England — a
-    // shape that isn't the screen's aspect can't fill the screen without
-    // spilling over the edges.
-    const FRAME_PAD = 0.70;
-    // ...but only so far. Fill on the shape's narrow axis and a long thin
-    // country like Chile crops to a sliver, so never come closer than this
-    // fraction of the distance that would hold the whole thing.
-    const COVER_LIMIT = 0.45;
+    // A hair over 1: the whole country stays in frame, with just enough air
+    // that the outline isn't touching the edges. Filling the screen by
+    // overflowing it was worse — close enough to read the grain of a
+    // photograph, and the country stopped being a shape you could recognise.
+    const FRAME_PAD = 1.06;
 
     function frameCountries(countries) {
       if (!globeInstance) return;
@@ -1269,8 +1261,24 @@ const app = createApp({
       // "show me this person", not "put the country back down".
       if (faceClickHandled) { faceClickHandled = false; return; }
       const entry = polyEntry(d);
-      if (!entry) return;
+      // A country nobody in the roster comes from is drawn for context only.
+      // Clicking one is a click on nothing in particular, which is as good a
+      // way as any of saying "put the one that's up back down".
+      if (!entry) { dropCountry(); return; }
       pickCountry(entry.country);
+    }
+
+    // The way back out. The photograph fills the whole country now, so there
+    // is no part of a raised country left to click that doesn't mean "open
+    // this person" — the sea has to be the door.
+    function dropCountry() {
+      if (!selectedCountries.value.length) return;
+      clearCountry();
+      resetGlobeView();
+    }
+    function handleGlobeClick() {
+      if (faceClickHandled) { faceClickHandled = false; return; }
+      dropCountry();
     }
 
     // ---- The collage: a country filled with its own faces ----
@@ -1411,12 +1419,14 @@ const app = createApp({
       // on top of it whole (`meet` never crops), as large as the shape allows.
       const mkSlide = () => {
         const slide = svgEl('g', { class: 'ccol__slide' });
-        const bg = svgEl('image', { class: 'ccol__bg', preserveAspectRatio: 'xMidYMid slice' });
-        const fg = svgEl('image', { class: 'ccol__fg', preserveAspectRatio: 'xMidYMid meet' });
-        slide.appendChild(bg);
+        // `slice` is SVG's object-fit: cover, and the box is the whole outline
+        // — so the photograph fills the country edge to edge. It crops what
+        // won't fit, which is the trade taken on purpose: a portrait sitting
+        // whole inside the border left most of the country empty.
+        const fg = svgEl('image', { class: 'ccol__fg', preserveAspectRatio: 'xMidYMid slice' });
         slide.appendChild(fg);
         inner.appendChild(slide);
-        return { slide, bg, fg };
+        return { slide, fg };
       };
       const slideA = mkSlide(), slideB = mkSlide();
 
@@ -1482,7 +1492,6 @@ const app = createApp({
         // Kept for the click target: `meet` letterboxes the portrait inside
         // its box, and only the drawn rect is clickable.
         state.natural = { w: probe.naturalWidth, h: probe.naturalHeight };
-        next.bg.setAttribute('href', src);
         next.fg.setAttribute('href', src);
         next.slide.classList.add('is-front');
         state.front.slide.classList.remove('is-front');
@@ -1564,11 +1573,6 @@ const app = createApp({
         90 - Math.atan2(pos.z, pos.x) / RAD,
       ];
     }
-    // Must clear the CSS blur radius on .ccol__bg, or the fill fades out along
-    // its own edges.
-    const BLUR_BLEED = 34;
-    // How much of the shape's box the whole-face layer is allowed to use.
-    const FACE_BOX = 0.98;
 
     // ---- Where the face goes ----
     // The point furthest from any coastline — a country's pole of
@@ -1652,20 +1656,6 @@ const app = createApp({
       return pole;
     }
 
-    // Area centroid of a projected ring (the standard shoelace form). Falls
-    // back to null for a degenerate ring so the caller can use the box centre.
-    function polygonCentroid(pts) {
-      if (!pts || pts.length < 3) return null;
-      let a = 0, cx = 0, cy = 0;
-      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-        const f = pts[j][0] * pts[i][1] - pts[i][0] * pts[j][1];
-        a += f;
-        cx += (pts[j][0] + pts[i][0]) * f;
-        cy += (pts[j][1] + pts[i][1]) * f;
-      }
-      if (Math.abs(a) < 1e-6) return null;
-      return [cx / (3 * a), cy / (3 * a)];
-    }
 
     // Is the whole country on the near face of the globe? One dot product
     // against the cached extent answers it, instead of a projection per
@@ -1725,9 +1715,6 @@ const app = createApp({
       let d = '';
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       let seen = 0;
-      // The biggest ring on screen, kept so the face can be centred on the
-      // landmass rather than on a bounding box whose middle may be sea.
-      let mainPts = null;
       const project = (lat, lng) => {
         let s;
         try { s = globeInstance.getScreenCoords(lat, lng, alt); } catch { return null; }
@@ -1736,12 +1723,10 @@ const app = createApp({
       for (const ring of rings) {
         const ll = ring.ll, vecs = ring.v, n = ll.length;
         let started = false;
-        const pts = [];
         let prev = null, prevIdx = -1;
         const add = (s) => {
           d += (started ? 'L' : 'M') + s.x.toFixed(1) + ' ' + s.y.toFixed(1);
           started = true;
-          pts.push([s.x, s.y]);
           if (s.x < minX) minX = s.x;
           if (s.x > maxX) maxX = s.x;
           if (s.y < minY) minY = s.y;
@@ -1773,7 +1758,6 @@ const app = createApp({
           prevIdx = i;
         }
         if (started) d += 'Z';
-        if (!mainPts || pts.length > mainPts.length) mainPts = pts;
       }
       if (!seen || !isFinite(minX)) return false;
       // Too small to read a face in. Below this the shape is a speck and the
@@ -1784,100 +1768,34 @@ const app = createApp({
       state.edge.setAttribute('d', d);
       const w = Math.max(1, maxX - minX), h = Math.max(1, maxY - minY);
 
-      // The fill runs past the bounding box by the blur radius. Blur pulls in
-      // whatever is outside the image — nothing — so a fill stopping exactly
-      // at the box would fade to transparent along every edge that happens to
-      // touch it.
-      const bleed = BLUR_BLEED;
       const setBox = (el, x, y, bw, bh) => {
         el.setAttribute('x', x.toFixed(1));
         el.setAttribute('y', y.toFixed(1));
         el.setAttribute('width', bw.toFixed(1));
         el.setAttribute('height', bh.toFixed(1));
       };
+      // A hair of bleed so no sub-pixel gap shows along the clip edge.
+      const B = 1;
       setBox(state.back, minX, minY, w, h);
-      for (const s of [state.slideA, state.slideB]) {
-        setBox(s.bg, minX - bleed, minY - bleed, w + bleed * 2, h + bleed * 2);
-      }
-
-      // The face goes where the country is widest, not in the middle of the
-      // box: for Norway or Indonesia the box's centre is water, and a portrait
-      // parked there gets eaten by the clip. `meet` fits the whole photo
-      // inside whatever box we give it, so this is the largest uncropped face
-      // the shape can hold.
-      // First frame this country earns a face: find the point furthest from
-      // its coastline. Cached per country, and deferred to here so the cost
-      // lands as countries come into view rather than all at once on load.
-      if (state.pole === undefined) state.pole = collagePole(state.country, state.rings.full);
-
-      let c = null;
-      let clearPx = Infinity;
-      if (state.pole) {
-        const s = project(state.pole[0], state.pole[1]);
-        if (s) {
-          c = [s.x, s.y];
-          // Same clearance, measured on screen: project a point that far due
-          // east of the pole and take the distance.
-          const th = (state.pole[2] || 0) * RAD;
-          if (th > 0) {
-            const P = toVec([state.pole[0], state.pole[1]]);
-            let e = cross([0, 0, 1], P);
-            const el2 = Math.hypot(e[0], e[1], e[2]);
-            if (el2 > 1e-6) {
-              e = [e[0] / el2, e[1] / el2, e[2] / el2];
-              const ct = Math.cos(th), st = Math.sin(th);
-              const edge = vecToLatLng([P[0] * ct + e[0] * st, P[1] * ct + e[1] * st, P[2] * ct + e[2] * st]);
-              const se = project(edge[0], edge[1]);
-              if (se) clearPx = Math.hypot(se.x - s.x, se.y - s.y);
-            }
-          }
-        }
-      }
-      c = c || polygonCentroid(mainPts) || [(minX + maxX) / 2, (minY + maxY) / 2];
-      // The outline overflows the screen now, so sizing the portrait off its
-      // bounding box would blow the face up past the viewport with it. Hold it
-      // to what can actually be seen.
-      const el = globeInstance && globeInstance._el;
-      const viewW = (el && el.clientWidth) || w;
-      const viewH = (el && el.clientHeight) || h;
-      // Inside the border, on screen, and not bigger than the screen: the
-      // portrait sits in the country's own room rather than being cut by it.
-      const room = clearPx * 1.9;
-      const fw = Math.min(w * FACE_BOX, viewW * 0.78, room);
-      const fh = Math.min(h * FACE_BOX, viewH * 0.66, room);
-      state.clearPx = clearPx;
-      for (const s of [state.slideA, state.slideB]) {
-        setBox(s.fg, c[0] - fw / 2, c[1] - fh / 2, fw, fh);
+      for (const sl of [state.slideA, state.slideB]) {
+        setBox(sl.fg, minX - B, minY - B, w + B * 2, h + B * 2);
       }
 
       state.box = { minX, minY, maxX, maxY, w, h };
-      state.faceBox = { x: c[0] - fw / 2, y: c[1] - fh / 2, w: fw, h: fh };
       return true;
     }
 
-    // Where the portrait actually landed inside the box we gave it. `meet`
-    // letterboxes — the drawn image is only as big as the aspect ratio allows
-    // — so the click target is this rect, not the box.
-    function faceRect(state) {
-      const b = state.faceBox, nat = state.natural;
-      if (!b) return null;
-      if (!nat || !nat.w || !nat.h) return b;
-      const scale = Math.min(b.w / nat.w, b.h / nat.h);
-      const w = nat.w * scale, h = nat.h * scale;
-      return { x: b.x + (b.w - w) / 2, y: b.y + (b.h - h) / 2, w, h };
-    }
-
-    // A click lands on a face when it is inside that drawn rect *and* inside
-    // the country — the shape clips the portrait, so the parts cut away are
-    // not there to be clicked.
+    // The photograph is the country now, so a click lands on a face wherever
+    // it lands inside the outline. The bounding box is only a cheap first
+    // pass; the shape itself decides.
     function faceAt(x, y) {
       for (const state of collages.values()) {
         if (state.g.classList.contains('is-behind')) continue;
-        const r = faceRect(state);
-        if (!r || x < r.x || x > r.x + r.w || y < r.y || y > r.y + r.h) continue;
+        const b = state.box;
+        if (!b || x < b.minX || x > b.maxX || y < b.minY || y > b.maxY) continue;
         try {
           if (state.clipPath.isPointInFill && !state.clipPath.isPointInFill(new DOMPoint(x, y))) continue;
-        } catch { /* no isPointInFill: the rect alone will do */ }
+        } catch { /* no isPointInFill: the box alone will do */ }
         return { state, person: state.people[state.idx] };
       }
       return null;
@@ -2275,6 +2193,7 @@ const app = createApp({
           // all the feedback the globe needs.
           .polygonLabel(() => '')
           .onPolygonClick(handlePolygonClick)
+          .onGlobeClick(handleGlobeClick)
           .onPolygonHover(d => {
             hoveredPoly.value = d || null;
             const el = globeInstance && globeInstance._el;

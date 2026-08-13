@@ -266,43 +266,12 @@
         class="hits"
         :class="'is-' + hitsSize"
       >
-        <!-- The panel's own title row, read like the bar at the top of the
-             screen: what it is on the left, what you can do to it on the
-             right. Collapsed, this row is the whole panel. -->
+        <!-- Just the count. The row used to carry save, clear and three size
+             controls; they were the first thing above the names and the last
+             thing anyone came here to press. Saving and clearing live in the
+             menu now. -->
         <div class="hitbar">
           <span class="hitbar__label">Results<em>({{ filtered.length }})</em></span>
-          <!-- Keep this search, or drop the lot. Both sit with the size
-               controls, since they act on the panel's whole contents. -->
-          <div class="hitbar__acts">
-            <button
-              :class="{ 'is-on': isSearchSaved }"
-              :disabled="!hasActiveFilters"
-              @click="saveCurrentSearch()"
-              :title="isSearchSaved ? 'Already saved to your profile' : 'Save this search to your profile'"
-            ><svg class="ico ico--14"><use :href="isSearchSaved ? '#i-heart' : '#i-search-heart'"/></svg></button>
-            <button
-              :disabled="!hasActiveFilters"
-              @click="clearAll()"
-              title="Clear every filter"
-            ><svg class="ico ico--14"><use href="#i-close"/></svg></button>
-          </div>
-          <div class="hitbar__size">
-            <button
-              :class="{ 'is-on': hitsSize === 'bar' }"
-              @click="setHitsSize('bar')"
-              title="Collapse to a bar"
-            ><svg class="ico ico--14"><use href="#i-minus"/></svg></button>
-            <button
-              :class="{ 'is-on': hitsSize === 'three' }"
-              @click="setHitsSize('three')"
-              title="Three names"
-            ><svg class="ico ico--14"><use href="#i-sort"/></svg></button>
-            <button
-              :class="{ 'is-on': hitsSize === 'max' }"
-              @click="setHitsSize('max')"
-              title="As many as fit"
-            ><svg class="ico ico--14"><use href="#i-chev-up"/></svg></button>
-          </div>
         </div>
         <div v-if="filtered.length" v-show="hitsSize !== 'bar'" class="hitsbody">
         <ol class="hits__list" ref="hitsList">
@@ -1097,6 +1066,10 @@
                 <span v-else>Save this search</span>
               </span>
               <span v-if="hasActiveFilters && !isSearchSaved" class="mrow__meta">{{ filtered.length }}</span>
+            </button>
+            <button class="mrow" @click="clearAll()" :disabled="!hasActiveFilters">
+              <svg class="ico ico--18"><use href="#i-close"/></svg>
+              <span class="mrow__label">Clear every filter</span>
             </button>
             <div v-if="hasActiveFilters && !isSearchSaved" class="mnote mnote--tight">{{ searchLabel }}</div>
 

@@ -128,13 +128,10 @@ body {
   transition: opacity .7s ease;
 }
 .ccol__slide.is-front { opacity: 1; }
-/* The fill: the same photo, blown up to cover the country, blurred and pushed
-   back so it reads as colour and light rather than as a second cropped face.
-   app.js oversizes it by the blur radius so the edges don't fade. */
-.ccol__bg { filter: blur(26px) saturate(.85) brightness(.5); }
-/* The face itself, never cropped — `meet` fits the whole portrait inside the
-   box app.js centres on the landmass. */
-.ccol__fg { filter: drop-shadow(0 6px 18px rgba(0,0,0,.55)); }
+/* The photograph, covering the country edge to edge. There is no blurred
+   under-layer any more: when the picture fills the outline there is nothing
+   left for it to fill in behind. */
+.ccol__fg { }
 /* The country's own edge, drawn over the photo so the shape stays legible
    against whatever is behind it. */
 .ccol__edge {
@@ -651,6 +648,12 @@ body {
    way a search is read. DOM order is hits, drawers, sbar; `order` puts them
    right without moving the markup. */
 .drawers, .hits, .chiprow, .sbar { margin-left: calc(var(--rail-w) + 6px); }
+/* The names belong to the line you typed into, so they hang off it rather
+   than floating below it: the gap closes, the search line squares off its
+   bottom corners and the panel squares off its top ones, and the two read as
+   one object. */
+.hits { margin-top: -6px; border-top-left-radius: 6px; border-top-right-radius: 6px; }
+.sbar { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
 .drawers { order: 1; }
 .chiprow { order: 2; }
 .sbar    { order: 3; }
