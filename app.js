@@ -1620,10 +1620,15 @@ const app = createApp({
     }
 
     const collagePoleCache = new Map();
+    // `rings` are { ll, v } — the lat/lng pairs plus their unit vectors, since
+    // drawing needs the vectors to walk a long edge along its great circle.
+    // The pole is worked out from the lat/lng side alone.
     function collagePole(country, rings) {
       if (collagePoleCache.has(country)) return collagePoleCache.get(country);
       let main = null;
-      for (const ring of rings) if (!main || ring.length > main.length) main = ring;
+      for (const ring of rings) {
+        if (!main || ring.ll.length > main.length) main = ring.ll;
+      }
       const pole = main ? poleOfInaccessibility(main) : null;
       collagePoleCache.set(country, pole);
       return pole;
