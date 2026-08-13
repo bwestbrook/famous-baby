@@ -733,10 +733,13 @@ const app = createApp({
     });
     const globeData = computed(() => [...countryCounts.value.values()]);
 
+    // One country at a time. Picking used to add to a set, back when countries
+    // were a list of filter chips and holding several made sense — but a pick
+    // now means "fill the screen with this one", and two countries can't both
+    // do that. Clicking somewhere else moves there; clicking the country
+    // that's up puts it back down.
     function selectGlobeCountry(c) {
-      selectedCountries.value = isCountryOn(c)
-        ? selectedCountries.value.filter(x => x !== c)
-        : [...selectedCountries.value, c];
+      selectedCountries.value = isCountryOn(c) ? [] : [c];
     }
     function clearCountry() { selectedCountries.value = []; }
 
