@@ -883,16 +883,17 @@ const app = createApp({
     // half-FOV and solve for d. Small θ drives d towards 1 — right on the
     // surface — which is exactly what a tiny country needs and why
     // controls.minDistance had to come down to let us get there.
-    const MIN_FIT_ALT = 0.02;
+    const MIN_FIT_ALT = 0.012;
     function altitudeToFit(theta) {
       const t = Math.max(0.0008, Math.min(MAX_SPREAD, theta));
       const d = Math.cos(t) + Math.sin(t) / Math.tan(halfFov());
       return Math.max(MIN_FIT_ALT, Math.min(4, d - 1));
     }
 
-    // Room around the country so it doesn't touch the edges, and so the
-    // portrait floating above it has sky to sit in.
-    const FRAME_PAD = 1.55;
+    // Room around the country so it doesn't quite touch the edges. Barely
+    // more than 1: a picked country is meant to fill the screen, and the
+    // collage inside it is the thing you're being shown.
+    const FRAME_PAD = 1.08;
 
     function frameCountries(countries) {
       if (!globeInstance) return;
@@ -2085,7 +2086,7 @@ const app = createApp({
         // Close enough to sit almost on the surface, which is what a small
         // country needs to fill the frame — a floor of 110 kept Luxembourg a
         // speck no matter how the camera was aimed. See altitudeToFit().
-        c.minDistance = 101.5;   // sphere radius is 100
+        c.minDistance = 101.0;   // sphere radius is 100
         c.maxDistance = 700;
         // Weight and friction, like a globe on a stand: a flick keeps turning
         // and coasts to a stop. The two control types spell it differently, so
