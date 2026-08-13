@@ -1361,7 +1361,13 @@ const app = createApp({
       if (!p) return;
       state.idx = idx;
       const next = state.front === state.slideA ? state.slideB : state.slideA;
-      const src = './photos/' + p.id + '.jpg';
+      // The map wants the face; the person's card wants the whole picture.
+      // photos/faces holds a tight crop of each portrait (see facecrop.swift),
+      // and the uncropped original stays where it was for everything else.
+      // Fall back to it if a crop was never made for this one.
+      const faceSrc = './photos/faces/' + p.id + '.jpg';
+      const fullSrc = './photos/' + p.id + '.jpg';
+      let src = faceSrc;
       // <image> fires load like <img>, but decode through an Image first so
       // the swap happens on a frame where the bytes are ready.
       const probe = new Image();
@@ -1389,8 +1395,12 @@ const app = createApp({
         void state.bar.offsetWidth;
         if (state.people.length > 1) state.bar.classList.add('is-running');
       };
-      // A missing file leaves the current face up rather than blanking it.
-      probe.onerror = () => {};
+      // No crop for this one: use the original. If that's missing too, the
+      // current face stays up rather than the shape blanking.
+      probe.onerror = () => {
+        if (src === faceSrc) { src = fullSrc; probe.src = fullSrc; return; }
+        probe.onerror = null;
+      };
       probe.src = src;
     }
 

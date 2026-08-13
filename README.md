@@ -115,6 +115,20 @@ python3 fetch_photos.py --targets photo_targets.json
 
 `photo_targets.mjs` ranks candidates per country and lists countries with no portrait first, so a run cut short still spreads as widely as possible. The fetcher only keeps a photo when the article's opening paragraph contains that person's birth year — matching a name to an article title is usually right, but "no image" is a better answer than the wrong face.
 
+### Two copies of every portrait
+
+- `photos/<id>.jpg` — the whole picture. What the person's card shows, and the one to keep.
+- `photos/faces/<id>.jpg` — a tight square crop of the face. What the globe's collage shows.
+
+The collage fits a portrait inside a country's outline, so a head-and-shoulders shot reads well and a full-length one leaves the face a few pixels tall. Regenerate the crops after adding photos:
+
+```bash
+swiftc -O facecrop.swift -o facecrop     # once; needs Xcode command line tools
+./facecrop photos photos/faces 512 0.72
+```
+
+Face detection is Vision's, which ships with macOS — no pip or npm dependency. Of the current 161, it finds a face in 156; paintings and statues (Mansa Musa, Nzinga Mbande) fall back to a crop of the upper-middle, which is where a portrait's subject almost always is. The collage falls back to the uncropped original if a crop is missing, so a missing face file is never fatal.
+
 **Always finish with `resize_photos.sh`.** Wikipedia doesn't always honour the width asked for, and the fetcher saves every file as `<id>.jpg` whatever the bytes really are, so PNGs arrive wearing a `.jpg` suffix. Re-encoding took `photos/` from 49 MB to 7 MB with no visible loss at the size the globe draws a face.
 
 ---
