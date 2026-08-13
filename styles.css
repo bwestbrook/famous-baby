@@ -304,7 +304,9 @@ body {
   position: absolute;
   left: 0;
   top: calc(var(--band-h) + 8px);
-  bottom: calc(var(--sbar-h) + var(--dock-pad) + 10px);
+  /* Down to the bottom edge: the categories span the whole side now, and the
+     search line steps aside for them rather than passing beneath. */
+  bottom: var(--dock-pad);
   width: var(--rail-w);
   z-index: 2;
   display: flex; flex-direction: column; align-items: stretch; gap: 4px;
@@ -647,10 +649,18 @@ body {
 /* Everything in the dock keeps its size; only the drawer stack gives ground,
    so a wall of open callings never squeezes the names or the search line. */
 .dock > * { flex: none; pointer-events: auto; }
-/* The rail runs the dock's full height now, so everything that stacks beside
-   it starts where it ends rather than under it. The search line sits below its
-   foot and keeps the full width. */
-.drawers, .hits, .chiprow { margin-left: calc(var(--rail-w) + 6px); }
+/* The rail owns the whole left-hand edge, top band to bottom, so everything
+   in the dock clears it — the search line included, which used to duck under
+   its foot and take the full width.
+   Order, top to bottom: the open filters, then the search line, then the
+   names it found. Results read downward from the line you typed into, the
+   way a search is read. DOM order is hits, drawers, sbar; `order` puts them
+   right without moving the markup. */
+.drawers, .hits, .chiprow, .sbar { margin-left: calc(var(--rail-w) + 6px); }
+.drawers { order: 1; }
+.chiprow { order: 2; }
+.sbar    { order: 3; }
+.hits    { order: 4; }
 
 /* Every open drawer lives in this one stack, and the stack is bounded: it can
    reach up to just short of the top band and no further, whatever is open.

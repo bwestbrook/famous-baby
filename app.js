@@ -1115,14 +1115,27 @@ const app = createApp({
     // three heights hang off popAlt, which tracks the camera (see
     // applyFramedAltitude), so zooming in on a small country can't leave a
     // merely-hovered neighbour standing taller than the one that's picked.
+    // How high a country stands. The collage is clipped to the outline
+    // projected at this exact height, so the two must be worked out in one
+    // place — when they disagreed, hovering a country slid its photo off its
+    // own border until the cursor moved away.
+    function countryAltitude(country, hovered) {
+      const pop = popAlt.value;
+      if (isCountryOn(country)) return pop;
+      if (hovered) return Math.min(0.015, pop * 0.55);
+      return Math.min(0.007, pop * 0.30);
+    }
     function polyAltitude(d) {
       const entry = polyEntry(d);
       const pop = popAlt.value;
       if (!entry) return Math.min(0.004, pop * 0.15);
-      if (isCountryOn(entry.country)) return pop;
-      if (d === hoveredPoly.value) return Math.min(0.015, pop * 0.55);
-      return Math.min(0.007, pop * 0.30);
+      return countryAltitude(entry.country, d === hoveredPoly.value);
     }
+    // Must match polygonsTransitionDuration below: globe.gl eases the
+    // extrusion over this long, and the clip has to travel with it rather than
+    // jumping to the final height and waiting for the country to catch up.
+    const POLY_TWEEN_MS = 420;
+    const easeCubicInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     // Once a country is up on its plinth the extruded sides are most of what
     // you see of it from an angle, so they take the selection colour too.
     function polySideColor(d) {
@@ -1237,7 +1250,6 @@ const app = createApp({
     let collageSvg = null;
     let collageDefs = null;
     const collages = new Map();     // country -> live state
-    const collageIndex = new Map(); // country -> where its rotation got to
     let collageSeq = 0;             // unique ids for the clip paths
 
     const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -1347,7 +1359,6 @@ const app = createApp({
     function showCollageFace(state, idx) {
       const p = state.people[idx];
       if (!p) return;
-      collageIndex.set(state.country, idx);
       state.idx = idx;
       const next = state.front === state.slideA ? state.slideB : state.slideA;
       const src = './photos/' + p.id + '.jpg';
@@ -1383,21 +1394,17 @@ const app = createApp({
       probe.src = src;
     }
 
-    // One ticker for all of them, each country turning over on its own clock.
-    // A single interval advancing everything at once would flip 73 slideshows
-    // on the same frame — a stutter to watch and a stampede of image loads.
+    // Only the country you picked runs a slideshow. Everywhere else holds the
+    // one face it was dealt — seventy-three countries all turning over at once
+    // is a fidget, not a map, and it says nothing about where you're looking.
     const COLLAGE_TICK = 250;
     function advanceCollages() {
       const now = performance.now();
       for (const state of collages.values()) {
-        if (state.people.length < 2 || !state.loaded) continue;
-        // Don't cycle what nobody can see. Round the back or too small to
-        // read, a country holds its face until it comes into view again.
+        if (!state.selected || state.people.length < 2 || !state.loaded) continue;
+        // Don't cycle what nobody can see.
         if (state.g.classList.contains('is-behind')) continue;
-        if (state.nextAt == null) {
-          state.nextAt = now + FACE_DWELL * (0.4 + state.phase);
-          continue;
-        }
+        if (state.nextAt == null) { state.nextAt = now + FACE_DWELL; continue; }
         if (now < state.nextAt) continue;
         state.nextAt = now + FACE_DWELL;
         showCollageFace(state, (state.idx + 1) % state.people.length);
@@ -1406,7 +1413,7 @@ const app = createApp({
 
     let collageTimer = null;
     function syncCollageTimer() {
-      const wanted = [...collages.values()].some(s => s.people.length > 1);
+      const wanted = [...collages.values()].some(s => s.selected && s.people.length > 1);
       if (wanted && !collageTimer) collageTimer = setInterval(advanceCollages, COLLAGE_TICK);
       if (!wanted && collageTimer) { clearInterval(collageTimer); collageTimer = null; }
     }
@@ -1540,11 +1547,38 @@ const app = createApp({
       return angleTo(ext.centre, camDir) + ext.radius <= horizonAngle * (1 - COLLAGE_HORIZON_MARGIN);
     }
 
+    // The height the clip should be cut at this instant, following the same
+    // eased path globe.gl walks the extrusion along. Returns the target
+    // directly once the tween is spent.
+    function collageTweening(state, now) {
+      return state.altAt != null && (now - state.altAt) < POLY_TWEEN_MS;
+    }
+    function clipAltitude(state, now) {
+      const hovered = !!hoveredPoly.value && geoCountryName(hoveredPoly.value) === state.country;
+      const target = countryAltitude(state.country, hovered);
+      if (state.altTo === undefined) {
+        state.altFrom = target;
+        state.altTo = target;
+        state.altAt = null;
+        return target;
+      }
+      if (target !== state.altTo) {
+        // Start from wherever the previous tween had got to, so a change of
+        // mind part-way through doesn't snap.
+        const t = state.altAt == null ? 1 : Math.min(1, (now - state.altAt) / POLY_TWEEN_MS);
+        state.altFrom = state.altFrom + (state.altTo - state.altFrom) * easeCubicInOut(t);
+        state.altTo = target;
+        state.altAt = now;
+      }
+      if (state.altAt == null) return state.altTo;
+      const t = Math.min(1, (now - state.altAt) / POLY_TWEEN_MS);
+      return state.altFrom + (state.altTo - state.altFrom) * easeCubicInOut(t);
+    }
+
     function projectCollage(state, pos, dist) {
-      // Ambient countries lie flat on the map; only a picked one stands on a
-      // plinth, so the clip has to be cut at the height that country is
-      // actually drawn at or the photo floats off its own outline.
-      const alt = state.selected ? popAlt.value : Math.min(0.007, popAlt.value * 0.30);
+      // Cut the clip at the height this country is drawn at *right now*,
+      // mid-rise included — anything else and the photo floats off its border.
+      const alt = clipAltitude(state, performance.now());
       const rings = state.selected ? state.rings.full : state.rings.lite;
       let d = '';
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -1711,7 +1745,17 @@ const app = createApp({
       const hostW = host.clientWidth, hostH = host.clientHeight;
       const key = [pos.x, pos.y, pos.z, popAlt.value, hostW, hostH]
         .map(n => n.toFixed(3)).join(',');
-      if (key === lastCamKey) return;
+      // A country mid-rise changes shape without the camera moving, so the
+      // still-camera shortcut has to stand down until it has settled — and
+      // hovering changes a height too.
+      const now = performance.now();
+      let settling = !!hoveredPoly.value;
+      if (!settling) {
+        for (const state of collages.values()) {
+          if (collageTweening(state, now)) { settling = true; break; }
+        }
+      }
+      if (key === lastCamKey && !settling) return;
       lastCamKey = key;
       if (collageSvg) {
         collageSvg.setAttribute('width', hostW);
@@ -1760,7 +1804,6 @@ const app = createApp({
       if (!globeInstance) return;
       clearCollages();
       if (!ensureCollageRoot()) { syncCollageTimer(); return; }
-      let i = 0;
       for (const [country, people] of photoPeopleByCountry.value) {
         if (!people.length) continue;
         const rings = collageRings(country);
@@ -1768,12 +1811,12 @@ const app = createApp({
         const state = buildCollage(country, people, rings);
         state.selected = isCountryOn(country);
         state.ext = countryExtent(country);
-        // Nothing is fetched here. The loop loads a country's photo the first
-        // frame it is both in front of the camera and big enough to read.
-        state.idx = Math.min(collageIndex.get(country) || 0, people.length - 1);
-        // Stagger, so 73 slideshows don't all turn over on the same tick —
-        // visually calmer, and it spreads the image loads out.
-        state.phase = (i++ * 0.37) % 1;
+        // One face per country, drawn at random and then left alone, so the
+        // map is different each visit but still at rest. Picking the country
+        // is what sets it moving. Nothing is fetched here — the loop loads a
+        // photo the first frame its country is in front of the camera and big
+        // enough to read.
+        state.idx = Math.floor(Math.random() * people.length);
       }
       syncCollageTimer();
       lastCamKey = '';        // force a projection on the next frame
@@ -1784,7 +1827,14 @@ const app = createApp({
     // which ones exist — so flip the flags rather than tearing down and
     // rebuilding seventy-odd SVG groups on every click.
     function syncCollageSelection() {
-      for (const [country, state] of collages) state.selected = isCountryOn(country);
+      for (const [country, state] of collages) {
+        const on = isCountryOn(country);
+        // Newly picked: give it a full dwell on the face it's already showing
+        // before it starts moving, so the click doesn't cause an instant flip.
+        if (on && !state.selected) state.nextAt = null;
+        state.selected = on;
+      }
+      syncCollageTimer();
       lastCamKey = '';
     }
 
@@ -1989,7 +2039,7 @@ const app = createApp({
           .polygonAltitude(polyAltitude)
           // Long enough that a country visibly rises rather than teleporting,
           // short enough that hover still feels immediate.
-          .polygonsTransitionDuration(420)
+          .polygonsTransitionDuration(POLY_TWEEN_MS)
           // No hover tooltip: the country lights up under the cursor, which is
           // all the feedback the globe needs.
           .polygonLabel(() => '')
