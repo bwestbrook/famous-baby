@@ -963,8 +963,13 @@ const app = createApp({
         const th = Math.max(0.0008, Math.min(MAX_SPREAD, t));
         return Math.cos(th) + Math.sin(th) / Math.tan(half);
       };
-      const d = Math.max(need(hw * FRAME_PAD, f.h), need(hh * FRAME_PAD, f.v));
-      return Math.max(MIN_FIT_ALT, Math.min(4, d - 1));
+      const dw = need(hw * FRAME_PAD, f.h);
+      const dh = need(hh * FRAME_PAD, f.v);
+      // Fill, don't fit: the closer of the two distances, so the shape covers
+      // the frame and spills past whichever edge it has to.
+      const cover = Math.min(dw, dh) - 1;
+      const contain = Math.max(dw, dh) - 1;
+      return Math.max(MIN_FIT_ALT, Math.min(4, Math.max(cover, contain * COVER_LIMIT)));
     }
 
     // Camera distance at which a cap of angular radius θ exactly fills the
@@ -973,17 +978,25 @@ const app = createApp({
     // half-FOV and solve for d. Small θ drives d towards 1 — right on the
     // surface — which is exactly what a tiny country needs and why
     // controls.minDistance had to come down to let us get there.
-    const MIN_FIT_ALT = 0.012;
+    // Low enough that a country the size of Luxembourg can still fill the
+    // frame; controls.minDistance below has to allow for it.
+    const MIN_FIT_ALT = 0.004;
     function altitudeToFit(theta) {
       const t = Math.max(0.0008, Math.min(MAX_SPREAD, theta));
       const d = Math.cos(t) + Math.sin(t) / Math.tan(halfFov());
       return Math.max(MIN_FIT_ALT, Math.min(4, d - 1));
     }
 
-    // No slack at all: the country's box is fitted to the frame exactly, so
-    // it fills the screen rather than sitting in the middle of it. Drop this
-    // below 1 to let the extremities crop instead.
-    const FRAME_PAD = 1.0;
+    // Under 1 on purpose: the country is fitted as if it were smaller than it
+    // is, so it overflows the frame instead of sitting inside it. Fitting it
+    // exactly still left Ireland and half the North Sea beside England — a
+    // shape that isn't the screen's aspect can't fill the screen without
+    // spilling over the edges.
+    const FRAME_PAD = 0.70;
+    // ...but only so far. Fill on the shape's narrow axis and a long thin
+    // country like Chile crops to a sliver, so never come closer than this
+    // fraction of the distance that would hold the whole thing.
+    const COVER_LIMIT = 0.45;
 
     function frameCountries(countries) {
       if (!globeInstance) return;
@@ -1024,7 +1037,10 @@ const app = createApp({
     // camera's own height instead, so the plinth reads the same at any zoom.
     const popAlt = ref(0.11);
     function applyFramedAltitude(altitude) {
-      popAlt.value = Math.max(0.004, Math.min(0.16, altitude * 0.15));
+      // Floor well under MIN_FIT_ALT: at that range a fixed 0.004 plinth
+      // would stand as tall as the camera is high, and you'd be looking at
+      // the country edge-on.
+      popAlt.value = Math.max(0.0008, Math.min(0.16, altitude * 0.15));
       // The atmosphere is a shell drawn from the inside out; fly through it
       // and the haze fills the screen. Drop it once we're under it.
       try { globeInstance.showAtmosphere(altitude > 0.22); } catch {}
@@ -1474,7 +1490,6 @@ const app = createApp({
         // The name and nothing else. Everything a card would tell you is one
         // click away, and on the globe the rest of it competed with the face.
         state.given.textContent = givenName(p.name);
-        state.capSized = 0;               // re-fit: a longer name needs smaller type
         state.g.classList.add('is-loaded');
         state.cap.classList.add('is-loaded');
         if (state.selected) runTimerBar(0);
@@ -1616,7 +1631,10 @@ const app = createApp({
           }
         }
       }
-      return bestScore > 0 ? [best[1], best[0]] : null;   // back to [lat, lng]
+      // [lat, lng, clearance] — the clearance is how far the coast is from
+      // that point, in degrees, and it is what tells the face and the name
+      // how much room they have inside the border.
+      return bestScore > 0 ? [best[1], best[0], bestScore] : null;
     }
 
     const collagePoleCache = new Map();
@@ -1793,14 +1811,41 @@ const app = createApp({
       if (state.pole === undefined) state.pole = collagePole(state.country, state.rings.full);
 
       let c = null;
+      let clearPx = Infinity;
       if (state.pole) {
-        try {
-          const s = globeInstance.getScreenCoords(state.pole[0], state.pole[1], alt);
-          if (s && isFinite(s.x) && isFinite(s.y)) c = [s.x, s.y];
-        } catch {}
+        const s = project(state.pole[0], state.pole[1]);
+        if (s) {
+          c = [s.x, s.y];
+          // Same clearance, measured on screen: project a point that far due
+          // east of the pole and take the distance.
+          const th = (state.pole[2] || 0) * RAD;
+          if (th > 0) {
+            const P = toVec([state.pole[0], state.pole[1]]);
+            let e = cross([0, 0, 1], P);
+            const el2 = Math.hypot(e[0], e[1], e[2]);
+            if (el2 > 1e-6) {
+              e = [e[0] / el2, e[1] / el2, e[2] / el2];
+              const ct = Math.cos(th), st = Math.sin(th);
+              const edge = vecToLatLng([P[0] * ct + e[0] * st, P[1] * ct + e[1] * st, P[2] * ct + e[2] * st]);
+              const se = project(edge[0], edge[1]);
+              if (se) clearPx = Math.hypot(se.x - s.x, se.y - s.y);
+            }
+          }
+        }
       }
       c = c || polygonCentroid(mainPts) || [(minX + maxX) / 2, (minY + maxY) / 2];
-      const fw = w * FACE_BOX, fh = h * FACE_BOX;
+      // The outline overflows the screen now, so sizing the portrait off its
+      // bounding box would blow the face up past the viewport with it. Hold it
+      // to what can actually be seen.
+      const el = globeInstance && globeInstance._el;
+      const viewW = (el && el.clientWidth) || w;
+      const viewH = (el && el.clientHeight) || h;
+      // Inside the border, on screen, and not bigger than the screen: the
+      // portrait sits in the country's own room rather than being cut by it.
+      const room = clearPx * 1.9;
+      const fw = Math.min(w * FACE_BOX, viewW * 0.78, room);
+      const fh = Math.min(h * FACE_BOX, viewH * 0.66, room);
+      state.clearPx = clearPx;
       for (const s of [state.slideA, state.slideB]) {
         setBox(s.fg, c[0] - fw / 2, c[1] - fh / 2, fw, fh);
       }
@@ -1874,36 +1919,6 @@ const app = createApp({
       // Only once a country is up and cycling does a face stand for the person
       // in it, and clicking one opens their card.
       if (hit.person) openPerson(hit.person);
-    }
-
-    // The name sits inside the country, under the face — not on a chip beside
-    // it. Type scales with the shape and then shrinks again if the name is too
-    // long for it, so a Bartolomeo fits the same outline a Kim does.
-    function placeCaption(state, hostW, hostH) {
-      const b = state.box;
-      if (!b) return;
-      const cap = state.cap;
-      const want = Math.max(11, Math.min(56, b.w * 0.16));
-      // Re-measure only when the shape has actually changed size, or the name
-      // has: reading offsetWidth every frame during a zoom is a layout thrash.
-      if (!state.capSized || Math.abs(state.capSized - want) > 1) {
-        cap.style.fontSize = want.toFixed(1) + 'px';
-        state.capSized = want;
-        const maxW = b.w * 0.82;
-        const w = cap.offsetWidth || 0;
-        if (w > maxW && w > 0) cap.style.fontSize = Math.max(9, want * (maxW / w)).toFixed(1) + 'px';
-      }
-      const cw = cap.offsetWidth || 0;
-      const ch = cap.offsetHeight || 0;
-      const fr = faceRect(state);
-      const cx = fr ? fr.x + fr.w / 2 : (b.minX + b.maxX) / 2;
-      const below = fr ? fr.y + fr.h + 4 : (b.minY + b.maxY) / 2;
-      // Held inside the outline's own box, then inside the canvas.
-      let x = Math.min(Math.max(cx - cw / 2, b.minX + 4), Math.max(b.minX + 4, b.maxX - cw - 4));
-      let y = Math.min(below, Math.max(b.minY + 4, b.maxY - ch - 4));
-      x = Math.max(4, Math.min(hostW - cw - 4, x));
-      y = Math.max(4, Math.min(hostH - ch - 4, y));
-      cap.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
     }
 
     // ---- Slideshow timer ----
@@ -1984,7 +1999,6 @@ const app = createApp({
           // First time this one has been worth looking at: fetch its face now
           // rather than pulling all 73 down on load.
           if (!state.loaded) { state.loaded = true; showCollageFace(state, state.idx); }
-          if (state.selected) placeCaption(state, hostW, hostH);
         }
       }
     }
@@ -2353,7 +2367,7 @@ const app = createApp({
         // Close enough to sit almost on the surface, which is what a small
         // country needs to fill the frame — a floor of 110 kept Luxembourg a
         // speck no matter how the camera was aimed. See altitudeToFit().
-        c.minDistance = 101.0;   // sphere radius is 100
+        c.minDistance = 100.4;   // sphere radius is 100
         c.maxDistance = 700;
         // Weight and friction, like a globe on a stand: a flick keeps turning
         // and coasts to a stop. The two control types spell it differently, so

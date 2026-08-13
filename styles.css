@@ -146,49 +146,53 @@ body {
   filter: drop-shadow(0 0 6px rgba(253,214,99,.45));
 }
 
-/* The name, and only the name — set inside the country rather than on a chip
-   beside it. Everything a card would tell you is one click away, and on the
-   globe the rest of it was competing with the face. app.js scales the type to
-   the shape and parks it under the portrait. */
+/* The showing name, centred at the top with the slideshow's clock running
+   through it — one line across the screen, the name sitting on it with a gap
+   either side so the bar reads as passing behind rather than striking through.
+   Nothing else: everything a card would tell you is one click away, and on the
+   globe the rest of it competed with the face. */
 .ccol__cap {
-  position: absolute; top: 0; left: 0;
-  padding: 0;
-  white-space: nowrap;
+  position: absolute;
+  top: calc(var(--band-h) + 8px);
+  left: 0; right: 0;
+  z-index: 2;
   text-align: center;
-  pointer-events: auto;
-  cursor: pointer;
+  white-space: nowrap;
+  pointer-events: none;
   opacity: 0;
   transition: opacity .45s ease;
-  /* transform is written per frame; never animate it or the name lags the
-     country it belongs to. */
 }
 .ccol__cap.is-loaded { opacity: 1; }
 .ccol__given {
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -.01em;
-  color: #fff;
-  /* No panel behind it, so the legibility has to come from the type itself:
-     a dark halo carries white letters over any photo underneath. */
-  text-shadow:
-    0 1px 2px rgba(0,0,0,.95),
-    0 0 10px rgba(0,0,0,.85),
-    0 0 26px rgba(0,0,0,.6);
+  display: inline-block;
+  /* The gap the bar runs into on either side. */
+  padding: 0 14px;
+  pointer-events: auto;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 18px;
+  letter-spacing: .09em;
+  /* Faint on purpose: the face is what you're looking at, and this is a label
+     on it rather than a headline over it. The halo is what keeps it readable
+     over whatever the bar and the globe put behind it. */
+  color: rgba(255,255,255,.62);
+  text-shadow: 0 1px 3px rgba(0,0,0,.8), 0 0 14px rgba(0,0,0,.65);
 }
 
-/* How long the showing face has left, across the top under the masthead —
-   the slideshow belongs to the whole screen, so its clock does too. Only one
-   country runs at a time, so one bar says it. */
+/* How long the showing face has left, straight across the top under the
+   masthead. Only one country runs at a time, so one bar says it. */
 .ccol__timer {
   position: absolute;
-  top: calc(var(--band-h) + 2px);
+  top: calc(var(--band-h) + 16px);
   left: 0;
   height: 2px;
   width: 100%;
+  z-index: 1;
   transform-origin: 0 50%;
   transform: scaleX(0);
-  background: linear-gradient(to right, rgba(253,214,99,.35), #fdd663);
-  box-shadow: 0 0 8px rgba(253,214,99,.65);
+  background: linear-gradient(to right, rgba(253,214,99,.3), rgba(253,214,99,.85));
+  box-shadow: 0 0 8px rgba(253,214,99,.5);
   opacity: 0;
   pointer-events: none;
 }
