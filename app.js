@@ -1351,6 +1351,9 @@ const app = createApp({
       // click that puts the country back down.
       cap.addEventListener('click', (ev) => {
         ev.stopPropagation();
+        // Only a raised country has a caption to click, but hold the same rule
+        // here as on the faces: cards come from the blown-up slideshow.
+        if (!state.selected) return;
         const p = state.people[state.idx];
         if (p) openPerson(p);
       });
@@ -1735,9 +1738,21 @@ const app = createApp({
       if (pointerDownAt && Math.hypot(ev.clientX - pointerDownAt.x, ev.clientY - pointerDownAt.y) > DRAG_SLOP) return;
       const rect = host.getBoundingClientRect();
       const hit = faceAt(ev.clientX - rect.left, ev.clientY - rect.top);
-      if (!hit || !hit.person) return;
+      if (!hit) return;
+      // Either way this gesture is spoken for, so the polygon handler under it
+      // stands down rather than toggling the country a second time.
       faceClickHandled = true;
-      openPerson(hit.person);
+      if (!hit.state.selected) {
+        // A face on the map is a door into the country, not into the person.
+        // Clicking the one over England blows England up to fill the screen
+        // and sets its slideshow going — it doesn't open whoever happened to
+        // be showing at the time.
+        pickCountry(hit.state.country);
+        return;
+      }
+      // Only once a country is up and cycling does a face stand for the person
+      // in it, and clicking one opens their card.
+      if (hit.person) openPerson(hit.person);
     }
 
     function placeCaption(state, hostW, hostH) {
