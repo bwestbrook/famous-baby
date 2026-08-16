@@ -170,10 +170,15 @@ def plausible(info: dict, birth_year: int | None) -> tuple[bool, str]:
         return False, 'no image'
     if info.get('disambiguation'):
         return False, 'disambiguation page'
-    if birth_year:
+    if birth_year and birth_year >= 1500:
         if str(birth_year) not in (info.get('extract') or ''):
             return False, f'intro never says {birth_year}'
         return True, 'ok'
+    # Older than that and the check stops meaning anything: the Buddha's dates
+    # are an estimate, Wikidata stores -500 and the article argues about the
+    # century. The article title matching the name is the evidence available.
+    if birth_year:
+        return True, 'ok (ancient — birth year not checkable)'
     return True, 'ok (no birth year to check)'
 
 
