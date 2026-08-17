@@ -138,8 +138,8 @@ body {
    Grayscale first, or the blend has two sets of colour to argue about.
    These two numbers are the whole dial — raise them for more face. */
 :root {
-  --face-mix:        .11;   /* a country at rest */
-  --face-mix-picked: .22;   /* the one you're looking at */
+  --face-mix:        .18;   /* a country at rest */
+  --face-mix-picked: .34;   /* the one you're looking at */
 }
 .ccol__fg {
   filter: grayscale(1) contrast(1.12) brightness(1.04);

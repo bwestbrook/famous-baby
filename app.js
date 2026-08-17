@@ -1670,10 +1670,13 @@ const app = createApp({
     // Luxembourg starts running at the zoom where Luxembourg is large, and
     // Russia at the zoom where Russia is. Two figures so it can't stutter on
     // the boundary.
-    const REEL_ON = 0.34;
-    const REEL_OFF = 0.26;
+    // Set low on purpose: a country only has to reach about a fifth of the
+    // screen before its reel starts turning, so the strip is already running
+    // by the time you arrive rather than waiting to be picked.
+    const REEL_ON = 0.19;
+    const REEL_OFF = 0.14;
     // Seconds a frame takes to travel its own height.
-    const REEL_SECONDS_PER_FRAME = 2.6;
+    const REEL_SECONDS_PER_FRAME = 2.2;
     // How far a photograph may be enlarged past its own pixels to fill a
     // country before it stops being worth it.
     const MAX_UPSCALE = 1.15;
