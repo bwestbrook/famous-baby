@@ -1670,11 +1670,12 @@ const app = createApp({
     // Luxembourg starts running at the zoom where Luxembourg is large, and
     // Russia at the zoom where Russia is. Two figures so it can't stutter on
     // the boundary.
-    // Set low on purpose: a country only has to reach about a fifth of the
-    // screen before its reel starts turning, so the strip is already running
-    // by the time you arrive rather than waiting to be picked.
-    const REEL_ON = 0.19;
-    const REEL_OFF = 0.14;
+    // Set very low on purpose: a twentieth of the screen is enough. The globe
+    // should be alive with moving faces before you have picked anything, and
+    // at this threshold a country the size of Togo is already running by the
+    // time it is worth looking at.
+    const REEL_ON = 0.05;
+    const REEL_OFF = 0.035;
     // Seconds a frame takes to travel its own height.
     const REEL_SECONDS_PER_FRAME = 2.2;
     // How far a photograph may be enlarged past its own pixels to fill a
@@ -1924,27 +1925,43 @@ const app = createApp({
       const B = 1;
       setBox(state.back, minX, minY, w, h);
 
-      // Each frame is the width of the country and stacked one above the next;
-      // the whole column is then slid upward on a clock. Wrapping by the
-      // column height means it runs forever without a seam.
+      // Each frame is the country's own width and its own height, and they are
+      // placed around a loop rather than stacked in a line and dragged. A
+      // straight line runs out: slide five frames up by five frame-heights and
+      // the last one leaves the window with nothing behind it, so the back
+      // half of every cycle showed an empty country. Wrapping each frame's
+      // position by the length of the strip means one is always in the window
+      // and the reel never reaches an end.
+      const n = state.frames.length;
       const fh = Math.max(1, h);
-      state.frames.forEach((img, i) => {
-        setBox(img, minX - B, minY - B + i * fh, w + B * 2, fh + B * 2);
-      });
-      if (reeling && state.frames.length) {
-        const span = state.frames.length * fh;
-        const period = state.frames.length * REEL_SECONDS_PER_FRAME * 1000;
+      const span = n * fh;
+      let at = state.idx;
+      if (reeling && n) {
+        const period = n * REEL_SECONDS_PER_FRAME * 1000;
         const t = (performance.now() % period) / period;
-        state.reel.setAttribute('transform', 'translate(0 ' + (-t * span).toFixed(1) + ')');
-        // Which face is in front of you now — the name follows the reel.
-        const at = Math.floor(t * state.frames.length) % state.frames.length;
-        if (at !== state.shownAt) {
-          state.shownAt = at;
-          const who = state.reelPeople[at];
-          if (who) state.given.textContent = givenName(who.name);
-        }
+        const shift = t * span;
+        state.frames.forEach((img, i) => {
+          // Wrapped into [−fh, span−fh), not [0, span). One frame-height of
+          // headroom above the window is the whole trick: a frame leaving the
+          // top has to still be there, half out of shot, covering the top of
+          // the window while the next one comes up under it. Wrapped from
+          // zero it reappears at the bottom instead and the top goes bare.
+          const y = ((((i * fh - shift + fh) % span) + span) % span) - fh;
+          setBox(img, minX - B, minY - B + y, w + B * 2, fh + B * 2);
+        });
+        at = Math.floor((n - t * n) % n);
       } else {
-        state.reel.setAttribute('transform', 'translate(0 ' + (-state.idx * fh).toFixed(1) + ')');
+        // At rest the strip holds still with one face showing.
+        state.frames.forEach((img, i) => {
+          const y = (((((i - state.idx) * fh + fh) % span) + span) % span) - fh;
+          setBox(img, minX - B, minY - B + y, w + B * 2, fh + B * 2);
+        });
+      }
+      // The name follows whichever face is in the window.
+      if (at !== state.shownAt) {
+        state.shownAt = at;
+        const who = state.reelPeople[at];
+        if (who) state.given.textContent = givenName(who.name);
       }
 
       state.box = { minX, minY, maxX, maxY, w, h };
