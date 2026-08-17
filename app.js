@@ -1319,12 +1319,17 @@ const app = createApp({
     // the rest stay as faint hairlines so the globe still reads as a map.
     function polyEntry(d) { return countryCounts.value.get(geoCountryName(d)); }
 
+    // The caps are a wash over the land, and the land is now the thing being
+    // looked at — so they're thin. A country you haven't touched is barely
+    // tinted at all: enough to say the roster reaches it, not enough to turn
+    // the Sahara blue. Hover and selection still come up hard, because they
+    // have to answer a pointer.
     function polyCapColor(d) {
       const entry = polyEntry(d);
-      if (!entry) return 'rgba(255,255,255,0.012)';
-      if (isCountryOn(entry.country)) return 'rgba(253,214,99,0.45)';
-      if (d === hoveredPoly.value) return 'rgba(138,180,248,0.40)';
-      return 'rgba(138,180,248,0.13)';
+      if (!entry) return 'rgba(255,255,255,0.010)';
+      if (isCountryOn(entry.country)) return 'rgba(253,214,99,0.24)';
+      if (d === hoveredPoly.value) return 'rgba(138,180,248,0.30)';
+      return 'rgba(138,180,248,0.05)';
     }
     // Border colours have to survive the whole blue-marble texture: near-black
     // jungle at one end, blown-out Sahara/Arabian sand at the other. Pale
@@ -1367,7 +1372,7 @@ const app = createApp({
     // you see of it from an angle, so they take the selection colour too.
     function polySideColor(d) {
       const entry = polyEntry(d);
-      if (entry && isCountryOn(entry.country)) return 'rgba(253,214,99,0.30)';
+      if (entry && isCountryOn(entry.country)) return 'rgba(253,214,99,0.22)';
       return 'rgba(138,180,248,0.12)';
     }
     function repaintPolygons() {
