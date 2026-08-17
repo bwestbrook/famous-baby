@@ -130,26 +130,28 @@ body {
    filled from the moment it lifts — but faint, because the map is meant to
    come through the picture now rather than be covered by it. */
 .ccol__back { fill: rgba(20,24,32,.05); }
-/* Mostly map. The photographs are black and white and blended by luminosity,
-   but held to about a tenth of the mix — enough that a face is there in the
-   land if you look for it, not enough to wipe the topography out. At two
-   thirds they were doing exactly that: the terrain went and a photo-shaped
-   patch took its place.
-   Grayscale first, or the blend has two sets of colour to argue about.
-   These two numbers are the whole dial — raise them for more face. */
+/* Mostly map. The photographs are black and white and faint, so the land
+   reads through them and a face is part of the terrain rather than a picture
+   pinned to it.
+
+   No mix-blend-mode. It gave a nicer tint — the picture's light over the
+   map's colour — but Safari has never been reliable about blend modes on SVG
+   children, and it cost two separate bugs here already: anything that makes
+   an ancestor its own stacking context (a z-index, a will-change) silently
+   isolates the blend and the photographs vanish entirely. Grayscale and
+   opacity get within a shade of the same look and cannot fail that way.
+   --face-mix and --face-mix-picked are the whole dial. */
 :root {
-  --face-mix:        .26;   /* a country at rest */
-  --face-mix-picked: .42;   /* the one you're looking at */
+  --face-mix:        .30;   /* a country at rest */
+  --face-mix-picked: .46;   /* the one you're looking at */
 }
 .ccol__fg {
-  filter: grayscale(1) contrast(1.12) brightness(1.04);
+  filter: grayscale(1) contrast(1.1) brightness(1.06);
   opacity: var(--face-mix);
-  mix-blend-mode: luminosity;
 }
 .ccol__g.is-picked .ccol__fg { opacity: var(--face-mix-picked); }
-/* The backing is all but gone with it — it exists to stop the shape flashing
-   empty on the first decode, and at any real weight it hides the map too. */
 .ccol__g.is-picked .ccol__back { fill: rgba(20,24,32,.10); }
+
 /* No will-change here, and nothing else that makes this group its own
    stacking context. It did have one, and that is what made every photograph
    disappear: an isolated group gives mix-blend-mode nothing to blend with, so

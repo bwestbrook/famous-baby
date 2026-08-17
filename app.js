@@ -1681,7 +1681,7 @@ const app = createApp({
     const COLLAGE_HORIZON_MARGIN = 0.06;
     // Under this many pixels across, a country is a speck and the face in it
     // is noise — so it isn't drawn, and its photo is never even fetched.
-    const MIN_FACE_PX = 40;
+    const MIN_FACE_PX = 22;
     // How many faces a reel can hold. Past this the strip is longer than
     // anyone watches and every frame is another image to fetch.
     const REEL_MAX = 8;
@@ -1702,8 +1702,8 @@ const app = createApp({
     // should be alive with moving faces before you have picked anything, and
     // at this threshold a country the size of Togo is already running by the
     // time it is worth looking at.
-    const REEL_ON = 0.10;
-    const REEL_OFF = 0.075;
+    const REEL_ON = 0.045;
+    const REEL_OFF = 0.032;
     // Seconds a frame takes to travel its own height. Slow on purpose: the
     // reel is meant to be something you notice moving out of the corner of
     // your eye, not something you have to keep up with — and a face crossing
@@ -1985,7 +1985,10 @@ const app = createApp({
       const vw = (el0 && el0.clientWidth) || w, vh = (el0 && el0.clientHeight) || h;
       const cover = Math.min(1, Math.max(w / vw, h / vh));
       state.cover = cover;
-      const canReel = state.frames.length >= 5;
+      // Two faces are enough to be a reel. Requiring five meant most of the
+      // world stood still, and on a phone — where a country is a smaller share
+      // of a smaller screen — it meant almost nothing ever moved.
+      const canReel = state.frames.length >= 2;
       const reeling = canReel && cover > (state.reeling ? REEL_OFF : REEL_ON);
       state.reeling = reeling;
       state.g.classList.toggle('is-reeling', reeling);
