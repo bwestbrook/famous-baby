@@ -1864,6 +1864,50 @@ const app = createApp({
       return state.altFrom + (state.altTo - state.altFrom) * easeCubicInOut(t);
     }
 
+    // Where each frame of the reel sits, given the country's box on screen.
+    // Pulled out of the projection so it can also run on its own: a turning
+    // reel needs new frame positions every frame, but it does not need the
+    // outline re-projected, and re-cutting 172 countries' borders sixty times
+    // a second to move eight rectangles is what made the reel look frozen on
+    // a phone — the work per frame was too slow to finish one.
+    function placeReelFrames(state, minX, minY, w, h, B) {
+      const n = state.frames.length;
+      if (!n) return;
+      const fh = Math.max(1, h);
+      const span = n * fh;
+      const box = (img, x, y, bw, bh) => {
+        img.setAttribute('x', x.toFixed(1));
+        img.setAttribute('y', y.toFixed(1));
+        img.setAttribute('width', bw.toFixed(1));
+        img.setAttribute('height', bh.toFixed(1));
+      };
+      let at = state.idx;
+      if (state.reeling) {
+        const period = n * REEL_SECONDS_PER_FRAME * 1000;
+        const t = (performance.now() % period) / period;
+        const shift = t * span;
+        state.frames.forEach((img, i) => {
+          // Wrapped into [-fh, span-fh), not [0, span). One frame-height of
+          // headroom above the window is the whole trick: a frame leaving the
+          // top has to still be there, half out of shot, covering the top
+          // while the next comes up under it.
+          const y = ((((i * fh - shift + fh) % span) + span) % span) - fh;
+          box(img, minX - B, minY - B + y, w + B * 2, fh + B * 2);
+        });
+        at = Math.floor((n - t * n) % n);
+      } else {
+        state.frames.forEach((img, i) => {
+          const y = (((((i - state.idx) * fh + fh) % span) + span) % span) - fh;
+          box(img, minX - B, minY - B + y, w + B * 2, fh + B * 2);
+        });
+      }
+      if (at !== state.shownAt) {
+        state.shownAt = at;
+        const who = state.reelPeople[at];
+        if (who) state.given.textContent = givenName(who.name);
+      }
+    }
+
     function projectCollage(state, pos, dist) {
       // Cut the clip at the height this country is drawn at *right now*,
       // mid-rise included — anything else and the photo floats off its border.
@@ -1956,44 +2000,7 @@ const app = createApp({
       const B = 1;
       setBox(state.back, minX, minY, w, h);
 
-      // Each frame is the country's own width and its own height, and they are
-      // placed around a loop rather than stacked in a line and dragged. A
-      // straight line runs out: slide five frames up by five frame-heights and
-      // the last one leaves the window with nothing behind it, so the back
-      // half of every cycle showed an empty country. Wrapping each frame's
-      // position by the length of the strip means one is always in the window
-      // and the reel never reaches an end.
-      const n = state.frames.length;
-      const fh = Math.max(1, h);
-      const span = n * fh;
-      let at = state.idx;
-      if (reeling && n) {
-        const period = n * REEL_SECONDS_PER_FRAME * 1000;
-        const t = (performance.now() % period) / period;
-        const shift = t * span;
-        state.frames.forEach((img, i) => {
-          // Wrapped into [−fh, span−fh), not [0, span). One frame-height of
-          // headroom above the window is the whole trick: a frame leaving the
-          // top has to still be there, half out of shot, covering the top of
-          // the window while the next one comes up under it. Wrapped from
-          // zero it reappears at the bottom instead and the top goes bare.
-          const y = ((((i * fh - shift + fh) % span) + span) % span) - fh;
-          setBox(img, minX - B, minY - B + y, w + B * 2, fh + B * 2);
-        });
-        at = Math.floor((n - t * n) % n);
-      } else {
-        // At rest the strip holds still with one face showing.
-        state.frames.forEach((img, i) => {
-          const y = (((((i - state.idx) * fh + fh) % span) + span) % span) - fh;
-          setBox(img, minX - B, minY - B + y, w + B * 2, fh + B * 2);
-        });
-      }
-      // The name follows whichever face is in the window.
-      if (at !== state.shownAt) {
-        state.shownAt = at;
-        const who = state.reelPeople[at];
-        if (who) state.given.textContent = givenName(who.name);
-      }
+      placeReelFrames(state, minX, minY, w, h, B);
 
       state.box = { minX, minY, maxX, maxY, w, h };
       return true;
@@ -2103,13 +2110,21 @@ const app = createApp({
       // hovering changes a height too.
       const now = performance.now();
       let settling = !!hoveredPoly.value;
-      if (!settling) for (const st of collages.values()) if (st.reeling) { settling = true; break; }
       if (!settling) {
         for (const state of collages.values()) {
           if (collageTweening(state, now)) { settling = true; break; }
         }
       }
-      if (key === lastCamKey && !settling) return;
+      if (key === lastCamKey && !settling) {
+        // Camera still and nothing rising: the outlines are where they were,
+        // so only the reels need anything doing. Eight rectangles moved per
+        // country, against re-cutting every border on the globe.
+        for (const state of collages.values()) {
+          if (!state.reeling || !state.box || state.g.classList.contains('is-behind')) continue;
+          placeReelFrames(state, state.box.minX, state.box.minY, state.box.w, state.box.h, 1);
+        }
+        return;
+      }
       lastCamKey = key;
       if (collageSvg) {
         collageSvg.setAttribute('width', hostW);
