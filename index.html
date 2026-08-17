@@ -421,6 +421,16 @@
                 >
                   <em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}
                 </span>
+                <!-- OG — the original: the given name on its own, and the
+                     shape its popularity made. Sits with the signs because it
+                     is the same kind of fact, something they were born with. -->
+                <button
+                  v-if="nameChart"
+                  class="pop__sign pop__sign--og"
+                  :class="{ 'is-on': showNameChart }"
+                  @click="showNameChart = !showNameChart"
+                  :title="'How often ' + givenName(selectedPerson.name) + ' was given — ' + nameSource.label"
+                ><em class="pop__og">OG</em>{{ givenName(selectedPerson.name) }}</button>
                 <!-- Sits with the signs because it's the same kind of fact: a
                      thing they were born as, and a way into everyone else who
                      shares it. -->
@@ -565,6 +575,32 @@
             <p v-if="askError" class="kask__err">{{ askError }}</p>
             <p v-if="askAnswer" class="kask__ans">{{ askAnswer }}</p>
           </div>
+
+          <!-- The name's own life, drawn from a public register. The peak is
+               marked because it is the only point on the line anyone reads for.
+               The source is named on the chart: this is US births or New York
+               dog licences, and neither speaks for the world. -->
+          <figure v-if="nameChart && showNameChart" class="ngraph">
+            <figcaption class="ngraph__head">
+              <span class="ngraph__name">{{ givenName(selectedPerson.name) }}</span>
+              <button
+                class="ngraph__mode"
+                @click="togglePetMode()"
+                :title="petMode ? 'Show baby names instead' : 'Show pet names instead'"
+              >{{ petMode ? 'pets' : 'babies' }}</button>
+            </figcaption>
+            <svg class="ngraph__svg" :view-box.camel="'0 0 ' + nameChart.w + ' ' + nameChart.h"
+                 preserveAspectRatio="none" aria-hidden="true">
+              <path class="ngraph__area" :d="nameChart.area"/>
+              <path class="ngraph__line" :d="nameChart.line"/>
+            </svg>
+            <div class="ngraph__foot">
+              <span>{{ nameChart.from }}</span>
+              <span class="ngraph__peak">peak {{ nameChart.peakYear }} · {{ nameChart.peakLabel }}</span>
+              <span>{{ nameChart.to }}</span>
+            </div>
+            <div class="ngraph__src">{{ nameSource.label }} · {{ nameSource.note }}</div>
+          </figure>
 
           <p class="kcard__bio">{{ selectedPerson.bio }}</p>
 

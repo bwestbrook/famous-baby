@@ -9,6 +9,7 @@ import { createApp, ref, computed, watch, onMounted, onUnmounted, nextTick } fro
 import { MAJOR_CITIES, CITY_COORDS, REGION_COORDS, US_STATE_CITIES, US_LABEL_ALTITUDE } from './geo.js';
 import { ADMIN1_LINES } from './admin1.js';
 import { HAS_PHOTO } from './photos.js';
+import { BABY_NAMES, PET_NAMES, NAME_SOURCES } from './names.js';
 
 // State / province borders, flattened for globe.gl's path layer.
 const ADMIN1_PATHS = Object.entries(ADMIN1_LINES).flatMap(([country, lines]) =>
@@ -2488,6 +2489,69 @@ const app = createApp({
       globeInstance = null;
     }
 
+    // ---- How common the name is, and has been ----
+    // Two registers, because a baby and a dog are named from different books:
+    // US births from the Social Security Administration, and New York City dog
+    // licences. Both are real counts and both are partial — the card names its
+    // source rather than implying it speaks for the world.
+    // The chart is opened from the OG button rather than shown by default:
+    // it is a second thing to read about a name, not the first.
+    const showNameChart = ref(false);
+    const petMode = ref(localStorage.getItem('fb.petMode') === '1');
+    function togglePetMode() {
+      petMode.value = !petMode.value;
+      try { localStorage.setItem('fb.petMode', petMode.value ? '1' : '0'); } catch {}
+    }
+    const nameSource = computed(() => NAME_SOURCES[petMode.value ? 'pet' : 'baby']);
+
+    // The roster writes "Zinédine"; the registers write "ZINEDINE". Folded the
+    // same way names.js was keyed.
+    const foldName = (s) => String(s || '')
+      .normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+    const nameSeries = computed(() => {
+      const p = selectedPerson.value;
+      if (!p) return null;
+      const table = petMode.value ? PET_NAMES : BABY_NAMES;
+      return table[foldName(givenName(p.name))] || null;
+    });
+
+    // A path across a fixed box, so the card can draw it at any size. The
+    // vertical scale is the name's own peak: this is the shape of a name's
+    // life, not a comparison between names, and against Mary or Taylor every
+    // other line would be flat on the floor.
+    const NAME_CHART = { w: 260, h: 54 };
+    const nameChart = computed(() => {
+      const s = nameSeries.value;
+      if (!s || !s.v.length) return null;
+      const v = s.v;
+      const peak = Math.max(...v);
+      if (!(peak > 0)) return null;
+      const lastYear = s.s + v.length - 1;
+      const stepX = v.length > 1 ? NAME_CHART.w / (v.length - 1) : 0;
+      const y = (n) => NAME_CHART.h - (n / peak) * (NAME_CHART.h - 2) - 1;
+      let d = '';
+      v.forEach((n, i) => { d += (i ? 'L' : 'M') + (i * stepX).toFixed(1) + ' ' + y(n).toFixed(1); });
+      // Closed along the bottom so it can be filled as well as stroked.
+      const area = d + 'L' + NAME_CHART.w + ' ' + NAME_CHART.h + 'L0 ' + NAME_CHART.h + 'Z';
+      let peakAt = 0;
+      v.forEach((n, i) => { if (n > v[peakAt]) peakAt = i; });
+      return {
+        line: d, area, w: NAME_CHART.w, h: NAME_CHART.h,
+        from: s.s, to: lastYear,
+        peakYear: s.s + peakAt,
+        peakX: (peakAt * stepX).toFixed(1),
+        peakY: y(v[peakAt]).toFixed(1),
+        // Parts per million reads as nothing to anyone; per-million-births is
+        // the same number said out loud.
+        peakLabel: petMode.value
+          ? v[peakAt] + (v[peakAt] === 1 ? ' dog' : ' dogs')
+          : (v[peakAt] >= 1000
+              ? (v[peakAt] / 10000).toFixed(1) + '% of births'
+              : v[peakAt] + ' per million'),
+      };
+    });
+
     // ---- Bottom dock ----
     // The search line owns the bottom edge; hits stack directly above it. The
     // box is three rows tall and everything past that scrolls inside it, so a
@@ -4179,6 +4243,7 @@ const app = createApp({
       bornTodayActive, toggleBornToday,
       selectedCountry, selectedCountries, isCountryOn, clearCountry, globeData, zoomGlobe,
       pickCountry, flyToCountry, resetGlobeView, randomGlobeView,
+      petMode, togglePetMode, nameSource, nameChart, givenName, showNameChart,
       miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
       miniCities,
       selectedBornMonths, selectedBornDays, selectedZodiacs, ZODIACS,

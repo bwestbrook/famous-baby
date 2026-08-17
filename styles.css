@@ -2348,3 +2348,70 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
   cursor: default;
 }
 .pop .tag:disabled:hover { background: rgba(255,255,255,.04); color: rgba(255,255,255,.3); }
+
+
+/* =========================================================================
+   NAME GRAPH — how often the name was given, and when
+   ========================================================================= */
+/* OG: the given name on its own, sitting with the star signs because it is the
+   same kind of fact. Pressed, it opens the chart. */
+.pop__sign--og.is-on { background: rgba(253,214,99,.22); border-color: rgba(253,214,99,.5); }
+.pop__og {
+  font-style: normal; font-weight: 700; font-size: 8px;
+  letter-spacing: .08em;
+  padding: 1px 3px; margin-right: 1px;
+  border-radius: 3px;
+  background: rgba(255,255,255,.18);
+}
+
+.ngraph {
+  margin: 0 0 10px;
+  padding: 8px 10px 7px;
+  border-radius: 10px;
+  background: var(--panel-3);
+  border: 1px solid var(--line-2);
+}
+.ngraph__head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.ngraph__name {
+  flex: 1; min-width: 0;
+  font-size: 13px; font-weight: 600; letter-spacing: .01em;
+  color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Babies or pets — the same name read out of two different registers. */
+.ngraph__mode {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.ngraph__mode:hover { background: var(--blue-tint); border-color: var(--blue); color: var(--blue); }
+/* preserveAspectRatio="none" on the svg: the shape is a time series, and
+   stretching it to the card's width is what makes it readable. */
+.ngraph__svg { display: block; width: 100%; height: 54px; }
+.ngraph__area { fill: rgba(26,115,232,.14); stroke: none; }
+.ngraph__line {
+  fill: none; stroke: var(--blue); stroke-width: 1.5;
+  stroke-linejoin: round; stroke-linecap: round;
+  vector-effect: non-scaling-stroke;   /* or the stretch thickens the line */
+}
+.ngraph__foot {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
+  margin-top: 3px;
+  font-size: 9px; letter-spacing: .04em;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+.ngraph__peak { color: var(--text-2); font-weight: 500; }
+/* Named, always: this is US births or New York dog licences, and neither of
+   them speaks for the world. */
+.ngraph__src {
+  margin-top: 4px; padding-top: 4px;
+  border-top: 1px solid var(--line-2);
+  font-size: 8px; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--text-3);
+}
