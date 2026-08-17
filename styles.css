@@ -122,14 +122,21 @@ body {
    second click that puts the country back down. The caption is the handle. */
 .ccol__g {
   opacity: 0;
-  transition: opacity .45s ease;
+  /* Slow in, slower out: a face surfacing on a turning globe should arrive
+     like something you half-noticed, not like a slide changing. */
+  transition: opacity 1.1s ease;
   pointer-events: none;
 }
-.ccol__g.is-loaded { opacity: 1; }
+/* Lit only while its moment lasts, or while it is the country you picked. */
+.ccol__g.is-flash.is-loaded,
+.ccol__g.is-picked.is-loaded { opacity: 1; }
 /* Something under the photo for the first decode, so the silhouette reads as
    filled from the moment it lifts — but faint, because the map is meant to
    come through the picture now rather than be covered by it. */
 .ccol__back { fill: rgba(20,24,32,.05); }
+/* Holds the country's picture. It used to scroll a strip of them; now it
+   carries one, and the movement on this globe is the globe itself. */
+.ccol__reel { }
 /* Mostly map. The photographs are black and white and faint, so the land
    reads through them and a face is part of the terrain rather than a picture
    pinned to it.
@@ -158,7 +165,7 @@ body {
    the faces were compositing against empty space instead of against the
    globe. The frames are positioned individually now anyway — there is no
    group transform left to hint at. */
-.ccol__reel { }
+
 
 /* The country's own edge, drawn over the photo so the shape stays legible
    against whatever is behind it. */
@@ -187,7 +194,8 @@ body {
   opacity: 0;
   transition: opacity .45s ease;
 }
-.ccol__cap.is-loaded { opacity: 1; }
+.ccol__cap.is-flash.is-loaded,
+.ccol__cap.is-picked.is-loaded { opacity: 1; }
 .ccol__given {
   display: inline-block;
   /* Stacking the name over the bar isn't enough to put the bar behind it —

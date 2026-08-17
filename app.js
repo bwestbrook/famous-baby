@@ -1571,8 +1571,7 @@ const app = createApp({
       // frame just sits there. `slice` is SVG's object-fit: cover, so each
       // frame fills the country's width edge to edge.
       const reel = svgEl('g', { class: 'ccol__reel' });
-      const frames = people.slice(0, REEL_MAX).map(() =>
-        svgEl('image', { class: 'ccol__fg', preserveAspectRatio: 'xMidYMid slice' }));
+      const frames = [svgEl('image', { class: 'ccol__fg', preserveAspectRatio: 'xMidYMid slice' })];
       for (const f of frames) reel.appendChild(f);
       inner.appendChild(reel);
 
@@ -1597,7 +1596,7 @@ const app = createApp({
         // out the first time a country is actually worth drawing. Doing all 73
         // here would block the load for the best part of a second.
         pole: undefined,
-        reel, frames, reelPeople: people.slice(0, REEL_MAX),
+        reel, frames, reelPeople: people,
         given: cap.querySelector('.ccol__given'),
         idx: 0,
         box: null,
@@ -1664,29 +1663,42 @@ const app = createApp({
       state.cap.classList.remove('is-loaded');
     }
 
-    // Only the country you picked runs a slideshow. Everywhere else holds the
-    // one face it was dealt — seventy-three countries all turning over at once
-    // is a fidget, not a map, and it says nothing about where you're looking.
-    const COLLAGE_TICK = 250;
+    // Every so often, one more country somewhere in view lights up — and it
+    // is the fifth one along, not the next one, so the faces appear scattered
+    // across the globe rather than marching round it in a line.
+    let flashCursor = 0;
     function advanceCollages() {
       const now = performance.now();
+      const inView = [];
       for (const state of collages.values()) {
-        if (!state.selected || state.people.length < 2 || !state.loadedCount) continue;
-        // Don't cycle what nobody can see.
-        if (state.g.classList.contains('is-behind')) continue;
-        if (state.nextAt == null) { state.nextAt = now + FACE_DWELL; continue; }
-        if (now < state.nextAt) continue;
-        state.nextAt = now + FACE_DWELL;
-        state.idx = (state.idx + 1) % state.reelPeople.length;
-        const who = state.reelPeople[state.idx];
-        if (who) { state.given.textContent = givenName(who.name); runTimerBar(0); }
+        // Retire anything whose moment has passed.
+        if (state.flashing && now - state.flashAt > FLASH_HOLD_MS) {
+          state.flashing = false;
+          state.g.classList.remove('is-flash');
+          state.cap.classList.remove('is-flash');
+          if (!state.selected) unloadCollage(state);
+        }
+        if (!state.g.classList.contains('is-behind') && state.reelPeople.length) inView.push(state);
       }
+      if (!inView.length) return;
+      flashCursor = (flashCursor + FLASH_STRIDE) % inView.length;
+      const state = inView[flashCursor];
+      if (!state || state.flashing) return;
+      // A different face each time this country comes round.
+      state.idx = (state.idx + 1) % state.reelPeople.length;
+      state.flashing = true;
+      state.flashAt = now;
+      loadCollage(state, false);
+      state.g.classList.add('is-flash');
+      state.cap.classList.add('is-flash');
+      const who = state.reelPeople[state.idx];
+      if (who) state.given.textContent = givenName(who.name);
     }
 
     let collageTimer = null;
     function syncCollageTimer() {
-      const wanted = [...collages.values()].some(s => s.selected && s.people.length > 1);
-      if (wanted && !collageTimer) collageTimer = setInterval(advanceCollages, COLLAGE_TICK);
+      const wanted = collages.size > 0;
+      if (wanted && !collageTimer) collageTimer = setInterval(advanceCollages, FLASH_EVERY_MS);
       if (!wanted && collageTimer) { clearInterval(collageTimer); collageTimer = null; }
     }
 
@@ -1702,7 +1714,6 @@ const app = createApp({
     const MIN_FACE_PX = 22;
     // How many faces a reel can hold. Past this the strip is longer than
     // anyone watches and every frame is another image to fetch.
-    const REEL_MAX = 8;
     // How many countries may hold decoded photographs at once. This is the
     // ceiling that matters on a phone: an <image> costs its pixel area times
     // four bytes once decoded, whatever the file weighs, so a few hundred
@@ -1716,17 +1727,13 @@ const app = createApp({
     // Luxembourg starts running at the zoom where Luxembourg is large, and
     // Russia at the zoom where Russia is. Two figures so it can't stutter on
     // the boundary.
-    // Set very low on purpose: a twentieth of the screen is enough. The globe
-    // should be alive with moving faces before you have picked anything, and
-    // at this threshold a country the size of Togo is already running by the
-    // time it is worth looking at.
-    const REEL_ON = 0.045;
-    const REEL_OFF = 0.032;
-    // Seconds a frame takes to travel its own height. Slow on purpose: the
-    // reel is meant to be something you notice moving out of the corner of
-    // your eye, not something you have to keep up with — and a face crossing
-    // a country in a couple of seconds reads as a flicker rather than a face.
-    const REEL_SECONDS_PER_FRAME = 6.5;
+    // Not every country at once. One face surfaces somewhere on the globe,
+    // holds, and fades; a moment later another does, five countries further
+    // round. A world where everything moves at once reads as noise — a world
+    // where one thing catches your eye reads as a place with people in it.
+    const FLASH_EVERY_MS = 2600;     // how often a new face surfaces
+    const FLASH_HOLD_MS = 4200;      // how long it stays before it has gone
+    const FLASH_STRIDE = 5;          // every fifth country in view
     // How far a photograph may be enlarged past its own pixels to fill a
     // country before it stops being worth it.
     const MAX_UPSCALE = 1.15;
@@ -1882,48 +1889,16 @@ const app = createApp({
       return state.altFrom + (state.altTo - state.altFrom) * easeCubicInOut(t);
     }
 
-    // Where each frame of the reel sits, given the country's box on screen.
-    // Pulled out of the projection so it can also run on its own: a turning
-    // reel needs new frame positions every frame, but it does not need the
-    // outline re-projected, and re-cutting 172 countries' borders sixty times
-    // a second to move eight rectangles is what made the reel look frozen on
-    // a phone — the work per frame was too slow to finish one.
-    function placeReelFrames(state, minX, minY, w, h, B) {
-      const n = state.frames.length;
-      if (!n) return;
-      const fh = Math.max(1, h);
-      const span = n * fh;
-      const box = (img, x, y, bw, bh) => {
-        img.setAttribute('x', x.toFixed(1));
-        img.setAttribute('y', y.toFixed(1));
-        img.setAttribute('width', bw.toFixed(1));
-        img.setAttribute('height', bh.toFixed(1));
-      };
-      let at = state.idx;
-      if (state.reeling) {
-        const period = n * REEL_SECONDS_PER_FRAME * 1000;
-        const t = (performance.now() % period) / period;
-        const shift = t * span;
-        state.frames.forEach((img, i) => {
-          // Wrapped into [-fh, span-fh), not [0, span). One frame-height of
-          // headroom above the window is the whole trick: a frame leaving the
-          // top has to still be there, half out of shot, covering the top
-          // while the next comes up under it.
-          const y = ((((i * fh - shift + fh) % span) + span) % span) - fh;
-          box(img, minX - B, minY - B + y, w + B * 2, fh + B * 2);
-        });
-        at = Math.floor((n - t * n) % n);
-      } else {
-        state.frames.forEach((img, i) => {
-          const y = (((((i - state.idx) * fh + fh) % span) + span) % span) - fh;
-          box(img, minX - B, minY - B + y, w + B * 2, fh + B * 2);
-        });
-      }
-      if (at !== state.shownAt) {
-        state.shownAt = at;
-        const who = state.reelPeople[at];
-        if (who) state.given.textContent = givenName(who.name);
-      }
+    // One picture, filling the country. No strip and no motion: the movement
+    // on this globe is the globe turning, and a face is a thing that appears
+    // on it rather than a thing that scrolls inside it.
+    function placeFace(state, minX, minY, w, h, B) {
+      const img = state.frames[0];
+      if (!img) return;
+      img.setAttribute('x', (minX - B).toFixed(1));
+      img.setAttribute('y', (minY - B).toFixed(1));
+      img.setAttribute('width', (w + B * 2).toFixed(1));
+      img.setAttribute('height', (h + B * 2).toFixed(1));
     }
 
     function projectCollage(state, pos, dist) {
@@ -2003,13 +1978,6 @@ const app = createApp({
       const vw = (el0 && el0.clientWidth) || w, vh = (el0 && el0.clientHeight) || h;
       const cover = Math.min(1, Math.max(w / vw, h / vh));
       state.cover = cover;
-      // Two faces are enough to be a reel. Requiring five meant most of the
-      // world stood still, and on a phone — where a country is a smaller share
-      // of a smaller screen — it meant almost nothing ever moved.
-      const canReel = state.frames.length >= 2;
-      const reeling = canReel && cover > (state.reeling ? REEL_OFF : REEL_ON);
-      state.reeling = reeling;
-      state.g.classList.toggle('is-reeling', reeling);
 
       const setBox = (el, x, y, bw, bh) => {
         el.setAttribute('x', x.toFixed(1));
@@ -2021,7 +1989,7 @@ const app = createApp({
       const B = 1;
       setBox(state.back, minX, minY, w, h);
 
-      placeReelFrames(state, minX, minY, w, h, B);
+      placeFace(state, minX, minY, w, h, B);
 
       state.box = { minX, minY, maxX, maxY, w, h };
       return true;
@@ -2136,16 +2104,10 @@ const app = createApp({
           if (collageTweening(state, now)) { settling = true; break; }
         }
       }
-      if (key === lastCamKey && !settling) {
-        // Camera still and nothing rising: the outlines are where they were,
-        // so only the reels need anything doing. Eight rectangles moved per
-        // country, against re-cutting every border on the globe.
-        for (const state of collages.values()) {
-          if (!state.reeling || !state.box || state.g.classList.contains('is-behind')) continue;
-          placeReelFrames(state, state.box.minX, state.box.minY, state.box.w, state.box.h, 1);
-        }
-        return;
-      }
+      // The globe turns on its own, so the camera is almost never still — but
+      // when it is, nothing needs redrawing: the flash is a class, and CSS
+      // fades it without any help from here.
+      if (key === lastCamKey && !settling) return;
       lastCamKey = key;
       if (collageSvg) {
         collageSvg.setAttribute('width', hostW);
@@ -2167,11 +2129,12 @@ const app = createApp({
         if (!ok && state.loadedCount) unloadCollage(state);
         // Only a picked country is captioned. Seventy-three name cards at once
         // would bury the globe they are meant to be describing.
-        state.cap.classList.toggle('is-behind', !ok || !state.selected);
+        state.cap.classList.toggle('is-behind', !ok);
+        state.cap.classList.toggle('is-picked', !!state.selected);
         if (ok) {
           // First time this one has been worth looking at: fetch its face now
           // rather than pulling all 73 down on load.
-          loadCollage(state, state.reeling || state.selected);
+          if (state.flashing || state.selected) loadCollage(state, false);
         }
       }
     }
@@ -2535,8 +2498,9 @@ const app = createApp({
       labelSizeApplied = labelSizeFor(2.4);
       try {
         const c = globeInstance.controls();
-        // Never animates on its own: the globe only moves when you move it.
-        if ('autoRotate' in c) c.autoRotate = false;
+        // The globe turns on its own now — slowly, the way a globe on a stand
+        // does when someone has just let go of it. Dragging still overrides it.
+        if ('autoRotate' in c) { c.autoRotate = true; c.autoRotateSpeed = 0.28; }
         c.enableZoom = true;
         c.zoomSpeed = 1.2;
         // Close enough to sit almost on the surface, which is what a small
