@@ -106,7 +106,9 @@ body {
 .ccol {
   position: absolute; inset: 0;
   pointer-events: none;              /* only the shape itself takes the pointer */
-  z-index: 1;
+  /* Deliberately no z-index: it would make this its own stacking context and
+     the blend would stop at the overlay instead of reaching the globe. The
+     element is after the canvas in the DOM, which is enough to sit above it. */
 }
 .ccol__svg { position: absolute; inset: 0; display: block; overflow: visible; }
 /* The shape never takes the pointer. It can cover the whole screen, and a
@@ -119,8 +121,9 @@ body {
 }
 .ccol__g.is-loaded { opacity: 1; }
 /* Something under the photo for the first decode, so the silhouette reads as
-   filled from the moment it lifts. */
-.ccol__back { fill: rgba(20,24,32,.82); }
+   filled from the moment it lifts — but faint, because the map is meant to
+   come through the picture now rather than be covered by it. */
+.ccol__back { fill: rgba(20,24,32,.22); }
 /* One slide = the blurred fill plus the whole face on top of it. Cross-fading
    the pair together keeps the two layers of a face from ever mismatching. */
 .ccol__slide {
@@ -128,10 +131,20 @@ body {
   transition: opacity .7s ease;
 }
 .ccol__slide.is-front { opacity: 1; }
-/* The photograph, covering the country edge to edge. There is no blurred
-   under-layer any more: when the picture fills the outline there is nothing
-   left for it to fill in behind. */
-.ccol__fg { }
+/* The photograph, covering the country edge to edge — but let through rather
+   than laid over. At full strength the picture replaced the country; at this
+   weight you read both at once, the coastline and the terrain still showing
+   under the face, and the country stays a place with someone in it rather
+   than a photo-shaped hole in the map.
+   `luminosity` takes the picture's light and the map's colour, so a portrait
+   sits in the land's own palette instead of as a rectangle of skin tone. */
+.ccol__fg {
+  opacity: .74;
+  mix-blend-mode: luminosity;
+}
+/* A picked country is the one you're looking at, so it comes forward. */
+.ccol__g.is-picked .ccol__fg { opacity: .88; }
+.ccol__g.is-picked .ccol__back { fill: rgba(20,24,32,.42); }
 /* The country's own edge, drawn over the photo so the shape stays legible
    against whatever is behind it. */
 .ccol__edge {

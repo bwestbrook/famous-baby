@@ -2067,6 +2067,7 @@ const app = createApp({
         const ok = countryFullyVisible(state, camDir, horizonAngle)
           && projectCollage(state, pos, dist);
         state.g.classList.toggle('is-behind', !ok);
+        state.g.classList.toggle('is-picked', !!state.selected);
         // Only a picked country is captioned. Seventy-three name cards at once
         // would bury the globe they are meant to be describing.
         state.cap.classList.toggle('is-behind', !ok || !state.selected);
