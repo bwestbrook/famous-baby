@@ -1509,6 +1509,21 @@ const app = createApp({
     let collageSeq = 0;             // unique ids for the clip paths
 
     const SVG_NS = 'http://www.w3.org/2000/svg';
+    const XLINK_NS = 'http://www.w3.org/1999/xlink';
+    // An <image> takes its source from `href` in SVG2 and from `xlink:href` in
+    // SVG 1.1. Chrome is happy with the first; Safari — desktop and iOS — has
+    // wanted the second for years and renders nothing without it. Set both:
+    // where SVG2 is supported `href` wins, and where it isn't the old
+    // attribute is there. This is the likeliest reason the photographs never
+    // appeared on a phone while every element existed and no script errored.
+    function setImageHref(img, src) {
+      img.setAttribute('href', src);
+      img.setAttributeNS(XLINK_NS, 'xlink:href', src);
+    }
+    function clearImageHref(img) {
+      img.removeAttribute('href');
+      img.removeAttributeNS(XLINK_NS, 'href');
+    }
     const svgEl = (name, attrs) => {
       const el = document.createElementNS(SVG_NS, name);
       for (const k in attrs) el.setAttribute(k, attrs[k]);
@@ -1522,6 +1537,9 @@ const app = createApp({
       collageRoot = document.createElement('div');
       collageRoot.className = 'ccol';
       collageSvg = svgEl('svg', { class: 'ccol__svg' });
+      // Declared explicitly: xlink:href on the frames is only meaningful if
+      // the document knows the namespace.
+      collageSvg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', XLINK_NS);
       collageDefs = svgEl('defs', {});
       collageSvg.appendChild(collageDefs);
       collageRoot.appendChild(collageSvg);
@@ -1614,7 +1632,7 @@ const app = createApp({
         let src = faceSrc;
         const probe = new Image();
         probe.onload = () => {
-          img.setAttribute('href', src);
+          setImageHref(img, src);
           state.g.classList.add('is-loaded');
           state.cap.classList.add('is-loaded');
         };
@@ -1640,7 +1658,7 @@ const app = createApp({
     // bitmap; leaving the element in place costs nothing.
     function unloadCollage(state) {
       if (!state.loadedCount) return;
-      for (const img of state.frames) img.removeAttribute('href');
+      for (const img of state.frames) clearImageHref(img);
       state.loadedCount = 0;
       state.g.classList.remove('is-loaded');
       state.cap.classList.remove('is-loaded');
