@@ -1215,14 +1215,17 @@ const app = createApp({
       HOME_VIEW.lng = lng;
     }
 
-    // TEMPORARY OVERRIDE — everyone opens over London.
+    // TEMPORARY OVERRIDE — everyone opens over Africa.
     // Normally this is the visitor's own part of the world, worked out from
     // their time zone (see homeFromTimeZone) and refined by the device if
     // they've already granted location. That makes every session start
     // somewhere different, which is exactly wrong while the globe is being
     // worked on: you can't tell a change from a coincidence. Delete the two
     // lines below to hand the opening view back to the visitor.
-    const OPENING_OVERRIDE = { lat: 51.51, lng: -0.13 };   // London
+    // Africa, centred so the continent fills the opening view: the roster
+    // reaches every country on it now, and that is what the globe should
+    // be showing when it arrives.
+    const OPENING_OVERRIDE = { lat: 2.0, lng: 19.0 };   // central Africa
 
     function openingGlobeView() {
       if (OPENING_OVERRIDE) {
@@ -1539,18 +1542,15 @@ const app = createApp({
       // hard — on a wide country it scales a portrait until only a cheek is
       // left. So the fill is a blurred, dimmed copy (slice), and the face sits
       // on top of it whole (`meet` never crops), as large as the shape allows.
-      const mkSlide = () => {
-        const slide = svgEl('g', { class: 'ccol__slide' });
-        // `slice` is SVG's object-fit: cover, and the box is the whole outline
-        // — so the photograph fills the country edge to edge. It crops what
-        // won't fit, which is the trade taken on purpose: a portrait sitting
-        // whole inside the border left most of the country empty.
-        const fg = svgEl('image', { class: 'ccol__fg', preserveAspectRatio: 'xMidYMid slice' });
-        slide.appendChild(fg);
-        inner.appendChild(slide);
-        return { slide, fg };
-      };
-      const slideA = mkSlide(), slideB = mkSlide();
+      // A column of faces rather than one. Given enough of them and enough of
+      // the screen, the country runs them as a reel; short of either, the top
+      // frame just sits there. `slice` is SVG's object-fit: cover, so each
+      // frame fills the country's width edge to edge.
+      const reel = svgEl('g', { class: 'ccol__reel' });
+      const frames = people.slice(0, REEL_MAX).map(() =>
+        svgEl('image', { class: 'ccol__fg', preserveAspectRatio: 'xMidYMid slice' }));
+      for (const f of frames) reel.appendChild(f);
+      inner.appendChild(reel);
 
       const edge = svgEl('path', { class: 'ccol__edge', d: '' });
       g.appendChild(inner);
@@ -1573,7 +1573,7 @@ const app = createApp({
         // out the first time a country is actually worth drawing. Doing all 73
         // here would block the load for the best part of a second.
         pole: undefined,
-        slideA, slideB, front: slideB,
+        reel, frames, reelPeople: people.slice(0, REEL_MAX),
         given: cap.querySelector('.ccol__given'),
         idx: 0,
         box: null,
@@ -1593,45 +1593,32 @@ const app = createApp({
       return state;
     }
 
-    // Cross-fade: two stacked <image>, the incoming one only promoted once it
-    // has actually decoded, so a slow photo never blinks the shape empty.
+    // Load every frame of the reel once. No cross-fade any more: the reel
+    // moves, so there is nothing to fade between.
     function showCollageFace(state, idx) {
-      const p = state.people[idx];
-      if (!p) return;
-      state.idx = idx;
-      const next = state.front === state.slideA ? state.slideB : state.slideA;
-      // The map wants the face; the person's card wants the whole picture.
-      // photos/faces holds a tight crop of each portrait (see facecrop.swift),
-      // and the uncropped original stays where it was for everything else.
-      // Fall back to it if a crop was never made for this one.
-      const faceSrc = './photos/faces/' + p.id + '.jpg';
-      const fullSrc = './photos/' + p.id + '.jpg';
-      let src = faceSrc;
-      // <image> fires load like <img>, but decode through an Image first so
-      // the swap happens on a frame where the bytes are ready.
-      const probe = new Image();
-      probe.onload = () => {
-        // Kept for the click target: `meet` letterboxes the portrait inside
-        // its box, and only the drawn rect is clickable.
-        state.natural = { w: probe.naturalWidth, h: probe.naturalHeight };
-        next.fg.setAttribute('href', src);
-        next.slide.classList.add('is-front');
-        state.front.slide.classList.remove('is-front');
-        state.front = next;
-        // The name and nothing else. Everything a card would tell you is one
-        // click away, and on the globe the rest of it competed with the face.
-        state.given.textContent = givenName(p.name);
-        state.g.classList.add('is-loaded');
-        state.cap.classList.add('is-loaded');
-        if (state.selected) runTimerBar(0);
-      };
-      // No crop for this one: use the original. If that's missing too, the
-      // current face stays up rather than the shape blanking.
-      probe.onerror = () => {
-        if (src === faceSrc) { src = fullSrc; probe.src = fullSrc; return; }
-        probe.onerror = null;
-      };
-      probe.src = src;
+      state.idx = ((idx % state.reelPeople.length) + state.reelPeople.length) % state.reelPeople.length;
+      if (state.loadedFrames) return;
+      state.loadedFrames = true;
+      state.reelPeople.forEach((p, i) => {
+        const faceSrc = './photos/faces/' + p.id + '.jpg';
+        const fullSrc = './photos/' + p.id + '.jpg';
+        const img = state.frames[i];
+        const probe = new Image();
+        let src = faceSrc;
+        probe.onload = () => {
+          img.setAttribute('href', src);
+          if (i === 0 && !state.natural) state.natural = { w: probe.naturalWidth, h: probe.naturalHeight };
+          state.g.classList.add('is-loaded');
+          state.cap.classList.add('is-loaded');
+        };
+        probe.onerror = () => {
+          if (src === faceSrc) { src = fullSrc; probe.src = fullSrc; return; }
+          probe.onerror = null;
+        };
+        probe.src = src;
+      });
+      const p = state.reelPeople[state.idx];
+      if (p) state.given.textContent = givenName(p.name);
     }
 
     // Only the country you picked runs a slideshow. Everywhere else holds the
@@ -1647,7 +1634,9 @@ const app = createApp({
         if (state.nextAt == null) { state.nextAt = now + FACE_DWELL; continue; }
         if (now < state.nextAt) continue;
         state.nextAt = now + FACE_DWELL;
-        showCollageFace(state, (state.idx + 1) % state.people.length);
+        state.idx = (state.idx + 1) % state.reelPeople.length;
+        const who = state.reelPeople[state.idx];
+        if (who) { state.given.textContent = givenName(who.name); runTimerBar(0); }
       }
     }
 
@@ -1668,6 +1657,18 @@ const app = createApp({
     // Under this many pixels across, a country is a speck and the face in it
     // is noise — so it isn't drawn, and its photo is never even fetched.
     const MIN_FACE_PX = 26;
+    // How many faces a reel can hold. Past this the strip is longer than
+    // anyone watches and every frame is another image to fetch.
+    const REEL_MAX = 8;
+    // The reel starts when the country is big enough on screen to read a face
+    // in, measured as a share of the viewport rather than in pixels — that way
+    // Luxembourg starts running at the zoom where Luxembourg is large, and
+    // Russia at the zoom where Russia is. Two figures so it can't stutter on
+    // the boundary.
+    const REEL_ON = 0.34;
+    const REEL_OFF = 0.26;
+    // Seconds a frame takes to travel its own height.
+    const REEL_SECONDS_PER_FRAME = 2.6;
     // How far a photograph may be enlarged past its own pixels to fill a
     // country before it stops being worth it.
     const MAX_UPSCALE = 1.15;
@@ -1893,6 +1894,18 @@ const app = createApp({
       state.edge.setAttribute('d', d);
       const w = Math.max(1, maxX - minX), h = Math.max(1, maxY - minY);
 
+      // What share of the screen this country covers. The reel keys off this
+      // rather than a pixel count, so the trigger means the same thing at
+      // every zoom and for every size of country.
+      const el0 = globeInstance && globeInstance._el;
+      const vw = (el0 && el0.clientWidth) || w, vh = (el0 && el0.clientHeight) || h;
+      const cover = Math.min(1, Math.max(w / vw, h / vh));
+      state.cover = cover;
+      const canReel = state.frames.length >= 5;
+      const reeling = canReel && cover > (state.reeling ? REEL_OFF : REEL_ON);
+      state.reeling = reeling;
+      state.g.classList.toggle('is-reeling', reeling);
+
       const setBox = (el, x, y, bw, bh) => {
         el.setAttribute('x', x.toFixed(1));
         el.setAttribute('y', y.toFixed(1));
@@ -1903,39 +1916,27 @@ const app = createApp({
       const B = 1;
       setBox(state.back, minX, minY, w, h);
 
-      // Filling the outline is right up to the point where the photograph
-      // runs out of pixels. A 512px face crop stretched across a country
-      // eight hundred pixels wide is both blown up and cropped hard — you end
-      // up looking at the grain of somebody's cheek. So cover the shape only
-      // while that costs no more than MAX_UPSCALE; past it, draw the picture
-      // whole at that limit and let the country hold it, with space around.
-      const nat = state.natural;
-      let fit = null;
-      if (nat && nat.w && nat.h) {
-        const coverScale = Math.max((w + B * 2) / nat.w, (h + B * 2) / nat.h);
-        if (coverScale > MAX_UPSCALE) {
-          // The pole of inaccessibility is the roomiest point in the country,
-          // which is where a picture that doesn't fill it should sit.
-          if (state.pole === undefined) state.pole = collagePole(state.country, state.rings.full);
-          let cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
-          if (state.pole) {
-            const ps = project(state.pole[0], state.pole[1]);
-            if (ps) { cx = ps.x; cy = ps.y; }
-          }
-          const dw = nat.w * MAX_UPSCALE, dh = nat.h * MAX_UPSCALE;
-          fit = { x: cx - dw / 2, y: cy - dh / 2, w: dw, h: dh };
+      // Each frame is the width of the country and stacked one above the next;
+      // the whole column is then slid upward on a clock. Wrapping by the
+      // column height means it runs forever without a seam.
+      const fh = Math.max(1, h);
+      state.frames.forEach((img, i) => {
+        setBox(img, minX - B, minY - B + i * fh, w + B * 2, fh + B * 2);
+      });
+      if (reeling && state.frames.length) {
+        const span = state.frames.length * fh;
+        const period = state.frames.length * REEL_SECONDS_PER_FRAME * 1000;
+        const t = (performance.now() % period) / period;
+        state.reel.setAttribute('transform', 'translate(0 ' + (-t * span).toFixed(1) + ')');
+        // Which face is in front of you now — the name follows the reel.
+        const at = Math.floor(t * state.frames.length) % state.frames.length;
+        if (at !== state.shownAt) {
+          state.shownAt = at;
+          const who = state.reelPeople[at];
+          if (who) state.given.textContent = givenName(who.name);
         }
-      }
-      for (const sl of [state.slideA, state.slideB]) {
-        if (fit) {
-          // Box matches the picture's own aspect, so `meet` neither crops it
-          // nor stretches it.
-          sl.fg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-          setBox(sl.fg, fit.x, fit.y, fit.w, fit.h);
-        } else {
-          sl.fg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-          setBox(sl.fg, minX - B, minY - B, w + B * 2, h + B * 2);
-        }
+      } else {
+        state.reel.setAttribute('transform', 'translate(0 ' + (-state.idx * fh).toFixed(1) + ')');
       }
 
       state.box = { minX, minY, maxX, maxY, w, h };
@@ -2046,6 +2047,7 @@ const app = createApp({
       // hovering changes a height too.
       const now = performance.now();
       let settling = !!hoveredPoly.value;
+      if (!settling) for (const st of collages.values()) if (st.reeling) { settling = true; break; }
       if (!settling) {
         for (const state of collages.values()) {
           if (collageTweening(state, now)) { settling = true; break; }
