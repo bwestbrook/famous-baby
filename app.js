@@ -1704,8 +1704,11 @@ const app = createApp({
     // time it is worth looking at.
     const REEL_ON = 0.10;
     const REEL_OFF = 0.075;
-    // Seconds a frame takes to travel its own height.
-    const REEL_SECONDS_PER_FRAME = 2.2;
+    // Seconds a frame takes to travel its own height. Slow on purpose: the
+    // reel is meant to be something you notice moving out of the corner of
+    // your eye, not something you have to keep up with — and a face crossing
+    // a country in a couple of seconds reads as a flicker rather than a face.
+    const REEL_SECONDS_PER_FRAME = 6.5;
     // How far a photograph may be enlarged past its own pixels to fill a
     // country before it stops being worth it.
     const MAX_UPSCALE = 1.15;
