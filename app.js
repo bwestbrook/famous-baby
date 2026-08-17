@@ -1505,6 +1505,7 @@ const app = createApp({
     let collageDefs = null;
     let collageTimerBar = null;
     const collages = new Map();     // country -> live state
+    const loadedOrder = [];         // countries holding decoded frames, oldest first
     let collageSeq = 0;             // unique ids for the clip paths
 
     const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -1598,21 +1599,22 @@ const app = createApp({
       return state;
     }
 
-    // Load every frame of the reel once. No cross-fade any more: the reel
-    // moves, so there is nothing to fade between.
-    function showCollageFace(state, idx) {
-      state.idx = ((idx % state.reelPeople.length) + state.reelPeople.length) % state.reelPeople.length;
-      if (state.loadedFrames) return;
-      state.loadedFrames = true;
-      state.reelPeople.forEach((p, i) => {
+    // Load a country's frames. One face is enough unless the strip is actually
+    // running — a country that isn't reeling shows its top frame and nothing
+    // else needs decoding.
+    function loadCollage(state, all) {
+      const want = all ? state.reelPeople.length : 1;
+      if (state.loadedCount >= want) return;
+      for (let i = state.loadedCount || 0; i < want; i++) {
+        const p = state.reelPeople[i];
+        const img = state.frames[i];
+        if (!p || !img) continue;
         const faceSrc = './photos/faces/' + p.id + '.jpg';
         const fullSrc = './photos/' + p.id + '.jpg';
-        const img = state.frames[i];
-        const probe = new Image();
         let src = faceSrc;
+        const probe = new Image();
         probe.onload = () => {
           img.setAttribute('href', src);
-          if (i === 0 && !state.natural) state.natural = { w: probe.naturalWidth, h: probe.naturalHeight };
           state.g.classList.add('is-loaded');
           state.cap.classList.add('is-loaded');
         };
@@ -1621,9 +1623,27 @@ const app = createApp({
           probe.onerror = null;
         };
         probe.src = src;
-      });
-      const p = state.reelPeople[state.idx];
-      if (p) state.given.textContent = givenName(p.name);
+      }
+      state.loadedCount = want;
+      const at = loadedOrder.indexOf(state.country);
+      if (at >= 0) loadedOrder.splice(at, 1);
+      loadedOrder.push(state.country);
+      while (loadedOrder.length > MAX_LOADED) {
+        const old = collages.get(loadedOrder.shift());
+        if (old && old !== state) unloadCollage(old);
+      }
+      const who = state.reelPeople[state.idx];
+      if (who) state.given.textContent = givenName(who.name);
+    }
+
+    // Hand the pixels back. Clearing href is what actually frees the decoded
+    // bitmap; leaving the element in place costs nothing.
+    function unloadCollage(state) {
+      if (!state.loadedCount) return;
+      for (const img of state.frames) img.removeAttribute('href');
+      state.loadedCount = 0;
+      state.g.classList.remove('is-loaded');
+      state.cap.classList.remove('is-loaded');
     }
 
     // Only the country you picked runs a slideshow. Everywhere else holds the
@@ -1633,7 +1653,7 @@ const app = createApp({
     function advanceCollages() {
       const now = performance.now();
       for (const state of collages.values()) {
-        if (!state.selected || state.people.length < 2 || !state.loaded) continue;
+        if (!state.selected || state.people.length < 2 || !state.loadedCount) continue;
         // Don't cycle what nobody can see.
         if (state.g.classList.contains('is-behind')) continue;
         if (state.nextAt == null) { state.nextAt = now + FACE_DWELL; continue; }
@@ -1661,10 +1681,18 @@ const app = createApp({
     const COLLAGE_HORIZON_MARGIN = 0.06;
     // Under this many pixels across, a country is a speck and the face in it
     // is noise — so it isn't drawn, and its photo is never even fetched.
-    const MIN_FACE_PX = 14;
+    const MIN_FACE_PX = 40;
     // How many faces a reel can hold. Past this the strip is longer than
     // anyone watches and every frame is another image to fetch.
     const REEL_MAX = 8;
+    // How many countries may hold decoded photographs at once. This is the
+    // ceiling that matters on a phone: an <image> costs its pixel area times
+    // four bytes once decoded, whatever the file weighs, so a few hundred
+    // countries each holding a strip of faces runs to hundreds of megabytes
+    // and the tab is killed and reloaded — which is what an "infinite reload
+    // loop" on mobile actually is. Frames are dropped again when a country
+    // leaves, so this is a working set and not a high-water mark.
+    const MAX_LOADED = 7;
     // The reel starts when the country is big enough on screen to read a face
     // in, measured as a share of the viewport rather than in pixels — that way
     // Luxembourg starts running at the zoom where Luxembourg is large, and
@@ -1674,8 +1702,8 @@ const app = createApp({
     // should be alive with moving faces before you have picked anything, and
     // at this threshold a country the size of Togo is already running by the
     // time it is worth looking at.
-    const REEL_ON = 0.02;
-    const REEL_OFF = 0.014;
+    const REEL_ON = 0.10;
+    const REEL_OFF = 0.075;
     // Seconds a frame takes to travel its own height.
     const REEL_SECONDS_PER_FRAME = 2.2;
     // How far a photograph may be enlarged past its own pixels to fill a
@@ -2095,13 +2123,16 @@ const app = createApp({
           && projectCollage(state, pos, dist);
         state.g.classList.toggle('is-behind', !ok);
         state.g.classList.toggle('is-picked', !!state.selected);
+        // Out of shot: give the pixels back rather than holding them for a
+        // country nobody is looking at.
+        if (!ok && state.loadedCount) unloadCollage(state);
         // Only a picked country is captioned. Seventy-three name cards at once
         // would bury the globe they are meant to be describing.
         state.cap.classList.toggle('is-behind', !ok || !state.selected);
         if (ok) {
           // First time this one has been worth looking at: fetch its face now
           // rather than pulling all 73 down on load.
-          if (!state.loaded) { state.loaded = true; showCollageFace(state, state.idx); }
+          loadCollage(state, state.reeling || state.selected);
         }
       }
     }
@@ -2126,6 +2157,7 @@ const app = createApp({
     function syncCollageLayer() {
       if (!globeInstance) return;
       clearCollages();
+      loadedOrder.length = 0;
       if (!ensureCollageRoot()) { syncCollageTimer(); return; }
       for (const [country, people] of photoPeopleByCountry.value) {
         if (!people.length) continue;
