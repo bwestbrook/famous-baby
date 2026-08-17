@@ -1661,7 +1661,7 @@ const app = createApp({
     const COLLAGE_HORIZON_MARGIN = 0.06;
     // Under this many pixels across, a country is a speck and the face in it
     // is noise — so it isn't drawn, and its photo is never even fetched.
-    const MIN_FACE_PX = 26;
+    const MIN_FACE_PX = 14;
     // How many faces a reel can hold. Past this the strip is longer than
     // anyone watches and every frame is another image to fetch.
     const REEL_MAX = 8;
@@ -1674,8 +1674,8 @@ const app = createApp({
     // should be alive with moving faces before you have picked anything, and
     // at this threshold a country the size of Togo is already running by the
     // time it is worth looking at.
-    const REEL_ON = 0.05;
-    const REEL_OFF = 0.035;
+    const REEL_ON = 0.02;
+    const REEL_OFF = 0.014;
     // Seconds a frame takes to travel its own height.
     const REEL_SECONDS_PER_FRAME = 2.2;
     // How far a photograph may be enlarged past its own pixels to fill a
