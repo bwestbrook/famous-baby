@@ -131,6 +131,54 @@ Face detection is Vision's, which ships with macOS — no pip or npm dependency.
 
 **Always finish with `resize_photos.sh`.** Wikipedia doesn't always honour the width asked for, and the fetcher saves every file as `<id>.jpg` whatever the bytes really are, so PNGs arrive wearing a `.jpg` suffix. Re-encoding took `photos/` from 49 MB to 7 MB with no visible loss at the size the globe draws a face.
 
+### The sprite sheet the globe draws from
+
+The globe's mosaic has several hundred faces on screen at once, every frame. As
+separate elements that is several hundred decodes, and a decoded image costs its
+pixel area times four bytes whatever the file weighs — which is how this page
+used to run a phone out of memory. So the faces are composed into one sheet:
+
+```bash
+python3 build_atlas.py            # 48px cells → atlas.jpg + atlas.js
+python3 build_atlas.py --cell 64  # sharper, four times the memory
+```
+
+**Rerun it after adding or removing any portrait.** `atlas.js` maps an id to a
+cell *by position*, so regenerating only one of the two files silently shifts
+every face onto the wrong person.
+
+The sheet lives at the repo root, deliberately **not** in `photos/`.
+`fetch_photos.py --manifest` rebuilds `photos.js` by globbing `photos/*.jpg` and
+taking every filename stem as a person's id — so a sprite sheet parked in there
+gets enrolled in the roster as someone called "atlas", which it duly was.
+
+---
+
+## Name origins
+
+The card says what a name *is*, not just how often it was given. English
+Wiktionary writes that as a proper-noun sense on the name's own page — "A female
+given name from Shona", "A male given name from Arabic, variant of Karim" —
+which is already the sentence the card wants.
+
+```bash
+python3 fetch_name_origins.py           # everything not already cached
+python3 fetch_name_origins.py --force   # ignore the cache and refetch
+```
+
+Writes `name_origins.js`, keyed by the given name folded the way `app.js` folds
+it (NFKD, accents stripped, lower case) so the lookup is a plain index. Answers
+are cached in `name_origins_cache.json`, **misses included** — about half the
+roster's given names have no Wiktionary page, and without remembering that, a
+re-run spends its whole time asking again.
+
+Eight requests at a time: serially this is a half-hour job, since the round trip
+is ~0.9s and there are ~1,850 distinct given names. The script sends a
+descriptive `User-Agent`, which Wikimedia asks of automated clients.
+
+Wiktionary is **CC BY-SA**, so the card credits it wherever it shows an origin.
+That credit is a condition of using the text, not a courtesy — don't remove it.
+
 ---
 
 ## Themes

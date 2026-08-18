@@ -123,7 +123,15 @@ if (!FIX) {
   // first inner `},` and leaves half an entry behind. It did exactly that,
   // and produced a data.js that would not parse.
   const cutEntry = (text, id) => {
-    const at = text.indexOf("{ id:'" + id + "'");
+    // data.js is written by more than one hand and uses both quote styles —
+    // Siqueiros is `id:"david-alfaro-siqueiros"`, which a single-quote-only
+    // search walks straight past and reports as unlocatable.
+    let at = -1;
+    for (const open of ["{ id:'" + id + "'", '{ id:"' + id + '"',
+                        "{id:'" + id + "'", '{id:"' + id + '"']) {
+      at = text.indexOf(open);
+      if (at >= 0) break;
+    }
     if (at < 0) return null;
     let depth = 0;
     for (let i = at; i < text.length; i++) {

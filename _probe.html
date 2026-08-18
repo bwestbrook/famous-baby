@@ -1503,5 +1503,47 @@
     s.src = './app.js?v=' + Date.now();
     document.body.appendChild(s);
   </script>
+
+<script>
+(function(){
+  function ready(){ const a=document.getElementById('app'); return a && !a.hasAttribute('v-cloak'); }
+  function go(){
+    // Open the log-in sheet the way a visitor does, through the gate or the menu.
+    const btns=[...document.querySelectorAll('button')];
+    const g=btns.find(b=>/email|log in/i.test(b.textContent||''));
+    if(g) g.click();
+    setTimeout(report, 400);
+  }
+  function report(){
+    const out=[];
+    const app=document.getElementById('app');
+    const ar=app.getBoundingClientRect();
+    out.push('viewport '+innerWidth+'x'+innerHeight);
+    out.push('#app     '+JSON.stringify({l:+ar.left.toFixed(1),r:+ar.right.toFixed(1),w:+ar.width.toFixed(1)}));
+    // every visible overlay and what is inside it
+    for(const ovl of document.querySelectorAll('.ovl, .gate')){
+      if(getComputedStyle(ovl).display==='none') continue;
+      const r=ovl.getBoundingClientRect();
+      out.push('--- '+ovl.className+' pos='+getComputedStyle(ovl).position+
+               ' rect='+JSON.stringify({l:+r.left.toFixed(1),r:+r.right.toFixed(1),w:+r.width.toFixed(1)}));
+      for(const el of ovl.querySelectorAll('*')){
+        const b=el.getBoundingClientRect();
+        if(!b.width) continue;
+        if(b.right > ar.right+0.5 || b.left < ar.left-0.5){
+          out.push('   OVERFLOWS  <'+el.tagName.toLowerCase()+' class="'+el.className+'"> '+
+                   JSON.stringify({l:+b.left.toFixed(1),r:+b.right.toFixed(1),w:+b.width.toFixed(1)}));
+        }
+      }
+      const sheet=ovl.querySelector('.ovl__sheet, .gate__card');
+      if(sheet){const b=sheet.getBoundingClientRect();
+        out.push('   sheet '+sheet.className+' '+JSON.stringify({l:+b.left.toFixed(1),r:+b.right.toFixed(1),w:+b.width.toFixed(1)}));
+        out.push('   scrollW='+sheet.scrollWidth+' clientW='+sheet.clientWidth);}
+    }
+    const pre=document.createElement('pre'); pre.id='probe-out'; pre.textContent=out.join('\n');
+    document.body.appendChild(pre);
+  }
+  (function wait(){ ready()? go() : setTimeout(wait,120); })();
+})();
+</script>
 </body>
 </html>

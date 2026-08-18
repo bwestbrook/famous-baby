@@ -11,6 +11,7 @@ import { ADMIN1_LINES } from './admin1.js';
 import { HAS_PHOTO } from './photos.js';
 import { ATLAS, ATLAS_SLOT } from './atlas.js';
 import { BABY_NAMES, PET_NAMES, NAME_SOURCES } from './names.js';
+import { NAME_ORIGINS } from './name_origins.js';
 
 // ---------------------------------------------------------------------------
 // GOOGLE SIGN-IN — one line of setup, and it's this one.
@@ -1548,11 +1549,23 @@ const app = createApp({
     }
 
     // ---- The lattice ----
-    // How many points go round the whole sphere. Land is a little under a
-    // third of it and not all of that is on the roster, so this yields roughly
-    // a quarter as many tesserae. It is the dial for how fine the mosaic is:
-    // tiles are sized to match the spacing, so raising it makes them smaller
-    // as well as more numerous.
+    // A hexagonal lattice walked in lat/lng, not a Fibonacci scatter. The
+    // scatter was even over the *sphere*, which is not the same as covering
+    // every *country*: at this spacing it reached 88 of the 179 countries on
+    // the roster and left 122 of them showing a single face. A country is the
+    // unit that matters here, so the lattice has to be one you can subdivide
+    // inside one, and a scatter is the one arrangement you cannot.
+    //
+    // Rows sit a row-height apart in latitude, columns a step apart once
+    // longitude is un-squeezed by cos(lat), and alternate rows are offset half
+    // a column — so the points pack in triangles and their tiles cover the
+    // ground between them. Tiles stay meridian-aligned either way, so the
+    // weave reads exactly as it did.
+    //
+    // MOSAIC_N is still the dial for how fine the mosaic is — how many points
+    // would go round the whole sphere at this spacing. Tiles are sized to
+    // match, so raising it makes them smaller as well as more numerous, and
+    // costs three screen projections a frame for every one it adds.
     const MOSAIC_N = 2600;
     // Tiles are drawn a little *smaller* than their share of the sphere, so the
     // lattice never closes into a continuous surface. What is left between
@@ -1578,6 +1591,31 @@ const app = createApp({
     // tile currently blooming, which comes up to full.
     const MIX_REST = 0.30;
     const MIX_LIT = 1;
+    // ---- Covering a country ----
+    // Every country on the roster is laid until its own area is covered, not
+    // until the global lattice happens to have crossed it. A country the
+    // lattice under-serves is re-laid whole at a finer step — whole, rather
+    // than having small tiles wedged in beside big ones, which is what makes
+    // the country read as one surface instead of a patch.
+    // Below COUNTRY_MIN_TILES a country is re-laid finer. It is the dial that
+    // sets the weight of the whole layer: at 4 the mosaic is ~1,430 tesserae,
+    // at 3 it is ~1,190. Every tessera costs three screen projections a frame,
+    // so drop it if the globe ever feels heavy.
+    const COUNTRY_MIN_TILES = 4;
+    // A ceiling on the re-laying only — the global lattice gives Russia its
+    // hundred and is not capped. This stops an archipelago spending the whole
+    // budget on empty islets.
+    const COUNTRY_MAX_TILES = 24;
+    // Each pass tightens the step by this much — about twice the tesserae.
+    // Halving was too coarse a jump: Ireland went from 3 faces to 18 in one
+    // step, which is a different country rather than a better-covered one.
+    const REFINE_RATIO = 1.45;
+    const REFINE_PASSES = 9;
+    // Tesserae are cut by hand, so no two are quite the same size. A fraction
+    // either way of the nominal size, fixed per position rather than per
+    // person — a face is re-dealt every few seconds, and a size that followed
+    // the face would make the whole mosaic breathe.
+    const SIZE_JITTER = 0.20;
     // Not every tile at once. One face blooms somewhere on the globe, holds,
     // and fades; a moment later another does, five tiles further round. A
     // world where everything moves at once reads as noise — a world where one
@@ -1597,20 +1635,38 @@ const app = createApp({
       return [v[0] * c + t[0] * s, v[1] * c + t[1] * s, v[2] * c + t[2] * s];
     };
 
-    // Fibonacci lattice: the standard way to scatter points evenly over a
-    // sphere with no pole singularity and no seam. That consecutive indices
-    // land far apart is worth having for its own sake — faces are dealt in
-    // index order, so neighbouring tiles get different people.
-    function fibonacciSphere(n) {
-      const out = [];
-      const golden = Math.PI * (3 - Math.sqrt(5));
-      for (let i = 0; i < n; i++) {
-        const z = 1 - (2 * i + 1) / n;
-        const r = Math.sqrt(Math.max(0, 1 - z * z));
-        const th = golden * i;
-        out.push([Math.cos(th) * r, Math.sin(th) * r, z]);
+    // The lattice itself. Rows are indexed off the south pole and columns off
+    // the antimeridian rather than off the box being filled, so a fill run
+    // inside one country lands on the same points the global run would have —
+    // the coarse and fine lattices nest, and two countries meeting at a border
+    // do not meet at a seam between two differently-phased grids.
+    function* hexPoints(step, minLat, maxLat, minLng, maxLng) {
+      const stepDeg = step / RAD;
+      const rowDeg = stepDeg * 0.866;                 // √3/2: triangular packing
+      for (let row = Math.floor((minLat + 90) / rowDeg); ; row++) {
+        const lat = row * rowDeg - 90;
+        if (lat > maxLat) break;
+        // Nothing is laid within a degree of a pole: columns there are closer
+        // together than the tiles are wide, whatever cos(lat) is clamped to.
+        if (lat < minLat || lat > 89 || lat < -89) continue;
+        const colDeg = stepDeg / Math.max(0.08, Math.cos(lat * RAD));
+        const off = (row % 2) * colDeg * 0.5;
+        for (let col = Math.floor((minLng - off + 180) / colDeg); ; col++) {
+          const lng = col * colDeg - 180 + off;
+          if (lng > maxLng) break;
+          if (lng < minLng) continue;
+          yield [lat, lng];
+        }
       }
-      return out;
+    }
+    // How much bigger or smaller than nominal this particular tessera is cut.
+    // Hashed from its own position, so it is the same on every load and its
+    // neighbours are all different — a mosaic, not a grid of stamps.
+    function jitterAt(lat, lng) {
+      let h = Math.imul(Math.round((lat + 90) * 1024) | 0, 0x27d4eb2d)
+            ^ Math.imul(Math.round((lng + 180) * 1024) | 0, 0x165667b1);
+      h ^= h >>> 15; h = Math.imul(h, 0x2545f491); h ^= h >>> 13;
+      return 1 + (((h >>> 0) / 4294967296) * 2 - 1) * SIZE_JITTER;
     }
 
     // Which country a point falls in. Every outer ring in the world with its
@@ -1629,6 +1685,7 @@ const app = createApp({
       return inside;
     }
     let landIndex = null;
+    let ringsByCountry = null;
     function buildLandIndex() {
       const out = [];
       for (const f of worldFeatures.value) {
@@ -1647,6 +1704,16 @@ const app = createApp({
         }
       }
       return out;
+    }
+    // Every ring a country owns, so the fill can walk one country's outlines
+    // without scanning all 285 of them per point.
+    function groupRings(index) {
+      const m = new Map();
+      for (const p of index) {
+        if (!m.has(p.country)) m.set(p.country, []);
+        m.get(p.country).push(p);
+      }
+      return m;
     }
     function countryAt(lng, lat) {
       if (!landIndex) return null;
@@ -1676,14 +1743,26 @@ const app = createApp({
     // Distances are in degrees on a locally equal-scale frame — longitude
     // squeezed by cos(latitude) — which is close enough over the couple of
     // degrees that matter and far cheaper than doing it properly on a sphere.
-    const TILE_MIN_HALF = 0.6 * RAD;   // no tessera is cut smaller than this
-    const TILE_DROP = 0.35 * RAD;      // a point this near the water is skipped
+    // The smallest tessera worth laying. It is a floor on *laying* one, never
+    // on its size: a tile is always cut to the room it has, so this is the
+    // point below which there is no room worth using. It has to be this small
+    // or a country narrower than a face — Jamaica, Lebanon, Luxembourg —
+    // qualifies nowhere in its own territory and drops out of the mosaic.
+    //
+    // What used to be here was `max(TILE_MIN_HALF, min(tileHalf, clear))`,
+    // and the max undid the min: any point with between 0.35° and 0.6° of
+    // room got a tessera larger than its own clearance. Measured, 69 tiles
+    // were reaching past their country into the sea. Clamping is one-way now.
+    const TILE_MIN_HALF = 0.08 * RAD;
     function coastClearance(lat, lng, country) {
       const k = Math.max(0.05, Math.cos(lat * RAD));
       const px = lng * k, py = lat;
       let best = Infinity;
-      for (const p of landIndex) {
-        if (p.country !== country) continue;
+      // The country's own rings only. This runs once per candidate point and
+      // the fill asks for a great many more of them than the old scatter did,
+      // so it can no longer afford to walk all 285 rings in the world to throw
+      // 284 of them away.
+      for (const p of (ringsByCountry && ringsByCountry.get(country)) || []) {
         if (lng < p.minX - 6 || lng > p.maxX + 6 || lat < p.minY - 6 || lat > p.maxY + 6) continue;
         const r = p.ring;
         for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
@@ -1774,47 +1853,102 @@ const app = createApp({
       const byCountry = photoPeopleByCountry.value;
       if (!byCountry.size || !worldFeatures.value.length) return;
       landIndex = buildLandIndex();
+      ringsByCountry = groupRings(landIndex);
       // The largest a tessera may be, in radians. sqrt(π/N) is the radius of a
       // circle holding one point's share of the sphere's area; the bleed below
       // one pulls it in from there so the tiles never quite meet. Anything
       // near a coast is cut down further still, by coastClearance.
       tileHalf = Math.sqrt(Math.PI / MOSAIC_N) * TILE_BLEED;
-      const taken = new Map();
-      for (const v of fibonacciSphere(MOSAIC_N)) {
-        const ll = vecToLatLng(v);
-        const country = countryAt(ll[1], ll[0]);
+      const step0 = 2 * tileHalf / TILE_BLEED;     // the spacing that goes with it
+
+      // A point becomes a tessera cut to whatever room it actually has. The
+      // clamp runs one way only: `desired` is a ceiling, `clear` is a ceiling,
+      // and nothing raises either. That is what keeps every tile inside its
+      // own country's outline.
+      const cut = (lat, lng, country, desired) => {
+        const clear = coastClearance(lat, lng, country);
+        const half = Math.min(desired * jitterAt(lat, lng), clear);
+        return half >= TILE_MIN_HALF ? half : 0;
+      };
+
+      // ---- The global lattice ----
+      // One pass over the whole sphere, which covers every country big enough
+      // to hold a face at the nominal size.
+      const laid = new Map();
+      for (const [lat, lng] of hexPoints(step0, -90, 90, -180, 180)) {
+        const country = countryAt(lng, lat);
         if (!country) continue;
         const people = byCountry.get(country);
         if (!people || !people.length) continue;
-        // Nothing worth laying this close to the water: shrinking such a
-        // point to fit would leave a speck, and leaving it whole is the bleed
-        // this is here to stop. Measured, 144 of 688 lattice points go this
-        // way — and any country that loses all of its is caught by the floor
-        // pass below, so the roster's breadth survives it.
-        const clear = coastClearance(ll[0], ll[1], country);
-        if (clear < TILE_DROP) continue;
-        const half = Math.max(TILE_MIN_HALF, Math.min(tileHalf, clear));
-        const k = taken.get(country) || 0;
-        taken.set(country, k + 1);
-        const t = makeTile(v, country, people, k, half);
-        if (t && dealFace(t, 0)) tiles.push(t);
+        const half = cut(lat, lng, country, tileHalf);
+        if (!half) continue;
+        if (!laid.has(country)) laid.set(country, []);
+        laid.get(country).push({ lat, lng, half });
       }
 
-      // Every country on the roster gets at least one tessera, whether or not
-      // the lattice happened to land on it. Measured: at this spacing only 104
-      // of the 179 countries with a photographed person catch a point, because
-      // a country smaller than the spacing can fall clean between two of them.
-      // Without this the mosaic would quietly drop the Netherlands, Jamaica,
-      // Israel and seventy-odd others — which is the roster's whole breadth,
-      // and exactly the failure the fixed tile size was chosen to avoid.
-      const held = new Set(tiles.map(t => t.country));
+      // ---- Countries the lattice under-serves ----
+      // Anything the coarse pass left with fewer than COUNTRY_MIN_TILES is
+      // re-laid from scratch at a tighter step, and again tighter, until it is
+      // covered or its tesserae would be too small to be worth laying. The
+      // country keeps whichever pass gave it the most, so a step that goes one
+      // notch too fine can never leave it with less than it started with.
       for (const [country, people] of byCountry) {
-        if (held.has(country) || !people.length) continue;
+        const rings = ringsByCountry.get(country);
+        if (!rings || !rings.length || !people.length) continue;
+        let best = laid.get(country) || [];
+        if (best.length >= COUNTRY_MIN_TILES) continue;
+        let step = step0;
+        for (let pass = 0; pass < REFINE_PASSES; pass++) {
+          step /= REFINE_RATIO;
+          const desired = Math.min(tileHalf, step / 2 * TILE_BLEED);
+          if (desired < TILE_MIN_HALF) break;
+          let got = [];
+          for (const p of rings) {
+            for (const [lat, lng] of hexPoints(step, p.minY, p.maxY, p.minX, p.maxX)) {
+              if (got.length >= COUNTRY_MAX_TILES * 4) break;
+              if (!pointInRing(lng, lat, p.ring)) continue;
+              const half = cut(lat, lng, country, desired);
+              if (half) got.push({ lat, lng, half });
+            }
+          }
+          // Over the cap the tesserae with the most room win, which is the
+          // mainland rather than a scatter of islets: Fiji is 300 islands and
+          // would otherwise spend the whole budget on the empty ones.
+          if (got.length > COUNTRY_MAX_TILES) {
+            got.sort((a, b) => b.half - a.half);
+            got = got.slice(0, COUNTRY_MAX_TILES);
+          }
+          if (got.length > best.length) best = got;
+          if (best.length >= COUNTRY_MIN_TILES) break;
+        }
+        if (best.length) laid.set(country, best);
+      }
+
+      // ---- Countries with no outline at all ----
+      // Seven of the roster's countries are not in the 110m world data in any
+      // form — Hong Kong and Barbados are below its resolution, Tibet and
+      // Zanzibar are not countries to it, Czechoslovakia has not been one
+      // since 1993. They get their COUNTRY_COORDS point and nothing else,
+      // which is the whole of what the mosaic can honestly say about them.
+      for (const [country, people] of byCountry) {
+        if (laid.has(country) || !people.length) continue;
+        if (ringsByCountry.has(country)) continue;
         const c = COUNTRY_COORDS[country];
         if (!c) continue;
-        const half = Math.max(TILE_MIN_HALF, Math.min(tileHalf, coastClearance(c[0], c[1], country)));
-        const t = makeTile(toVec(c), country, people, 0, half);
-        if (t && dealFace(t, 0)) tiles.push(t);
+        laid.set(country, [{ lat: c[0], lng: c[1], half: tileHalf * jitterAt(c[0], c[1]) }]);
+      }
+
+      // ---- Dealing the faces ----
+      // Per country and in index order, so neighbouring tesserae hold
+      // different people however many the country has.
+      for (const [country, spots] of laid) {
+        const people = byCountry.get(country);
+        if (!people || !people.length) continue;
+        let k = 0;
+        for (const s of spots) {
+          const t = makeTile(toVec([s.lat, s.lng]), country, people, k++, s.half);
+          if (t && dealFace(t, 0)) tiles.push(t);
+        }
       }
     }
 
@@ -2506,10 +2640,21 @@ const app = createApp({
     }
     const nameSource = computed(() => NAME_SOURCES[petMode.value ? 'pet' : 'baby']);
 
+
     // The roster writes "Zinédine"; the registers write "ZINEDINE". Folded the
     // same way names.js was keyed.
     const foldName = (s) => String(s || '')
       .normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+    // What the name *is*, as against how often it was given. English
+    // Wiktionary writes these as a proper-noun sense on the name's own page —
+    // "A female given name from Shona" — which is already the sentence the
+    // card wants. Keyed by the same fold as the registers above.
+    const nameOrigin = computed(() => {
+      const p = selectedPerson.value;
+      if (!p) return '';
+      return NAME_ORIGINS[foldName(givenName(p.name))] || '';
+    });
 
     const nameSeries = computed(() => {
       const p = selectedPerson.value;
@@ -3003,14 +3148,22 @@ const app = createApp({
 
     // Which face of the account sheet is showing.
     const menuView = ref('root');            // root | favorites | searches | settings
-    // `andConfirmSignOut` is the log-out button's path: same sheet, already
-    // asking whether you meant it.
-    function openMenu(view, andConfirmSignOut = false) {
+    // It used to take a second argument that opened the sheet with the
+    // log-out question already asked, which was how the account screen's
+    // "Log out" reached a confirm three groups down the settings page. The
+    // confirm is where the button is now, so there is nothing left to arm.
+    function openMenu(view) {
       menuView.value = view;
-      confirmSignOut.value = andConfirmSignOut;
       menuOpen.value = true;
     }
-    watch(menuOpen, (open) => { if (!open) menuView.value = 'root'; });
+    watch(menuOpen, (open) => {
+      if (open) return;
+      menuView.value = 'root';
+      // Closing the sheet is an answer of "not now" to either question. Left
+      // set, they'd be waiting mid-confirm the next time it opened.
+      confirmSignOut.value = false;
+      confirmForget.value = false;
+    });
 
     // ---- Profile ----
     // Who's doing the naming, and who they're naming. Asked once on the way
@@ -3176,9 +3329,13 @@ const app = createApp({
       persistSearches();
     }
     const confirmSignOut = ref(false);
+    // Forgetting the device is the one thing here that can't be undone, so it
+    // gets a question of its own rather than firing on the first tap.
+    const confirmForget = ref(false);
     // Wiping the browser clean: everything this device holds, session included.
     // Distinct from logging out, which only closes the session behind you.
     function forgetThisDevice() {
+      confirmForget.value = false;
       clearSavedData();
       clearProfile();
       clearAll();
@@ -3790,7 +3947,12 @@ const app = createApp({
     function capNameRows() {
       const root = popCard.value;
       if (!root) return;
-      for (const dd of root.querySelectorAll('.kdl dd')) {
+      // Every row but the origin, which is a sentence rather than a list of
+      // tags. capRows measures the first *element* child to work out a row's
+      // height, and the origin's is its little source credit — so a two-line
+      // sentence measures as taller than two rows and gets railed sideways
+      // into a horizontal scroller.
+      for (const dd of root.querySelectorAll('.kdl dd:not(.kdl__origin)')) {
         capRows(dd);
         if (!dd.dataset.railBound) {
           dd.dataset.railBound = '1';
@@ -4384,6 +4546,7 @@ const app = createApp({
       selectedCountry, selectedCountries, isCountryOn, clearCountry, globeData, zoomGlobe,
       pickCountry, flyToCountry, resetGlobeView, randomGlobeView,
       petMode, togglePetMode, nameSource, nameChart, givenName, showNameChart,
+      nameOrigin,
       miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
       miniCities,
       selectedBornMonths, selectedBornDays, selectedZodiacs, ZODIACS,
@@ -4410,7 +4573,7 @@ const app = createApp({
       menuView, openMenu, prefsInfoOpen,
       savedSearches, saveCurrentSearch, applySavedSearch, deleteSavedSearch,
       searchLabel, isSearchSaved,
-      clearSavedData, forgetThisDevice, confirmSignOut, nameMode,
+      clearSavedData, forgetThisDevice, confirmSignOut, confirmForget, nameMode,
       dialTrack, dialLetter, onDialScroll, onDialClick, randomLetter,
       dialStep, canDialUp, canDialDown,
       dialPointerDown, dialPointerMove, dialPointerUp,

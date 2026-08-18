@@ -1628,6 +1628,23 @@ body {
 .kdl { margin: 0 0 14px; display: grid; grid-template-columns: 70px minmax(0,1fr); gap: 6px 10px; align-items: start; }
 .kdl dt { font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); padding-top: 4px; }
 .kdl dd { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+/* The one row that is a sentence rather than a row of tags, so it opts out of
+   the flex the others need and simply reads. */
+.kdl dd.kdl__origin {
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-2);
+  padding-top: 2px;
+}
+/* Wiktionary is CC BY-SA — the credit is a condition of using the sentence
+   above it, so it sits with that sentence rather than in a colophon. */
+.kdl__src {
+  display: block;
+  margin-top: 3px;
+  font-size: 8px; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--text-3);
+}
 /* Past two rows a list stops wrapping and becomes a rail: two rows deep, the
    rest carried off to the right. Applied by measurement — see capRows(). */
 .kdl dd.is-railed {
@@ -2271,6 +2288,11 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
   padding: 12px;
   background: rgba(255,109,96,.08);
 }
+/* The confirm used to appear only inside .mgrp, which supplies the sheet's
+   16px gutter. On the account screen it stands directly in the scroll area,
+   where nothing does — so it borrows the same gutter every .mrow above it
+   already has, rather than running to the edges. */
+.ovl__scroll > .mconfirm { margin: 4px 16px; }
 .mconfirm__q { margin: 0 0 10px; font-size: 12px; font-weight: 300; line-height: 1.5; color: rgba(255,255,255,.85); }
 .mconfirm__row { display: flex; gap: 6px; }
 /* Same rule as everything else in the sheet: a button fills the width it's
