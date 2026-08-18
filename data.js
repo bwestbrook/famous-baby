@@ -1841,10 +1841,6 @@ export const PEOPLE = [
     collaborators:['Robert Redford','George Roy Hill'], contemporaries:[], friends:[], foes:[],
     bio:"Blue-eyed leading man who pocketed an Oscar, won at Le Mans, and bottled salad dressing for charity." },
 
-  { id:'katharine-hepburn', name:'Katharine Hepburn', middleName:'Houghton', homophones:['Catherine','Kathryn','Katharyn'], similarSpellings:['Kathrine','Kathryne','Katherin','Katheryne'], gender:'female', birthYear:1907, birthMonth:5, birthDay:12, birthPlace:'Hartford, Connecticut', country:'USA', field:'Film', subfield:'Actress',
-    teams:[], awards:[{name:'Academy Award for Best Actress',year:1934},{name:'Academy Award for Best Actress',year:1968}],
-    collaborators:['Spencer Tracy','George Cukor'], contemporaries:[], friends:[], foes:[],
-    bio:"Four-time Best Actress winner who wore trousers and her own terms for sixty unflappable years." },
 
   { id:'humphrey-bogart', name:'Humphrey Bogart', middleName:'DeForest', homophones:[], similarSpellings:['Humphery','Humfrey','Humphry','Humfree'], gender:'male', birthYear:1899, birthMonth:12, birthDay:25, birthPlace:'New York, New York', country:'USA', field:'Film', subfield:'Actor',
     teams:[], awards:[{name:'Academy Award for Best Actor',year:1952}],
@@ -1886,10 +1882,6 @@ export const PEOPLE = [
     collaborators:['Diane Keaton','Mia Farrow'], contemporaries:[], friends:[], foes:[],
     bio:"Neurotic Manhattan auteur of Annie Hall who wrote, directed, and clarinet-played his way through fifty films." },
 
-  { id:'john-coltrane', name:'John Coltrane', middleName:'William', homophones:['Jon','Jonn'], similarSpellings:['Jon','Johnn','Joohn','Johne'], gender:'male', birthYear:1926, birthMonth:9, birthDay:23, birthPlace:'Hamlet, North Carolina', country:'USA', field:'Music', subfield:'Jazz',
-    teams:[], awards:[{name:'Grammy Lifetime Achievement Award',year:1992}],
-    collaborators:['Miles Davis','McCoy Tyner','Elvin Jones'], contemporaries:[], friends:[], foes:[],
-    bio:"Tenor-sax mystic whose A Love Supreme turned spiritual searching into a sheet of sound." },
 
   { id:'thelonious-monk', name:'Thelonious Monk', middleName:'Sphere', homophones:[], similarSpellings:['Thelonius','Theolonius','Thelounius','Thelonios'], gender:'male', birthYear:1917, birthMonth:10, birthDay:10, birthPlace:'Rocky Mount, North Carolina', country:'USA', field:'Music', subfield:'Jazz',
     teams:[], awards:[{name:'Grammy Lifetime Achievement Award',year:1993}],
@@ -2111,10 +2103,6 @@ export const PEOPLE = [
     collaborators:['Subrata Mitra','Ravi Shankar'], contemporaries:[], friends:[], foes:[],
     bio:"Bengali humanist whose Apu Trilogy turned a small village's growing-up into world cinema." },
 
-  { id:'pedro-almodovar', name:'Pedro Almodóvar', middleName:'', homophones:[], similarSpellings:['Pedrro','Petro','Pyedro','Padero'], gender:'male', birthYear:1949, birthMonth:9, birthDay:25, birthPlace:'Calzada de Calatrava, Spain', country:'Spain', field:'Film', subfield:'Director',
-    teams:[], awards:[{name:'Academy Award for Best Foreign Language Film',year:2000}],
-    collaborators:['Penélope Cruz','Antonio Banderas'], contemporaries:[], friends:[], foes:[],
-    bio:"Movida Madrileña melodramatist who paints women in candy colors and seismic feeling." },
 
   { id:'luis-bunuel', name:'Luis Buñuel', middleName:'', homophones:[], similarSpellings:['Lewis','Louis','Luiz','Luys'], gender:'male', birthYear:1900, birthMonth:2, birthDay:22, birthPlace:'Calanda, Spain', country:'Spain', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Award for Best Foreign Language Film',year:1973}],
@@ -2570,15 +2558,7 @@ export const PEOPLE = [
     collaborators:['Johnny Cash'], contemporaries:['Loretta Lynn','Patsy Cline'], friends:['Johnny Cash'], foes:[],
     bio:"Carter Family heir who co-wrote 'Ring of Fire,' then spent decades steadying Johnny Cash — offstage as his wife, onstage as his foil." },
 
-  { id:'herbie-hancock', name:'Herbie Hancock', middleName:'Jeffrey', homophones:['Herby'], similarSpellings:['Herby','Hurbie','Hancoc','Handcock'], gender:'male', birthYear:1940, birthMonth:4, birthDay:12, birthPlace:'Chicago, Illinois', country:'USA', field:'Music', subfield:'Jazz',
-    teams:[], awards:[{name:'Academy Award (Best Original Score)',year:1987},{name:'Grammy Award (Album of the Year)',year:2008}],
-    collaborators:['Miles Davis','Quincy Jones','Joni Mitchell'], contemporaries:['Miles Davis','John Coltrane'], friends:[], foes:[],
-    bio:"Miles Davis's pianist who plugged jazz into a Fender Rhodes, scored a hit with 'Rockit,' and won Album of the Year for a Joni Mitchell tribute." },
 
-  { id:'gilberto-gil', name:'Gilberto Gil', middleName:'Passos', homophones:['Gilbert'], similarSpellings:['Gilbert','Gilberdo','Ghilberto','Gill'], gender:'male', birthYear:1942, birthMonth:6, birthDay:26, birthPlace:'Salvador, Brazil', country:'Brazil', field:'Music', subfield:'MPB',
-    teams:[], awards:[{name:'Grammy Award (Best World Music Album)',year:1999}],
-    collaborators:['Caetano Veloso'], contemporaries:['Caetano Veloso'], friends:['Caetano Veloso'], foes:[],
-    bio:"Tropicália firebrand who fused Bahian rhythm with rock beside Caetano Veloso, went into exile, then returned as Brazil's culture minister." },
 
   { id:'alice-coltrane', name:'Alice Coltrane', middleName:'McLeod', homophones:['Alyce','Allis'], similarSpellings:['Alyce','Allice','Coltrain','Coltraine'], gender:'female', birthYear:1937, birthMonth:8, birthDay:27, birthPlace:'Detroit, Michigan', country:'USA', field:'Music', subfield:'Jazz',
     teams:[], awards:[],
@@ -2600,15 +2580,7 @@ export const PEOPLE = [
     collaborators:['Pablo Picasso'], contemporaries:['Pablo Picasso'], friends:['Pablo Picasso'], foes:[],
     bio:"The quieter half of Cubism, who with Picasso shattered perspective into facets, then pasted the first papier collé onto canvas." },
 
-  { id:'irene-joliot-curie', name:'Irène Joliot-Curie', middleName:'', homophones:['Irene','Ireen'], similarSpellings:['Irene','Iréne','Curie','Jolliot'], gender:'female', birthYear:1897, birthMonth:9, birthDay:12, birthPlace:'Paris, France', country:'France', field:'Science', subfield:'Chemistry',
-    teams:[], awards:[{name:'Nobel Prize in Chemistry',year:1935}],
-    collaborators:['Marie Curie','Frédéric Joliot-Curie'], contemporaries:['Lise Meitner','Marie Curie'], friends:[], foes:[],
-    bio:"Marie Curie's daughter who shared a 1935 Nobel with her husband for making atoms radioactive — a second act to the family's first." },
 
-  { id:'otto-hahn', name:'Otto Hahn', middleName:'', homophones:['Oto','Otho'], similarSpellings:['Oto','Otho','Hahne','Han'], gender:'male', birthYear:1879, birthMonth:3, birthDay:8, birthPlace:'Frankfurt, Germany', country:'Germany', field:'Science', subfield:'Chemistry',
-    teams:[], awards:[{name:'Nobel Prize in Chemistry',year:1944}],
-    collaborators:['Lise Meitner','Fritz Strassmann'], contemporaries:['Lise Meitner','Niels Bohr'], friends:['Lise Meitner'], foes:[],
-    bio:"Chemist who split the uranium atom in 1938 and won the Nobel alone, while his partner Lise Meitner, who named fission, was passed over." },
 
   // =====================================================================
   //  2026-08-02 (Sunday) — "Strengthen the graph": 10 additions, each
@@ -3059,7 +3031,6 @@ export const PEOPLE = [
   { id:'jessy-matador', name:'Jessy Matador', middleName:'', gender:'male', birthYear:1982, birthMonth:10, birthDay:27, birthPlace:'Democratic Republic of the Congo, DR Congo', country:'DR Congo', field:'Music', subfield:'Pop', teams:[], awards:[], collaborators:[], bio:'Born in Democratic Republic of the Congo, DR Congo, in 1982. Singer.' },
   { id:'christian-benteke', name:'Christian Benteke', middleName:'', gender:'male', birthYear:1990, birthMonth:12, birthDay:3, birthPlace:'Kinshasa, DR Congo', country:'DR Congo', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Kinshasa, DR Congo, in 1990. Association football player.' },
   { id:'dikembe-mutombo', name:'Dikembe Mutombo', middleName:'', gender:'male', birthYear:1966, birthMonth:6, birthDay:25, birthPlace:'Kinshasa, DR Congo', country:'DR Congo', field:'Sports', subfield:'NBA', teams:[], awards:[], collaborators:[], bio:'Born in Kinshasa, DR Congo, in 1966. Basketball player.' },
-  { id:'k-naan-2', name:'K\'naan', middleName:'', gender:'male', birthYear:1978, birthMonth:4, birthDay:16, birthPlace:'Mogadishu, Somalia', country:'Somalia', field:'Music', subfield:'Hip-Hop', teams:[], awards:[], collaborators:[], bio:'Born in Mogadishu, Somalia, in 1978. Poet and singer.' },
   { id:'ilhan-omar', name:'Ilhan Omar', middleName:'', gender:'female', birthYear:1982, birthMonth:10, birthDay:4, birthPlace:'Mogadishu, Somalia', country:'Somalia', field:'Activism', subfield:'Civil Rights', teams:[], awards:[], collaborators:[], bio:'Born in Mogadishu, Somalia, in 1982. Civil servant and policy advisor.' },
   { id:'barkhad-abdi', name:'Barkhad Abdi', middleName:'', gender:'male', birthYear:1985, birthMonth:4, birthDay:10, birthPlace:'Mogadishu, Somalia', country:'Somalia', field:'Film', subfield:'Director', teams:[], awards:[], collaborators:[], bio:'Born in Mogadishu, Somalia, in 1985. Actor and film director.' },
   { id:'nuruddin-farah', name:'Nuruddin Farah', middleName:'', gender:'male', birthYear:1945, birthMonth:11, birthDay:24, birthPlace:'Baidoa, Somalia', country:'Somalia', field:'Literature', subfield:'Novelist', teams:[], awards:[], collaborators:[], bio:'Born in Baidoa, Somalia, in 1945. Novelist.' },
@@ -3071,7 +3042,6 @@ export const PEOPLE = [
   { id:'abubaker-kaki-khamis', name:'Abubaker Kaki Khamis', middleName:'', gender:'male', birthYear:1989, birthMonth:6, birthDay:21, birthPlace:'Mujlad, Sudan', country:'Sudan', field:'Sports', subfield:'Track & Field', teams:[], awards:[], collaborators:[], bio:'Born in Mujlad, Sudan, in 1989. Athletics competitor and middle-distance runner.' },
   { id:'ismail-ahmed-ismail', name:'Ismail Ahmed Ismail', middleName:'', gender:'male', birthYear:1984, birthMonth:9, birthDay:10, birthPlace:'Khartoum, Sudan', country:'Sudan', field:'Sports', subfield:'Track & Field', teams:[], awards:[], collaborators:[], bio:'Born in Khartoum, Sudan, in 1984. Middle-distance runner.' },
   { id:'mohamed-naguib', name:'Mohamed Naguib', middleName:'', gender:'male', birthYear:1901, birthMonth:2, birthDay:20, birthPlace:'Khartoum, Sudan', country:'Sudan', field:'Politics', subfield:'President', teams:[], awards:[], collaborators:[], bio:'Born in Khartoum, Sudan, in 1901. President and military personnel.' },
-  { id:'ezechiel-n-douassel-2', name:'Ezechiel N\'Douassel', middleName:'', gender:'male', birthYear:1988, birthMonth:4, birthDay:22, birthPlace:'N\'Djamena, Chad', country:'Chad', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in N\'Djamena, Chad, in 1988. Association football player.' },
   { id:'francois-tombalbaye', name:'François Tombalbaye', middleName:'', gender:'male', birthYear:1918, birthMonth:6, birthDay:15, birthPlace:'Béssada, Chad', country:'Chad', field:'Politics', subfield:'President', teams:[], awards:[], collaborators:[], bio:'Born in Béssada, Chad, in 1918. Politician.' },
   { id:'hindou-oumarou-ibrahim', name:'Hindou Oumarou Ibrahim', middleName:'', gender:'female', birthYear:1984, birthMonth:1, birthDay:1, birthPlace:'N\'Djamena, Chad', country:'Chad', field:'Politics', subfield:'President', teams:[], awards:[], collaborators:[], bio:'Born in N\'Djamena, Chad, in 1984. Geographer and human rights defender.' },
   { id:'felix-malloum', name:'Félix Malloum', middleName:'', gender:'male', birthYear:1932, birthMonth:9, birthDay:10, birthPlace:'Sarh, Chad', country:'Chad', field:'Politics', subfield:'President', teams:[], awards:[], collaborators:[], bio:'Born in Sarh, Chad, in 1932. Military personnel.' },
@@ -3095,7 +3065,6 @@ export const PEOPLE = [
   { id:'collin-benjamin', name:'Collin Benjamin', middleName:'', gender:'male', birthYear:1978, birthMonth:8, birthDay:3, birthPlace:'Windhoek, Namibia', country:'Namibia', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Windhoek, Namibia, in 1978. Association football coach and association football player.' },
   { id:'hage-geingob', name:'Hage Geingob', middleName:'', gender:'male', birthYear:1941, birthMonth:8, birthDay:3, birthPlace:'Otjiwarongo, Namibia', country:'Namibia', field:'Politics', subfield:'President', teams:[], awards:[], collaborators:[], bio:'Born in Otjiwarongo, Namibia, in 1941. Minister and researcher.' },
   { id:'netumbo-nandi-ndaitwah', name:'Netumbo Nandi-Ndaitwah', middleName:'', gender:'female', birthYear:1952, birthMonth:10, birthDay:29, birthPlace:'Oshana Region, Namibia', country:'Namibia', field:'Politics', subfield:'President', teams:[], awards:[], collaborators:[], bio:'Born in Oshana Region, Namibia, in 1952. Minister.' },
-  { id:'youssou-n-dour-2', name:'Youssou N\'Dour', middleName:'', gender:'male', birthYear:1959, birthMonth:10, birthDay:1, birthPlace:'Dakar, Senegal', country:'Senegal', field:'Music', subfield:'Pop', teams:[], awards:[], collaborators:[], bio:'Born in Dakar, Senegal, in 1959. Singer and minister.' },
   { id:'patrice-evra', name:'Patrice Evra', middleName:'', gender:'male', birthYear:1981, birthMonth:5, birthDay:15, birthPlace:'Dakar, Senegal', country:'Senegal', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Dakar, Senegal, in 1981. Association football player.' },
   { id:'ousmane-sembene', name:'Ousmane Sembène', middleName:'', gender:'male', birthYear:1923, birthMonth:1, birthDay:1, birthPlace:'Ziguinchor, Senegal', country:'Senegal', field:'Film', subfield:'Director', teams:[], awards:[], collaborators:[], bio:'Born in Ziguinchor, Senegal, in 1923. Screenwriter and actor.' },
   { id:'khaby-lame', name:'Khaby Lame', middleName:'', gender:'male', birthYear:2000, birthMonth:3, birthDay:9, birthPlace:'Dakar, Senegal', country:'Senegal', field:'Film', subfield:'Comedian', teams:[], awards:[], collaborators:[], bio:'Born in Dakar, Senegal, in 2000. Comedian and Internet celebrity.' },
@@ -3115,7 +3084,6 @@ export const PEOPLE = [
   { id:'sade-singer', name:'Sade (singer)', middleName:'', gender:'female', birthYear:1959, birthMonth:1, birthDay:16, birthPlace:'Ibadan, Nigeria', country:'Nigeria', field:'Music', subfield:'Pop', teams:[], awards:[], collaborators:[], bio:'Born in Ibadan, Nigeria, in 1959. Composer and singer.' },
   { id:'umaru-musa-yar-adua', name:'Umaru Musa Yar\'Adua', middleName:'', gender:'male', birthYear:1951, birthMonth:8, birthDay:16, birthPlace:'Katsina, Nigeria', country:'Nigeria', field:'Tech', subfield:'Entrepreneur', teams:[], awards:[], collaborators:[], bio:'Born in Katsina, Nigeria, in 1951. Entrepreneur.' },
   { id:'alex-iwobi', name:'Alex Iwobi', middleName:'', gender:'male', birthYear:1996, birthMonth:5, birthDay:3, birthPlace:'Lagos, Nigeria', country:'Nigeria', field:'Music', subfield:'Pop', teams:[], awards:[], collaborators:[], bio:'Born in Lagos, Nigeria, in 1996. Musician and association football player.' },
-  { id:'samuel-eto-o-2', name:'Samuel Eto\'o', middleName:'', gender:'male', birthYear:1981, birthMonth:3, birthDay:10, birthPlace:'Douala, Cameroon', country:'Cameroon', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Douala, Cameroon, in 1981. Association football coach and association football player.' },
   { id:'roger-milla', name:'Roger Milla', middleName:'', gender:'male', birthYear:1952, birthMonth:5, birthDay:20, birthPlace:'Yaoundé, Cameroon', country:'Cameroon', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Yaoundé, Cameroon, in 1952. Association football coach and association football player.' },
   { id:'vincent-aboubakar', name:'Vincent Aboubakar', middleName:'', gender:'male', birthYear:1992, birthMonth:1, birthDay:22, birthPlace:'Yaoundé, Cameroon', country:'Cameroon', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Yaoundé, Cameroon, in 1992. Association football player.' },
   { id:'andre-onana', name:'André Onana', middleName:'', gender:'male', birthYear:1996, birthMonth:4, birthDay:2, birthPlace:'Centre, Cameroon', country:'Cameroon', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Centre, Cameroon, in 1996. Association football player.' },
@@ -3491,7 +3459,6 @@ export const PEOPLE = [
   { id:'maria-corina-machado', name:'María Corina Machado', middleName:'', gender:'female', birthYear:1967, birthMonth:10, birthDay:7, birthPlace:'Caracas, Venezuela', country:'Venezuela', field:'Tech', subfield:'Inventor', teams:[], awards:[], collaborators:[], bio:'Born in Caracas, Venezuela, in 1967. Human rights defender and industrial engineer.' },
   { id:'karol-nawrocki', name:'Karol Nawrocki', middleName:'', gender:'male', birthYear:1983, birthMonth:3, birthDay:3, birthPlace:'Gdańsk, Poland', country:'Poland', field:'Literature', subfield:'Essayist', teams:[], awards:[], collaborators:[], bio:'Born in Gdańsk, Poland, in 1983. Historian.' },
   { id:'lukas-podolski', name:'Lukas Podolski', middleName:'', gender:'male', birthYear:1985, birthMonth:6, birthDay:4, birthPlace:'Gliwice, Poland', country:'Poland', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Gliwice, Poland, in 1985. Association football player and athlete.' },
-  { id:'samuel-eto-o-3', name:'Samuel Eto\'o', middleName:'', gender:'male', birthYear:1981, birthMonth:3, birthDay:10, birthPlace:'Douala, Cameroon', country:'Cameroon', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Douala, Cameroon, in 1981. Association football coach and association football player.' },
   { id:'sergio-aguero', name:'Sergio Agüero', middleName:'', gender:'male', birthYear:1988, birthMonth:6, birthDay:2, birthPlace:'Buenos Aires, Argentina', country:'Argentina', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Buenos Aires, Argentina, in 1988. Association football player and online streamer.' },
   { id:'volodymyr-zelenskyy', name:'Volodymyr Zelenskyy', middleName:'', gender:'male', birthYear:1978, birthMonth:1, birthDay:25, birthPlace:'Kryvyi Rih, Ukraine', country:'Ukraine', field:'Politics', subfield:'President', teams:[], awards:[], collaborators:[], bio:'Born in Kryvyi Rih, Ukraine, in 1978. Politician.' },
   { id:'javier-milei', name:'Javier Milei', middleName:'', gender:'male', birthYear:1970, birthMonth:10, birthDay:22, birthPlace:'Buenos Aires, Argentina', country:'Argentina', field:'Sports', subfield:'Soccer', teams:[], awards:[], collaborators:[], bio:'Born in Buenos Aires, Argentina, in 1970. Economist and civil servant.' },
