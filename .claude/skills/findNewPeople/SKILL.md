@@ -28,6 +28,33 @@ python3 fetch_photos.py --targets photo_refetch.json --width 1400
 python3 fetch_photos.py --manifest
 ```
 
+## And then the generated files — this part is not optional
+
+Three files are built *from* the dataset and go stale the moment it grows.
+None of them errors when stale; they just quietly stop being true.
+
+```bash
+node roster_clean.mjs --fix     # duplicates always appear in a big pass
+python3 fetch_photos.py --manifest
+python3 build_atlas.py          # after the manifest, never before
+node names_popularity.mjs
+node roster_stats.mjs           # the numbers to report
+```
+
+- **`atlas.js`** maps an id to a cell **by position**. Rebuild the sheet
+  without the manifest, or the manifest without the sheet, and every face
+  silently moves onto the wrong person. This is the worst failure in the
+  project: it looks fine and is completely wrong.
+- **`names.js`** holds a popularity series only for given names in the roster.
+  Adding 1,200 people without rerunning it left the name graph appearing on
+  39% of cards, and it looked like the feature had been deleted.
+- **`photos.js`** is globbed from `photos/*.jpg`. Anything else parked in that
+  folder is enrolled as a person — a sprite sheet once joined the roster as
+  someone called "atlas".
+
+Order matters: dedupe first (it removes entries, orphaning their photographs),
+delete the orphans, then manifest, then atlas.
+
 Order matters: fetch large, cut faces from the large file, shrink the
 originals last. Cropping an already-downsized picture has nothing left to give
 — that mistake produced 382px faces stretched across a whole country.

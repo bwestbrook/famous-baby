@@ -69,8 +69,21 @@ Batch at 20 titles at most — extracts come back empty past that, with no error
 anything generated. A refresh is a clause or a sentence on the end, and every
 one of them has to be in the article.
 
-## Finish
+## Finish — rebuild what is generated from the dataset
 
-`node roster_clean.mjs` again to confirm, then `/rosterStats` for the counts,
-and report what was removed by name. A person quietly disappearing from the
-roster is worse than a duplicate staying in it.
+Removing people invalidates the same three files that adding them does, and
+none of them complains:
+
+```bash
+python3 fetch_photos.py --manifest    # after deleting orphaned photographs
+python3 build_atlas.py                # after the manifest, never before
+node names_popularity.mjs
+node roster_clean.mjs                 # confirm it is clean
+node roster_stats.mjs                 # the numbers to report
+```
+
+`atlas.js` maps an id to a cell by position, so a manifest rebuilt without the
+sheet puts every face on the wrong person — silently, and it looks fine.
+
+Then report what was removed **by name**. A person quietly disappearing from
+the roster is worse than a duplicate staying in it.
