@@ -1284,18 +1284,24 @@
     </div>
 
     <!-- ============== LOG IN ==============
-         No server behind the door yet, so there's no password to ask for:
-         logging in is a name this browser agrees to hold, and it holds it
-         until you log out — closing the tab doesn't end it. -->
-    <div class="ovl" v-show="loginOpen" @click.self="loginOpen = false">
+         Two ways through the same door. Google is the one that knows who you
+         are; the email box below it is a name this browser agrees to hold,
+         and holds until you log out — closing the tab doesn't end it. -->
+    <div class="ovl" v-show="loginOpen" @click.self="closeLogin()">
       <div class="ovl__sheet ovl__sheet--menu" role="dialog" aria-modal="true">
         <div class="ovl__head">
           <h2 class="ovl__title">Log in</h2>
-          <button class="panel__collapse" @click="loginOpen = false" title="Close">
+          <button class="panel__collapse" @click="closeLogin()" title="Close">
             <svg class="ico ico--18"><use href="#i-close"/></svg>
           </button>
         </div>
         <form class="ovl__scroll" @submit.prevent="submitLogin">
+          <!-- Google renders its own button into this box. With no client ID
+               set the whole row stays out of the layout. -->
+          <div v-if="googleOn" class="gauth">
+            <div class="gauth__btn" ref="loginGoogleBtn"></div>
+            <div class="gauth__or"><span>or</span></div>
+          </div>
           <div class="pform">
             <div class="pform__grp">
               <div class="pform__label">Email</div>
@@ -1319,22 +1325,52 @@
               />
             </div>
             <p v-if="loginError" class="pform__err">{{ loginError }}</p>
+            <p v-if="googleError" class="pform__err">{{ googleError }}</p>
           </div>
           <div class="mnote">
             No password, because there's no server on the other side yet —
-            nothing you type here leaves this browser. It keeps you logged in
+            nothing you type here leaves this browser, and what Google hands
+            back never leaves it either. Either way it keeps you logged in
             through closing the tab, and lets go when you log out.
           </div>
           <!-- Enter submits, and a submit button is how a form knows that. -->
           <button type="submit" hidden></button>
         </form>
         <div class="ovl__foot">
-          <button class="btn btn--text" @click="loginOpen = false">Cancel</button>
+          <button class="btn btn--text" @click="closeLogin()">Cancel</button>
           <button class="btn btn--fill" @click="submitLogin()">Log in</button>
         </div>
       </div>
     </div>
 
+    <!-- ============== THE GATE ==============
+         The first screen for anyone this browser doesn't know. It covers the
+         page but not the globe's meaning: the world keeps turning behind the
+         card, so what's being offered is visible from the step. Two doors and
+         a way past — a reference book that won't open is no use to anyone. -->
+    <div class="gate" v-if="gateOpen">
+      <div class="gate__card" role="dialog" aria-modal="true" aria-label="Welcome to famous Baby">
+        <h1 class="gate__mark"><em>famous</em>Baby</h1>
+        <p class="gate__line">
+          An almanac for naming. Search a thousand lives by everything except
+          the name — a century, a country, a calling — and arrive at a name
+          with a life already attached.
+        </p>
+
+        <div class="gate__doors">
+          <!-- Google draws its own button into this box; with no client ID
+               set the row stays out of the layout entirely. -->
+          <div v-if="googleOn" class="gate__gsi" ref="gateGoogleBtn"></div>
+          <button class="gate__btn" @click="gateEmail()">Continue with email</button>
+          <p v-if="googleError" class="gate__err">{{ googleError }}</p>
+        </div>
+
+        <button class="gate__skip" @click="skipGate()">
+          Look around first
+          <svg class="ico ico--16"><use href="#i-chev-right"/></svg>
+        </button>
+      </div>
+    </div>
 
   </div>
 

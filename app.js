@@ -9,7 +9,24 @@ import { createApp, ref, computed, watch, onMounted, onUnmounted, nextTick } fro
 import { MAJOR_CITIES, CITY_COORDS, REGION_COORDS, US_STATE_CITIES, US_LABEL_ALTITUDE } from './geo.js';
 import { ADMIN1_LINES } from './admin1.js';
 import { HAS_PHOTO } from './photos.js';
+import { ATLAS, ATLAS_SLOT } from './atlas.js';
 import { BABY_NAMES, PET_NAMES, NAME_SOURCES } from './names.js';
+
+// ---------------------------------------------------------------------------
+// GOOGLE SIGN-IN — one line of setup, and it's this one.
+//
+// Paste a Google Cloud OAuth 2.0 "Web application" client ID between the
+// quotes and "Continue with Google" appears at the door. Leave it empty and
+// the button stays hidden and the email box carries the page on its own —
+// nothing else about the site changes either way.
+//
+// The client's *Authorised JavaScript origins* have to name every origin this
+// site is served from, exactly, scheme and port included:
+//     http://localhost:8777          ← local work (run.sh defaults to 8080)
+//     https://<you>.github.io        ← the live Pages origin
+// No redirect URI is needed: this flow never leaves the page.
+// ---------------------------------------------------------------------------
+const GOOGLE_CLIENT_ID = '';
 
 // State / province borders, flattened for globe.gl's path layer.
 const ADMIN1_PATHS = Object.entries(ADMIN1_LINES).flatMap(([country, lines]) =>
@@ -258,6 +275,67 @@ function homeFromTimeZone() {
   if (city) return { lat: city.lat, lng: city.lng, from: tz };
   return null;
 }
+
+// ---- Where the visitor is ----
+// The globe opens on the visitor's own country. The time zone above answers
+// instantly, with no network and nothing told to anybody, and it is usually
+// right — but it is a guess at a *city*, and it has nothing to say when the
+// zone is one of the vague ones. So the IP is looked up as well and the camera
+// re-aimed if the two disagree.
+//
+// That lookup is a request to a third party carrying the visitor's IP address.
+// There is no way to ask "where is this person" without it, so it is done once
+// and the answer kept for half a day: a reload re-opens on the right country
+// without going near the network again.
+const IP_HOME_KEY = 'fb.ipHome';
+const IP_HOME_TTL = 12 * 3600 * 1000;
+// Two services, because one is a single point of failure and endpoints like
+// these are routinely blocked by ad blockers — which is a perfectly reasonable
+// thing for a visitor to be doing, and is why every path through here ends in
+// "carry on with the time zone's answer" rather than in an error.
+const IP_HOME_URLS = [
+  'https://get.geojs.io/v1/ip/geo.json',
+  'https://ipwho.is/',
+];
+
+function readIpHome() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(IP_HOME_KEY) || 'null');
+    if (raw && Date.now() - raw.at < IP_HOME_TTL && isFinite(raw.lat) && isFinite(raw.lng)) return raw;
+  } catch {}
+  return null;
+}
+
+async function fetchIpHome() {
+  const cached = readIpHome();
+  if (cached) return cached;
+  for (const url of IP_HOME_URLS) {
+    try {
+      // A hung endpoint must not leave the camera lurching somewhere else
+      // several seconds after the visitor has started reading the page.
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 2500);
+      const res = await fetch(url, { signal: ctl.signal });
+      clearTimeout(timer);
+      if (!res.ok) continue;
+      const j = await res.json();
+      // geojs sends the coordinates as strings and no status field; ipwho.is
+      // sends numbers and reports failure in the body with a 200.
+      if (!j || j.success === false) continue;
+      const lat = parseFloat(j.latitude), lng = parseFloat(j.longitude);
+      if (!isFinite(lat) || !isFinite(lng)) continue;
+      const out = { lat, lng, country: j.country || '', at: Date.now() };
+      try { localStorage.setItem(IP_HOME_KEY, JSON.stringify(out)); } catch {}
+      return out;
+    } catch { /* blocked, offline, or too slow: try the next, then give up */ }
+  }
+  return null;
+}
+
+// Started here rather than on mount, so the round trip overlaps the dataset
+// import and the Vue mount instead of queueing behind them. On a reload with
+// the answer already cached this settles before the globe exists at all.
+const IP_HOME = fetchIpHome();
 
 // Country outlines for the globe. world-atlas ships TopoJSON (small); the
 // topojson-client UMD loaded in index.html converts it to the GeoJSON
@@ -1215,17 +1293,15 @@ const app = createApp({
       HOME_VIEW.lng = lng;
     }
 
-    // TEMPORARY OVERRIDE — everyone opens over Africa.
-    // Normally this is the visitor's own part of the world, worked out from
-    // their time zone (see homeFromTimeZone) and refined by the device if
-    // they've already granted location. That makes every session start
-    // somewhere different, which is exactly wrong while the globe is being
-    // worked on: you can't tell a change from a coincidence. Delete the two
-    // lines below to hand the opening view back to the visitor.
-    // Africa, centred so the continent fills the opening view: the roster
-    // reaches every country on it now, and that is what the globe should
-    // be showing when it arrives.
-    const OPENING_OVERRIDE = { lat: 2.0, lng: 19.0 };   // central Africa
+    // Normally null: the opening view belongs to the visitor, worked out from
+    // their time zone, corrected by their IP, and refined by the device itself
+    // if they have already granted location.
+    //
+    // Set it to a { lat, lng } to pin the globe somewhere fixed while this
+    // layer is being worked on — a session that starts somewhere different
+    // every time is exactly wrong then, because you can't tell a change from a
+    // coincidence. It used to hold { lat: 2.0, lng: 19.0 } for central Africa.
+    const OPENING_OVERRIDE = null;
 
     function openingGlobeView() {
       if (OPENING_OVERRIDE) {
@@ -1241,6 +1317,29 @@ const app = createApp({
       if (pick) aimHomeAt(pick.country);
     }
 
+    // Until the visitor takes hold of the globe themselves, where it points is
+    // still ours to decide.
+    let globeUntouched = true;
+
+    // The IP answer usually lands after the globe has already opened on the
+    // time zone's guess, so this is a correction rather than the first move —
+    // and on a reload, with the answer cached, it lands before the globe
+    // exists at all and simply becomes the opening view.
+    function refineHomeFromIp() {
+      IP_HOME.then((home) => {
+        if (!home || !globeUntouched || selectedCountries.value.length) return;
+        aimHomeAtCoords(home.lat, home.lng);
+        // openingAltitude() rather than HOME_VIEW.altitude: this can land in
+        // the window between the globe being created and resetGlobeView()
+        // filling that in, and the placeholder there would fly the camera out
+        // to arm's length before pulling it straight back.
+        try {
+          globeInstance && globeInstance.pointOfView(
+            { lat: home.lat, lng: home.lng, altitude: openingAltitude() }, 900);
+        } catch {}
+      }).catch(() => {});
+    }
+
     // If the visitor has already granted this site location at some point, use
     // the real thing instead of the time zone's guess. Deliberately never asks:
     // a permission dialog thrown up before anyone has seen the page is the
@@ -1251,6 +1350,7 @@ const app = createApp({
         if (status.state !== 'granted') return;
         navigator.geolocation.getCurrentPosition(
           (pos) => {
+            if (!globeUntouched || selectedCountries.value.length) return;
             const { latitude, longitude } = pos.coords;
             aimHomeAtCoords(latitude, longitude);
             try { globeInstance && globeInstance.pointOfView({ lat: latitude, lng: longitude, altitude: HOME_VIEW.altitude }, 900); } catch {}
@@ -1355,19 +1455,22 @@ const app = createApp({
       const pop = popAlt.value;
       if (isCountryOn(country)) return pop;
       if (hovered) return Math.min(0.015, pop * 0.55);
-      return Math.min(0.007, pop * 0.30);
+
+      // Nothing. The plinth existed to make a photograph sit *on* its country;
+      // a bubble is anchored at a point and doesn't need one, and a world of
+      // low walls read as noise behind the faces.
+      return 0;
     }
+
     function polyAltitude(d) {
       const entry = polyEntry(d);
-      const pop = popAlt.value;
-      if (!entry) return Math.min(0.004, pop * 0.15);
+      if (!entry) return 0;
       return countryAltitude(entry.country, d === hoveredPoly.value);
     }
     // Must match polygonsTransitionDuration below: globe.gl eases the
     // extrusion over this long, and the clip has to travel with it rather than
     // jumping to the final height and waiting for the country to catch up.
     const POLY_TWEEN_MS = 420;
-    const easeCubicInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     // Once a country is up on its plinth the extruded sides are most of what
     // you see of it from an angle, so they take the selection colour too.
     function polySideColor(d) {
@@ -1411,22 +1514,21 @@ const app = createApp({
       dropCountry();
     }
 
-    // ---- The collage: a country filled with its own faces ----
-    // A picked country doesn't get a portrait pinned above it — it *becomes*
-    // the portrait. One photo at a time is scaled to cover the country's
-    // silhouette and clipped to it, cross-fading to the next person from that
-    // country, captioned with their date of birth and calling. Only ~20
-    // entries are photographed so far; countries with nobody photographed
-    // simply pop without a collage.
+    // ---- The mosaic ----
+    // The land is a photomosaic. A near-uniform lattice is laid over the whole
+    // sphere; every point of it that falls on a country the roster reaches
+    // becomes a tessera holding a face from that country. Grey and half-lit at
+    // rest, so the land still reads as land — and every second or so one tile
+    // somewhere blooms into colour and gives its name.
     //
-    // The clip has to be built in screen space, not on the globe: the shape is
-    // a 3-D outline seen at whatever angle the camera happens to hold, so
-    // every frame re-projects the country's vertices through globe.gl's
-    // getScreenCoords and rewrites the path. The heaviest outline in the
-    // dataset (Canada) is 791 points, which is nothing per frame — but the
-    // camera coasts under inertia with no event to hang off, hence the rAF
-    // loop, and the projection is skipped whenever the camera hasn't moved.
-    const FACE_DWELL = 3400;        // ms a face holds before the next one
+    // A tessera is the same angular size the world over, and that is the whole
+    // point of the arrangement. The frame used to be the country's own
+    // outline, and country areas span four orders of magnitude, so a face was
+    // a postage stamp in Belgium and a mural in Canada and neither size meant
+    // anything. Now every face is the same size and a large country simply
+    // holds more of them, which is a fact about the country worth showing.
+
+    const FACE_DWELL = 3400;        // ms before a picked country re-deals
     const GLOBE_R = 100;            // globe.gl's sphere radius
 
     const photoPeopleByCountry = computed(() => {
@@ -1445,333 +1547,79 @@ const app = createApp({
       return String(name || '').trim().split(/\s+/)[0] || '';
     }
 
-    // Date of birth, as full as the entry allows — 632 of 680 carry a month
-    // and day, the rest only a year.
-    function birthLine(p) {
-      if (!p.birthYear) return '';
-      if (p.birthMonth && p.birthDay) {
-        return 'b. ' + p.birthDay + ' ' + MONTH_NAMES[p.birthMonth] + ' ' + p.birthYear;
-      }
-      return 'b. ' + p.birthYear;
-    }
-
-    // The rings we clip to, as [lat, lng] pairs ready to project. Cached per
-    // country: the outline never changes, only the camera does.
-    //
-    // Two versions, because every country runs its slideshow at once now. The
-    // full outline is 10,575 vertices across the world and each one costs a
-    // matrix multiply per frame — fine for the one country you picked, far too
-    // much for all of them. So an ambient country is drawn from its largest
-    // landmass alone, thinned to AMBIENT_POINTS, which is more than enough
-    // shape at the size it occupies when you aren't looking straight at it.
-    const AMBIENT_POINTS = 48;
-    function thin(ring, cap) {
-      if (ring.length <= cap) return ring;
-      const out = [];
-      const step = ring.length / cap;
-      for (let i = 0; i < cap; i++) out.push(ring[Math.floor(i * step)]);
-      return out;
-    }
-    const collageRingsCache = new Map();
-    function collageRings(country) {
-      if (collageRingsCache.has(country)) return collageRingsCache.get(country);
-      const f = worldFeatures.value.find(ft => geoCountryName(ft) === country);
-      if (!f) return null;
-      const rings = [];
-      for (const poly of polysOf(f)) {
-        // Outer ring only. Holes would need a fill-rule dance for a handful of
-        // enclaves nobody will notice at this scale.
-        if (poly[0] && poly[0].length > 2) rings.push(poly[0].map(([lng, lat]) => [lat, lng]));
-      }
-      if (!rings.length) return null;
-      let main = null;
-      for (const r of rings) if (!main || r.length > main.length) main = r;
-      // Keep the unit vector beside each point: long edges get subdivided
-      // along the great circle at draw time, and slerp needs vectors.
-      const withVecs = (ring) => ({ ll: ring, v: ring.map(p => toVec(p)) });
-      const out = {
-        full: rings.map(withVecs),
-        lite: [withVecs(thin(main, AMBIENT_POINTS))],
-      };
-      collageRingsCache.set(country, out);
-      return out;
-    }
-
-    // ---- Overlay ----
-    // One SVG across the whole canvas, one <g> per country inside it. Built
-    // once, next to the globe, and left alone unless the selection changes.
-    let collageRoot = null;
-    let collageSvg = null;
-    let collageDefs = null;
-    let collageTimerBar = null;
-    const collages = new Map();     // country -> live state
-    const loadedOrder = [];         // countries holding decoded frames, oldest first
-    let collageSeq = 0;             // unique ids for the clip paths
-
-    const SVG_NS = 'http://www.w3.org/2000/svg';
-    const XLINK_NS = 'http://www.w3.org/1999/xlink';
-    // An <image> takes its source from `href` in SVG2 and from `xlink:href` in
-    // SVG 1.1. Chrome is happy with the first; Safari — desktop and iOS — has
-    // wanted the second for years and renders nothing without it. Set both:
-    // where SVG2 is supported `href` wins, and where it isn't the old
-    // attribute is there. This is the likeliest reason the photographs never
-    // appeared on a phone while every element existed and no script errored.
-    function setImageHref(img, src) {
-      img.setAttribute('href', src);
-      img.setAttributeNS(XLINK_NS, 'xlink:href', src);
-    }
-    function clearImageHref(img) {
-      img.removeAttribute('href');
-      img.removeAttributeNS(XLINK_NS, 'href');
-    }
-    const svgEl = (name, attrs) => {
-      const el = document.createElementNS(SVG_NS, name);
-      for (const k in attrs) el.setAttribute(k, attrs[k]);
-      return el;
-    };
-
-    function ensureCollageRoot() {
-      if (collageRoot) return collageRoot;
-      const host = globeInstance && globeInstance._el;
-      if (!host) return null;
-      collageRoot = document.createElement('div');
-      collageRoot.className = 'ccol';
-      collageSvg = svgEl('svg', { class: 'ccol__svg' });
-      // Declared explicitly: xlink:href on the frames is only meaningful if
-      // the document knows the namespace.
-      collageSvg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', XLINK_NS);
-      collageDefs = svgEl('defs', {});
-      collageSvg.appendChild(collageDefs);
-      collageRoot.appendChild(collageSvg);
-      host.appendChild(collageRoot);
-      return collageRoot;
-    }
-
-    function buildCollage(country, people, rings) {
-      const id = 'ccol-clip-' + (++collageSeq);
-      const clip = svgEl('clipPath', { id, clipPathUnits: 'userSpaceOnUse' });
-      const clipPath = svgEl('path', { d: '' });
-      clip.appendChild(clipPath);
-      collageDefs.appendChild(clip);
-
-      const g = svgEl('g', { class: 'ccol__g' });
-      const inner = svgEl('g', { 'clip-path': 'url(#' + id + ')' });
-      // Something behind the photo, so the shape still reads as filled during
-      // the very first decode.
-      const back = svgEl('rect', { class: 'ccol__back', x: 0, y: 0, width: 0, height: 0 });
-      inner.appendChild(back);
-
-      // Two layers per slide, because filling the silhouette and showing the
-      // whole face are opposite demands. `slice` covers the country but crops
-      // hard — on a wide country it scales a portrait until only a cheek is
-      // left. So the fill is a blurred, dimmed copy (slice), and the face sits
-      // on top of it whole (`meet` never crops), as large as the shape allows.
-      // A column of faces rather than one. Given enough of them and enough of
-      // the screen, the country runs them as a reel; short of either, the top
-      // frame just sits there. `slice` is SVG's object-fit: cover, so each
-      // frame fills the country's width edge to edge.
-      const reel = svgEl('g', { class: 'ccol__reel' });
-      const frames = [svgEl('image', { class: 'ccol__fg', preserveAspectRatio: 'xMidYMid slice' })];
-      for (const f of frames) reel.appendChild(f);
-      inner.appendChild(reel);
-
-      const edge = svgEl('path', { class: 'ccol__edge', d: '' });
-      g.appendChild(inner);
-      g.appendChild(edge);
-      collageSvg.appendChild(g);
-
-      const cap = document.createElement('div');
-      cap.className = 'ccol__cap';
-      cap.style.setProperty('--face-dwell', FACE_DWELL + 'ms');
-      // The given name leads: this is a naming almanac, and the first name is
-      // the part a parent actually takes away. The full name sits under it,
-      // since the roster stores birth names (Bowie is filed as David Jones)
-      // and the two are often not the same person to a reader.
-      cap.innerHTML = '<span class="ccol__given"></span>';
-      collageRoot.appendChild(cap);
-
-      const state = {
-        country, people, rings, id, g, inner, clipPath, edge, back, cap,
-        // Left undefined on purpose — see projectCollage, which works the pole
-        // out the first time a country is actually worth drawing. Doing all 73
-        // here would block the load for the best part of a second.
-        pole: undefined,
-        reel, frames, reelPeople: people,
-        given: cap.querySelector('.ccol__given'),
-        idx: 0,
-        box: null,
-      };
-      // The caption is the way in, not the shape: a click target the size of
-      // the screen would swallow the drag that spins the globe and the second
-      // click that puts the country back down.
-      cap.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        // Only a raised country has a caption to click, but hold the same rule
-        // here as on the faces: cards come from the blown-up slideshow.
-        if (!state.selected) return;
-        const p = state.people[state.idx];
-        if (p) openPerson(p);
-      });
-      collages.set(country, state);
-      return state;
-    }
-
-    // Load a country's frames. One face is enough unless the strip is actually
-    // running — a country that isn't reeling shows its top frame and nothing
-    // else needs decoding.
-    function loadCollage(state, all) {
-      const want = all ? state.reelPeople.length : 1;
-      if (state.loadedCount >= want) return;
-      for (let i = state.loadedCount || 0; i < want; i++) {
-        const p = state.reelPeople[i];
-        const img = state.frames[i];
-        if (!p || !img) continue;
-        const faceSrc = './photos/faces/' + p.id + '.jpg';
-        const fullSrc = './photos/' + p.id + '.jpg';
-        let src = faceSrc;
-        const probe = new Image();
-        probe.onload = () => {
-          setImageHref(img, src);
-          state.g.classList.add('is-loaded');
-          state.cap.classList.add('is-loaded');
-        };
-        probe.onerror = () => {
-          if (src === faceSrc) { src = fullSrc; probe.src = fullSrc; return; }
-          probe.onerror = null;
-        };
-        probe.src = src;
-      }
-      state.loadedCount = want;
-      const at = loadedOrder.indexOf(state.country);
-      if (at >= 0) loadedOrder.splice(at, 1);
-      loadedOrder.push(state.country);
-      while (loadedOrder.length > MAX_LOADED) {
-        const old = collages.get(loadedOrder.shift());
-        if (old && old !== state) unloadCollage(old);
-      }
-      const who = state.reelPeople[state.idx];
-      if (who) state.given.textContent = givenName(who.name);
-    }
-
-    // Hand the pixels back. Clearing href is what actually frees the decoded
-    // bitmap; leaving the element in place costs nothing.
-    function unloadCollage(state) {
-      if (!state.loadedCount) return;
-      for (const img of state.frames) clearImageHref(img);
-      state.loadedCount = 0;
-      state.g.classList.remove('is-loaded');
-      state.cap.classList.remove('is-loaded');
-    }
-
-    // Every so often, one more country somewhere in view lights up — and it
-    // is the fifth one along, not the next one, so the faces appear scattered
-    // across the globe rather than marching round it in a line.
-    let flashCursor = 0;
-    function advanceCollages() {
-      const now = performance.now();
-      const inView = [];
-      for (const state of collages.values()) {
-        // Retire anything whose moment has passed.
-        if (state.flashing && now - state.flashAt > FLASH_HOLD_MS) {
-          state.flashing = false;
-          state.g.classList.remove('is-flash');
-          state.cap.classList.remove('is-flash');
-          if (!state.selected) unloadCollage(state);
-        }
-        if (!state.g.classList.contains('is-behind') && state.reelPeople.length) inView.push(state);
-      }
-      if (!inView.length) return;
-      flashCursor = (flashCursor + FLASH_STRIDE) % inView.length;
-      const state = inView[flashCursor];
-      if (!state || state.flashing) return;
-      // A different face each time this country comes round.
-      state.idx = (state.idx + 1) % state.reelPeople.length;
-      state.flashing = true;
-      state.flashAt = now;
-      loadCollage(state, false);
-      state.g.classList.add('is-flash');
-      state.cap.classList.add('is-flash');
-      const who = state.reelPeople[state.idx];
-      if (who) state.given.textContent = givenName(who.name);
-    }
-
-    let collageTimer = null;
-    function syncCollageTimer() {
-      const wanted = collages.size > 0;
-      if (wanted && !collageTimer) collageTimer = setInterval(advanceCollages, FLASH_EVERY_MS);
-      if (!wanted && collageTimer) { clearInterval(collageTimer); collageTimer = null; }
-    }
-
-    // ---- Per-frame projection ----
+    // ---- The lattice ----
+    // How many points go round the whole sphere. Land is a little under a
+    // third of it and not all of that is on the roster, so this yields roughly
+    // a quarter as many tesserae. It is the dial for how fine the mosaic is:
+    // tiles are sized to match the spacing, so raising it makes them smaller
+    // as well as more numerous.
+    const MOSAIC_N = 2600;
+    // Tiles are drawn a little *smaller* than their share of the sphere, so the
+    // lattice never closes into a continuous surface. What is left between
+    // them is the map, and it is the grout: a mosaic reads as a mosaic because
+    // you can see what it has been laid on. At 1.35 the tesserae met edge to
+    // edge and the globe stopped being a globe — the land had been wallpapered
+    // over with photographs rather than rendered in them.
+    const TILE_BLEED = 0.86;
+    // Under this many pixels a tessera is a speck, and several hundred specks
+    // are a smudge over the map rather than a mosaic on it.
+    const MIN_TILE_PX = 5;
     // A surface point is over the horizon when it falls outside
     // acos(R / cameraDistance) of the camera direction. The margin has to be a
     // *fraction* of that cap, not a fixed slice of cosine: up close the cap is
     // only a few degrees wide, and a flat margin pushes the cutoff past 1 and
     // hides everything.
-    const COLLAGE_HORIZON_MARGIN = 0.06;
-    // Under this many pixels across, a country is a speck and the face in it
-    // is noise — so it isn't drawn, and its photo is never even fetched.
-    const MIN_FACE_PX = 22;
-    // How many faces a reel can hold. Past this the strip is longer than
-    // anyone watches and every frame is another image to fetch.
-    // How many countries may hold decoded photographs at once. This is the
-    // ceiling that matters on a phone: an <image> costs its pixel area times
-    // four bytes once decoded, whatever the file weighs, so a few hundred
-    // countries each holding a strip of faces runs to hundreds of megabytes
-    // and the tab is killed and reloaded — which is what an "infinite reload
-    // loop" on mobile actually is. Frames are dropped again when a country
-    // leaves, so this is a working set and not a high-water mark.
-    const MAX_LOADED = 7;
-    // The reel starts when the country is big enough on screen to read a face
-    // in, measured as a share of the viewport rather than in pixels — that way
-    // Luxembourg starts running at the zoom where Luxembourg is large, and
-    // Russia at the zoom where Russia is. Two figures so it can't stutter on
-    // the boundary.
-    // Not every country at once. One face surfaces somewhere on the globe,
-    // holds, and fades; a moment later another does, five countries further
-    // round. A world where everything moves at once reads as noise — a world
-    // where one thing catches your eye reads as a place with people in it.
-    const FLASH_EVERY_MS = 2600;     // how often a new face surfaces
-    const FLASH_HOLD_MS = 4200;      // how long it stays before it has gone
-    const FLASH_STRIDE = 5;          // every fifth country in view
-    // How far a photograph may be enlarged past its own pixels to fill a
-    // country before it stops being worth it.
-    const MAX_UPSCALE = 1.15;
-    // Switch to the true outline once a country is this big on screen, and
-    // back below the lower figure — two values so it can't flicker.
-    const DETAIL_ON_PX = 150;
-    const DETAIL_OFF_PX = 120;
-    // Longest border edge we'll draw as a straight screen-space line before
-    // walking the great circle instead.
-    const MAX_EDGE_PX = 18;
-    // Great-circle interpolation between two unit vectors.
-    function slerp(a, b, t) {
-      const om = angleTo(a, b);
-      if (om < 1e-7) return a;
-      const s = Math.sin(om);
-      const k0 = Math.sin((1 - t) * om) / s;
-      const k1 = Math.sin(t * om) / s;
-      return [a[0] * k0 + b[0] * k1, a[1] * k0 + b[1] * k1, a[2] * k0 + b[2] * k1];
+    const MOSAIC_HORIZON_MARGIN = 0.03;
+    // How much of a face shows when it is only part of the terrain, and how
+    // much when it is the thing you are being shown. The resting figure is
+    // deliberately low: a tessera at rest is a texture on the land, and the
+    // greens and browns underneath are what it is meant to be tinted by. The
+    // whole of the contrast this layer trades on is between that and the one
+    // tile currently blooming, which comes up to full.
+    const MIX_REST = 0.30;
+    const MIX_LIT = 1;
+    // Not every tile at once. One face blooms somewhere on the globe, holds,
+    // and fades; a moment later another does, five tiles further round. A
+    // world where everything moves at once reads as noise — a world where one
+    // thing catches your eye reads as a place with people in it.
+    const FLASH_EVERY_MS = 1500;     // how often a face blooms
+    const FLASH_HOLD_MS = 4200;      // how long it holds before it has gone
+    const FLASH_FADE_MS = 900;       // and how long it takes to go
+    const FLASH_STRIDE = 5;          // every fifth tile in view
+
+    const unitVec = (v) => {
+      const L = Math.hypot(v[0], v[1], v[2]) || 1;
+      return [v[0] / L, v[1] / L, v[2] / L];
+    };
+    // `v` turned `a` radians toward the unit tangent `t`, staying on the sphere.
+    const rotToward = (v, t, a) => {
+      const c = Math.cos(a), s = Math.sin(a);
+      return [v[0] * c + t[0] * s, v[1] * c + t[1] * s, v[2] * c + t[2] * s];
+    };
+
+    // Fibonacci lattice: the standard way to scatter points evenly over a
+    // sphere with no pole singularity and no seam. That consecutive indices
+    // land far apart is worth having for its own sake — faces are dealt in
+    // index order, so neighbouring tiles get different people.
+    function fibonacciSphere(n) {
+      const out = [];
+      const golden = Math.PI * (3 - Math.sqrt(5));
+      for (let i = 0; i < n; i++) {
+        const z = 1 - (2 * i + 1) / n;
+        const r = Math.sqrt(Math.max(0, 1 - z * z));
+        const th = golden * i;
+        out.push([Math.cos(th) * r, Math.sin(th) * r, z]);
+      }
+      return out;
     }
 
-    // Camera position → the lat/lng it is over, inverting three-globe's own
-    // placement formula (x = s·sin(90−lat)·cos(90−lng), y = s·cos(90−lat),
-    // z = s·sin(90−lat)·sin(90−lng)) rather than trusting a guess at its API.
-    function camLatLng(pos) {
-      const s = Math.hypot(pos.x, pos.y, pos.z) || 1;
-      return [
-        Math.asin(Math.max(-1, Math.min(1, pos.y / s))) / RAD,
-        90 - Math.atan2(pos.z, pos.x) / RAD,
-      ];
-    }
-
-    // ---- Where the face goes ----
-    // The point furthest from any coastline — a country's pole of
-    // inaccessibility — is where a portrait has the most room to be seen. The
-    // area centroid isn't good enough: on a hook like Norway or Vietnam it
-    // falls in the sea, and the clip eats the face. Measured once per country
-    // in lat/lng and cached, then projected each frame like any other point,
-    // so the cost lands on the first pick and never again.
+    // Which country a point falls in. Every outer ring in the world with its
+    // bounding box in front of it — the box rejects all but a handful of
+    // candidates, which is what makes a couple of thousand lookups affordable.
+    // Outer rings only: holes would need a fill-rule dance for a handful of
+    // enclaves nobody will notice at this scale.
+    // Ray-casting point-in-polygon, in x=lng / y=lat. Antimeridian-crossing
+    // rings are split by the source data, so there is no seam to special-case.
     function pointInRing(x, y, pts) {
       let inside = false;
       for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
@@ -1780,235 +1628,379 @@ const app = createApp({
       }
       return inside;
     }
-    function distToRing(x, y, pts) {
-      let best = Infinity;
-      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-        const ax = pts[j][0], ay = pts[j][1], bx = pts[i][0], by = pts[i][1];
-        const dx = bx - ax, dy = by - ay;
-        const len2 = dx * dx + dy * dy;
-        let t = len2 ? ((x - ax) * dx + (y - ay) * dy) / len2 : 0;
-        t = t < 0 ? 0 : t > 1 ? 1 : t;
-        const ex = x - (ax + t * dx), ey = y - (ay + t * dy);
-        const d2 = ex * ex + ey * ey;
-        if (d2 < best) best = d2;
-      }
-      return Math.sqrt(best);
-    }
-    // Coarse sweep, then three shrinking passes around the winner. Plenty for
-    // a 110m outline, and far simpler than a full quadtree search.
-    function poleOfInaccessibility(ring) {
-      const pts = ring.map(([lat, lng]) => [lng, lat]);   // work in x=lng, y=lat
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (const [x, y] of pts) {
-        if (x < minX) minX = x; if (x > maxX) maxX = x;
-        if (y < minY) minY = y; if (y > maxY) maxY = y;
-      }
-      const w = maxX - minX, h = maxY - minY;
-      if (!(w > 0) || !(h > 0)) return null;
-      const score = (x, y) => pointInRing(x, y, pts) ? distToRing(x, y, pts) : -1;
-
-      let best = null, bestScore = -Infinity;
-      let step = Math.max(w, h) / 32;
-      for (let x = minX; x <= maxX; x += step) {
-        for (let y = minY; y <= maxY; y += step) {
-          const s = score(x, y);
-          if (s > bestScore) { bestScore = s; best = [x, y]; }
-        }
-      }
-      if (!best) return null;
-      for (let k = 0; k < 3; k++) {
-        step /= 4;
-        const bx = best[0], by = best[1];
-        for (let x = bx - step * 4; x <= bx + step * 4; x += step) {
-          for (let y = by - step * 4; y <= by + step * 4; y += step) {
-            const s = score(x, y);
-            if (s > bestScore) { bestScore = s; best = [x, y]; }
+    let landIndex = null;
+    function buildLandIndex() {
+      const out = [];
+      for (const f of worldFeatures.value) {
+        const country = geoCountryName(f);
+        for (const poly of polysOf(f)) {
+          const ring = poly[0];
+          if (!ring || ring.length < 3) continue;
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+          for (const [x, y] of ring) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
           }
+          out.push({ country, ring, minX, minY, maxX, maxY });
         }
       }
-      // [lat, lng, clearance] — the clearance is how far the coast is from
-      // that point, in degrees, and it is what tells the face and the name
-      // how much room they have inside the border.
-      return bestScore > 0 ? [best[1], best[0], bestScore] : null;
+      return out;
     }
-
-    const collagePoleCache = new Map();
-    // `rings` are { ll, v } — the lat/lng pairs plus their unit vectors, since
-    // drawing needs the vectors to walk a long edge along its great circle.
-    // The pole is worked out from the lat/lng side alone.
-    function collagePole(country, rings) {
-      if (collagePoleCache.has(country)) return collagePoleCache.get(country);
-      let main = null;
-      for (const ring of rings) {
-        if (!main || ring.ll.length > main.length) main = ring.ll;
+    function countryAt(lng, lat) {
+      if (!landIndex) return null;
+      for (const p of landIndex) {
+        if (lng < p.minX || lng > p.maxX || lat < p.minY || lat > p.maxY) continue;
+        if (pointInRing(lng, lat, p.ring)) return p.country;
       }
-      const pole = main ? poleOfInaccessibility(main) : null;
-      collagePoleCache.set(country, pole);
-      return pole;
+      return null;
     }
 
-
-    // Is the whole country on the near face of the globe? One dot product
-    // against the cached extent answers it, instead of a projection per
-    // vertex — which is what makes 73 simultaneous slideshows affordable.
+    // ---- The shoreline ----
+    // A tessera sits at a lattice point inside a country, but it has a size of
+    // its own and the point can be a stone's throw from the coast — so left
+    // alone the mosaic runs off the land into the sea and the globe stops
+    // reading as a globe. A tile is therefore cut down to whatever room it
+    // actually has: the distance from its point to its own country's outline.
+    // Coastlines and land borders come out as a fringe of smaller tesserae,
+    // which is what a mosaic laid by hand does at an edge — and which draws
+    // the map rather than covering it.
     //
-    // Retiring the moment any part of the outline crosses the rim is also the
-    // correct behaviour, not just the cheap one: Vector3.project inverts
-    // behind the camera plane, so a half-crossed country folds in on itself.
-    function countryFullyVisible(state, camDir, horizonAngle) {
-      const ext = state.ext;
-      if (!ext) return true;
-      return angleTo(ext.centre, camDir) + ext.radius <= horizonAngle * (1 - COLLAGE_HORIZON_MARGIN);
-    }
-
-    // The height the clip should be cut at this instant, following the same
-    // eased path globe.gl walks the extrusion along. Returns the target
-    // directly once the tween is spent.
-    function collageTweening(state, now) {
-      return state.altAt != null && (now - state.altAt) < POLY_TWEEN_MS;
-    }
-    function clipAltitude(state, now) {
-      const hovered = !!hoveredPoly.value && geoCountryName(hoveredPoly.value) === state.country;
-      const target = countryAltitude(state.country, hovered);
-      if (state.altTo === undefined) {
-        state.altFrom = target;
-        state.altTo = target;
-        state.altAt = null;
-        return target;
+    // Worked out once, at build. The alternative is a clip path, which means
+    // re-projecting every visible coastline every frame; the outlines are
+    // 10,575 vertices over 285 rings and most of that is small islands, so
+    // there is no thinning that makes it cheap. Measured: ~5,000 projections a
+    // frame for the clip against ~90ms once for this.
+    //
+    // Distances are in degrees on a locally equal-scale frame — longitude
+    // squeezed by cos(latitude) — which is close enough over the couple of
+    // degrees that matter and far cheaper than doing it properly on a sphere.
+    const TILE_MIN_HALF = 0.6 * RAD;   // no tessera is cut smaller than this
+    const TILE_DROP = 0.35 * RAD;      // a point this near the water is skipped
+    function coastClearance(lat, lng, country) {
+      const k = Math.max(0.05, Math.cos(lat * RAD));
+      const px = lng * k, py = lat;
+      let best = Infinity;
+      for (const p of landIndex) {
+        if (p.country !== country) continue;
+        if (lng < p.minX - 6 || lng > p.maxX + 6 || lat < p.minY - 6 || lat > p.maxY + 6) continue;
+        const r = p.ring;
+        for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+          const ax = r[j][0] * k, ay = r[j][1], bx = r[i][0] * k, by = r[i][1];
+          const dx = bx - ax, dy = by - ay;
+          const l2 = dx * dx + dy * dy;
+          let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+          t = t < 0 ? 0 : t > 1 ? 1 : t;
+          const ex = px - (ax + t * dx), ey = py - (ay + t * dy);
+          const d2 = ex * ex + ey * ey;
+          if (d2 < best) best = d2;
+        }
       }
-      if (target !== state.altTo) {
-        // Start from wherever the previous tween had got to, so a change of
-        // mind part-way through doesn't snap.
-        const t = state.altAt == null ? 1 : Math.min(1, (now - state.altAt) / POLY_TWEEN_MS);
-        state.altFrom = state.altFrom + (state.altTo - state.altFrom) * easeCubicInOut(t);
-        state.altTo = target;
-        state.altAt = now;
+      return best === Infinity ? Infinity : Math.sqrt(best) * RAD;
+    }
+
+    // ---- The sprite sheet ----
+    // Several hundred faces are on screen at once, every frame. As separate
+    // elements that is several hundred decodes — an image costs its pixel area
+    // times four bytes once decoded, whatever the file weighs, which is how
+    // this page used to run a phone out of memory and get its tab killed and
+    // reloaded. As one sheet it is a single decode and a face is a
+    // sub-rectangle blit, which is the fastest thing a canvas does.
+    let atlasImg = null;
+    let atlasGrey = null;           // the same sheet, desaturated once
+    let atlasReady = false;
+    function loadAtlas() {
+      if (atlasImg) return;
+      atlasImg = new Image();
+      atlasImg.onload = () => {
+        atlasReady = true;
+        // Made once, rather than setting ctx.filter every frame: a canvas
+        // filter forces a fresh compositing layer per draw call, and there are
+        // several hundred draw calls in a frame.
+        try {
+          const c = document.createElement('canvas');
+          c.width = atlasImg.naturalWidth;
+          c.height = atlasImg.naturalHeight;
+          const g = c.getContext('2d');
+          g.filter = 'grayscale(1) contrast(1.1) brightness(1.05)';
+          g.drawImage(atlasImg, 0, 0);
+          atlasGrey = c;
+        } catch { atlasGrey = null; }
+        mosaicDirty = true;
+      };
+      atlasImg.onerror = () => console.error('[famous Baby] atlas failed to load:', ATLAS.src);
+      atlasImg.src = ATLAS.src;
+    }
+
+    // ---- The tesserae ----
+    const tiles = [];
+    let tileHalf = 0;
+    let mosaicDirty = true;
+
+    function dealFace(t, offset) {
+      const p = t.people[(t.k + offset) % t.people.length];
+      const slot = ATLAS_SLOT.get(p.id);
+      if (slot === undefined) return false;
+      t.person = p;
+      t.sx = (slot % ATLAS.cols) * ATLAS.cell;
+      t.sy = Math.floor(slot / ATLAS.cols) * ATLAS.cell;
+      return true;
+    }
+
+    function makeTile(v, country, people, k, half) {
+      const [lat, lng] = vecToLatLng(v);
+      // The frame the tessera is drawn on, built off the sphere's own axis, so
+      // tiles line up with the meridians and the mosaic reads as a weave
+      // rather than a scatter.
+      const axis = Math.abs(v[2]) < 0.999 ? [0, 0, 1] : [1, 0, 0];
+      const east = unitVec(cross(axis, v));
+      const north = cross(v, east);                   // unit already: v ⟂ east
+      return {
+        v, lat, lng, country, people, k,
+        person: null, sx: 0, sy: 0,
+        // Two points a half-tile away, east and north. Projecting them each
+        // frame gives the tile's size, its rotation and its foreshortening
+        // near the rim, all three at once and without a matrix of our own.
+        e: vecToLatLng(rotToward(v, east, half)),
+        n: vecToLatLng(rotToward(v, north, half)),
+        flashAt: -1e9, selected: false,
+        on: false, cx: 0, cy: 0, r: 0,
+      };
+    }
+
+    function buildTiles() {
+      tiles.length = 0;
+      const byCountry = photoPeopleByCountry.value;
+      if (!byCountry.size || !worldFeatures.value.length) return;
+      landIndex = buildLandIndex();
+      // The largest a tessera may be, in radians. sqrt(π/N) is the radius of a
+      // circle holding one point's share of the sphere's area; the bleed below
+      // one pulls it in from there so the tiles never quite meet. Anything
+      // near a coast is cut down further still, by coastClearance.
+      tileHalf = Math.sqrt(Math.PI / MOSAIC_N) * TILE_BLEED;
+      const taken = new Map();
+      for (const v of fibonacciSphere(MOSAIC_N)) {
+        const ll = vecToLatLng(v);
+        const country = countryAt(ll[1], ll[0]);
+        if (!country) continue;
+        const people = byCountry.get(country);
+        if (!people || !people.length) continue;
+        // Nothing worth laying this close to the water: shrinking such a
+        // point to fit would leave a speck, and leaving it whole is the bleed
+        // this is here to stop. Measured, 144 of 688 lattice points go this
+        // way — and any country that loses all of its is caught by the floor
+        // pass below, so the roster's breadth survives it.
+        const clear = coastClearance(ll[0], ll[1], country);
+        if (clear < TILE_DROP) continue;
+        const half = Math.max(TILE_MIN_HALF, Math.min(tileHalf, clear));
+        const k = taken.get(country) || 0;
+        taken.set(country, k + 1);
+        const t = makeTile(v, country, people, k, half);
+        if (t && dealFace(t, 0)) tiles.push(t);
       }
-      if (state.altAt == null) return state.altTo;
-      const t = Math.min(1, (now - state.altAt) / POLY_TWEEN_MS);
-      return state.altFrom + (state.altTo - state.altFrom) * easeCubicInOut(t);
+
+      // Every country on the roster gets at least one tessera, whether or not
+      // the lattice happened to land on it. Measured: at this spacing only 104
+      // of the 179 countries with a photographed person catch a point, because
+      // a country smaller than the spacing can fall clean between two of them.
+      // Without this the mosaic would quietly drop the Netherlands, Jamaica,
+      // Israel and seventy-odd others — which is the roster's whole breadth,
+      // and exactly the failure the fixed tile size was chosen to avoid.
+      const held = new Set(tiles.map(t => t.country));
+      for (const [country, people] of byCountry) {
+        if (held.has(country) || !people.length) continue;
+        const c = COUNTRY_COORDS[country];
+        if (!c) continue;
+        const half = Math.max(TILE_MIN_HALF, Math.min(tileHalf, coastClearance(c[0], c[1], country)));
+        const t = makeTile(toVec(c), country, people, 0, half);
+        if (t && dealFace(t, 0)) tiles.push(t);
+      }
     }
 
-    // One picture, filling the country. No strip and no motion: the movement
-    // on this globe is the globe turning, and a face is a thing that appears
-    // on it rather than a thing that scrolls inside it.
-    function placeFace(state, minX, minY, w, h, B) {
-      const img = state.frames[0];
-      if (!img) return;
-      img.setAttribute('x', (minX - B).toFixed(1));
-      img.setAttribute('y', (minY - B).toFixed(1));
-      img.setAttribute('width', (w + B * 2).toFixed(1));
-      img.setAttribute('height', (h + B * 2).toFixed(1));
+    // ---- The canvas ----
+    // A canvas rather than the SVG this layer used to be: several hundred
+    // tesserae, each re-placed every frame, is several hundred DOM writes and
+    // a style recalculation per frame. Blitting them is one draw call each.
+    let mosRoot = null;
+    let mosCanvas = null;
+    let mosCtx = null;
+    function ensureMosaicRoot() {
+      if (mosCanvas) return mosCanvas;
+      const host = globeInstance && globeInstance._el;
+      if (!host) return null;
+      mosRoot = document.createElement('div');
+      mosRoot.className = 'mos';
+      mosCanvas = document.createElement('canvas');
+      mosCanvas.className = 'mos__canvas';
+      mosCtx = mosCanvas.getContext('2d');
+      mosRoot.appendChild(mosCanvas);
+      host.appendChild(mosRoot);
+      return mosCanvas;
     }
 
-    function projectCollage(state, pos, dist) {
-      // Cut the clip at the height this country is drawn at *right now*,
-      // mid-rise included — anything else and the photo floats off its border.
-      const alt = clipAltitude(state, performance.now());
-      // Detail follows how big the country is on screen, not whether it's
-      // picked. A 48-point outline is indistinguishable from the real one at
-      // thumbnail size and visibly cuts the corners once you're close, which
-      // is what pulled the yellow edge off the border at some zooms. Two
-      // thresholds so a country hovering at the boundary doesn't flicker.
-      const onScreen = state.box ? Math.max(state.box.w, state.box.h) : 0;
-      const detailed = state.selected || onScreen > (state.detailed ? DETAIL_OFF_PX : DETAIL_ON_PX);
-      state.detailed = detailed;
-      const rings = detailed ? state.rings.full : state.rings.lite;
+    // The unit square [-1,1]² mapped onto the tile's own screen frame. This is
+    // what makes a tessera lie *on* the sphere — turning with it, foreshortening
+    // toward the rim — instead of sitting on the glass in front of it.
+    function blit(ctx, img, t, e1x, e1y, e2x, e2y, dpr) {
+      ctx.setTransform(e1x * dpr, e1y * dpr, e2x * dpr, e2y * dpr, t.cx * dpr, t.cy * dpr);
+      ctx.drawImage(img, t.sx, t.sy, ATLAS.cell, ATLAS.cell, -1, -1, 2, 2);
+    }
 
-      let d = '';
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      let seen = 0;
-      const project = (lat, lng) => {
+    let hoverTile = null;
+
+    function drawMosaic(camDir, horizonAngle) {
+      const host = globeInstance && globeInstance._el;
+      if (!host || !mosCtx || !atlasReady) return;
+      const ctx = mosCtx;
+      const w = host.clientWidth, h = host.clientHeight;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (mosCanvas.width !== Math.round(w * dpr) || mosCanvas.height !== Math.round(h * dpr)) {
+        mosCanvas.width = Math.round(w * dpr);
+        mosCanvas.height = Math.round(h * dpr);
+        mosCanvas.style.width = w + 'px';
+        mosCanvas.style.height = h + 'px';
+      }
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, mosCanvas.width, mosCanvas.height);
+
+      const now = performance.now();
+      const cosH = Math.cos(horizonAngle * (1 - MOSAIC_HORIZON_MARGIN));
+      const grey = atlasGrey || atlasImg;
+      const pop = popAlt.value;
+      const lit = [];
+
+      const screenAt = (lat, lng, alt) => {
         let s;
         try { s = globeInstance.getScreenCoords(lat, lng, alt); } catch { return null; }
         return (s && isFinite(s.x) && isFinite(s.y)) ? s : null;
       };
-      for (const ring of rings) {
-        const ll = ring.ll, vecs = ring.v, n = ll.length;
-        let started = false;
-        let prev = null, prevIdx = -1;
-        const add = (s) => {
-          d += (started ? 'L' : 'M') + s.x.toFixed(1) + ' ' + s.y.toFixed(1);
-          started = true;
-          if (s.x < minX) minX = s.x;
-          if (s.x > maxX) maxX = s.x;
-          if (s.y < minY) minY = s.y;
-          if (s.y > maxY) maxY = s.y;
-        };
-        // <= n so the closing edge is walked too, not left as a straight chord.
-        for (let k = 0; k <= n; k++) {
-          const i = k % n;
-          const s = project(ll[i][0], ll[i][1]);
-          if (!s) continue;
-          seen++;
-          // globe.gl draws each border edge as a great-circle arc on the
-          // sphere; a straight line between two projected endpoints is not
-          // that arc, and the gap grows with the edge. Walk the arc instead.
-          if (prev && prevIdx >= 0) {
-            const span = Math.hypot(s.x - prev.x, s.y - prev.y);
-            if (span > MAX_EDGE_PX) {
-              const steps = Math.min(32, Math.ceil(span / MAX_EDGE_PX));
-              for (let j = 1; j < steps; j++) {
-                const m = slerp(vecs[prevIdx], vecs[i], j / steps);
-                const ml = vecToLatLng(m);
-                const sm = project(ml[0], ml[1]);
-                if (sm) add(sm);
-              }
-            }
-          }
-          if (k < n) add(s);
-          prev = s;
-          prevIdx = i;
+
+      ctx.globalAlpha = MIX_REST;
+      for (const t of tiles) {
+        t.on = false;
+        if (dot(t.v, camDir) < cosH) continue;
+        // A picked country stands on a plinth, so its tesserae rise with it.
+        const alt = t.selected ? pop : 0;
+        const c = screenAt(t.lat, t.lng, alt);
+        if (!c) continue;
+        const pe = screenAt(t.e[0], t.e[1], alt);
+        const pn = screenAt(t.n[0], t.n[1], alt);
+        if (!pe || !pn) continue;
+        const e1x = pe.x - c.x, e1y = pe.y - c.y;
+        // South, not north: the image's own y-axis runs downward, and mapping
+        // it to north would stand every face on its head.
+        const e2x = c.x - pn.x, e2y = c.y - pn.y;
+        const size = Math.max(Math.hypot(e1x, e1y), Math.hypot(e2x, e2y));
+        if (size < MIN_TILE_PX) continue;
+        t.on = true; t.cx = c.x; t.cy = c.y; t.r = size;
+
+        const age = now - t.flashAt;
+        if (t.selected || t === hoverTile || age < FLASH_HOLD_MS) {
+          lit.push([t, e1x, e1y, e2x, e2y, age]);
+          continue;
         }
-        if (started) d += 'Z';
+        blit(ctx, grey, t, e1x, e1y, e2x, e2y, dpr);
       }
-      if (!seen || !isFinite(minX)) return false;
-      // Too small to read a face in. Below this the shape is a speck and the
-      // photo inside it is noise, so leave it to the map underneath.
-      if (!state.selected && Math.max(maxX - minX, maxY - minY) < MIN_FACE_PX) return false;
 
-      state.clipPath.setAttribute('d', d);
-      state.edge.setAttribute('d', d);
-      const w = Math.max(1, maxX - minX), h = Math.max(1, maxY - minY);
+      // The lit ones over the top, in colour. A bloom fades back to the
+      // terrain rather than switching off, so the eye is let go of gently.
+      for (const [t, e1x, e1y, e2x, e2y, age] of lit) {
+        const out = age > FLASH_HOLD_MS - FLASH_FADE_MS && !t.selected && t !== hoverTile
+          ? (FLASH_HOLD_MS - age) / FLASH_FADE_MS
+          : 1;
+        ctx.globalAlpha = MIX_REST + (MIX_LIT - MIX_REST) * Math.max(0, Math.min(1, out));
+        blit(ctx, atlasImg, t, e1x, e1y, e2x, e2y, dpr);
+      }
 
-      // What share of the screen this country covers. The reel keys off this
-      // rather than a pixel count, so the trigger means the same thing at
-      // every zoom and for every size of country.
-      const el0 = globeInstance && globeInstance._el;
-      const vw = (el0 && el0.clientWidth) || w, vh = (el0 && el0.clientHeight) || h;
-      const cover = Math.min(1, Math.max(w / vw, h / vh));
-      state.cover = cover;
-
-      const setBox = (el, x, y, bw, bh) => {
-        el.setAttribute('x', x.toFixed(1));
-        el.setAttribute('y', y.toFixed(1));
-        el.setAttribute('width', bw.toFixed(1));
-        el.setAttribute('height', bh.toFixed(1));
-      };
-      // A hair of bleed so no sub-pixel gap shows along the clip edge.
-      const B = 1;
-      setBox(state.back, minX, minY, w, h);
-
-      placeFace(state, minX, minY, w, h, B);
-
-      state.box = { minX, minY, maxX, maxY, w, h };
-      return true;
+      // Names last, so nothing is drawn over them. Only for the tiles being
+      // pointed at or blooming: several hundred labels would bury the mosaic
+      // they are meant to be describing.
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.globalAlpha = 1;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.font = '300 12px ui-sans-serif, system-ui, -apple-system, sans-serif';
+      ctx.shadowColor = 'rgba(0,0,0,.85)';
+      ctx.shadowBlur = 6;
+      for (const [t, , , , , age] of lit) {
+        if (t.selected && t !== hoverTile && age >= FLASH_HOLD_MS) continue;
+        if (!t.person) continue;
+        ctx.fillStyle = t === hoverTile ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.72)';
+        ctx.fillText(givenName(t.person.name), t.cx, t.cy + t.r + 5);
+      }
+      ctx.shadowBlur = 0;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
-    // The photograph is the country now, so a click lands on a face wherever
-    // it lands inside the outline. The bounding box is only a cheap first
-    // pass; the shape itself decides.
-    function faceAt(x, y) {
-      for (const state of collages.values()) {
-        if (state.g.classList.contains('is-behind')) continue;
-        const b = state.box;
-        if (!b || x < b.minX || x > b.maxX || y < b.minY || y > b.maxY) continue;
-        try {
-          if (state.clipPath.isPointInFill && !state.clipPath.isPointInFill(new DOMPoint(x, y))) continue;
-        } catch { /* no isPointInFill: the box alone will do */ }
-        return { state, person: state.people[state.idx] };
+    // ---- The rhythm ----
+    let flashCursor = 0;
+    function advanceMosaic() {
+      let n = 0;
+      for (const t of tiles) if (t.on && !t.selected) n++;
+      if (!n) return;
+      flashCursor = (flashCursor + FLASH_STRIDE) % n;
+      let i = 0;
+      for (const t of tiles) {
+        if (!t.on || t.selected) continue;
+        if (i++ !== flashCursor) continue;
+        t.flashAt = performance.now();
+        mosaicDirty = true;
+        return;
       }
-      return null;
+    }
+    let mosaicTimer = null;
+    function syncMosaicTimer() {
+      const wanted = tiles.length > 0;
+      if (wanted && !mosaicTimer) mosaicTimer = setInterval(advanceMosaic, FLASH_EVERY_MS);
+      if (!wanted && mosaicTimer) { clearInterval(mosaicTimer); mosaicTimer = null; }
+    }
+
+    // A picked country re-deals its own faces every so often, so a country
+    // with a dozen people in the roster and a hundred tesserae shows all of
+    // them rather than the same twelve.
+    let dealOffset = 0;
+    let dealTimer = null;
+    function syncDealTimer() {
+      const any = tiles.some(t => t.selected);
+      if (any && !dealTimer) {
+        dealTimer = setInterval(() => {
+          dealOffset++;
+          for (const t of tiles) if (t.selected) dealFace(t, dealOffset);
+          mosaicDirty = true;
+          runTimerBar(0);
+        }, FACE_DWELL);
+        runTimerBar(0);
+      }
+      if (!any && dealTimer) {
+        clearInterval(dealTimer); dealTimer = null;
+        dealOffset = 0;
+        for (const t of tiles) dealFace(t, 0);
+        stopTimerBar();
+      }
+    }
+
+    // ---- Camera → the lat/lng it is over ----
+    // Inverting three-globe's own placement formula (x = s·sin(90−lat)·cos(90−lng),
+    // y = s·cos(90−lat), z = s·sin(90−lat)·sin(90−lng)) rather than trusting a
+    // guess at its API.
+    function camLatLng(pos) {
+      const s = Math.hypot(pos.x, pos.y, pos.z) || 1;
+      return [
+        Math.asin(Math.max(-1, Math.min(1, pos.y / s))) / RAD,
+        90 - Math.atan2(pos.z, pos.x) / RAD,
+      ];
+    }
+
+    // ---- Picking a face ----
+    function tileAt(x, y) {
+      let best = null, bestD = Infinity;
+      for (const t of tiles) {
+        if (!t.on) continue;
+        const d = Math.hypot(x - t.cx, y - t.cy);
+        if (d < t.r && d < bestD) { bestD = d; best = t; }
+      }
+      return best;
     }
 
     // globe.gl watches pointerup on the same container and defers its own
@@ -2020,52 +2012,60 @@ const app = createApp({
     let pointerDownAt = null;
     const DRAG_SLOP = 6;            // px of travel that still counts as a click
 
+    function hostXY(ev) {
+      const host = globeInstance && globeInstance._el;
+      if (!host) return null;
+      const rect = host.getBoundingClientRect();
+      return [ev.clientX - rect.left, ev.clientY - rect.top];
+    }
     function onGlobePointerDown(ev) {
+      // From here on the camera is theirs — a late answer from the IP lookup
+      // or the device must not yank the globe out from under a drag.
+      globeUntouched = false;
       faceClickHandled = false;
       pointerDownAt = { x: ev.clientX, y: ev.clientY };
     }
+    function onGlobePointerMove(ev) {
+      if (!tiles.length) return;
+      const at = hostXY(ev);
+      const was = hoverTile;
+      hoverTile = at ? tileAt(at[0], at[1]) : null;
+      if (hoverTile !== was) mosaicDirty = true;
+    }
     function onGlobePointerUp(ev) {
-      if (ev.button !== 0 || !collages.size) return;
-      const host = globeInstance && globeInstance._el;
-      if (!host) return;
+      if (ev.button !== 0 || !tiles.length) return;
       // A drag that ends over a face is still a drag.
       if (pointerDownAt && Math.hypot(ev.clientX - pointerDownAt.x, ev.clientY - pointerDownAt.y) > DRAG_SLOP) return;
-      const rect = host.getBoundingClientRect();
-      const hit = faceAt(ev.clientX - rect.left, ev.clientY - rect.top);
-      if (!hit) return;
+      const at = hostXY(ev);
+      if (!at) return;
+      const t = tileAt(at[0], at[1]);
+      if (!t || !t.person) return;
       // Either way this gesture is spoken for, so the polygon handler under it
-      // stands down rather than toggling the country a second time.
+      // stands down rather than also toggling the country.
       faceClickHandled = true;
-      if (!hit.state.selected) {
-        // A face on the map is a door into the country, not into the person.
-        // Clicking the one over England blows England up to fill the screen
-        // and sets its slideshow going — it doesn't open whoever happened to
-        // be showing at the time.
-        pickCountry(hit.state.country);
-        return;
-      }
-      // Only once a country is up and cycling does a face stand for the person
-      // in it, and clicking one opens their card.
-      if (hit.person) openPerson(hit.person);
+      // A tessera is a person, not a place. The land around it is the way to
+      // pick a country, which is what the polygon handler is for.
+      openPerson(t.person);
     }
 
     // ---- Slideshow timer ----
-    // One bar across the top, under the masthead, rather than a sliver on each
-    // country: only a picked country is running, and the top edge is where a
-    // thing that applies to the whole screen belongs.
-    function ensureCollageTimer() {
-      if (collageTimerBar || !collageRoot) return collageTimerBar;
-      collageTimerBar = document.createElement('div');
-      collageTimerBar.className = 'ccol__timer';
-      collageTimerBar.style.setProperty('--face-dwell', FACE_DWELL + 'ms');
-      collageRoot.appendChild(collageTimerBar);
-      return collageTimerBar;
+    // One bar across the top, under the masthead: only a picked country is
+    // re-dealing, and the top edge is where a thing that applies to the whole
+    // screen belongs.
+    let mosTimerBar = null;
+    function ensureMosaicTimer() {
+      if (mosTimerBar || !mosRoot) return mosTimerBar;
+      mosTimerBar = document.createElement('div');
+      mosTimerBar.className = 'mos__timer';
+      mosTimerBar.style.setProperty('--face-dwell', FACE_DWELL + 'ms');
+      mosRoot.appendChild(mosTimerBar);
+      return mosTimerBar;
     }
     // Removing the class and forcing a reflow before re-adding it is what makes
     // the animation replay; without the reflow the browser coalesces the two
     // changes and nothing moves.
     function runTimerBar(delayMs) {
-      const bar = ensureCollageTimer();
+      const bar = ensureMosaicTimer();
       if (!bar) return;
       bar.classList.remove('is-running');
       bar.style.animationDelay = '';
@@ -2074,14 +2074,15 @@ const app = createApp({
       bar.classList.add('is-running');
     }
     function stopTimerBar() {
-      if (collageTimerBar) collageTimerBar.classList.remove('is-running');
+      if (mosTimerBar) mosTimerBar.classList.remove('is-running');
     }
 
-    let collageRaf = null;
+    // ---- The frame loop ----
+    let mosaicRaf = null;
     let lastCamKey = '';
-    function runCollageLoop() {
-      if (!collages.size) { collageRaf = null; lastCamKey = ''; return; }
-      collageRaf = requestAnimationFrame(runCollageLoop);
+    function runMosaicLoop() {
+      if (!tiles.length) { mosaicRaf = null; lastCamKey = ''; return; }
+      mosaicRaf = requestAnimationFrame(runMosaicLoop);
       const host = globeInstance && globeInstance._el;
       if (!host) return;
       let cam;
@@ -2090,120 +2091,55 @@ const app = createApp({
       if (!pos) return;
       const dist = Math.hypot(pos.x, pos.y, pos.z);
       if (!(dist > GLOBE_R)) return;
-      // Nothing has moved and nothing is mid-transition — skip the projection.
-      const hostW = host.clientWidth, hostH = host.clientHeight;
-      const key = [pos.x, pos.y, pos.z, popAlt.value, hostW, hostH]
-        .map(n => n.toFixed(3)).join(',');
-      // A country mid-rise changes shape without the camera moving, so the
-      // still-camera shortcut has to stand down until it has settled — and
-      // hovering changes a height too.
-      const now = performance.now();
-      let settling = !!hoveredPoly.value;
-      if (!settling) {
-        for (const state of collages.values()) {
-          if (collageTweening(state, now)) { settling = true; break; }
-        }
-      }
       // The globe turns on its own, so the camera is almost never still — but
-      // when it is, nothing needs redrawing: the flash is a class, and CSS
-      // fades it without any help from here.
-      if (key === lastCamKey && !settling) return;
+      // when it is, and nothing has bloomed or been pointed at, the last frame
+      // is still the right one.
+      const key = [pos.x, pos.y, pos.z, popAlt.value, host.clientWidth, host.clientHeight]
+        .map(n => n.toFixed(3)).join(',');
+      const fading = tiles.some(t => performance.now() - t.flashAt < FLASH_HOLD_MS);
+      if (key === lastCamKey && !mosaicDirty && !fading) return;
       lastCamKey = key;
-      if (collageSvg) {
-        collageSvg.setAttribute('width', hostW);
-        collageSvg.setAttribute('height', hostH);
-        collageSvg.setAttribute('viewBox', '0 0 ' + hostW + ' ' + hostH);
-      }
-      // One dot product per country decides whether it is worth projecting at
-      // all. With every country running a slideshow, this cull is the
-      // difference between ~1,800 projections a frame and ~16,000.
+      mosaicDirty = false;
       const camDir = toVec(camLatLng(pos));
       const horizonAngle = Math.acos(Math.max(-1, Math.min(1, GLOBE_R / dist)));
-      for (const state of collages.values()) {
-        const ok = countryFullyVisible(state, camDir, horizonAngle)
-          && projectCollage(state, pos, dist);
-        state.g.classList.toggle('is-behind', !ok);
-        state.g.classList.toggle('is-picked', !!state.selected);
-        // Out of shot: give the pixels back rather than holding them for a
-        // country nobody is looking at.
-        if (!ok && state.loadedCount) unloadCollage(state);
-        // Only a picked country is captioned. Seventy-three name cards at once
-        // would bury the globe they are meant to be describing.
-        state.cap.classList.toggle('is-behind', !ok);
-        state.cap.classList.toggle('is-picked', !!state.selected);
-        if (ok) {
-          // First time this one has been worth looking at: fetch its face now
-          // rather than pulling all 73 down on load.
-          if (state.flashing || state.selected) loadCollage(state, false);
-        }
-      }
+      drawMosaic(camDir, horizonAngle);
     }
-    function startCollageLoop() {
-      if (collageRaf == null && collages.size) collageRaf = requestAnimationFrame(runCollageLoop);
+    function startMosaicLoop() {
+      if (mosaicRaf == null && tiles.length) mosaicRaf = requestAnimationFrame(runMosaicLoop);
     }
 
-    function clearCollages() {
-      for (const state of collages.values()) {
-        state.g.remove();
-        state.cap.remove();
-        const clip = collageDefs && collageDefs.querySelector('#' + state.id);
-        if (clip) clip.remove();
+    function clearMosaic() {
+      tiles.length = 0;
+      hoverTile = null;
+      if (mosCtx && mosCanvas) {
+        mosCtx.setTransform(1, 0, 0, 1, 0, 0);
+        mosCtx.clearRect(0, 0, mosCanvas.width, mosCanvas.height);
       }
-      collages.clear();
     }
 
-    // Every country with a face runs its slideshow, all the time — the globe
-    // is meant to look inhabited before you touch it. Picking one doesn't turn
-    // its collage on; it raises the country, frames the camera on it and gives
-    // it the caption.
-    function syncCollageLayer() {
+    // The whole land is laid at once and left alone. Picking a country doesn't
+    // turn its patch on — it lifts the country, frames the camera on it and
+    // brings its tesserae up into colour.
+    function syncMosaic() {
       if (!globeInstance) return;
-      clearCollages();
-      loadedOrder.length = 0;
-      if (!ensureCollageRoot()) { syncCollageTimer(); return; }
-      for (const [country, people] of photoPeopleByCountry.value) {
-        if (!people.length) continue;
-        const rings = collageRings(country);
-        if (!rings) continue;
-        const state = buildCollage(country, people, rings);
-        state.selected = isCountryOn(country);
-        state.ext = countryExtent(country);
-        // One face per country, drawn at random and then left alone, so the
-        // map is different each visit but still at rest. Picking the country
-        // is what sets it moving. Nothing is fetched here — the loop loads a
-        // photo the first frame its country is in front of the camera and big
-        // enough to read.
-        state.idx = Math.floor(Math.random() * people.length);
-      }
-      syncCollageTimer();
-      lastCamKey = '';        // force a projection on the next frame
-      startCollageLoop();
+      clearMosaic();
+      if (!ensureMosaicRoot()) { syncMosaicTimer(); return; }
+      loadAtlas();
+      buildTiles();
+      for (const t of tiles) t.selected = isCountryOn(t.country);
+      syncMosaicTimer();
+      syncDealTimer();
+      mosaicDirty = true;
+      lastCamKey = '';        // force a draw on the next frame
+      startMosaicLoop();
     }
 
-    // Picking a country changes which collage is raised and captioned, not
-    // which ones exist — so flip the flags rather than tearing down and
-    // rebuilding seventy-odd SVG groups on every click.
-    function syncCollageSelection() {
-      const now = performance.now();
-      for (const [country, state] of collages) {
-        const on = isCountryOn(country);
-        const was = state.selected;
-        state.selected = on;
-        if (on && !was) {
-          // Picked: the country zooms to fill the screen first, and only then
-          // does the slideshow start. Counting the dwell from the click would
-          // spend most of it on a moving camera, and the first face would turn
-          // over just as you arrived.
-          state.nextAt = now + CAMERA_TWEEN_MS + FACE_DWELL;
-          if (state.people.length > 1) runTimerBar(CAMERA_TWEEN_MS);
-        } else if (!on && was) {
-          // Put back down: it keeps whichever face it was showing.
-          state.nextAt = null;
-          if (![...collages.values()].some(x => x.selected)) stopTimerBar();
-        }
-      }
-      syncCollageTimer();
-      lastCamKey = '';
+    // Picking a country changes which tesserae are lit, not which ones exist —
+    // so flip the flags rather than re-laying the whole mosaic on every click.
+    function syncMosaicSelection() {
+      for (const t of tiles) t.selected = isCountryOn(t.country);
+      syncDealTimer();
+      mosaicDirty = true;
     }
 
     // ---- Where a birthplace actually is ----
@@ -2420,10 +2356,10 @@ const app = createApp({
             repaintPolygons();
           });
         console.log('[famous Baby] country outlines loaded:', features.length);
-        // Outlines are what the collages are cut from, so this is the earliest
-        // the globe can be populated — every country with a face starts its
-        // slideshow here, before anyone touches anything.
-        syncCollageLayer();
+        // Outlines are what the lattice is sorted against, so this is the
+        // earliest the mosaic can be laid — the land becomes faces here,
+        // before anyone touches anything.
+        syncMosaic();
       } catch (err) {
         console.error('[famous Baby] country outlines failed:', err);
       }
@@ -2524,6 +2460,7 @@ const app = createApp({
       } catch {}
       el.style.cursor = 'grab';
       el.addEventListener('pointerdown', onGlobePointerDown);
+      el.addEventListener('pointermove', onGlobePointerMove);
       el.addEventListener('pointerup', onGlobePointerUp);
       const ro = new ResizeObserver(() => {
         if (!globeInstance || !el.isConnected) return;
@@ -2539,13 +2476,15 @@ const app = createApp({
     function disposeGlobe() {
       if (!globeInstance) return;
       globeInstance._ro && globeInstance._ro.disconnect();
-      if (collageTimer) { clearInterval(collageTimer); collageTimer = null; }
-      if (collageRaf != null) { cancelAnimationFrame(collageRaf); collageRaf = null; }
-      clearCollages();
-      if (collageRoot) { collageRoot.remove(); collageRoot = null; collageSvg = null; collageDefs = null; collageTimerBar = null; }
+      if (mosaicTimer) { clearInterval(mosaicTimer); mosaicTimer = null; }
+      if (dealTimer) { clearInterval(dealTimer); dealTimer = null; }
+      if (mosaicRaf != null) { cancelAnimationFrame(mosaicRaf); mosaicRaf = null; }
+      clearMosaic();
+      if (mosRoot) { mosRoot.remove(); mosRoot = null; mosCanvas = null; mosCtx = null; mosTimerBar = null; }
       const el = globeInstance._el;
       if (el) {
         el.removeEventListener('pointerdown', onGlobePointerDown);
+        el.removeEventListener('pointermove', onGlobePointerMove);
         el.removeEventListener('pointerup', onGlobePointerUp);
         el.innerHTML = '';
       }
@@ -2846,20 +2785,16 @@ const app = createApp({
     // stored shape is { user } — an absent key means a browser that has never
     // been here, while { user: null } means one that has, and left.
     const STORAGE_SESSION = 'fb-session-v1';
-    const SEED_USER = { name: 'Benjamin Westbrook', email: 'jamin.westbrook@gmail.com' };
-    // A browser arriving for the first time arrives as the person who built
-    // this, already inside. Logging out writes { user: null } over the seed,
-    // so it never comes back uninvited.
-    let seededThisLoad = false;
+    // A browser arriving for the first time arrives at the door, not inside:
+    // the gate is the first thing anyone sees, so nothing may be logged in
+    // ahead of it. The stored shape is { user, guest } — a null user with
+    // guest true is someone who chose to look around without an account, and
+    // shouldn't be stopped at the gate a second time.
+    let sessionGuest = false;
     function loadSession() {
       try {
-        const raw = localStorage.getItem(STORAGE_SESSION);
-        if (raw == null) {
-          seededThisLoad = true;
-          localStorage.setItem(STORAGE_SESSION, JSON.stringify({ user: SEED_USER }));
-          return { ...SEED_USER };
-        }
-        const saved = JSON.parse(raw);
+        const saved = JSON.parse(localStorage.getItem(STORAGE_SESSION) || 'null');
+        sessionGuest = !!(saved && saved.guest);
         return saved && saved.user ? saved.user : null;
       } catch { return null; }
     }
@@ -2867,22 +2802,37 @@ const app = createApp({
     const isLoggedIn = computed(() => !!sessionUser.value);
     function persistSession() {
       try {
-        localStorage.setItem(STORAGE_SESSION, JSON.stringify({ user: sessionUser.value }));
+        localStorage.setItem(STORAGE_SESSION, JSON.stringify({
+          user: sessionUser.value,
+          guest: guestPass.value,
+        }));
       } catch {}
     }
     // What the app is, for anyone who lands on a globe with no explanation.
-    // Two faces: the writing, and the profile form behind its button. A visit
-    // always starts on the writing, whichever face it was left on.
-    // It leads the load for anyone logged out — a stranger gets the writing
-    // and the door, not a bare globe — and stays out of the way for anyone
-    // the browser already knows.
-    const aboutOpen = ref(!sessionUser.value);
-    // The info sheet is information and nothing else now — no step behind it,
-    // no profile to fill in on the way through.
+    // It's information and nothing else now, and it no longer leads the load:
+    // the gate below is what a stranger meets first, so this sheet only ever
+    // opens because the (i) in the title bar was asked for.
+    const aboutOpen = ref(false);
     function closeAbout() { aboutOpen.value = false; }
     function openAbout() { aboutOpen.value = true; }
-    // The door. No server behind it yet, so logging in is a name this browser
-    // agrees to hold — see the sheet, which says as much.
+
+    // ---- The gate ----
+    // The first screen for anyone this browser doesn't already know: the
+    // wordmark, a line about what this is, and the two doors. The globe keeps
+    // turning behind it, because the thing being offered should be visible
+    // from the step. "Look around first" is a real way past — this is a
+    // reference book, and a reference book that won't open is no use to
+    // anyone — and the choice is remembered, so nobody is asked twice.
+    const guestPass = ref(sessionGuest);
+    const gateOpen = ref(!sessionUser.value && !sessionGuest);
+    function skipGate() {
+      guestPass.value = true;
+      gateOpen.value = false;
+      persistSession();
+    }
+
+    // The email door. Still no server behind it, so logging in this way is a
+    // name this browser agrees to hold — see the sheet, which says as much.
     const loginOpen = ref(false);
     const loginEmail = ref('');
     const loginName = ref('');
@@ -2894,6 +2844,133 @@ const app = createApp({
       loginError.value = '';
       loginOpen.value = true;
     }
+    // The email sheet stands in front of the gate rather than on top of it,
+    // so the two never have to argue about which is above the other.
+    function gateEmail() {
+      gateOpen.value = false;
+      openLogin();
+    }
+    function closeLogin() {
+      loginOpen.value = false;
+      // Backing out of the email door puts you back at the gate you came
+      // through, not on a globe you never chose to be let onto.
+      if (!sessionUser.value && !guestPass.value) gateOpen.value = true;
+    }
+
+    // ---- Google ----
+    // Google Identity Services, loaded only if a client ID was filled in at
+    // the top of this file. What comes back is a signed ID token; with no
+    // server on the other side there is nothing here that can check that
+    // signature, so what we do is read the name and address out of the
+    // payload and take Google's word for it. That is exactly as much trust as
+    // the email box gets — this is a way of not typing, not a lock. The day
+    // there's a backend, `res.credential` is the thing you send it, and the
+    // backend is what verifies it.
+    const googleOn = !!GOOGLE_CLIENT_ID;
+    const googleReady = ref(false);
+    const googleError = ref('');
+    const gateGoogleBtn = ref(null);
+    const loginGoogleBtn = ref(null);
+    let gsiLoading = null;
+
+    function loadGsi() {
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        return Promise.resolve(true);
+      }
+      if (!gsiLoading) {
+        gsiLoading = new Promise((resolve) => {
+          const s = document.createElement('script');
+          s.src = 'https://accounts.google.com/gsi/client';
+          s.async = true;
+          s.defer = true;
+          s.onload = () => resolve(true);
+          s.onerror = () => {
+            googleError.value = "Google's sign-in didn't load. The email door still works.";
+            resolve(false);
+          };
+          document.head.appendChild(s);
+        });
+      }
+      return gsiLoading;
+    }
+
+    // The middle third of an ID token: base64url-encoded UTF-8 JSON. Decoded
+    // through TextDecoder rather than atob alone, or every accented name in
+    // the world comes back as mojibake.
+    function readIdToken(token) {
+      try {
+        const part = String(token).split('.')[1];
+        const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+        return JSON.parse(new TextDecoder().decode(bytes));
+      } catch { return null; }
+    }
+
+    function onGoogleCredential(res) {
+      const claims = readIdToken(res && res.credential);
+      if (!claims || !claims.email) {
+        googleError.value = "Google didn't say who that was. Try the email door.";
+        return;
+      }
+      signIn({
+        email: claims.email,
+        name: claims.name || claims.given_name || claims.email.split('@')[0],
+        picture: claims.picture || '',
+        via: 'google',
+      });
+    }
+
+    // Google draws its own button rather than us drawing one: it's the
+    // supported way in, and the black pill sits on these sheets without an
+    // argument. Called again each time a sheet opens, because a button drawn
+    // into a hidden box can come out the wrong width.
+    async function mountGoogleButton(box) {
+      if (!googleOn || !box) return;
+      if (!(await loadGsi())) return;
+      const gid = window.google.accounts.id;
+      if (!googleReady.value) {
+        gid.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: onGoogleCredential,
+          use_fedcm_for_prompt: true,
+          auto_select: false,
+        });
+        googleReady.value = true;
+      }
+      box.innerHTML = '';
+      gid.renderButton(box, {
+        type: 'standard',
+        theme: 'filled_black',
+        size: 'large',
+        shape: 'pill',
+        text: 'continue_with',
+        logo_alignment: 'center',
+        width: 260,
+      });
+    }
+    watch(gateOpen, (open) => {
+      if (open) nextTick(() => mountGoogleButton(gateGoogleBtn.value));
+    });
+    watch(loginOpen, (open) => {
+      if (open) nextTick(() => mountGoogleButton(loginGoogleBtn.value));
+    });
+    onMounted(() => { if (gateOpen.value) mountGoogleButton(gateGoogleBtn.value); });
+
+    // ---- Being let in ----
+    // One arrival, two keys: the email box and Google both end up here.
+    function signIn(user) {
+      sessionUser.value = user;
+      guestPass.value = false;
+      persistSession();
+      loginError.value = '';
+      googleError.value = '';
+      loginOpen.value = false;
+      gateOpen.value = false;
+      aboutOpen.value = false;
+      // A name at the door is a name for the profile, unless one's already there.
+      const first = profile.value.searchers[0];
+      if (first && !first.name && user.name) first.name = user.name;
+    }
     function submitLogin() {
       const email = loginEmail.value.trim();
       // Not validation for a server's sake — nothing is sent anywhere. It's
@@ -2902,25 +2979,23 @@ const app = createApp({
         loginError.value = 'That address is missing something.';
         return;
       }
-      sessionUser.value = { email, name: loginName.value.trim() || email.split('@')[0] };
-      persistSession();
-      loginError.value = '';
-      loginOpen.value = false;
-      aboutOpen.value = false;
-      // A name at the door is a name for the profile, unless one's already there.
-      const first = profile.value.searchers[0];
-      if (first && !first.name && sessionUser.value.name) first.name = sessionUser.value.name;
+      signIn({ email, name: loginName.value.trim() || email.split('@')[0], via: 'email' });
     }
     // Logging out ends the session and nothing else: the shortlist, the saved
     // searches and the profile stay put, waiting for the way back in. Clearing
-    // them is its own deliberate button in settings.
+    // them is its own deliberate button in settings. It puts the gate back up,
+    // guest pass included — logging out is not the same as looking around.
     function logOut() {
       sessionUser.value = null;
+      guestPass.value = false;
       persistSession();
       confirmSignOut.value = false;
       menuOpen.value = false;
       loginOpen.value = false;
-      aboutOpen.value = true;
+      aboutOpen.value = false;
+      gateOpen.value = true;
+      // And don't let Google walk straight back in on the next load.
+      try { window.google.accounts.id.disableAutoSelect(); } catch {}
     }
     // The account sheet's preferences explain themselves behind an (i) rather
     // than in a paragraph under the form.
@@ -2953,9 +3028,6 @@ const app = createApp({
     });
     function loadProfile() {
       const base = blankProfile();
-      // First load in this browser: the seeded session comes with a profile
-      // already started in its name, so nobody lands on an empty form.
-      if (seededThisLoad) base.searchers[0].name = SEED_USER.name;
       try {
         const raw = localStorage.getItem(STORAGE_PROFILE);
         if (!raw) return base;
@@ -3231,9 +3303,12 @@ const app = createApp({
       // HOME_VIEW there, so initGlobe's opening move lands on it unaided.
       openingGlobeView();
       ensureGlobe();
-      // Skipped while the opening view is pinned: the device's own location
-      // would otherwise pull the camera off London a moment after it arrives.
-      if (!OPENING_OVERRIDE) refineHomeFromDevice();
+      // Both skipped while the opening view is pinned: they would otherwise
+      // pull the camera off it a moment after it arrives. The IP goes first
+      // because it always has an answer; the device only speaks if permission
+      // was granted in some earlier session, and is the better answer when it
+      // does, so it lands last on purpose.
+      if (!OPENING_OVERRIDE) { refineHomeFromIp(); refineHomeFromDevice(); }
       syncCatArrows();
       syncSubArrows();
     }));
@@ -3370,16 +3445,17 @@ const app = createApp({
     onUnmounted(disposeGlobe);
 
     // Repaint the outlines whenever selection changes.
-    watch(selectedCountries, () => { repaintPolygons(); syncCollageSelection(); }, { deep: true });
+    watch(selectedCountries, () => { repaintPolygons(); syncMosaicSelection(); }, { deep: true });
     // Every polygon height is a fraction of popAlt, and so is where the
     // slideshow stands — so a re-framing has to redraw both, including the
     // paths that move the camera without changing the selection (opening a
     // person's card, say).
     watch(popAlt, () => {
       repaintPolygons();
-      // The collage is clipped to the outline projected at plinth height, so a
-      // new height means the shape has to be re-cut on the next frame.
+      // A picked country's tesserae ride its plinth, so a new height means the
+      // mosaic has to be re-placed on the next frame.
       lastCamKey = '';
+      mosaicDirty = true;
     });
 
     // ---- Surprise Me — random person matching current filters ----
@@ -3634,8 +3710,9 @@ const app = createApp({
     // ---- Esc key closes the modal ----
     function onKeydown(e) {
       if (e.key !== 'Escape') return;
-      // Innermost first: the login sheet sits on top of the info page.
-      if (loginOpen.value) loginOpen.value = false;
+      // Innermost first: the login sheet stands in front of the gate.
+      if (loginOpen.value) closeLogin();
+      else if (gateOpen.value) skipGate();
       else if (randomOpen.value) randomOpen.value = false;
       else if (aboutOpen.value) aboutOpen.value = false;
       else if (menuOpen.value) menuOpen.value = false;
@@ -4324,8 +4401,11 @@ const app = createApp({
       searchInput, runSearch,
       closeAbout, openAbout,
       // session
-      sessionUser, isLoggedIn, loginOpen, openLogin, submitLogin, logOut,
+      sessionUser, isLoggedIn, loginOpen, openLogin, closeLogin, submitLogin, logOut,
       loginEmail, loginName, loginError,
+      // the gate, and the Google door in it
+      gateOpen, skipGate, gateEmail,
+      googleOn, googleError, gateGoogleBtn, loginGoogleBtn,
       profile, hasProfile, profileSummary, startFromProfile, clearProfile,
       menuView, openMenu, prefsInfoOpen,
       savedSearches, saveCurrentSearch, applySavedSearch, deleteSavedSearch,

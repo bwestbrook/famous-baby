@@ -99,133 +99,42 @@ body {
 .map__globe canvas {
   display: block;
   /* The faces are grey now, so the map has to be the thing with colour in it.
-     The greens and browns of the land are what the portraits are tinted by,
-     and what's left when the faces are down to a tenth of the mix. */
+     The greens and browns of the land are what fills the space between the
+     discs, and the only colour on the globe until a face surfaces. */
   filter: saturate(1.75) contrast(1.14) brightness(1.05);
 }
 
-/* ---------- the collage: a country filled with its own faces ----------
-   A picked country doesn't get a portrait pinned above it — it becomes the
-   portrait. One SVG spans the canvas; app.js re-projects the country's outline
-   to screen coordinates each frame and uses it as a clip path, so the photo
-   inside is cut to the exact silhouette the camera is looking at. */
-.ccol {
+/* ---------- the mosaic: the land, made of faces ----------
+   A near-uniform lattice is laid over the sphere and every point of it that
+   falls on a country the roster reaches becomes a tessera holding a face from
+   that country. Grey and half-lit at rest; a tile blooms into colour every
+   second or so, and again wherever you point.
+
+   A canvas, not SVG. Several hundred tesserae each re-placed every frame is
+   several hundred DOM writes and a style recalculation per frame; blitting
+   them from one sprite sheet is a single draw call each. So almost none of
+   this layer's appearance lives here — the greys, the opacities and the type
+   are all in app.js, next to the drawing code that applies them. What is left
+   is where the canvas sits and the one thing still made of DOM: the timer. */
+.mos {
   position: absolute; inset: 0;
-  pointer-events: none;              /* only the shape itself takes the pointer */
-  /* Deliberately no z-index: it would make this its own stacking context and
-     the blend would stop at the overlay instead of reaching the globe. The
-     element is after the canvas in the DOM, which is enough to sit above it. */
+  pointer-events: none;    /* the pointer belongs to the globe underneath;
+                              app.js hit-tests the tesserae against it */
 }
-.ccol__svg { position: absolute; inset: 0; display: block; overflow: visible; }
-/* The shape never takes the pointer. It can cover the whole screen, and a
-   click target that size would eat both the drag that spins the globe and the
-   second click that puts the country back down. The caption is the handle. */
-.ccol__g {
-  opacity: 0;
-  /* Slow in, slower out: a face surfacing on a turning globe should arrive
-     like something you half-noticed, not like a slide changing. */
-  transition: opacity 1.1s ease;
-  pointer-events: none;
-}
-/* Lit only while its moment lasts, or while it is the country you picked. */
-.ccol__g.is-flash.is-loaded,
-.ccol__g.is-picked.is-loaded { opacity: 1; }
-/* Something under the photo for the first decode, so the silhouette reads as
-   filled from the moment it lifts — but faint, because the map is meant to
-   come through the picture now rather than be covered by it. */
-.ccol__back { fill: rgba(20,24,32,.05); }
-/* Holds the country's picture. It used to scroll a strip of them; now it
-   carries one, and the movement on this globe is the globe itself. */
-.ccol__reel { }
-/* Mostly map. The photographs are black and white and faint, so the land
-   reads through them and a face is part of the terrain rather than a picture
-   pinned to it.
-
-   No mix-blend-mode. It gave a nicer tint — the picture's light over the
-   map's colour — but Safari has never been reliable about blend modes on SVG
-   children, and it cost two separate bugs here already: anything that makes
-   an ancestor its own stacking context (a z-index, a will-change) silently
-   isolates the blend and the photographs vanish entirely. Grayscale and
-   opacity get within a shade of the same look and cannot fail that way.
-   --face-mix and --face-mix-picked are the whole dial. */
-:root {
-  --face-mix:        .30;   /* a country at rest */
-  --face-mix-picked: .46;   /* the one you're looking at */
-}
-.ccol__fg {
-  filter: grayscale(1) contrast(1.1) brightness(1.06);
-  opacity: var(--face-mix);
-}
-.ccol__g.is-picked .ccol__fg { opacity: var(--face-mix-picked); }
-.ccol__g.is-picked .ccol__back { fill: rgba(20,24,32,.10); }
-
-/* No will-change here, and nothing else that makes this group its own
-   stacking context. It did have one, and that is what made every photograph
-   disappear: an isolated group gives mix-blend-mode nothing to blend with, so
-   the faces were compositing against empty space instead of against the
-   globe. The frames are positioned individually now anyway — there is no
-   group transform left to hint at. */
-
-
-/* The country's own edge, drawn over the photo so the shape stays legible
-   against whatever is behind it. */
-.ccol__edge {
-  fill: none;
-  stroke: #fdd663;
-  stroke-width: 1.5;
-  stroke-linejoin: round;
-  paint-order: stroke;
-  filter: drop-shadow(0 0 6px rgba(253,214,99,.45));
-}
-
-/* The showing name, centred at the top with the slideshow's clock running
-   through it — one line across the screen, the name sitting on it with a gap
-   either side so the bar reads as passing behind rather than striking through.
-   Nothing else: everything a card would tell you is one click away, and on the
-   globe the rest of it competed with the face. */
-.ccol__cap {
+.mos__canvas {
   position: absolute;
-  top: calc(var(--band-h) + 8px);
-  left: 0; right: 0;
-  z-index: 2;
-  text-align: center;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .45s ease;
-}
-.ccol__cap.is-flash.is-loaded,
-.ccol__cap.is-picked.is-loaded { opacity: 1; }
-.ccol__given {
-  display: inline-block;
-  /* Stacking the name over the bar isn't enough to put the bar behind it —
-     the line still shows through the gaps between the letters, which reads as
-     a strike-through. So the name carries its own occluder: a band of the map's
-     own background that the bar runs into and disappears under, faded at both
-     ends so the line looks like it passes behind rather than stopping at a
-     box. */
-  padding: 1px 20px;
-  background: linear-gradient(to right,
-    rgba(5,7,12,0) 0%,
-    rgba(5,7,12,.92) 22%,
-    rgba(5,7,12,.92) 78%,
-    rgba(5,7,12,0) 100%);
-  pointer-events: auto;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 18px;
-  letter-spacing: .09em;
-  /* Faint on purpose: the face is what you're looking at, and this is a label
-     on it rather than a headline over it. The halo is what keeps it readable
-     over whatever the bar and the globe put behind it. */
-  color: rgba(255,255,255,.62);
-  text-shadow: 0 1px 3px rgba(0,0,0,.8), 0 0 14px rgba(0,0,0,.65);
+  inset: 0;
+  display: block;
+  /* Backed by device pixels, so a face at fifteen pixels across still has
+     edges. app.js sets width/height in device pixels and these in CSS ones. */
+  width: 100%;
+  height: 100%;
 }
 
-/* How long the showing face has left, straight across the top under the
-   masthead. Only one country runs at a time, so one bar says it. */
-.ccol__timer {
+/* How long a picked country has before it re-deals its faces, straight across
+   the top under the masthead. Only one country re-deals at a time, so one bar
+   says it. */
+.mos__timer {
   position: absolute;
   top: calc(var(--band-h) + 16px);
   left: 0;
@@ -239,18 +148,11 @@ body {
   opacity: 0;
   pointer-events: none;
 }
-.ccol__timer.is-running {
+.mos__timer.is-running {
   opacity: 1;
-  animation: ccol-sweep var(--face-dwell, 3400ms) linear forwards;
+  animation: mos-sweep var(--face-dwell, 3400ms) linear forwards;
 }
-@keyframes ccol-sweep { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-
-/* Spun round the back of the globe: the outline stops being a shape, so both
-   halves retire rather than drawing a fold. Last in the block on purpose —
-   it has to outrank .is-loaded, which carries the same specificity. */
-.ccol__g.is-behind,
-.ccol__cap.is-behind { opacity: 0; pointer-events: none; }
-
+@keyframes mos-sweep { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 
 /* ---------- top stack: categories, then the timeline ---------- */
@@ -1051,7 +953,6 @@ body {
 }
 .row + .row { border-top: 1px solid rgba(255,255,255,.12); }
 .row:hover { background: rgba(255,255,255,.08); }
-
 
 
 .row__main { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
@@ -2450,4 +2351,110 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
   border-top: 1px solid var(--line-2);
   font-size: 8px; letter-spacing: .07em; text-transform: uppercase;
   color: var(--text-3);
+}
+
+/* =========================================================================
+   THE GATE — the first screen, before anyone is inside
+   A cover over the whole page, but a thin one: the globe keeps turning
+   behind the card, because the thing being offered should be visible from
+   the step. Everything here is the chrome's own material — the same tinted
+   glass, the same hairline, the same wordmark as the title bar.
+   ========================================================================= */
+.gate {
+  position: absolute; inset: 0;
+  /* Above the overlays (40), the title bar (24) and the dock (20): while the
+     gate is up it is the only thing anyone can reach. */
+  z-index: 60;
+  display: grid; place-items: center;
+  padding: 24px;
+  /* Darkest at the edges, thinnest over the middle, so the globe still reads
+     through the centre of the screen rather than sitting under a flat wash. */
+  background: radial-gradient(120% 90% at 50% 45%, rgba(5,7,12,.42), rgba(5,7,12,.88));
+  animation: gate-in .28s var(--ease);
+}
+@keyframes gate-in { from { opacity: 0; } to { opacity: 1; } }
+
+.gate__card {
+  width: 100%; max-width: 372px;
+  padding: 38px 30px 24px;
+  text-align: center;
+  border-radius: 20px;
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-line);
+  box-shadow: 0 8px 40px rgba(0,0,0,.6);
+  animation: gate-rise .34s var(--ease);
+}
+@keyframes gate-rise { from { transform: translateY(10px); } to { transform: none; } }
+
+/* The title bar's mark, four times the size and nothing else changed. */
+.gate__mark {
+  margin: 0;
+  font-size: 34px; font-weight: 500; letter-spacing: .01em; line-height: 1.1;
+  color: #fff;
+}
+.gate__mark em { font-style: normal; font-weight: 300; color: rgba(255,255,255,.72); }
+
+.gate__line {
+  margin: 14px auto 0;
+  max-width: 30em;
+  font-size: 13px; font-weight: 300; line-height: 1.65; letter-spacing: .01em;
+  color: rgba(255,255,255,.8);
+}
+
+/* Both doors the same width — the one Google draws is asked for at 260px, and
+   the email one follows it rather than the other way round. */
+.gate__doors {
+  width: 260px;
+  margin: 26px auto 0;
+  display: flex; flex-direction: column; align-items: stretch; gap: 10px;
+}
+.gate__gsi { display: flex; justify-content: center; min-height: 40px; }
+.gate__btn {
+  min-height: 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.45);
+  color: #fff;
+  font-size: 13px; font-weight: 500; letter-spacing: .01em;
+  transition: background .12s var(--ease), border-color .12s var(--ease);
+}
+.gate__btn:hover { background: rgba(255,255,255,.12); border-color: #fff; }
+.gate__err {
+  margin: 2px 0 0;
+  font-size: 11.5px; line-height: 1.45;
+  color: #ff9d94;
+}
+
+/* The way past. Quiet on purpose — it's an option, not the offer. */
+.gate__skip {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-top: 22px; padding: 6px 10px;
+  border-radius: 14px;
+  font-size: 12px; font-weight: 400;
+  color: rgba(255,255,255,.6);
+  transition: background .12s var(--ease), color .12s var(--ease);
+}
+.gate__skip:hover { background: rgba(255,255,255,.1); color: #fff; }
+.gate__skip .ico { color: inherit; }
+
+@media (max-width: 420px) {
+  .gate__card { padding: 30px 20px 20px; }
+  .gate__mark { font-size: 28px; }
+  .gate__doors { width: 100%; }
+}
+
+/* The same Google button inside the log-in sheet, with a rule between it and
+   the email fields so the two read as alternatives rather than as steps. */
+.gauth { padding: 16px 18px 0; }
+.gauth__btn { display: flex; justify-content: center; min-height: 40px; }
+.gauth__or {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 14px;
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+}
+.gauth__or::before, .gauth__or::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(255,255,255,.16);
 }

@@ -94,7 +94,6 @@ export const PHOTO_IDS = [
   'arvo-part',
   'asamoah-gyan',
   'atahualpa',
-  'atlas',
   'audrey-hepburn',
   'augustine-of-hippo',
   'augusto-roa-bastos',
