@@ -3730,11 +3730,6 @@ const app = createApp({
       // the full-screen zoom and the slideshow belong to clicking a country,
       // and opening a card is a different errand.
       if (p && p.country) flyToCountry(p.country, 1);
-      // Reset the per-person Q&A state whenever a different person opens.
-      askInput.value = '';
-      askAnswer.value = '';
-      askError.value = '';
-      askLoading.value = false;
     }
     // A credit that names someone in the roster opens their card; anyone else
     // becomes a search, so the tag always leads somewhere.
@@ -3799,62 +3794,6 @@ const app = createApp({
         nextTick(resetDial);
       }
     );
-
-    // ---- "Ask a question" affordance ----
-    // Lightweight UI scaffold. Submit posts to whatever endpoint is configured
-    // at window.FAMOUS_BABY_QA_ENDPOINT (e.g. an internal Lambda that forwards
-    // to Anthropic / OpenAI). If no endpoint is set, we keep the UI alive but
-    // explain that an LLM hookup is required so the prototype can demo locally.
-    const askInput = ref('');
-    const askAnswer = ref('');
-    const askError = ref('');
-    const askLoading = ref(false);
-
-
-    async function submitAsk() {
-      const q = askInput.value.trim();
-      if (!q || askLoading.value || !selectedPerson.value) return;
-      askError.value = '';
-      askAnswer.value = '';
-      askLoading.value = true;
-
-      const endpoint = window.FAMOUS_BABY_QA_ENDPOINT;
-      if (!endpoint) {
-        // No backend wired up yet — explain politely and stay non-broken.
-        askLoading.value = false;
-        askError.value = 'No question endpoint is configured. Set window.FAMOUS_BABY_QA_ENDPOINT to a URL that accepts {person, question} and returns {answer}.';
-        return;
-      }
-
-      try {
-        const p = selectedPerson.value;
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            person: {
-              id: p.id,
-              name: p.name,
-              field: p.field,
-              subfield: p.subfield,
-              birthYear: p.birthYear,
-              birthPlace: p.birthPlace,
-              bio: p.bio,
-            },
-            question: q,
-          }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(data.error || ('HTTP ' + res.status));
-        }
-        askAnswer.value = data.answer || '(no answer returned)';
-      } catch (err) {
-        askError.value = err.message || 'Could not reach the question endpoint.';
-      } finally {
-        askLoading.value = false;
-      }
-    }
 
     // ---- Aesthetic / theme ----
     // Theme picker was removed — the site is locked to 'mag'. The ref +
@@ -4584,7 +4523,6 @@ const app = createApp({
       openPerson, closePerson, toggleTheme,
       hasPerson, personByName, openOrSearch, searchFor, filterZodiac, filterBirthday, filterField, filterGender, genderLabel,
       // ask-a-question
-      askInput, askAnswer, askError, askLoading, submitAsk,
       // display helpers
       metaPills, tagsFor, alongside, fullNameParts, fullNameOf, middleNameOf, selectedNameParts, rowMeta,
     };

@@ -54,11 +54,6 @@
   </script>
 </head>
 <body>
-  <!-- Q&A endpoint — set after deploying ./worker (see worker/README.md). -->
-  <script>
-    // window.FAMOUS_BABY_QA_ENDPOINT = 'https://famous-baby-qa.<your-subdomain>.workers.dev';
-  </script>
-
   <!-- ============== ICON SPRITE (Material-style, 24 grid) ============== -->
   <svg class="sprite" aria-hidden="true" focusable="false">
     <defs>
@@ -463,29 +458,6 @@
               <svg class="ico ico--18"><use :href="isFavorite(selectedPerson) ? '#i-heart' : '#i-heart-o'"/></svg>
             </button>
           </div>
-        <!-- The question spans the whole card: it takes typing, and the width
-             left between two round buttons isn't enough to type into. -->
-        <form class="kask__form kask__form--wide" @submit.prevent="submitAsk">
-          <svg class="ico ico--12 kask__ico"><use href="#i-search"/></svg>
-          <input
-            type="text"
-            class="kask__input"
-            v-model="askInput"
-            :placeholder="'Ask about ' + selectedPerson.name.split(' ')[0]"
-            :disabled="askLoading"
-            maxlength="200"
-            aria-label="Ask a question about this person"
-          />
-          <button
-            type="submit"
-            class="kask__go"
-            :disabled="askLoading || !askInput.trim()"
-            title="Ask"
-          >
-            <svg class="ico ico--12"><use href="#i-chev-right"/></svg>
-          </button>
-        </form>
-
           <div class="pop__media" :class="{ 'is-solo': !miniView }">
             <div class="pop__shot">
               <!-- Stands in until (or unless) a photo loads. -->
@@ -567,15 +539,6 @@
         <!-- Card body: the bio, the ask box, the tag rows, and the links out
              to other people. Lost in the header rework; restored from 223b469. -->
         <div class="pop__body">
-          <!-- The box that asked lives in the header; what comes back lands
-               here, where a long answer can scroll instead of stretching the
-               card's fixed top. -->
-          <div v-if="askError || askAnswer || askLoading" class="kask">
-            <p v-if="askLoading" class="kask__err">Asking…</p>
-            <p v-if="askError" class="kask__err">{{ askError }}</p>
-            <p v-if="askAnswer" class="kask__ans">{{ askAnswer }}</p>
-          </div>
-
           <!-- The name's own life, drawn from a public register. The peak is
                marked because it is the only point on the line anyone reads for.
                The source is named on the chart: this is US births or New York

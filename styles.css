@@ -1367,17 +1367,6 @@ body {
 }
 .pop__sign--g:hover { background: rgba(138,180,248,.4); border-color: rgba(174,203,250,.9); }
 
-/* Full width, under the name block: a field you type into shouldn't be sized
-   by whatever room two round buttons left behind. */
-.kask__form--wide {
-  margin: 0 12px 10px;
-  height: 30px;
-  padding: 0 3px 0 10px;
-  gap: 6px;
-}
-.kask__form--wide .kask__input { font-size: 12px; }
-.kask__form--wide .kask__go { width: 26px; height: 26px; }
-
 /* Third along: what they did. Same pill, but carrying the field's own colour —
    the one already tinting the card behind it and the thumbnail in the list. */
 .pop__field {
@@ -1480,30 +1469,6 @@ body {
 
 .pop .btn--out { border-color: rgba(255,255,255,.25); color: var(--blue-dark); }
 .pop .btn--out:hover { background: rgba(138,180,248,.16); }
-/* On the card the field is glass like everything else around it, and it sits
-   in the title block directly under the date and sign — so it's built to the
-   same pill height as those, not to a form control's natural height. */
-.pop__titles .kask__form {
-  margin-top: 4px;
-  height: var(--pill-h);
-  padding: 0 2px 0 8px;
-  gap: 5px;
-  border-radius: 10px;
-  background: rgba(0,0,0,.3);
-  border: 1px solid rgba(255,255,255,.3);
-  backdrop-filter: blur(4px);
-}
-.pop__titles .kask__form:focus-within { border-color: rgba(255,255,255,.7); background: rgba(0,0,0,.45); }
-.pop__titles .kask__input { padding: 0; font-size: 11px; font-weight: 300; }
-.pop__titles .kask__go { width: calc(var(--pill-h) - 4px); height: calc(var(--pill-h) - 4px); }
-.pop .kask__ico { color: rgba(255,255,255,.55); }
-.pop .kask__input { color: #f1f3f4; }
-.pop .kask__input::placeholder { color: rgba(255,255,255,.6); }
-.pop .kask__go { color: var(--blue-dark); }
-.pop .kask__go:hover:not(:disabled) { background: rgba(138,180,248,.18); }
-.pop .kask__err { color: rgba(255,255,255,.6); }
-.pop .kask__ans { background: rgba(255,255,255,.08); color: rgba(255,255,255,.9); }
-
 .pop .kdl dt { color: rgba(255,255,255,.5); }
 .pop .tag { background: rgba(255,255,255,.11); color: rgba(255,255,255,.9); }
 .pop .tag em { color: rgba(255,255,255,.55); }
@@ -1591,39 +1556,6 @@ body {
 
 
 .kcard__bio { margin: 0 0 12px; font-size: 12.5px; line-height: 1.6; color: #3c4043; }
-
-/* What came back from a question — the box that asked it is up in the header. */
-.kask { margin: 0 0 12px; display: flex; flex-direction: column; gap: 8px; }
-/* One field, the way the search line reads: icon, input, go. */
-.kask__form {
-  display: flex; align-items: center; gap: 6px;
-  padding: 0 4px 0 10px;
-  border: 1px solid var(--line); border-radius: 18px;
-  background: var(--panel);
-}
-.kask__form:focus-within { border-color: var(--blue); }
-.kask__ico { color: var(--text-3); flex: none; }
-.kask__input {
-  flex: 1; min-width: 0;
-  padding: 8px 0; font-size: 12.5px;
-  border: none; background: none; outline: none;
-}
-.kask__go {
-  flex: none;
-  width: 26px; height: 26px;
-  display: grid; place-items: center;
-  border-radius: 50%;
-  color: var(--blue);
-  transition: background .12s var(--ease), opacity .12s var(--ease);
-}
-.kask__go:hover { background: var(--blue-tint); }
-.kask__go:disabled { opacity: .35; cursor: default; }
-.kask__err { margin: 0; font-size: 11.5px; color: var(--text-2); }
-.kask__ans {
-  margin: 0; padding: 10px 12px;
-  background: var(--panel-3); border-radius: 8px;
-  font-size: 12.5px; line-height: 1.55;
-}
 
 .kdl { margin: 0 0 14px; display: grid; grid-template-columns: 70px minmax(0,1fr); gap: 6px 10px; align-items: start; }
 .kdl dt { font-size: 9.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); padding-top: 4px; }
