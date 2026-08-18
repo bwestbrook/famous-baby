@@ -21,9 +21,17 @@ import so the effect of a pass is a number rather than an impression.
 - **BY CALLING** — the site's balance. Sports and Music run away with it on
   every automated pass, because that is what sitelinks reward. If a pass makes
   those bars longer and the others flat, the field weighting needs looking at.
+- **BY CENTURY** — the long view, hundred-year chunks including BC. Decades
+  say where the roster is bunched; centuries say whether it reaches back at
+  all, which was the point of going to 1000 AD in the first place.
 - **BY DECADE OF BIRTH** — whether the roster is a museum or a nursery. A
   naming almanac wants both ends: names being given now, and names with a
   century behind them.
+- **BY CATEGORY** — subfield inside calling, which is the level the site
+  actually filters on. Grouped as `field › category`, because "Classical"
+  under Music and "Classical" under Architecture are different things and the
+  data keeps them apart. This is where a calling turns out to be one category
+  wearing a field's name — Sports is mostly NBA, Music mostly Pop.
 - **HOW FULL THE ENTRIES ARE** — the honest one. Most entries are imported
   stubs. This is the queue for `fillInProfile` and `augmentProfile`, and the
   number to watch is bios over 120 characters.

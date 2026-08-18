@@ -94,7 +94,25 @@ const fieldMax = fieldRows[0] ? fieldRows[0][1].n : 1;
 table('BY CALLING', ['field', 'people', 'photos', ''],
   fieldRows.map(([f, e]) => [f, e.n, e.shot, bar(e.n, fieldMax)]), ['l', 'r', 'r', 'l']);
 
-// by era
+// by century — the long view. Decades say where the roster is bunched;
+// hundred-year chunks say whether it reaches back at all.
+const cents = new Map();
+for (const p of PEOPLE) {
+  if (p.birthYear == null) continue;
+  const c = Math.floor(p.birthYear / 100) * 100;
+  if (!cents.has(c)) cents.set(c, { n: 0, shot: 0 });
+  const e = cents.get(c);
+  e.n++;
+  if (HAS_PHOTO.has(p.id)) e.shot++;
+}
+const centRows = [...cents].sort((a, b) => a[0] - b[0]);
+const centMax = Math.max(...centRows.map(r => r[1].n));
+const centLabel = (c) => c < 0 ? `${Math.abs(c)}s BC` : `${c}–${c + 99}`;
+table('BY CENTURY', ['born', 'people', 'photos', ''],
+  centRows.map(([c, e]) => [centLabel(c), e.n, e.shot, bar(e.n, centMax)]),
+  ['l', 'r', 'r', 'l']);
+
+// by decade, for the part of the roster that is dense enough to have decades
 const eras = new Map();
 for (const p of PEOPLE) {
   if (p.birthYear == null) continue;
@@ -108,6 +126,27 @@ const eraRows = [...eras].sort((a, b) => order(a[0]) - order(b[0]));
 const eraMax = Math.max(...eraRows.map(r => r[1]));
 table('BY DECADE OF BIRTH', ['born', 'people', ''],
   eraRows.map(([k, n]) => [k, n, bar(n, eraMax)]), ['l', 'r', 'l']);
+
+// by category — the subfield inside each calling, which is the level the site
+// actually filters on. Grouped under its field so "Classical" under Music and
+// "Classical" under Architecture stay separate, as they do in the data.
+const cats = new Map();
+for (const p of PEOPLE) {
+  if (!p.field || !p.subfield) continue;
+  const key = p.field + ' › ' + p.subfield;
+  if (!cats.has(key)) cats.set(key, { n: 0, shot: 0 });
+  const e = cats.get(key);
+  e.n++;
+  if (HAS_PHOTO.has(p.id)) e.shot++;
+}
+const catRows = [...cats].sort((a, b) => b[1].n - a[1].n);
+const catMax = catRows[0] ? catRows[0][1].n : 1;
+const catsShown = FULL ? catRows : catRows.slice(0, 24);
+table(FULL ? `EVERY CATEGORY (${catRows.length})`
+           : `BY CATEGORY — top 24 of ${catRows.length} (--full for all)`,
+  ['field › category', 'people', 'photos', ''],
+  catsShown.map(([k, e]) => [k, e.n, e.shot, bar(e.n, catMax)]),
+  ['l', 'r', 'r', 'l']);
 
 // how complete the entries are
 const has = (p, k) => Array.isArray(p[k]) ? p[k].length > 0 : !!(p[k] && String(p[k]).trim());
