@@ -2244,16 +2244,16 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
 /* =========================================================================
    NAME GRAPH — how often the name was given, and when
    ========================================================================= */
-/* OG: the given name on its own, sitting with the star signs because it is the
-   same kind of fact. Pressed, it opens the chart. */
-.pop__sign--og.is-on { background: rgba(253,214,99,.22); border-color: rgba(253,214,99,.5); }
-.pop__og {
-  font-style: normal; font-weight: 700; font-size: 8px;
-  letter-spacing: .08em;
-  padding: 1px 3px; margin-right: 1px;
-  border-radius: 3px;
-  background: rgba(255,255,255,.18);
+/* The two name pills, sitting with the star signs because a name is the same
+   kind of fact — something you were given rather than something you did.
+   Popularity toggles the chart in the card and lights up while it's open;
+   Meaning opens the sheet, so it has nothing to stay lit for. */
+.pop__sign--chart.is-on { background: rgba(253,214,99,.22); border-color: rgba(253,214,99,.5); }
+.pop__sign--mean {
+  background: rgba(197,168,255,.2);
+  border-color: rgba(197,168,255,.5);
 }
+.pop__sign--mean:hover { background: rgba(197,168,255,.38); border-color: rgba(214,193,255,.9); }
 
 .ngraph {
   margin: 0 0 10px;
@@ -2412,3 +2412,80 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
   content: ''; flex: 1; height: 1px;
   background: rgba(255,255,255,.16);
 }
+
+/* =========================================================================
+   THE NAME SHEET — the given name on its own
+   A drawer over the card: the meaning, the run, and who else carries it.
+   ========================================================================= */
+.ovl__sheet--name { max-height: 76%; }
+/* The sentence is the reason the sheet exists, so it is set at reading size
+   rather than at label size like the rows on the card. */
+.nsheet__mean {
+  margin: 0;
+  padding: 14px 18px 12px;
+  font-size: 15px; font-weight: 300; line-height: 1.55;
+  color: #fff;
+}
+/* CC BY-SA asks for the credit; it doesn't ask for it to shout. */
+.nsheet__src {
+  display: block;
+  margin-top: 8px;
+  font-size: 8.5px; letter-spacing: .07em; text-transform: uppercase;
+  color: rgba(255,255,255,.42);
+}
+.nsheet__none {
+  margin: 0;
+  padding: 4px 18px 12px;
+  font-size: 12.5px; font-weight: 300;
+  color: rgba(255,255,255,.5);
+}
+.nsheet__who { padding: 4px 18px 18px; }
+.nsheet__wholab {
+  margin: 0 0 8px;
+  font-size: 10px; font-weight: 500; letter-spacing: .09em; text-transform: uppercase;
+  color: rgba(255,255,255,.5);
+}
+.nsheet__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+/* The person whose card is open, standing in the list so the name reads as a
+   thing shared rather than as a list of strangers. Not a button — you are
+   already here. */
+.nsheet__self {
+  cursor: default;
+  border-style: dashed;
+  opacity: .75;
+}
+
+/* The chart was built for the white card. In the sheet it is on black, so the
+   panel, the rules and the type all have to come the other way round. */
+.ovl .ngraph {
+  margin: 0 18px 16px;
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.16);
+}
+.ovl .ngraph__name { color: #fff; }
+.ovl .ngraph__mode {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.3);
+  color: rgba(255,255,255,.7);
+}
+.ovl .ngraph__mode:hover { background: rgba(255,255,255,.16); border-color: #fff; color: #fff; }
+.ovl .ngraph__area { fill: rgba(138,180,248,.2); }
+.ovl .ngraph__line { stroke: #8ab4f8; }
+.ovl .ngraph__foot { color: rgba(255,255,255,.45); }
+.ovl .ngraph__peak { color: rgba(255,255,255,.78); }
+.ovl .ngraph__src { border-top-color: rgba(255,255,255,.14); color: rgba(255,255,255,.38); }
+/* Given the room the card couldn't spare. */
+.ngraph--big { padding: 10px 12px 9px; }
+.ngraph--big .ngraph__svg { height: 92px; }
+
+/* Tags in the sheet: same shape as the card's, dressed for black. */
+.ovl .tag--ghost {
+  /* The card's tags carry no border at all — on white the fill is enough. On
+     black it isn't, so the outline is declared here rather than inherited. */
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.78);
+}
+.ovl .tag em { color: rgba(255,255,255,.45); }
+.ovl .tag--ghost.is-linked { color: #fff; border-color: rgba(255,255,255,.42); }
+.ovl .tag--ghost.is-linked:hover { background: rgba(255,255,255,.16); border-color: #fff; }

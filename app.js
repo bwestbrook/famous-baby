@@ -996,7 +996,7 @@ const app = createApp({
     // lives here rather than being written into each pointOfView call.
     const CAMERA_TWEEN_MS = 900;
 
-    // Fly the camera to a country the way Earth does: stop the spin, ease in.
+    // Fly the camera to a country the way Earth does: ease in, don't cut.
     // `tightness` scales the padding around it — under 1 crops in closer.
     function flyToCountry(country, tightness = 1) {
       if (!globeInstance) return;
@@ -2499,6 +2499,21 @@ const app = createApp({
       }
     }
 
+    // How fast the globe turns when nobody is holding it. Halved from 0.28 —
+    // at that speed a country you had just flown to had visibly drifted by the
+    // time you finished reading the card next to it.
+    const SPIN_SPEED = 0.14;
+    // Stop and start the idle spin. Through a helper because the controls
+    // object is rebuilt every time the globe is, so only one place should have
+    // to know how this build spells it.
+    function setGlobeSpin(on) {
+      if (!globeInstance) return;
+      try {
+        const c = globeInstance.controls();
+        if ('autoRotate' in c) { c.autoRotate = !!on; c.autoRotateSpeed = SPIN_SPEED; }
+      } catch {}
+    }
+
     async function initGlobe() {
       await nextTick();
       const el = document.getElementById('globe-canvas');
@@ -2568,9 +2583,14 @@ const app = createApp({
       labelSizeApplied = labelSizeFor(2.4);
       try {
         const c = globeInstance.controls();
-        // The globe turns on its own now — slowly, the way a globe on a stand
-        // does when someone has just let go of it. Dragging still overrides it.
-        if ('autoRotate' in c) { c.autoRotate = true; c.autoRotateSpeed = 0.28; }
+        // The globe turns on its own — slowly, the way a globe on a stand does
+        // when someone has just let go of it. Dragging still overrides it, and
+        // it starts stopped if a card is already up, since a rebuild would
+        // otherwise hand the spin back behind the card's back.
+        if ('autoRotate' in c) {
+          c.autoRotate = !selectedPerson.value;
+          c.autoRotateSpeed = SPIN_SPEED;
+        }
         c.enableZoom = true;
         c.zoomSpeed = 1.2;
         // Close enough to sit almost on the surface, which is what a small
@@ -2633,6 +2653,11 @@ const app = createApp({
     // The chart is opened from the OG button rather than shown by default:
     // it is a second thing to read about a name, not the first.
     const showNameChart = ref(false);
+    // The name sheet: the given name on its own — what it means, its
+    // whole run, and who else here answers to it. A drawer over the
+    // card rather than a page of its own, since it is a detour off the
+    // card and you have to come back to where you were.
+    const nameOpen = ref(false);
     const petMode = ref(localStorage.getItem('fb.petMode') === '1');
     function togglePetMode() {
       petMode.value = !petMode.value;
@@ -3724,6 +3749,9 @@ const app = createApp({
     // Each card opens at the country-fits-the-tile zoom.
     function openPerson(p) {
       selectedPerson.value = p;
+      // A name in the sheet opens that person's card, and the sheet was about
+      // the name we came from — so it stands down rather than following along.
+      nameOpen.value = false;
       // The camera drops in on their birth country and the spin stops, so the
       // globe holds still while the card is up.
       // Their country, framed the same way a picked one is — but not picked:
@@ -3777,9 +3805,17 @@ const app = createApp({
     // it spinning again, and let the timeline off the birth year.
     function closePerson() {
       selectedPerson.value = null;
+      nameOpen.value = false;
       clearYears();
       resetGlobeView();
     }
+
+    // A card up means the globe holds still. Watched rather than written into
+    // openPerson and closePerson, because the card also opens from a tag inside
+    // another card, and closes from Esc, from the back arrow and from any
+    // filter change — one watch covers all of them and can't fall out of step
+    // with a path somebody adds later.
+    watch(selectedPerson, (p) => setGlobeSpin(!p));
 
     // Touching any filter — typing, a category, the timeline, a country, the
     // heart — puts the three-name list back in front of the user. If a card
@@ -3789,7 +3825,11 @@ const app = createApp({
        yearMin, yearMax, selectedCountries, selectedBornMonths, selectedBornDays,
        selectedZodiacs, onlyFavorites, bornTodayActive],
       () => {
+        // Not closePerson() — that also pulls the globe back out, and a filter
+        // change has its own camera move. The name sheet belonged to the card,
+        // so it goes with it either way.
         if (selectedPerson.value) selectedPerson.value = null;
+        nameOpen.value = false;
         hitsExpanded.value = false;
         nextTick(resetDial);
       }
@@ -3810,6 +3850,7 @@ const app = createApp({
       if (loginOpen.value) closeLogin();
       else if (gateOpen.value) skipGate();
       else if (randomOpen.value) randomOpen.value = false;
+      else if (nameOpen.value) nameOpen.value = false;
       else if (aboutOpen.value) aboutOpen.value = false;
       else if (menuOpen.value) menuOpen.value = false;
       else if (selectedPerson.value) closePerson();
@@ -3859,6 +3900,20 @@ const app = createApp({
       };
     }
     const similarForSelected = computed(() => similarNamesFor(selectedPerson.value));
+
+    // Everyone in the roster called the same thing. Stricter than the card's
+    // "Name match" row, which counts a middle name as a name: the sheet is
+    // headed by the first name, so a Marie who is only somebody's middle name
+    // would be standing under a heading that doesn't describe her.
+    const nameSharers = computed(() => {
+      const p = selectedPerson.value;
+      if (!p) return [];
+      const mine = firstName(p.name);
+      if (!mine) return [];
+      return PEOPLE
+        .filter(o => o.id !== p.id && firstName(o.name) === mine)
+        .sort((a, b) => (a.birthYear || 0) - (b.birthYear || 0));
+    });
 
     // ---- Name rows that would run away with the card ----
     // A well-connected person can put two dozen names under one label, and
@@ -4485,6 +4540,7 @@ const app = createApp({
       selectedCountry, selectedCountries, isCountryOn, clearCountry, globeData, zoomGlobe,
       pickCountry, flyToCountry, resetGlobeView, randomGlobeView,
       petMode, togglePetMode, nameSource, nameChart, givenName, showNameChart,
+      nameOpen, nameSharers,
       nameOrigin,
       miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
       miniCities,

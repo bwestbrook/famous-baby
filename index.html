@@ -96,6 +96,7 @@
       <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 15.9V19H7v2h10v-2h-4v-3.1a5.01 5.01 0 0 0 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></symbol>
       <symbol id="i-note" viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></symbol>
       <symbol id="i-film" viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4z"/></symbol>
+      <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></symbol>
       <symbol id="i-book" viewBox="0 0 24 24"><path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 18H6V4h1v8l2.5-1.5L12 12V4h6z"/></symbol>
       <symbol id="i-gov" viewBox="0 0 24 24"><path d="M4 10v7h3v-7zm6 0v7h3v-7zM2 22h19v-3H2zm14-12v7h3v-7zm-4.5-9L2 6v2h19V6z"/></symbol>
       <symbol id="i-flask" viewBox="0 0 24 24"><path d="M6 22h12a1 1 0 0 0 .8-1.6L14 13.7V6h1a1 1 0 0 0 0-2H9a1 1 0 0 0 0 2h1v7.7l-4.8 6.7A1 1 0 0 0 6 22z"/></symbol>
@@ -416,16 +417,33 @@
                 >
                   <em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}
                 </span>
-                <!-- OG — the original: the given name on its own, and the
-                     shape its popularity made. Sits with the signs because it
-                     is the same kind of fact, something they were born with. -->
+                <!-- How often the given name was given. It used to read
+                     "OG · Zinedine", which nobody could be expected to take
+                     for a chart toggle — the badge looked like a remark about
+                     the person, not a way into a fact about their name. Now it
+                     says the word, and the name it belongs to is already at
+                     the top of the chart it opens. -->
                 <button
                   v-if="nameChart"
-                  class="pop__sign pop__sign--og"
+                  class="pop__sign pop__sign--chart"
                   :class="{ 'is-on': showNameChart }"
                   @click="showNameChart = !showNameChart"
                   :title="'How often ' + givenName(selectedPerson.name) + ' was given — ' + nameSource.label"
-                ><em class="pop__og">OG</em>{{ givenName(selectedPerson.name) }}</button>
+                >
+                  <svg class="ico ico--12"><use href="#i-trend"/></svg>Popularity
+                </button>
+                <!-- The name on its own terms: what it means, its whole run,
+                     and everyone else here who answers to it. Sits with the
+                     signs because it is the same kind of fact — something they
+                     were born with rather than something they did. -->
+                <button
+                  v-if="nameOrigin || nameChart"
+                  class="pop__sign pop__sign--mean"
+                  @click="nameOpen = true"
+                  :title="'What ' + givenName(selectedPerson.name) + ' means, and who else carries it'"
+                >
+                  <svg class="ico ico--12"><use href="#i-book"/></svg>Meaning
+                </button>
                 <!-- Sits with the signs because it's the same kind of fact: a
                      thing they were born as, and a way into everyone else who
                      shares it. -->
@@ -896,8 +914,15 @@
         </div>
       </div>
 
-      <!-- ---------- SEARCH LINE ---------- -->
-      <div class="sbar">
+      <!-- ---------- SEARCH LINE ----------
+           Gone while a person's card is open. The card is the whole errand at
+           that point — a search line under it is an invitation to leave a page
+           you have only just arrived at, and it was taking 48px off the top of
+           the card to make the offer. The spines and the results list already
+           stand down for the same reason; this is the last thing that didn't.
+           The query survives it: back out of the card and the line comes back
+           with what you typed still in it. -->
+      <div class="sbar" v-if="!selectedPerson">
         <input
           class="sbar__input"
           type="text"
@@ -1230,6 +1255,81 @@
 
             <div class="mnote">Roster · {{ PEOPLE_COUNT }} names</div>
           </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== THE NAME ==============
+         The card answers "who is this"; this answers "what is this name" —
+         what it means, the whole run it had, and everyone else here who was
+         given it. A drawer over the card rather than a screen of its own: it
+         is a detour off the card, and the card is where you're going back to.
+         Guarded on selectedPerson as well as its own flag, because touching a
+         filter drops the card out from under it. -->
+    <div class="ovl" v-show="nameOpen && selectedPerson" @click.self="nameOpen = false">
+      <div
+        class="ovl__sheet ovl__sheet--name"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="selectedPerson ? 'About the name ' + givenName(selectedPerson.name) : 'About the name'"
+      >
+        <div class="ovl__head" v-if="selectedPerson">
+          <h2 class="ovl__title">{{ givenName(selectedPerson.name) }}</h2>
+          <button class="panel__collapse" @click="nameOpen = false" title="Close">
+            <svg class="ico ico--18"><use href="#i-close"/></svg>
+          </button>
+        </div>
+        <div class="ovl__scroll" v-if="selectedPerson">
+          <!-- What the name is. Wiktionary is CC BY-SA, so the credit is a
+               condition of quoting the sentence, not a courtesy. -->
+          <p v-if="nameOrigin" class="nsheet__mean">
+            {{ nameOrigin }}
+            <span class="nsheet__src">English Wiktionary · CC BY-SA</span>
+          </p>
+          <p v-else class="nsheet__none">No entry for this name yet.</p>
+
+          <!-- The same series the card can show, given the room to be read.
+               Not behind a toggle here: the chart is half of what the sheet
+               was opened for. -->
+          <figure v-if="nameChart" class="ngraph ngraph--big">
+            <figcaption class="ngraph__head">
+              <span class="ngraph__name">How often it was given</span>
+              <button
+                class="ngraph__mode"
+                @click="togglePetMode()"
+                :title="petMode ? 'Show baby names instead' : 'Show pet names instead'"
+              >{{ petMode ? 'pets' : 'babies' }}</button>
+            </figcaption>
+            <svg class="ngraph__svg" :view-box.camel="'0 0 ' + nameChart.w + ' ' + nameChart.h"
+                 preserveAspectRatio="none" aria-hidden="true">
+              <path class="ngraph__area" :d="nameChart.area"/>
+              <path class="ngraph__line" :d="nameChart.line"/>
+            </svg>
+            <div class="ngraph__foot">
+              <span>{{ nameChart.from }}</span>
+              <span class="ngraph__peak">peak {{ nameChart.peakYear }} · {{ nameChart.peakLabel }}</span>
+              <span>{{ nameChart.to }}</span>
+            </div>
+            <div class="ngraph__src">{{ nameSource.label }} · {{ nameSource.note }}</div>
+          </figure>
+
+          <!-- Who else answers to it. The open card's own person leads and is
+               marked, so the name reads as a thing several people share rather
+               than as a list of other people. -->
+          <div class="nsheet__who">
+            <h3 class="nsheet__wholab">Also called {{ givenName(selectedPerson.name) }}</h3>
+            <div class="nsheet__tags">
+              <span class="tag tag--ghost nsheet__self">{{ selectedPerson.name }}</span>
+              <button
+                v-for="p in nameSharers"
+                :key="p.id"
+                class="tag tag--ghost is-linked"
+                @click="openPerson(p)"
+                :title="'Open ' + p.name"
+              >{{ p.name }}<em v-if="p.birthYear"> · {{ p.birthYear }}</em></button>
+            </div>
+            <p v-if="!nameSharers.length" class="nsheet__none">No one else on the roster carries it.</p>
+          </div>
         </div>
       </div>
     </div>
