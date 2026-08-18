@@ -110,7 +110,13 @@ def main() -> int:
         if name in seen:
             continue
         seen.add(name)
-        if _fold(name) in BLOCKED or _fold(name) in taken_names:
+        fold = _fold(name)
+        if fold in BLOCKED or fold in taken_names:
+            continue
+        # Exact match isn't enough: the roster files Beyoncé under "Beyoncé
+        # Knowles", so the bare stage name sails past and you get her twice.
+        # Treat one name as the other if either is the whole opening of it.
+        if any(t.startswith(fold + ' ') or fold.startswith(t + ' ') for t in taken_names):
             continue
         year = parse_year(b['birth']['value'])
         if year is None:
