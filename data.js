@@ -1652,27 +1652,27 @@ export const PEOPLE = [
   // =====================================================================
   { id:'paavo-nurmi', name:'Paavo Nurmi', middleName:'Johannes', homophones:[], similarSpellings:['Pavo','Paavoh','Paavu'], gender:'male', birthYear:1897, birthMonth:6, birthDay:13, birthPlace:'Turku, Finland', country:'Finland', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Finland',years:[1920,1932]}], awards:[{name:'Olympic Gold',year:1924}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'The Flying Finn — nine Olympic gold medals across three Games, mostly in middle and long distance.' },
+    bio:"The Flying Finn, who ran the 1920s with a stopwatch in his hand. Twenty-two official world records between 1,500 metres and 20 kilometres, and nine Olympic golds and three silvers across twelve events — distance running before anyone had worked out how to coach it." },
 
   { id:'emil-zatopek', name:'Emil Zátopek', middleName:'', homophones:[], similarSpellings:['Emill','Emyl','Emille','Emilio'], gender:'male', birthYear:1922, birthMonth:9, birthDay:19, birthPlace:'Kopřivnice, Czechoslovakia', country:'Czechoslovakia', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Czechoslovakia',years:[1948,1956]}], awards:[{name:'Olympic Gold',year:1952}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Only athlete to win the 5000m, 10000m, and marathon at a single Olympics — Helsinki 1952.' },
+    bio:"The Czech Locomotive: three golds at Helsinki in 1952, the last of them a marathon he entered at the last minute and had never run before. He took the 5,000 and the 10,000 first, then went and won the third on curiosity, and nobody has repeated it." },
 
   { id:'haile-gebrselassie', name:'Haile Gebrselassie', middleName:'', homophones:[], similarSpellings:['Haley','Hailey','Hayle','Hailie'], gender:'male', birthYear:1973, birthMonth:4, birthDay:18, birthPlace:'Asella, Ethiopia', country:'Ethiopia', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Ethiopia',years:[1992,2015]}], awards:[{name:'Olympic Gold',year:1996},{name:'Olympic Gold',year:2000}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Two-time Olympic 10,000m champion who broke 27 world records across the track and the marathon.' },
+    bio:"Two Olympic golds and four world titles over 10,000 metres, then four Berlin Marathons in a row from 2006. The Ethiopian ran with one arm crooked from years of carrying schoolbooks, and turned a career of world records into a business empire at home." },
 
   { id:'hicham-el-guerrouj', name:'Hicham El Guerrouj', middleName:'', homophones:['Hisham'], similarSpellings:['Hisham','Hichem','Hichaam'], gender:'male', birthYear:1974, birthMonth:9, birthDay:14, birthPlace:'Berkane, Morocco', country:'Morocco', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Morocco',years:[1995,2006]}], awards:[{name:'Olympic Gold',year:2004},{name:'Olympic Gold',year:2004}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'King of the Mile — 1500m and mile world record holder, double Olympic gold in Athens 2004.' },
+    bio:"Still the world record holder at 1500 metres, decades on, and formerly at 2000 metres and the mile. At Athens in 2004 the Moroccan took the 1500 and the 5,000 at the same Games — the first man since Paavo Nurmi to manage that double." },
 
   { id:'sergey-bubka', name:'Sergey Bubka', middleName:'Nazarovich', homophones:['Sergei','Serguei'], similarSpellings:['Sergei','Serguei','Sergeyy','Serjey'], gender:'male', birthYear:1963, birthMonth:12, birthDay:4, birthPlace:'Voroshilovgrad, Ukrainian SSR', country:'Ukraine', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Soviet Union',years:[1983,1991]},{name:'Ukraine',years:[1992,2001]}], awards:[{name:'Olympic Gold',year:1988}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'First man to clear six metres in the pole vault; set 35 world records during his career.' },
+    bio:"The pole vaulter who broke his own world record thirty-five times, a centimetre at a time. Olympic champion in 1988, six consecutive world titles, four world indoor titles, and the first man over six metres — an event he owned for a decade and a half." },
 
   { id:'jan-zelezny', name:'Jan Železný', middleName:'', homophones:[], similarSpellings:['Yan','Jann','Yann','Janne'], gender:'male', birthYear:1966, birthMonth:6, birthDay:16, birthPlace:'Mladá Boleslav, Czechoslovakia', country:'Czechia', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Czechoslovakia',years:[1988,1992]},{name:'Czechia',years:[1993,2006]}], awards:[{name:'Olympic Gold',year:1992},{name:'Olympic Gold',year:1996},{name:'Olympic Gold',year:2000}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Three-time Olympic javelin champion and holder of the 98.48m world record from 1996.' },
+    bio:"98.48 metres, and the javelin has not been thrown further since. The Czech holds the world record and the fourth, fifth and sixth best throws besides, and is a World and Olympic champion — the greatest thrower of the modern spear by some distance." },
 
   { id:'jonathan-edwards', name:'Jonathan Edwards', middleName:'David', homophones:['Jonathon','Johnathan'], similarSpellings:['Jonathon','Johnathan','Jhonathan','Jonatan'], gender:'male', birthYear:1966, birthMonth:5, birthDay:10, birthPlace:'London, England', country:'UK', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Great Britain',years:[1988,2003]}], awards:[{name:'Olympic Gold',year:2000}], collaborators:[], contemporaries:[], friends:[], foes:[],
@@ -1684,7 +1684,7 @@ export const PEOPLE = [
 
   { id:'kenenisa-bekele', name:'Kenenisa Bekele', middleName:'', homophones:[], similarSpellings:['Kenenissa','Keninisa','Kennenisa'], gender:'male', birthYear:1982, birthMonth:6, birthDay:13, birthPlace:'Bekoji, Ethiopia', country:'Ethiopia', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Ethiopia',years:[2003,2024]}], awards:[{name:'Olympic Gold',year:2004},{name:'Olympic Gold',year:2008},{name:'Olympic Gold',year:2008}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Three-time Olympic gold medalist on the track; world record holder in the 5000m and 10000m.' },
+    bio:"World record holder at both 5,000 and 10,000 metres from 2004 to 2020, and a double gold at Beijing in 2008. The Ethiopian ran the track with a finishing kick nobody could live with, then took the same legs to the marathon." },
 
   { id:'mo-farah', name:'Mo Farah', middleName:'Muktar', homophones:[], similarSpellings:['Moh','Moe','Moh’','Mou'], gender:'male', birthYear:1983, birthMonth:3, birthDay:23, birthPlace:'Mogadishu, Somalia', country:'UK', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Great Britain',years:[2005,2019]}], awards:[{name:'Olympic Gold',year:2012},{name:'Olympic Gold',year:2012},{name:'Olympic Gold',year:2016},{name:'Olympic Gold',year:2016}], collaborators:[], contemporaries:[], friends:[], foes:[],
@@ -1692,15 +1692,15 @@ export const PEOPLE = [
 
   { id:'eliud-kipchoge', name:'Eliud Kipchoge', middleName:'', homophones:[], similarSpellings:['Elliud','Elioud','Eliyud'], gender:'male', birthYear:1984, birthMonth:11, birthDay:5, birthPlace:'Kapsisiywa, Kenya', country:'Kenya', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Kenya',years:[2003,2024]}], awards:[{name:'Olympic Gold',year:2016},{name:'Olympic Gold',year:2020}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Two-time Olympic marathon champion and first human to cover 26.2 miles in under two hours.' },
+    bio:"Olympic marathon champion in 2016 and 2020, and world record holder from 2018 until 2023. The Kenyan came from the 5,000 metres and made the marathon look like a matter of arithmetic — including the first run under two hours, in conditions that could not be ratified." },
 
   { id:'shelly-ann-fraser-pryce', name:'Shelly-Ann Fraser-Pryce', middleName:'', homophones:['Shelley','Shelli'], similarSpellings:['Shelley','Shelli','Shellie','Shellee'], gender:'female', birthYear:1986, birthMonth:12, birthDay:27, birthPlace:'Kingston, Jamaica', country:'Jamaica', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Jamaica',years:[2007,2024]}], awards:[{name:'Olympic Gold',year:2008},{name:'Olympic Gold',year:2012}], collaborators:['Usain Bolt'], contemporaries:[], friends:[], foes:[],
-    bio:'Pocket Rocket — two-time Olympic 100m champion and the most decorated female sprinter in world championship history.' },
+    bio:"The Pocket Rocket — a sprinting career that ran a decade and a half, from the late 2000s into the mid-2020s. The Jamaican took Olympic 100 metres gold in 2008 and again in 2012, and kept winning world titles long after her generation had retired." },
 
   { id:'sifan-hassan', name:'Sifan Hassan', middleName:'', homophones:['Seefan'], similarSpellings:['Sifaan','Siphan','Syfan'], gender:'female', birthYear:1993, birthMonth:1, birthDay:1, birthPlace:'Adama, Ethiopia', country:'Netherlands', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Netherlands',years:[2014,2024]}], awards:[{name:'Olympic Gold',year:2020},{name:'Olympic Gold',year:2020},{name:'Olympic Gold',year:2024}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Ethiopian-born Dutch distance runner; won 1500m, 5000m, and 10000m medals at Tokyo, then marathon gold in Paris.' },
+    bio:"The most versatile distance runner anyone has seen. Ethiopian-born and running for the Netherlands, she completed an unprecedented triple at Tokyo in 2020 — gold at 5,000 and 10,000 metres and bronze at 1,500 — then went and won marathons." },
 
   { id:'andre-de-grasse', name:'Andre De Grasse', middleName:'Robert', homophones:['Andrae'], similarSpellings:['Andrae','Andrey','Andrès','Andray'], gender:'male', birthYear:1994, birthMonth:11, birthDay:10, birthPlace:'Scarborough, Canada', country:'Canada', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Canada',years:[2015,2024]}], awards:[{name:'Olympic Gold',year:2020}], collaborators:[], contemporaries:[], friends:[], foes:[],
@@ -1708,7 +1708,7 @@ export const PEOPLE = [
 
   { id:'faith-kipyegon', name:'Faith Kipyegon', middleName:'Chepngetich', homophones:[], similarSpellings:['Fayth','Faythe','Faithe'], gender:'female', birthYear:1994, birthMonth:1, birthDay:10, birthPlace:'Bomet, Kenya', country:'Kenya', field:'Sports', subfield:'Track & Field',
     teams:[{name:'Kenya',years:[2012,2024]}], awards:[{name:'Olympic Gold',year:2016},{name:'Olympic Gold',year:2020},{name:'Olympic Gold',year:2024}], collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:'Three-peat Olympic 1500m champion (Rio, Tokyo, Paris) and the women\'s world record holder in the event.' },
+    bio:"World record holder at 1500 metres and at the mile, and formerly at 5,000. The Kenyan is the only three-time Olympic champion over 1500 metres, having taken it at Rio in 2016, Tokyo in 2020 and Paris in 2024." },
 
   // =====================================================================
   //  GLOBAL LITERATURE — non-US, era-diverse
@@ -1816,7 +1816,7 @@ export const PEOPLE = [
 
   { id:'liv-ullmann', name:'Liv Ullmann', middleName:'Johanne', homophones:[], similarSpellings:['Livv','Lyv','Liva'], gender:'female', birthYear:1938, birthMonth:12, birthDay:16, birthPlace:'Tokyo, Japan', country:'Norway', field:'Film', subfield:'Actress',
     teams:[], awards:[],
-    collaborators:['Ingmar Bergman'], contemporaries:[], friends:[], foes:[], bio:'Norwegian face of Bergman\'s late period — Persona, Cries and Whispers, Scenes from a Marriage, Autumn Sonata.' },
+    collaborators:['Ingmar Bergman'], contemporaries:[], friends:[], foes:[], bio:"Ingmar Bergman's muse and closest collaborator, and one of the great European actresses. The Norwegian carried Persona, Cries and Whispers and Scenes from a Marriage, and later directed films of her own with the same unsparing attention." },
 
   { id:'maya-angelou', name:'Maya Angelou', middleName:'', homophones:['Maia','Mya'], similarSpellings:['Maia','Mya','Mayah','Maja'], gender:'female', birthYear:1928, birthMonth:4, birthDay:4, birthPlace:'St. Louis, Missouri', country:'USA', field:'Literature', subfield:'Memoirist',
     teams:[], awards:[{name:'Presidential Medal of Freedom',year:2011}],
@@ -1941,7 +1941,7 @@ export const PEOPLE = [
   { id:'rudolf-nureyev', name:'Rudolf Nureyev', middleName:'Khametovich', homophones:['Rudolph'], similarSpellings:['Rudolph','Rudulf','Rodolf','Roodolf'], gender:'male', birthYear:1938, birthMonth:3, birthDay:17, birthPlace:'Irkutsk Oblast, Russia', country:'Russia', field:'Arts', subfield:'Choreographer',
     teams:[], awards:[{name:'Dance Magazine Award',year:1973}],
     collaborators:['Margot Fonteyn','Frederick Ashton'], contemporaries:[], friends:[], foes:[],
-    bio:"Tatar dancer who leapt the Iron Curtain at Le Bourget and redefined the male ballet star." },
+    bio:"Born on a Trans-Siberian train and defected at Le Bourget in 1961. The Tatar dancer is widely held to be the preeminent male ballet dancer of the twentieth century — and, partnered with Margot Fonteyn, half of the most famous pairing the form has had." },
 
   { id:'richard-pryor', name:'Richard Pryor', middleName:'Franklin Lennox Thomas', homophones:['Rich'], similarSpellings:['Rikard','Rickard','Richarde','Ricard'], gender:'male', birthYear:1940, birthMonth:12, birthDay:1, birthPlace:'Peoria, Illinois', country:'USA', field:'Film', subfield:'Comedian',
     teams:[], awards:[{name:'Mark Twain Prize',year:1998}],
@@ -2036,7 +2036,7 @@ export const PEOPLE = [
   { id:'martin-luther-king-jr', name:'Martin Luther King Jr.', middleName:'Luther', homophones:[], similarSpellings:['Martyn','Marten','Martan','Marttin'], gender:'male', birthYear:1929, birthMonth:1, birthDay:15, birthPlace:'Atlanta, Georgia', country:'USA', field:'Activism', subfield:'Civil Rights',
     teams:[], awards:[{name:'Nobel Peace Prize',year:1964}],
     collaborators:['Ralph Abernathy','John Lewis','Bayard Rustin'], contemporaries:[], friends:[], foes:[],
-    bio:"Dreamed in Washington, marched in Selma, jailed in Birmingham, and shot in Memphis at thirty-nine." },
+    bio:"Born Michael King Jr., and the leader of the American civil rights movement from 1955 until he was shot in 1968. He pressed the case for people of colour through nonviolent resistance and civil disobedience, and won the Nobel Peace Prize at thirty-five." },
 
   { id:'malcolm-x', name:'Malcolm X', middleName:'', homophones:[], similarSpellings:['Malcom','Malkolm','Malcolme','Maucolm'], gender:'male', birthYear:1925, birthMonth:5, birthDay:19, birthPlace:'Omaha, Nebraska', country:'USA', field:'Activism', subfield:'Civil Rights',
     teams:[], awards:[],
@@ -2061,17 +2061,17 @@ export const PEOPLE = [
   { id:'steve-jobs', name:'Steve Jobs', middleName:'Paul', homophones:[], similarSpellings:['Stephen','Stevin','Stevan','Steev'], gender:'male', birthYear:1955, birthMonth:2, birthDay:24, birthPlace:'San Francisco, California', country:'USA', field:'Tech', subfield:'Entrepreneur',
     teams:[], awards:[{name:'National Medal of Technology',year:1985}],
     collaborators:['Steve Wozniak','Jony Ive'], contemporaries:[], friends:[], foes:[],
-    bio:"Black-turtlenecked Apple co-founder who shipped the Mac, iPod, iPhone, and iPad before fifty-six." },
+    bio:"He co-founded Apple with Steve Wozniak in 1976, was fired by his own board in 1985, founded NeXT, and came back to run the company that had removed him. A pioneer of the personal computer, and the reason a phone looks the way it does." },
 
   { id:'andrei-tarkovsky', name:'Andrei Tarkovsky', middleName:'Arsenyevich', homophones:[], similarSpellings:['Andre','Andrey','Andru','Andray'], gender:'male', birthYear:1932, birthMonth:4, birthDay:4, birthPlace:'Zavrazhye, Soviet Union', country:'Russia', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Cannes FIPRESCI Prize',year:1969}],
     collaborators:['Anatoly Solonitsyn'], contemporaries:[], friends:[], foes:[],
-    bio:"Russian mystic of slow cinema whose Stalker and Mirror are time-warps of memory and prayer." },
+    bio:"Slow, spiritual, and unbending about all of it. The Soviet director made seven features in twenty years — Andrei Rublev, Solaris, Mirror, Stalker — and is widely held to be among the greatest directors cinema has produced." },
 
   { id:'sergei-eisenstein', name:'Sergei Eisenstein', middleName:'Mikhailovich', homophones:[], similarSpellings:['Sergey','Sergie','Sergei','Sergy'], gender:'male', birthYear:1898, birthMonth:1, birthDay:22, birthPlace:'Riga, Latvia', country:'Russia', field:'Film', subfield:'Director',
     teams:[], awards:[],
     collaborators:['Eduard Tisse'], contemporaries:[], friends:[], foes:[],
-    bio:"Battleship Potemkin theorist whose montage shocked cinema into a new visual grammar." },
+    bio:"Montage, both the theory and the practice, and the Odessa Steps. The Soviet director, editor and theorist made Strike, Battleship Potemkin and October in the silent era, and taught the century how a cut could be an argument." },
 
   { id:'jean-luc-godard', name:'Jean-Luc Godard', middleName:'Luc', homophones:[], similarSpellings:['Jon','Geon','Jeen','Jeane'], gender:'male', birthYear:1930, birthMonth:12, birthDay:3, birthPlace:'Paris, France', country:'France', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Honorary Award',year:2011}],
@@ -2086,7 +2086,7 @@ export const PEOPLE = [
   { id:'wong-kar-wai', name:'Wong Kar-wai', middleName:'', homophones:[], similarSpellings:['Wong','Whong','Vong'], gender:'male', birthYear:1958, birthMonth:7, birthDay:17, birthPlace:'Shanghai, China', country:'Hong Kong', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Cannes Best Director',year:1997}],
     collaborators:['Christopher Doyle','Tony Leung','Maggie Cheung'], contemporaries:[], friends:[], foes:[],
-    bio:"Sunglasses-clad poet of lost romance whose In the Mood for Love is a chiffon mood ring of longing." },
+    bio:"Nonlinear, saturated, and scored to within an inch of its life. Born in Shanghai and raised in Hong Kong, he began as a screenwriter and became the auteur of Hong Kong cinema — In the Mood for Love its most exact statement of longing." },
 
   { id:'zhang-yimou', name:'Zhang Yimou', middleName:'', homophones:[], similarSpellings:['Zang','Jang','Tsang','Zhung'], gender:'male', birthYear:1950, birthMonth:11, birthDay:14, birthPlace:'Xi\'an, China', country:'China', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Golden Lion',year:1992}],
@@ -2101,7 +2101,7 @@ export const PEOPLE = [
   { id:'satyajit-ray', name:'Satyajit Ray', middleName:'', homophones:[], similarSpellings:['Satyajeet','Satjit','Sathjit','Satyajith'], gender:'male', birthYear:1921, birthMonth:5, birthDay:2, birthPlace:'Calcutta, India', country:'India', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Honorary Award',year:1992}],
     collaborators:['Subrata Mitra','Ravi Shankar'], contemporaries:[], friends:[], foes:[],
-    bio:"Bengali humanist whose Apu Trilogy turned a small village's growing-up into world cinema." },
+    bio:"Director, writer, composer, illustrator and calligrapher, and the man who put Indian cinema in front of the world. The Apu Trilogy of 1955 to 1959 remains the work he is celebrated for, and among the greatest sequences of films anyone has made." },
 
 
   { id:'luis-bunuel', name:'Luis Buñuel', middleName:'', homophones:[], similarSpellings:['Lewis','Louis','Luiz','Luys'], gender:'male', birthYear:1900, birthMonth:2, birthDay:22, birthPlace:'Calanda, Spain', country:'Spain', field:'Film', subfield:'Director',
@@ -2112,7 +2112,7 @@ export const PEOPLE = [
   { id:'roberto-rossellini', name:'Roberto Rossellini', middleName:'Gastone Zeffiro', homophones:[], similarSpellings:['Robarto','Robberto','Robeerto','Roburto'], gender:'male', birthYear:1906, birthMonth:5, birthDay:8, birthPlace:'Rome, Italy', country:'Italy', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Cannes Grand Prix',year:1946}],
     collaborators:['Ingrid Bergman','Anna Magnani'], contemporaries:[], friends:[], foes:[],
-    bio:"Italian neorealist whose Rome, Open City filmed liberation almost as it happened." },
+    bio:"Italian neorealism's founding director: Rome, Open City in 1945, then Paisan and Germany, Year Zero. He took a camera into the rubble and filmed what was there, then made a run of films with Ingrid Bergman, who became his wife." },
 
   { id:'vittorio-de-sica', name:'Vittorio De Sica', middleName:'', homophones:[], similarSpellings:['Victorio','Vitorio','Vittorio','Vyttorio'], gender:'male', birthYear:1901, birthMonth:7, birthDay:7, birthPlace:'Sora, Italy', country:'Italy', field:'Film', subfield:'Director',
     teams:[], awards:[{name:'Academy Honorary Award',year:1947}],
