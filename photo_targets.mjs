@@ -42,6 +42,14 @@ const args = process.argv.slice(2);
 // and a crop of an already-downsized picture has no detail left to give.
 const haveMode = args.includes('--have');
 const perCountry = Math.max(1, Number(args.find(a => /^\d+$/.test(a))) || 3);
+// How many names to put in front of the fetcher per country. It stops once a
+// country has its quota, so a longer slate costs nothing but misses — and the
+// misses are cheap, one batched API call each. The default of 14 is a breadth
+// figure: fine when every country wants two or three, useless for depth, where
+// the USA is 328 portraits short and 14 a pass would take two dozen passes.
+//   node photo_targets.mjs 60 --slate 80
+const slateAt = args.indexOf('--slate');
+const slate = slateAt >= 0 ? Math.max(1, Number(args[slateAt + 1]) || 14) : 14;
 
 // A rough notability proxy, since the roster carries no sitelink count. Awards
 // weigh most: an entry someone bothered to list awards for is an entry the
@@ -84,7 +92,7 @@ for (const [country, e] of byCountry) {
     want,
     // Try a generous slate: most misses are people with no English article,
     // and each miss is one cheap API call.
-    candidates: ranked.slice(0, 14).map(p => ({
+    candidates: ranked.slice(0, slate).map(p => ({
       id: p.id,
       name: p.name,
       birthYear: p.birthYear || null,
