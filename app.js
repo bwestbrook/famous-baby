@@ -3469,13 +3469,37 @@ const app = createApp({
 
     // The globe is always mounted now, so it can initialize on load. The
     // globe.gl UMD bundle may still be in flight — poll briefly for it.
+    //
+    // initGlobe is async and can throw: it ends in three.js asking for a WebGL
+    // context, and a browser is entitled to refuse. Brave's fingerprinting
+    // protection is the one that does it in practice. Unhandled, that throw
+    // became an unhandled rejection, which the catcher in index.html paints
+    // over the whole page — so a browser declining one feature took the site
+    // down with it.
+    //
+    // The globe is not the site. The search, the lists, the drawers and the
+    // cards are all reachable without it, so a globe that cannot start says so
+    // where the globe would have been and gets out of the way.
+    function globeFailed(err) {
+      console.error('[famous Baby] the globe could not start:', err);
+      const el = document.getElementById('globe-canvas');
+      if (!el || el.querySelector('.globe-out')) return;
+      const note = document.createElement('p');
+      note.className = 'globe-out';
+      note.textContent = 'The globe needs WebGL, and this browser would not give it one. '
+        + 'Everything else works: search below, or open the menu for the callings.';
+      el.appendChild(note);
+    }
     function ensureGlobe() {
       if (globeInstance) return;
-      if (window.Globe) { initGlobe(); return; }
+      if (window.Globe) { initGlobe().catch(globeFailed); return; }
       const start = Date.now();
       const tick = () => {
-        if (window.Globe) initGlobe();
+        if (window.Globe) initGlobe().catch(globeFailed);
         else if (Date.now() - start < 8000) setTimeout(tick, 100);
+        // The bundle never arrived — blocked, or the CDN is down. Same story
+        // as a refused context from the page's point of view.
+        else globeFailed(new Error('globe.gl did not load within 8s'));
       };
       tick();
     }

@@ -2472,3 +2472,13 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
 .ovl .tag em { color: rgba(255,255,255,.45); }
 .ovl .tag--ghost.is-linked { color: #fff; border-color: rgba(255,255,255,.42); }
 .ovl .tag--ghost.is-linked:hover { background: rgba(255,255,255,.16); border-color: #fff; }
+
+/* Said where the globe would have been, when a browser refuses it a WebGL
+   context. Quiet and centred: this is an explanation, not an error. */
+.globe-out {
+  position: absolute; inset: auto 12% 50% 12%;
+  margin: 0;
+  text-align: center;
+  font-size: 13px; font-weight: 300; line-height: 1.6;
+  color: rgba(255,255,255,.66);
+}
