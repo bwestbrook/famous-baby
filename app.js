@@ -2426,8 +2426,13 @@ const app = createApp({
       // Either way this gesture is spoken for, so the polygon handler under it
       // stands down rather than also toggling the country.
       faceClickHandled = true;
-      // A tessera is a person, not a place. The land around it is the way to
-      // pick a country, which is what the polygon handler is for.
+      // Two steps, not one. A face on a country nobody has picked is a door
+      // into the country, not into the person: the first click raises it and
+      // dims the rest of the world, and only once it is up does a face stand
+      // for whoever is in it. Going straight to the card skipped the step
+      // that makes the globe worth having — you never saw the place the name
+      // came from, only the name.
+      if (!isCountryOn(t.country)) { pickCountry(t.country); return; }
       openPerson(t.person);
     }
 
