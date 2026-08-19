@@ -36,8 +36,32 @@
       pre.textContent = '[' + label + ']\n\n' + detail;
       root.appendChild(pre);
     }
+    // Whether an error is one this page can be held responsible for. A browser
+    // that injects scripts of its own — Firefox for iOS reaches for
+    // window.__firefox__.reader on every page it opens — throws inside them,
+    // and the page hears about it through the same window 'error' event our own
+    // code uses. Those arrive stripped: no filename, no line, the message
+    // flattened to "Script error.", because a browser will not read out a
+    // script it was not given permission to read.
+    //
+    // Painting the panel for one of those buries a working app under a report
+    // of somebody else's bug, which is exactly what it did on a phone. So the
+    // panel is now for errors we can attribute: same-origin, or the CDN, which
+    // carries crossorigin above precisely so its errors come through whole.
+    // Anything else goes to the console and no further — and if the app really
+    // has failed, the mount watchdog below is what says so.
+    function __famousBabyOurs(file) {
+      if (!file) return false;
+      return file.indexOf(location.origin) === 0 || file.indexOf('https://unpkg.com/') === 0;
+    }
     window.addEventListener('error', function (e) {
-      __famousBabyShowError('error', (e.filename || '') + ':' + (e.lineno || '') + '\n' + (e.message || '') + '\n' + (e.error && e.error.stack ? e.error.stack : ''));
+      var where = (e.filename || '') + ':' + (e.lineno || '');
+      var what = (e.message || '') + '\n' + (e.error && e.error.stack ? e.error.stack : '');
+      if (!__famousBabyOurs(e.filename)) {
+        console.warn('[famous Baby] ignoring an error from outside this page:', where, e.message);
+        return;
+      }
+      __famousBabyShowError('error', where + '\n' + what);
     });
     window.addEventListener('unhandledrejection', function (e) {
       var r = e.reason;
@@ -1547,10 +1571,16 @@
     </div>
   </template>
 
-  <!-- 3D globe library — UMD bundle, exposes window.Globe. ~280KB minified. -->
-  <script src="https://unpkg.com/globe.gl@2.34.6"></script>
+  <!-- 3D globe library — UMD bundle, exposes window.Globe. ~280KB minified.
+       crossorigin on both of these is not about fetching: it is the only way a
+       throw inside them reaches us describable. A classic script from another
+       origin reports every error as a bare "Script error." with no file and no
+       line, because the browser will not read out a script it was not given
+       permission to. unpkg answers with access-control-allow-origin: *, so
+       asking for CORS costs nothing and buys the message and the stack. -->
+  <script src="https://unpkg.com/globe.gl@2.34.6" crossorigin="anonymous"></script>
   <!-- TopoJSON → GeoJSON, for the clickable country outlines. ~10KB. -->
-  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" crossorigin="anonymous"></script>
 
   <script>
     // Cache-bust app.js (which itself imports data.js with a cache-buster)
