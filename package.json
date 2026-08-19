@@ -1,0 +1,6 @@
+{
+  "name": "famous-baby",
+  "private": true,
+  "type": "module",
+  "description": "Not a build step. The site is static and loads Vue from a CDN; this file exists only so that Node reads the repo's own .js files as the ES modules they are, which is what the .mjs tools beside them need in order to import data.js at all."
+}

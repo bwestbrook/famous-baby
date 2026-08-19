@@ -42,3 +42,9 @@ facecrop
 roster_missing.json
 roster_candidates.json
 roster_picks.json
+
+# Python bytecode. These were tracked, and they rewrite themselves every time
+# a script imports fetch_photos, so the working tree came up dirty for no
+# reason anyone had caused.
+__pycache__/
+*.pyc

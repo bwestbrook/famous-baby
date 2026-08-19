@@ -571,16 +571,6 @@
                 >
                   <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
                 </button>
-                <!-- The other zodiac, on the same birthday. Its own written
-                     character stands in for a glyph — nothing to filter to
-                     yet, so this one reads rather than clicks. -->
-                <span
-                  v-if="selectedChinese"
-                  class="pop__sign pop__sign--cn"
-                  :title="'Born in the year of the ' + selectedChinese.animal"
-                >
-                  <em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}
-                </span>
                 <!-- Sits with the signs because it's the same kind of fact: a
                      thing they were born as, and a way into everyone else who
                      shares it. -->
@@ -635,6 +625,16 @@
           <p class="kcard__bio">{{ selectedPerson.bio }}</p>
 
           <dl class="kdl">
+            <!-- The other zodiac. It sat among the chips until it was the only
+                 thing in a row labelled "Search the roster" that did not
+                 search — there is no Chinese-sign filter to send it to, and
+                 inventing half of one would be worse than leaving it be. So it
+                 reads here instead, with the other facts about the person,
+                 which is what it always was. -->
+            <template v-if="selectedChinese">
+              <dt>Year of</dt>
+              <dd><span class="kdl__cn"><em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}</span></dd>
+            </template>
             <!-- The name's own story used to lead this list. It reads better
                  as one thing behind the Origin button with the chart beside
                  it than as a paragraph wedged among rows of tags, so this list

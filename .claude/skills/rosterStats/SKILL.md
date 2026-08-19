@@ -5,7 +5,11 @@ description: Show what is actually in the famous-baby dataset as ASCII tables â€
 
 # Reading the dataset
 
+Run it from the repository root, not from this skill's own directory â€” the
+script lives beside `data.js`, which is what it reads.
+
 ```bash
+cd /Users/benjaminwestbrook/Repositories/famous-baby
 node roster_stats.mjs           # the standard read
 node roster_stats.mjs --full    # every country instead of the top and bottom
 ```

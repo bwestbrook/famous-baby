@@ -35,7 +35,13 @@ Vue 3 is loaded from a CDN as an ES module (see the import at the top of `app.js
 - Python 3 (any version 3.6+) to serve files
 - A modern browser (anything from the last 5 years; ES modules required)
 
-No Node.js, no bundler, no package manager. Edit a file, refresh the browser, see the change. Cache-busting query strings on `app.js` and `data.js` mean a normal refresh always picks up edits — no hard reload needed.
+No Node.js, no bundler, no package manager.
+
+(There is a `package.json` at the root, and it is not a build step — it has no
+dependencies and nothing installs it. It says `"type": "module"` and nothing
+else that matters, so that Node reads this repo's own `.js` files as the ES
+modules they already are. Without it the `.mjs` maintenance tools cannot
+`import { PEOPLE } from './data.js'` at all. The browser never reads it.) Edit a file, refresh the browser, see the change. Cache-busting query strings on `app.js` and `data.js` mean a normal refresh always picks up edits — no hard reload needed.
 
 ---
 

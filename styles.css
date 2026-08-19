@@ -1345,10 +1345,6 @@ body {
   transition: background .12s var(--ease), border-color .12s var(--ease);
 }
 .pop__sign:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.6); color: #fff; }
-/* Same pill, but a label rather than a control: nothing to filter to, so it
-   sits quieter and doesn't light up under the cursor. */
-.pop__sign--cn { cursor: default; border-color: rgba(255,255,255,.22); }
-.pop__sign--cn:hover { background: rgba(0,0,0,.3); border-color: rgba(255,255,255,.22); color: rgba(255,255,255,.9); }
 /* The character carries the weight the Greek glyphs carry, so it's set a size
    up and upright — it's a symbol here, not a word in a sentence. */
 .pop__cn {
@@ -2518,3 +2514,6 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
    difference between the two kinds is in the corners. A pill leaves for a new
    search; a squared tab opens something and stays. */
 .pop__act--opens .pop__sign { border-radius: 4px; }
+/* The Chinese sign in the detail list: a fact that reads, not a chip that
+   clicks, so it keeps the character's weight and drops the pill around it. */
+.kdl__cn { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: rgba(255,255,255,.82); }
