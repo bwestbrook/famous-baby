@@ -463,7 +463,7 @@
                      the only way to the name's origin now that the detail list
                      below no longer carries it. -->
                 <button
-                  v-if="nameOrigin || nameChart"
+                  v-if="nameOrigin || nameSharers.length"
                   class="pop__sign pop__sign--mean"
                   @click="nameOpen = true"
                   :title="'Where ' + givenName(selectedPerson.name) + ' comes from, and who else carries it'"
@@ -1305,30 +1305,11 @@
           </p>
           <p v-else class="nsheet__none">No entry for this name yet.</p>
 
-          <!-- The same series the card can show, given the room to be read.
-               Not behind a toggle here: the chart is half of what the sheet
-               was opened for. -->
-          <figure v-if="nameChart" class="ngraph ngraph--big">
-            <figcaption class="ngraph__head">
-              <span class="ngraph__name">How often it was given</span>
-              <button
-                class="ngraph__mode"
-                @click="togglePetMode()"
-                :title="petMode ? 'Show baby names instead' : 'Show pet names instead'"
-              >{{ petMode ? 'pets' : 'babies' }}</button>
-            </figcaption>
-            <svg class="ngraph__svg" :view-box.camel="'0 0 ' + nameChart.w + ' ' + nameChart.h"
-                 preserveAspectRatio="none" aria-hidden="true">
-              <path class="ngraph__area" :d="nameChart.area"/>
-              <path class="ngraph__line" :d="nameChart.line"/>
-            </svg>
-            <div class="ngraph__foot">
-              <span>{{ nameChart.from }}</span>
-              <span class="ngraph__peak">peak {{ nameChart.peakYear }} · {{ nameChart.peakLabel }}</span>
-              <span>{{ nameChart.to }}</span>
-            </div>
-            <div class="ngraph__src">{{ nameSource.label }} · {{ nameSource.note }}</div>
-          </figure>
+          <!-- The chart used to be repeated here, which meant Origin and
+               Popularity opened onto the same picture and only one of them had
+               said anything about a chart. Popularity owns the series now, on
+               the card where it can be read against the person; Origin is the
+               sentence and the people who share the name, and nothing else. -->
 
           <!-- Who else answers to it. The open card's own person leads and is
                marked, so the name reads as a thing several people share rather

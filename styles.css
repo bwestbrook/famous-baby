@@ -2458,8 +2458,6 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
 .ovl .ngraph__peak { color: rgba(255,255,255,.78); }
 .ovl .ngraph__src { border-top-color: rgba(255,255,255,.14); color: rgba(255,255,255,.38); }
 /* Given the room the card couldn't spare. */
-.ngraph--big { padding: 10px 12px 9px; }
-.ngraph--big .ngraph__svg { height: 92px; }
 
 /* Tags in the sheet: same shape as the card's, dressed for black. */
 .ovl .tag--ghost {
