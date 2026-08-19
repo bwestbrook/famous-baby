@@ -4299,7 +4299,13 @@ const app = createApp({
     // another card, and closes from Esc, from the back arrow and from any
     // filter change — one watch covers all of them and can't fall out of step
     // with a path somebody adds later.
-    watch(selectedPerson, (p) => setGlobeSpin(!p));
+    // The globe holds still whenever something is being read: a card open, or
+    // a country picked. Picking one used to leave it turning, so the country
+    // you had just chosen drifted off the middle of the screen while you were
+    // still looking at the faces on it — and the drift was what dimmed the
+    // world, so it carried the answer away with it.
+    const globeShouldSpin = computed(() => !selectedPerson.value && !selectedCountries.value.length);
+    watch(globeShouldSpin, (on) => setGlobeSpin(on), { immediate: true });
 
     // Touching any filter — typing, a category, the timeline, a country, the
     // heart — puts the three-name list back in front of the user. If a card
