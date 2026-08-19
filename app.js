@@ -4924,7 +4924,6 @@ const app = createApp({
       clearBornFilters,
       MONTH_NAMES, zodiacFor, zodiacIcon, zodiacWiki, formatBirthDate, daysInMonth,
       selectedChinese,
-      surpriseMe,
       // the random drawer
       randomEra, randomPlace, randomGender, randomCategory, randomEverything,
       // dock

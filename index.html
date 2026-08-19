@@ -218,6 +218,18 @@
         <button class="titlebar__btn" @click="openAbout()" title="What this is">
           <svg class="ico ico--18"><use href="#i-info"/></svg>
         </button>
+        <!-- The throw. It was pinned to the foot of the left-hand rail, which
+             only exists while no card is open, and it also had a row in the
+             account menu — two doors to the same thing, neither of them
+             anywhere obvious. One button, in the bar that is always there. -->
+        <button
+          class="titlebar__btn"
+          :class="{ 'is-on': randomOpen }"
+          @click="randomOpen = true"
+          title="Random"
+        >
+          <svg class="ico ico--18"><use href="#i-shuffle"/></svg>
+        </button>
         <button
           class="titlebar__btn"
           :class="{ 'is-set': hasProfile }"
@@ -266,17 +278,6 @@
         </div>
         <button class="rail__step" @click="railStep(1)" :disabled="!canRailDown" title="Scroll down">
           <svg class="ico ico--14"><use href="#i-chev-down"/></svg>
-        </button>
-        <!-- Frozen at the foot of the column: whatever the rest of the rail is
-             scrolled to, the way out of choosing sits in the corner, right
-             above the search line. -->
-        <button
-          class="rail__tab rail__tab--pin"
-          :class="{ 'is-on': randomOpen }"
-          @click="randomOpen = true"
-          title="Random"
-        >
-          <svg class="ico ico--16 rail__dice"><use href="#i-shuffle"/></svg>
         </button>
       </div>
 
@@ -1091,26 +1092,6 @@
               <svg class="ico ico--18"><use href="#i-tune"/></svg>
               <span class="mrow__label">Account settings</span>
               <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
-            </button>
-
-            <!-- What this is used to sit here as well as in the title bar,
-                 which meant the same sheet had two doors a thumb's width apart.
-                 The (i) up top kept its place, so this one goes.
-
-                 Its slot goes to the throw. There is already a Random spine
-                 pinned to the foot of the left-hand rail and it stays there —
-                 but the rail only exists while no card is open, and the menu is
-                 reachable from everywhere, so this is the way to another life
-                 from inside the one you are reading. -->
-            <button
-              class="mrow"
-              :disabled="!filtered.length"
-              @click="menuOpen = false; surpriseMe()"
-              :title="filtered.length ? 'Open someone at random from the ' + filtered.length + ' names showing' : 'Nothing matches the filters yet'"
-            >
-              <svg class="ico ico--18"><use href="#i-shuffle"/></svg>
-              <span class="mrow__label">Random person</span>
-              <span class="mrow__meta">{{ filtered.length }}</span>
             </button>
 
             <!-- Logging out happens here: one tap, one question, without

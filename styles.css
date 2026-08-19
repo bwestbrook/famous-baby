@@ -302,15 +302,6 @@ body {
 }
 /* The pinned head of the column: brighter than the spines below it, and it
    doesn't move with them. Filled while its page is open. */
-/* Pinned, not picked: at rest it looks like every other spine, and only lights
-   up while the random panel is open. The one spine with no word on it — the
-   dice says it faster than the six letters did, and it keeps the corner short. */
-.rail__tab--pin { flex: none; padding: 9px 3px; }
-.rail__dice { opacity: .9; }
-.rail__tab--pin:hover .rail__dice { opacity: 1; }
-.rail__tab--pin:hover { background: rgba(120,126,140,.7); border-color: #fff; }
-.rail__tab--pin.is-on { background: #fff; color: #000; border-color: #fff; }
-
 /* Words only on the spines — a dozen glyphs down one edge read as decoration
    rather than as a list. */
 
