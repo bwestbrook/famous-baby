@@ -2736,8 +2736,15 @@ const app = createApp({
     // slowing down to look at something, not as a gear change. Measured, this
     // rate takes 51 frames — a little under a second — to get nine tenths of
     // the way up to ocean speed, and the same to settle back on a coast.
-    const OCEAN_SPIN = 6;
-    const SPIN_EASE = 0.045;
+    const OCEAN_SPIN = 18;
+    // Slow to wind up, quick to stop. At full speed the globe crosses one of
+    // the cells below in a third of a second, so a single easing gentle enough
+    // to make leaving a coast feel unhurried would carry it most of the way
+    // across the next country before it had slowed down. Braking is nearly
+    // three times as sharp as accelerating, which is also how it reads: the
+    // globe drifts up to speed over an empty ocean and catches itself on land.
+    const SPIN_EASE_UP = 0.045;
+    const SPIN_EASE_DOWN = 0.12;
     // What slows the globe down is something to look at, not land as such. The
     // first version asked the coastline, and the coastline is a poor judge:
     // one rock in the middle of the Pacific put the brakes on for a landmass
@@ -2751,9 +2758,8 @@ const app = createApp({
     // from 83% open water to 26% — the wide net caught something nearly
     // everywhere and the globe hardly ever got up to speed.
     //
-    // The easing is what stops a single cell boundary reading as a jolt; it
-    // takes most of a second to change its mind, which is far longer than the
-    // globe takes to cross a cell edge.
+    // The easing is what stops a single cell boundary reading as a jolt,
+    // rather than the cell being large enough to smooth it.
     const SPIN_CELL = 5;             // degrees to a cell
     const SPIN_LOOK = 0;             // cells either way beyond that one
     const SPIN_FACES_MIN = 2;        // fewer faces than this and it is open sea
@@ -2790,7 +2796,7 @@ const app = createApp({
       // open card — setGlobeSpin owns the speed then.
       if (!c || !('autoRotate' in c) || !c.autoRotate) { spinRate = 1; return; }
       const target = facesNear(lat, lng) >= SPIN_FACES_MIN ? 1 : OCEAN_SPIN;
-      spinRate += (target - spinRate) * SPIN_EASE;
+      spinRate += (target - spinRate) * (target < spinRate ? SPIN_EASE_DOWN : SPIN_EASE_UP);
       c.autoRotateSpeed = SPIN_SPEED * spinRate;
     }
 
