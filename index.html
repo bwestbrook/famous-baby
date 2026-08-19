@@ -1082,12 +1082,24 @@
               <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
             </button>
 
-            <!-- The (i) gave up its place in the title bar to the profile, so
-                 the ethos lives here now. -->
-            <button class="mrow" @click="menuOpen = false; aboutOpen = true">
-              <svg class="ico ico--18"><use href="#i-info"/></svg>
-              <span class="mrow__label">What this is</span>
-              <svg class="ico ico--14 mrow__go"><use href="#i-chev-right"/></svg>
+            <!-- What this is used to sit here as well as in the title bar,
+                 which meant the same sheet had two doors a thumb's width apart.
+                 The (i) up top kept its place, so this one goes.
+
+                 Its slot goes to the throw. There is already a Random spine
+                 pinned to the foot of the left-hand rail and it stays there —
+                 but the rail only exists while no card is open, and the menu is
+                 reachable from everywhere, so this is the way to another life
+                 from inside the one you are reading. -->
+            <button
+              class="mrow"
+              :disabled="!filtered.length"
+              @click="menuOpen = false; surpriseMe()"
+              :title="filtered.length ? 'Open someone at random from the ' + filtered.length + ' names showing' : 'Nothing matches the filters yet'"
+            >
+              <svg class="ico ico--18"><use href="#i-shuffle"/></svg>
+              <span class="mrow__label">Random person</span>
+              <span class="mrow__meta">{{ filtered.length }}</span>
             </button>
 
             <!-- Logging out happens here: one tap, one question, without
