@@ -2052,6 +2052,8 @@ const app = createApp({
       // Every stone is laid before any of them is cut: a cell is defined by
       // its neighbours, so there is nothing to cut against until they all exist.
       carveTiles();
+      // And where they ended up is what tells the globe when to hurry.
+      buildFaceGrid();
     }
 
     // ---- Carving the cells ----
@@ -2734,19 +2736,60 @@ const app = createApp({
     // slowing down to look at something, not as a gear change. Measured, this
     // rate takes 51 frames — a little under a second — to get nine tenths of
     // the way up to ocean speed, and the same to settle back on a coast.
-    const OCEAN_SPIN = 3;
+    const OCEAN_SPIN = 6;
     const SPIN_EASE = 0.045;
+    // What slows the globe down is something to look at, not land as such. The
+    // first version asked the coastline, and the coastline is a poor judge:
+    // one rock in the middle of the Pacific put the brakes on for a landmass
+    // with nobody on it, while a shelf of Antarctic ice counted for as much as
+    // Italy. So it asks the mosaic instead — where the faces are.
+    //
+    // It asks about the five degrees under the middle of the screen, and asks
+    // for two faces in them. Both numbers were picked by simulating a lap
+    // against the real mosaic rather than guessed: looking ten degrees either
+    // way, which sounded like sensible margin, dropped a lap at the equator
+    // from 83% open water to 26% — the wide net caught something nearly
+    // everywhere and the globe hardly ever got up to speed.
+    //
+    // The easing is what stops a single cell boundary reading as a jolt; it
+    // takes most of a second to change its mind, which is far longer than the
+    // globe takes to cross a cell edge.
+    const SPIN_CELL = 5;             // degrees to a cell
+    const SPIN_LOOK = 0;             // cells either way beyond that one
+    const SPIN_FACES_MIN = 2;        // fewer faces than this and it is open sea
+    let faceGrid = null;
+    function cellKey(lat, lng) {
+      const lo = ((lng + 180) % 360 + 360) % 360 - 180;
+      return (Math.floor(lat / SPIN_CELL) + 40) * 200 + (Math.floor(lo / SPIN_CELL) + 40);
+    }
+    function buildFaceGrid() {
+      faceGrid = new Map();
+      for (const t of tiles) {
+        const k = cellKey(t.lat, t.lng);
+        faceGrid.set(k, (faceGrid.get(k) || 0) + 1);
+      }
+    }
+    function facesNear(lat, lng) {
+      let n = 0;
+      for (let i = -SPIN_LOOK; i <= SPIN_LOOK; i++) {
+        for (let j = -SPIN_LOOK; j <= SPIN_LOOK; j++) {
+          n += faceGrid.get(cellKey(lat + i * SPIN_CELL, lng + j * SPIN_CELL)) || 0;
+          if (n >= SPIN_FACES_MIN) return n;
+        }
+      }
+      return n;
+    }
     let spinRate = 1;
     function updateSpinRate(lat, lng) {
-      // landIndex is what says where the water is, and it does not exist until
-      // the mosaic has been built. Before that, one speed.
-      if (!globeInstance || !landIndex) return;
+      // The grid does not exist until the mosaic has been laid. Before that,
+      // one speed.
+      if (!globeInstance || !faceGrid) return;
       let c;
       try { c = globeInstance.controls(); } catch { return; }
       // Nothing to modulate while the globe is being held, or parked behind an
       // open card — setGlobeSpin owns the speed then.
       if (!c || !('autoRotate' in c) || !c.autoRotate) { spinRate = 1; return; }
-      const target = countryAt(lng, lat) ? 1 : OCEAN_SPIN;
+      const target = facesNear(lat, lng) >= SPIN_FACES_MIN ? 1 : OCEAN_SPIN;
       spinRate += (target - spinRate) * SPIN_EASE;
       c.autoRotateSpeed = SPIN_SPEED * spinRate;
     }
@@ -4019,7 +4062,16 @@ const app = createApp({
     // ---- Person info modal ----
     const selectedPerson = ref(null);
     // Each card opens at the country-fits-the-tile zoom.
+    // Where the globe was standing when the card went up, so backing out of it
+    // is a way back rather than a way home. Only taken when no card is open
+    // yet: a name tag inside one card opens another, and the way back from
+    // that is still the globe you left, not the country of the card in
+    // between.
+    let viewBeforeCard = null;
     function openPerson(p) {
+      if (!selectedPerson.value && globeInstance) {
+        try { viewBeforeCard = globeInstance.pointOfView(); } catch { viewBeforeCard = null; }
+      }
       selectedPerson.value = p;
       // A name in the sheet opens that person's card, and the sheet was about
       // the name we came from — so it stands down rather than following along.
@@ -4079,6 +4131,23 @@ const app = createApp({
       selectedPerson.value = null;
       nameOpen.value = false;
       clearYears();
+      // Back to the globe you were looking at, not to the one you arrived on.
+      // resetGlobeView flies home — which is the country the IP guessed for
+      // you — and having crossed the world to read about somebody, being put
+      // back on your own doorstep for closing the card is a long way to be
+      // sent for pressing Back.
+      if (viewBeforeCard) {
+        const back = viewBeforeCard;
+        viewBeforeCard = null;
+        try {
+          // The same restoring resetGlobeView does: a close-up country leaves
+          // the polygon heights and the atmosphere where it found them.
+          applyFramedAltitude(back.altitude);
+          globeInstance.pointOfView({ ...back }, 700);
+          syncLabelScaleTo(back.altitude);
+          return;
+        } catch {}
+      }
       resetGlobeView();
     }
 
@@ -4101,6 +4170,9 @@ const app = createApp({
         // change has its own camera move. The name sheet belonged to the card,
         // so it goes with it either way.
         if (selectedPerson.value) selectedPerson.value = null;
+        // This path moves the camera itself, so the way back the card was
+        // holding is spent — dropped here rather than left to go stale.
+        viewBeforeCard = null;
         nameOpen.value = false;
         hitsExpanded.value = false;
         nextTick(resetDial);
