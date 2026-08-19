@@ -1307,7 +1307,7 @@ const app = createApp({
     // layer is being worked on — a session that starts somewhere different
     // every time is exactly wrong then, because you can't tell a change from a
     // coincidence. It used to hold { lat: 2.0, lng: 19.0 } for central Africa.
-    const OPENING_OVERRIDE = null;
+    const OPENING_OVERRIDE = { lat: 36.2, lng: 138.25 };   // central Japan
 
     function openingGlobeView() {
       if (OPENING_OVERRIDE) {
@@ -2465,6 +2465,7 @@ const app = createApp({
       // frame where nothing needs redrawing.
       const centre = camLatLng(pos);
       updateSpinRate(centre[0], centre[1]);
+      updateIdlePath(performance.now(), centre[0]);
       // The globe turns on its own, so the camera is almost never still — but
       // when it is, and nothing has bloomed or been pointed at, the last frame
       // is still the right one.
@@ -2824,6 +2825,79 @@ const app = createApp({
     // Stop and start the idle spin. Through a helper because the controls
     // object is rebuilt every time the globe is, so only one place should have
     // to know how this build spells it.
+    // ---- The idle path ----
+    // Turning about its own axis, the globe walks the same parallel for ever:
+    // whatever latitude you left it at is the only one it ever shows you, and
+    // most of the roster never comes under the middle of the screen at all.
+    //
+    // So latitude is driven as well. Longitude comes from the spin, latitude
+    // from a slow sine of its own, and the two periods do not divide into each
+    // other — which is a Lissajous figure, and is why the path never closes.
+    // The globe keeps arriving somewhere it has not just been.
+    //
+    // Only latitude is written here. Longitude is read back off the camera
+    // each frame and handed straight back, so autoRotate keeps owning it —
+    // including the land/ocean easing above, which would be lost if this drove
+    // both axes itself.
+    // Centred north of the equator, not on it. The roster lives in the
+    // northern half of the world — a swing centred on the equator spends half
+    // its time over empty South Pacific and never reaches Europe at all. This
+    // range runs from about 22 south to 46 north, which is most of the
+    // inhabited world and nearly all of the faces.
+    const LISSAJOUS_MID = 12;
+    const LISSAJOUS_LAT = 34;
+    // Slow, and deliberately close to the time the spin takes to go round —
+    // that ratio is what makes the path read as a figure rather than as a
+    // wobble. Measured at the first try: 47 seconds gave roughly nine swings
+    // per revolution, which put the camera over Japan and then Australia
+    // twelve seconds later. Three minutes gives a little over two, so the
+    // globe wanders instead of bobbing.
+    const LISSAJOUS_MS = 180000;
+    let idlePhase = null;
+    let idleLast = 0;
+    let idleWrote = null;
+    // How far the camera may be from where this last put it before the move is
+    // read as somebody else's. Our own step is a fortieth of a degree a frame;
+    // a tween or a drag moves whole degrees, so there is a wide gap to sit in.
+    const IDLE_YIELD_DEG = 0.5;
+    function updateIdlePath(now, lat) {
+      if (!globeInstance) return;
+      let c;
+      try { c = globeInstance.controls(); } catch { return; }
+      // Held, or parked behind an open card: the camera is not ours to move.
+      if (!c || !c.autoRotate) { idlePhase = null; idleWrote = null; return; }
+      // Something else is flying the camera — the opening view, a country
+      // being framed, a drag. Yield to it and pick the sine up again from
+      // wherever it puts us down.
+      //
+      // This is not a nicety. Without it the drift wrote latitude every frame
+      // including mid-tween, which cancelled the flight to the opening view:
+      // the globe was pinned to whatever latitude the sine had reached and
+      // never arrived over Japan at all.
+      if (idleWrote != null && Math.abs(lat - idleWrote) > IDLE_YIELD_DEG) {
+        idlePhase = null;
+        idleWrote = null;
+      }
+      // Pick the sine up at whatever latitude the globe is already at, so the
+      // drift eases on from there instead of hauling the camera somewhere else
+      // the moment you let go of it.
+      if (idlePhase == null) {
+        idlePhase = Math.asin(Math.max(-1, Math.min(1, (lat - LISSAJOUS_MID) / LISSAJOUS_LAT)));
+        idleLast = now;
+        idleWrote = lat;
+        return;
+      }
+      const dt = Math.min(100, now - idleLast);   // a backgrounded tab must not lurch
+      idleLast = now;
+      idlePhase += 2 * Math.PI * dt / LISSAJOUS_MS;
+      const want = LISSAJOUS_MID + LISSAJOUS_LAT * Math.sin(idlePhase);
+      try {
+        const pov = globeInstance.pointOfView();
+        globeInstance.pointOfView({ lat: want, lng: pov.lng, altitude: pov.altitude }, 0);
+        idleWrote = want;
+      } catch {}
+    }
+
     function setGlobeSpin(on) {
       if (!globeInstance) return;
       try {
