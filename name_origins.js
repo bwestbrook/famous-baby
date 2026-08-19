@@ -2,743 +2,2954 @@
 //
 // What each given name in the roster is, from English Wiktionary
 // (CC BY-SA 4.0). Keyed by the name folded the way app.js folds it:
-// NFKD, accents stripped, lower case.
+// NFKD, accents stripped, lower case. { t: Wiktionary title, s: sentence }.
 export const NAME_ORIGINS = {
-"aaron": "A surname transferred from the given name.",
-"abbas": "A male given name from Arabic.",
-"abby": "A diminutive of the female given name Abigail, from Hebrew, also used as a formal given name.",
-"abdi": "A male given name, variant of Abdul.",
-"abdulaziz": "An Islamic male given name from Arabic.",
-"abdullah": "A male given name from Arabic, feminine equivalent Amatullah; variant forms 'Abd Allah, Abd Allah, Abd' Ulah, Abd-Allah, Abdalah, Abdallah, Abdellah, Abdollah, Abdu'llah, Abdulah, Abdulla, ʻAbd Allāh.",
-"abed": "A male given name from Arabic.",
-"abel": "A male given name from Hebrew.",
-"abraham": "A male given name from Hebrew.",
-"abram": "A male given name from Hebrew.",
-"achraf": "A male given name from Arabic.",
-"ada": "A female given name from the Germanic languages.",
-"adela": "A female given name from the Germanic languages.",
-"adele": "A female given name from the Germanic languages.",
-"adi": "A diminutive of the female given names Adelaide, Adrienne, and Aditi, or other names beginning with Ad-.",
-"adonis": "A male given name from Ancient Greek.",
-"adrian": "A male given name from Latin or Etruscan.",
-"ahmad": "A male given name from Arabic or Persian, meaning “most praiseworthy”; variant forms Aahmed, Achmad, Achmat, Achmed, Achmet, Ahamed, Ahmed, Ahmet.",
-"ahmed": "A male given name from Arabic, variant of Ahmad.",
-"ai": "A female given name from Japanese.",
-"aimee": "A female given name from French.",
-"aisha": "A female given name from Arabic, most famously borne by Muhammad's third wife. Daughter of first caliph Abu Bakr.",
-"aishwarya": "A female given name from Sanskrit, of Indian usage.",
-"akira": "A female given name from Japanese (uncommon)",
-"alain": "A male given name from French, equivalent to English Alan.",
-"alan": "A male given name from Hebrew, variant of Elon.",
-"alanis": "A female given name from the Celtic languages.",
-"alba": "A female given name from Spanish alba (“dawn”), of modern usage.",
-"albert": "A male given name from the Germanic languages.",
-"alecia": "A female given name from the Germanic languages, one of the modern variants of Alicia.",
-"alejandro": "A male given name from Spanish, equivalent to English Alexander.",
-"alek": "A diminutive of the male given name Alexander, from Ancient Greek, variant of Alec.",
-"alex": "A unisex given name from Ancient Greek.",
-"alexander": "A male given name from Ancient Greek, most famously held by Alexander the Great.",
-"alexei": "A transliteration of the Russian male given name Алексе́й (Alekséj), equivalent to Alexius.",
-"alexis": "A female given name from Ancient Greek, transferred from the male name and used since the 1940s.",
-"alfred": "A male given name from Old English.",
-"alfredo": "A male given name from Italian.",
-"ali": "A diminutive of the female given name Alison or of its variants.",
-"alia": "A female given name from Arabic.",
-"alice": "A female given name from the Germanic languages popular in England since the Middle Ages.",
-"alicia": "A female given name from the Germanic languages.",
-"alija": "A transliteration of the Macedonian male given name Алија (Alija).",
-"alina": "A female given name from the Germanic languages.",
-"aliona": "A transliteration of the Ukrainian female given name Альо́на (Alʹóna)",
-"alisson": "A female given name from the Germanic languages.",
-"allan": "A surname transferred from the given name derived from the given name, more often spelled Allen.",
-"allen": "A male given name from the Celtic languages, a variant of Alan; in modern use often transferred from the surname.",
-"alok": "A male given name from Sanskrit used in India.",
-"alonzo": "A male given name from the Germanic languages, variant of Alfonso.",
-"alphonso": "A male given name from Italian or from Spanish [in turn from the Germanic languages], of rare usage, variant of Alfonso.",
-"alvin": "A male given name from Old English.",
-"alwin": "A male given name from Old English; always rather rare in English.",
-"aly": "A male given name from Arabic, a variant spelling of the Muslim Ali.",
-"amala": "A female given name used in India.",
-"amanda": "A female given name from Latin.",
-"amelia": "A female given name from the Germanic languages.",
-"amin": "A male given name from Arabic.",
-"amina": "A female given name from Arabic, notably borne by: the mother of the Islamic prophet Muhammad",
-"amos": "A male given name from Hebrew.",
-"amy": "A female given name from Latin.",
-"ana": "A female given name, equivalent to English Anna or Hannah.",
-"ananda": "A unisex given name from Sanskrit.",
-"anatole": "A male given name from Ancient Greek.",
-"anders": "A male given name from Danish, Icelandic, Norwegian, or Swedish, equivalent to English Andrew.",
-"andre": "A male given name from French, an anglicized form of André.",
-"andrea": "A female given name from Ancient Greek.",
-"andrei": "A transliteration of the Russian male given name Андре́й (Andréj), equivalent to Andrew.",
-"andrew": "A male given name from Ancient Greek.",
-"andriy": "A transliteration of the Ukrainian male given name Андрі́й (Andríj), equivalent to Andrew.",
-"andy": "A diminutive of the female given name Andrea, from Ancient Greek.",
-"angelina": "A female given name from Ancient Greek, an Italian diminutive of Angela.",
-"angelique": "A female given name from French anglicized from French Angélique, occasionally used in English since the 20th century.",
-"anita": "A female given name from Spanish.",
-"anna": "A female given name from Latin.",
-"anne": "A male given name from the Germanic languages, of mainly French and Frisian usage, see Anne Robert Jacques Turgot",
-"annie": "A diminutive of the female given name Ann. Also, a popular given name in the 19th century.",
-"anthony": "A male given name from Latin, in regular use since the Middle Ages.",
-"antoine": "A male given name from French occasionally borrowed from French, mostly in the U.S.",
-"anton": "A male given name from Latin.",
-"antonio": "A male given name from Italian.",
-"anya": "A female given name from Russian or Ukrainian, of modern usage.",
-"archibald": "A male given name from the Germanic languages.",
-"ariana": "A female given name from Ancient Greek.",
-"ariel": "A male given name from Hebrew, also ascribed to spirits and angels in English literature.",
-"aristippus": "A male given name from Ancient Greek, of historical usage.",
-"aristotle": "A male given name. An ancient Greek philosopher, logician, and scientist (382–322 BCE), student of Plato and teacher of Alexander the Great.",
-"arius": "A transliteration of the Ancient Greek male given name Ἄρειος (Áreios), Arius, notably borne by Arius, circa 250–336, a priest in Alexandria, the founder of Arianism.",
-"arnold": "A male given name from the Germanic languages brought to England by Normans.",
-"aron": "A male given name from Hebrew, a less common spelling of Aaron.",
-"arthur": "A male given name from the Celtic languages.",
-"arundhati": "A female given name from Sanskrit used in India.",
-"ashley": "A female given name transferred from the surname.",
-"ashraf": "A male given name from Arabic.",
-"asia": "A female given name transferred from the place name, of modern usage.",
-"asif": "A male given name from Persian or Urdu.",
-"audrey": "A female given name from Old English.",
-"augustine": "A male given name from Latin, notably borne by Saint Augustine of Hippo (354–430), a church father and a writer.",
-"avril": "A female given name from French, equivalent to English April.",
-"aya": "A female given name from Japanese.",
-"babe": "A male given name or nickname",
-"baldwin": "A male given name from the Germanic languages; rather rare in English. Baldwin IV, king of the Latin Kingdom of Jerusalem from 1174 to 1187. Also known as the leper king.",
-"barack": "A male given name from Arabic.",
-"barbara": "A female given name from Latin.",
-"barbie": "A diminutive of the female given name Barbara.",
-"bashir": "A male given name from Arabic.",
-"batu": "A Mongolian male given name, notably borne by Batu Khan, a Mongol ruler.",
-"belinda": "A female given name originating as a coinage.",
-"bella": "A female given name from Italian.",
-"benedicta": "A female given name from Latin, a rare feminine form of Benedict.",
-"benjamin": "A patrilineal surname transferred from the given name.",
-"berry": "A male given name transferred from the surname.",
-"berta": "A female given name, variant of Bertha.",
-"bette": "Alternative form of Betty (“diminutive of the female given name Elizabeth”).",
-"beyonce": "A female given name transferred from the surname.",
-"bianca": "A female given name from Italian.",
-"bill": "A diminutive of the male given name William.",
-"billie": "A male or female given name from the Germanic languages derived from Bill, the diminutive of William.",
-"billy": "A diminutive of the male given name William.",
-"blake": "A unisex given name. A male given name transferred from the surname. A female given name transferred from the surname.",
-"bob": "A diminutive of the male given name Robert.",
-"boris": "A male given name from the Slavic languages.",
-"bradley": "A male given name transferred from the surname.",
-"brandy": "A female given name from English derived from brandy, an alcoholic liquor. Mostly seen in American usage during the 1970s and 1980s.",
-"brice": "A male given name. A male given name from the Celtic languages, a variant of Bryce. A male given name from the Celtic languages transferred from the surname. A male given name from French transferred from the surname.",
-"britney": "A female given name transferred from the place name, variant of Brittany.",
-"bruno": "A male given name from the Germanic languages.",
-"bryan": "A male given name from Irish, a less common alternative spelling of Brian.",
-"cade": "A surname An English metonymic surname originating as an occupation for a cooper. A surname transferred from the given name A surname from French",
-"cara": "A female given name originating as a coinage.",
-"carl": "A male given name from the Germanic languages, equivalent to English Charles.",
-"carla": "A female given name from the Germanic languages.",
-"carlo": "A male given name from Italian, equivalent to English Charles.",
-"carlos": "A male given name from Portuguese or from Spanish [in turn from Latin, in turn from the Germanic languages], equivalent to English Charles, Carl, or Karl.",
-"carly": "A female given name from the Germanic languages.",
-"carol": "A female given name from the Germanic languages, popular in the middle of the 20th century.",
-"carole": "A female given name from French, variant of Carol",
-"carolina": "A female given name from Latin, Latinate form of Caroline; rare in English.",
-"caroline": "A female given name from the Germanic languages.",
-"carrie": "A diminutive of the female given name Caroline, also used as a formal given name.",
-"casimir": "A male given name from Polish.",
-"cate": "A diminutive of the female given name Catherine.",
-"catherine": "A female given name from Ancient Greek.",
-"cecilia": "A female given name from Latin.",
-"celia": "A female given name from Latin.",
-"cesar": "A male given name from Spanish.",
-"chris": "A diminutive of the male given names Christopher and Christian.",
-"christian": "A male given name from Ancient Greek found in England since the twelfth century.",
-"christina": "A female given name from Ancient Greek.",
-"christine": "A female given name from Ancient Greek.",
-"christopher": "A male given name from Ancient Greek.",
-"clara": "A female given name from Latin.",
-"clarence": "A male given name transferred from the surname.",
-"claribel": "A female given name from Latin.",
-"claude": "A male given name from Latin.",
-"claudia": "A female given name from Latin, masculine equivalent Claudius.",
-"clyde": "A male given name transferred from the place name (the River Clyde in Scotland).",
-"colin": "A male given name from Old Irish A male given name from Irish A male given name from Scottish Gaelic",
-"collin": "A diminutive of the male given name Nicholas, from Ancient Greek, variant of Colin.",
-"collins": "An English surname originating as a patronymic from the given name Colin.",
-"confucius": "A male given name from Latin.",
-"connie": "A diminutive of the male given names Constantine, Conrad, Cornelius or, rarely, of Conway.",
-"constantine": "A male given name from Latin.",
-"corbin": "A male given name transferred from the surname.",
-"cornelius": "A male given name from Latin.",
-"craig": "A male given name transferred from the surname.",
-"curtis": "A male given name transferred from the surname.",
-"cyndi": "A diminutive of the female given name Cynthia.",
-"cyril": "A male given name from Ancient Greek; best known for a ninth century missionary to the Slavs.",
-"damian": "A male given name from Ancient Greek.",
-"dan": "A diminutive of the female given name Danielle.",
-"daniel": "A male given name from Hebrew in regular use since the Middle Ages.",
-"darlington": "A male given name transferred from the surname.",
-"darwin": "A male given name transferred from the surname, deriving from the Old English name Dēorwine and revived through the surname.",
-"david": "A male given name from Hebrew.",
-"dean": "A surname A habitational surname from Middle English from Middle English dene “valley”. A surname from Irish A surname from Scottish A surname originating as an occupation A surname transferred from the given name",
-"debbie": "A diminutive of the female given name Deborah.",
-"deepika": "A female given name from Sanskrit.",
-"demi": "A female given name, a diminutive of Demetria introduced into English in the 1990s by the actress Demi Moore.",
-"denis": "A male given name from Ancient Greek, a mostly British and Irish spelling variant of Dennis.",
-"denise": "A female given name from French, Latin, or Ancient Greek.",
-"dennis": "A male given name from Ancient Greek.",
-"denys": "A male given name from Ancient Greek, an alternative spelling of Denis",
-"denzel": "A male given name popularized by actor Denzel Washington",
-"derek": "A male given name from the Germanic languages.",
-"derrick": "A male given name from the Germanic languages, variant of Derek.",
-"desmond": "A male given name transferred from the surname; popular in Britain in the first half of the twentieth century.",
-"devin": "A unisex given name A male given name transferred from the surname, of modern usage A male given name, variant of Devon A female given name.",
-"diana": "A female given name from Latin.",
-"diane": "A female given name from Latin, popular in the middle of the 20th century",
-"diego": "A male given name from Spanish Diego.",
-"dima": "A transliteration of the Ukrainian male given name diminutive Діма (Dima).",
-"dimitar": "A male given name from the Slavic languages.",
-"dionne": "A female given name from Ancient Greek, variant of Dione.",
-"dirk": "A male given name from German or Dutch, equivalent to English Derek.",
-"dolly": "A diminutive of the female given names Dorothy, Dolores, and Doris.",
-"dolores": "A female given name from Spanish.",
-"dominique": "A female given name from French.",
-"donald": "A male given name from Scottish Gaelic.",
-"donovan": "A male given name transferred from the surname.",
-"doris": "A female given name from Ancient Greek, taken to regular use at the end of the 19th century.",
-"dorothy": "A female given name from Ancient Greek.",
-"dua": "A female given name from Albanian.",
-"duncan": "A male given name from Scottish Gaelic anglicized from Scottish Gaelic Donnchadh; the name of two early saints and of two kings of Scotland.",
-"dwight": "A male given name transferred from the surname.",
-"eddie": "A diminutive of Edward, Edgar, Edwin, or other male given names beginning with Ed-.",
-"eddy": "A diminutive of Edward, Edgar, Edwin, or other male given names beginning with Ed-.",
-"eden": "A female given name from Hebrew from the biblical place name; also a medieval diminutive of Old English compound names beginning with the element ēad (“riches”).",
-"edgar": "A male given name from Old English.",
-"edmund": "A male given name from Old English, borne by early English kings and saints.",
-"edson": "A male given name transferred from the surname.",
-"eduardo": "A male given name from Spanish or Portuguese",
-"edward": "A male given name from Old English.",
-"edwin": "A male given name from Old English.",
-"eileen": "A female given name from Irish.",
-"eleanora": "A female given name, variant of Eleanor.",
-"eleni": "A transliteration of the Greek female given name Ελένη (Eléni).",
-"elias": "A male given name from Hebrew.",
-"elie": "A male given name from Hebrew.",
-"elisabeth": "A female given name from Hebrew, a less common form of Elizabeth in English.",
-"elisha": "A male given name from Hebrew of biblical origin, in quiet use since the 17th century.",
-"elizabeth": "A female given name from Hebrew, popular since the 16th century.",
-"ella": "A diminutive of the female given names Eleanor, Ellen, Gabriella, and Daniella.",
-"ellen": "A female given name from Ancient Greek.",
-"ellie": "A unisex given name. A diminutive of the female given names Eleanor, Elizabeth, and Elena. A diminutive of the male given names Elliot and Elliott.",
-"elliot": "A surname transferred from the given name, a variant of Elliott.",
-"elon": "A male given name from Hebrew. A judge in the Old Testament.",
-"emil": "A male given name from Latin.",
-"emily": "A female given name from Latin.",
-"emma": "A female given name from the Germanic languages.",
-"emmanuel": "A male given name from Hebrew of Biblical origin.",
-"emmerson": "A male given name transferred from the surname.",
-"emmy": "A diminutive of Emily, Emma, Emmeline or Amelia, also used as a female given name.",
-"enya": "A female given name from Irish; the phoneticised form of the Irish Eithne.",
-"erick": "A male given name from the Germanic languages, a rare spelling variant of Eric that can also be explained as a form of Frederick.",
-"ernest": "A male given name from the Germanic languages; popular in the 19th century.",
-"ernesto": "A male given name from Spanish.",
-"erwin": "A male given name from the Germanic languages, of rare usage, variant of Irwin.",
-"esther": "A female given name from Persian.",
-"eugene": "A male given name from Ancient Greek.",
-"eunice": "A female given name from Ancient Greek.",
-"eusebius": "A transliteration of the Ancient Greek male given name Εὐσέβιος (Eusébios).",
-"eva": "A female given name from Latin, ultimately from Hebrew.",
-"fabian": "A male given name from Latin.",
-"faith": "A female given name from English.",
-"francisco": "A surname from Spanish or from Portuguese [in turn transferred from the given name].",
-"francois": "A male given name from French, equivalent to English Francis.",
-"frank": "A male given name from the Germanic languages.",
-"frankie": "A diminutive of the surname Frankenstein, used as a given name for a similar monster or mad scientist.",
-"franklin": "A male given name transferred from the surname, partly in honor of Benjamin Franklin.",
-"franz": "A male given name from Latin, rare in English.",
-"freddie": "A diminutive of the male given name Frederick.",
-"frederick": "A male given name from the Germanic languages.",
-"frida": "A female given name from the Germanic languages occasionally used in English.",
-"friedrich": "A male given name from German, equivalent to English Frederick.",
-"fritz": "A diminutive of the male given name Friedrich.",
-"gabriel": "A male given name from Latin [in turn from Ancient Greek, in turn from Hebrew]. An archangel associated in Judaism, Christianity and Islam, with carrying messages from God.",
-"gabriela": "A female given name from Hebrew, a latinate feminine form of Gabriel.",
-"gabriella": "A female given name from Italian [in turn from Hebrew], masculine equivalent Gabriel.",
-"galen": "A male given name from Ancient Greek, of mostly American usage.",
-"garry": "A male given name transferred from the surname, a mostly British variant of Gary.",
-"gary": "A male given name from the Germanic languages, popular from the 1940s to the 1970s; variant form Garry.",
-"george": "A diminutive of the female given names Georgina and Georgia; also used in the conjoined name George Ann(e).",
-"georges": "A male given name from French, equivalent to English George.",
-"georgia": "A female given name from Ancient Greek.",
-"geraldine": "A female given name from the Germanic languages.",
-"giannis": "A transliteration of the Greek male given name Γιάννης (Giánnis).",
-"gideon": "A male given name from Hebrew, popularized by Puritans.",
-"gilles": "A male given name from French.",
-"giuseppe": "A male given name from Italian, equivalent to English Joseph.",
-"glenn": "A male given name transferred from the surname, fairly popular in the middle of the 20th century.",
-"gloria": "A female given name from Latin, popular during the first half of the 20th century.",
-"godfrey": "A male given name from the Germanic languages.",
-"golda": "A female given name from Yiddish.",
-"gonzalo": "A male given name from Spanish.",
-"gordie": "A diminutive of the male given name Gordon.",
-"grace": "A female given name from English.",
-"grant": "A male given name transferred from the surname.",
-"gregor": "A male given name from Ancient Greek, a Scottish form of Gregory.",
-"greta": "A female given name from Ancient Greek.",
-"guido": "A male given name from Italian, equivalent to English Guy.",
-"gustav": "A male given name from the Germanic languages.",
-"guy": "A male given name from the Germanic languages.",
-"hakeem": "A male given name from Arabic.",
-"hamad": "A male given name from Arabic.",
-"hamid": "A male given name from Arabic used by Muslims.",
-"hank": "A diminutive of the male given name Hankin (a medieval form of John).",
-"hannah": "A place name in the United States, which could be from the given name or surname: An unincorporated community in Douglas County, Georgia. A small town in Mayfield Township, Grand Traverse County, Michigan. A minor city in Cavalier County, North Dakota. An unincorporated community in Florence County, South Carolina.",
-"hannibal": "A male given name from Punic of mostly historical use. Most notably borne by the Carthaginian general Hannibal, son of Hamilcar.",
-"hans": "A male given name from German.",
-"harriet": "A female given name from the Germanic languages.",
-"harry": "A male given name. A male given name from the Germanic languages. A male given name from French, originating as an Anglicization of Henri A diminutive of the male given name Henry, Harold.",
-"harun": "An Arabic male given name from Arabic, equivalent to English Aaron.",
-"hassan": "A male given name from Arabic.",
-"heidi": "A female given name from the Germanic languages.",
-"helen": "A female given name from Ancient Greek.",
-"henny": "A diminutive of the female given name Henrietta.",
-"henri": "A male given name from French.",
-"henrietta": "A female given name from the Germanic languages.",
-"henry": "A male given name from the Germanic languages, popular in England since the Middle Ages.",
-"heraclitus": "A transliteration of the Ancient Greek male given name Ἡράκλειτος (Hērákleitos), notably borne by Heraclitus of Ephesus, a pre-Socratic Ionian philosopher.",
-"herbie": "A diminutive of the male given name Herbert.",
-"hermann": "A male given name from German.",
-"hertha": "A female given name from the Germanic languages occasionally borrowed from German around 1900.",
-"hilary": "A female given name from Latin.",
-"hildegard": "A female given name from German.",
-"hind": "A female given name from Arabic.",
-"hippocrates": "A transliteration of the Ancient Greek male given name Ἱπποκράτης (Hippokrátēs), notably borne by Hippocrates of Cos, an Ancient Greek physician, circa 5th century BC, sometimes called the \"father of medicine\".",
-"holden": "A male given name transferred from the surname.",
-"hugo": "A male given name from the Germanic languages, a Latinized form of Hugh.",
-"humphrey": "A male given name from the Germanic languages.",
-"hunter": "A male given name transferred from the surname.",
-"husayn": "A male given name from Arabic used by Muslims, diminutive of حسن (“Hasan”) meaning good or handsome.",
-"hypatia": "A female given name from Latin [in turn from Ancient Greek].",
-"iamblichus": "A male given name from Koine Greek, of historical usage. Iamblichus (c.&nbsp;245 – c.&nbsp;325), a Syrian Neoplatonist philosopher.",
-"ibrahim": "A male given name from Arabic",
-"ida": "A female given name from the Germanic languages.",
-"idris": "A surname from Arabic [in turn transferred from the given name]",
-"iggy": "A diminutive of the male given name Ignatius.",
-"ignatius": "A male given name from Latin; of mostly Roman Catholic or Eastern Orthodox usage in English. A male given name of historical usage, notably borne by Saint Ignatius of Antioch (died c.&nbsp;108/140 CE) A male given name of historical usage, notably borne by Saint Ignatius of Loyola (1491–1556)",
-"igor": "A male given name from Russian.",
-"iman": "A unisex given name from Arabic.",
-"imran": "A male given name from Arabic.",
-"ingrid": "A female given name from Old Norse.",
-"iris": "A female given name from Ancient Greek; a flower name used since the end of the 19th century.",
-"isaac": "A male given name from Hebrew.",
-"isabel": "A female given name from Hebrew.",
-"isaiah": "A male given name from Hebrew.",
-"ishmael": "A male given name from Hebrew.",
-"jakov": "A transliteration of the Carpathian Rusyn or Pannonian Rusyn male given name Яков (Jakov), equivalent to Jacob",
-"jamal": "A male given name from Arabic.",
-"james": "A male given name from Hebrew popular since the Middle Ages. Also a common middle name.",
-"jamie": "A unisex given name. A diminutive of the male given name James, from English and Scottish, also used as a formal given name. A female given name from Hebrew derived from James, of modern American usage. Alternative form of Jaime.",
-"jan": "A male given name from Hebrew.",
-"jane": "A female given name from French, the standard feminine form of John since the 17th century.",
-"jason": "A male given name from Ancient Greek.",
-"javier": "A male given name from Spanish.",
-"jay": "A diminutive of the male given names James, Jacob, Jack, John, and Jason, or for any other name beginning with ⟨J⟩; also used as a formal given name.",
-"jean": "A female given name from French.",
-"jennie": "A female given name, variant of Jenny.",
-"jennifer": "A female given name from Cornish.",
-"jensen": "A unisex given name transferred from the surname. A male given name transferred from the surname. A female given name transferred from the surname.",
-"jerome": "A male given name from Ancient Greek.",
-"jerry": "A diminutive of the male given names Gerald, Gerard, Jeremy, Jeremiah, Jared, Jerome, Jermaine, Jerrold, and similar male given names.",
-"jessica": "A female given name from Hebrew.",
-"jewel": "A female given name from English from the noun jewel, used since the end of the 19th century.",
-"jim": "A diminutive of the male given name James.",
-"jimmy": "A diminutive of the male given names James and Jim, also used as a formal given name.",
-"joan": "A female given name from French, a feminine form of John.",
-"joanna": "A female given name from Latin [in turn from Hebrew].",
-"jocelyn": "A female given name from the Germanic languages.",
-"joe": "A diminutive of the male given names Joseph, Josiah, Joel, and Josias.",
-"joel": "A male given name from Hebrew.",
-"johan": "A female given name from Hebrew.",
-"johann": "A male given name from German Johann.",
-"john": "A male given name originating from the Bible [in turn from Hebrew]; very popular since the Middle Ages. Used generically for a man whose actual name may not be known.",
-"johnny": "A diminutive of the male given name John.",
-"jonathan": "A male given name from Hebrew of biblical origin.",
-"jordana": "A female given name originating as a coinage.",
-"jorge": "A male given name from Spanish or Portuguese, equivalent to English George.",
-"jose": "A male given name from Spanish, variant of Jose.",
-"joseph": "A male given name from Hebrew.",
-"joshua": "A surname, transferred from the given name",
-"joyce": "A female given name from the Celtic languages, associated by folk etymology with joy and rejoice.",
-"juan": "A male given name from Manx or Spanish, equivalent to English John.",
-"juana": "A female given name from Spanish.",
-"judy": "A diminutive of the female given name Judith, also used as a formal female given name.",
-"jules": "A unisex given name A diminutive of the male given names Julian and Julius A diminutive of the female given names Julia, Julie, Juliann, and Julianne",
-"julia": "A female given name from Latin.",
-"julian": "A female given name from Latin, of medieval English usage, variant of Gillian.",
-"juliana": "A female given name from Latin, Latin feminine form of Julianus, derivative of Julius.",
-"juliette": "A diminutive of the female given name Julie, from French Juliette.",
-"julius": "A male given name from Latin.",
-"june": "A female given name transferred from the month name [in turn from English], for a girl born in June, used since the end of the 19th century.",
-"kacey": "A female given name transferred from the surname.",
-"kareem": "A male given name from Arabic, variant of Karim.",
-"karim": "A male given name from Arabic.",
-"karl": "A male given name from the Germanic languages, equivalent to English Charles.",
-"karla": "A female given name from the Germanic languages, masculine equivalent Karl.",
-"karolina": "A female given name in many languages.",
-"kate": "A diminutive of the female given name Katherine and related names, also used as a formal given name.",
-"katharine": "A female given name from Ancient Greek.",
-"katherine": "A female given name from Ancient Greek, a popular spelling variant of Catherine.",
-"katheryn": "A female given name from Ancient Greek, a rare nonstandard spelling variant of Catherine.",
-"katie": "A diminutive of the female given name Catherine or any of its variant spellings.",
-"kayleigh": "A female given name transferred from the surname, variant of Kaylee.",
-"keanu": "A male given name from Hawaiian.",
-"kei": "A unisex given name from Japanese.",
-"keith": "A male given name transferred from the surname.",
-"kelly": "A unisex given name transferred from the surname. A male given name transferred from the surname. A female given name transferred from the surname, popular from the 1960s to the 1990s.",
-"kelvin": "A male given name transferred from the surname, of rather rare usage.",
-"kendall": "A female given name transferred from the surname, of modern usage.",
-"kenneth": "A male given name from Scottish Gaelic, originally used in Scotland, popular in all English-speaking countries in the 20th century.",
-"kenny": "A diminutive of the male given name Kenneth.",
-"kevin": "A male given name from Irish.",
-"khalid": "A male given name from Arabic.",
-"kim": "A unisex given name. A male given name transferred from the surname. A female given name transferred from the surname, of 1940s and later usage.",
-"kira": "A female given name from Persian or Irish.",
-"klaus": "A male given name from Ancient Greek, an alternative spelling of Claus.",
-"kristen": "A female given name from Ancient Greek.",
-"kumar": "A male given name from Sanskrit.",
-"kurt": "A male given name from the Germanic languages borrowed from German, a contracted form of Konrad.",
-"kwame": "A male given name from Akan, given to a male child born on a Saturday; variant forms Kwamé, Kouamé, Kwami, Kwamena, Kwamina.",
-"kylie": "A female given name originating as a coinage; variant forms Khylie, Kilee, Kileigh, Kiley, Kylee, Kyleigh, Kyley, Kyly.",
-"kyriakos": "A transliteration of the Greek male given name Κυριάκος (Kyriákos).",
-"lamine": "A male given name from Arabic, variant of Amin",
-"lana": "A female given name from Russian.",
-"larisa": "A female given name from Ancient Greek, a less common spelling of Larissa.",
-"larry": "A diminutive of the male given name Laurence or Lawrence, popular as a male given name in the U.S. in the 1940s and the 1950s.",
-"lars": "A male given name from Latin occasionally given to Anglophones.",
-"laverne": "A female given name transferred from the surname.",
-"lazarus": "A male given name from Hebrew.",
-"lewis": "A male given name from Frankish.",
-"liam": "A male given name from Irish, currently popular in Ireland, England, Scotland, and the United States.",
-"lila": "A female given name from Sanskrit used in India.",
-"lilly": "A surname. A surname transferred from the given name, based on the given name A surname transferred from the place name, variant of Lilley, from the English place name Lilley.",
-"lina": "A female given name, occasionally used in English.",
-"linda": "A female given name from the Germanic languages.",
-"linus": "A male given name from Latin.",
-"lionel": "A male given name from Latin of mostly British usage.",
-"lisa": "A female given name from Hebrew.",
-"lise": "A diminutive of the female given name Lisa.",
-"liv": "A female given name. From Norwegian, Danish, and Swedish, from Old Norse \"hlíf,\" meaning \"defense, protection; byrnie, shield\" Influenced by the modern Scandinavian word \"liv\" meaning \"life.\"",
-"lon": "A male given name; diminutive form Lonnie.",
-"loretta": "A female given name from Latin, variant of Lauretta, Italian diminutive of Laura; or a form of Loreto.",
-"lorraine": "A female given name transferred from the place name, associated with Laura by folk etymology.",
-"lou": "A unisex given name. A diminutive of the male given name Louis. A diminutive of the female given names Louisa and Louise; often also used as a middle name.",
-"louis": "A male given name from French.",
-"louisa": "A female given name from the Germanic languages, a latinized form of Louise used since the eighteenth century.",
-"lucille": "A female given name from French Lucille [in turn from Latin Lucilla], of 1910s US usage.",
-"lucy": "A female given name from Latin.",
-"ludwig": "A male given name from German.",
-"luis": "A male given name from Spanish.",
-"luka": "A male given name from the Slavic languages, of modern usage.",
-"lukas": "A male given name from Latin, of rare usage, variant of Lucas.",
-"lydia": "A female given name from Ancient Greek.",
-"lynne": "A female given name transferred from the surname, of common usage, variant of Lynn.",
-"mad": "A diminutive of the female given name Madeline (and its variants).",
-"madeleine": "A female given name from French, variant of Madeline.",
-"madonna": "A female given name from Italian.",
-"magdalena": "A female given name, variant of Magdalene.",
-"magnus": "A male given name from Latin of mostly Scottish and Scandinavian usage.",
-"maia": "A female given name. A female given name from Latin, of recent usage. A female given name, variant of Maya.",
-"malcolm": "A male given name from Scottish Gaelic or Goidelic, variant of Calum and Callum, feminine equivalent Malcolmina, equivalent to Scottish Gaelic Maol Chaluim.",
-"manasseh": "A male given name from Hebrew.",
-"manisha": "A female given name from Sanskrit.",
-"manny": "A male given name A diminutive of the male given name Emmanuel. A diminutive of the male given name Manfred.",
-"manu": "A male given name from Sanskrit, commonly used in India.",
-"manuel": "A male given name from Spanish.",
-"marc": "A male given name from French, equivalent to English Mark.",
-"marcel": "A male given name from French.",
-"marco": "A male given name from the Romance languages, equivalent to English Mark. A male given name from Italian. A male given name from Portuguese. A male given name from Spanish.",
-"marcos": "A male given name from Spanish or Portuguese, equivalent to English Mark.",
-"marcus": "A male given name from Latin.",
-"margaret": "A female given name from Ancient Greek.",
-"margot": "A female given name from French.",
-"marguerite": "A female given name from French.",
-"mari": "A female given name from Japanese.",
-"maria": "A female given name from Hebrew.",
-"mariah": "A female given name from Hebrew, variant of Maria used since the nineteenth century. Popularized by singer Mariah Carey in the 1990s",
-"marie": "A female given name from Hebrew.",
-"marietta": "A female given name from Italian, a diminutive of Maria.",
-"marija": "A transliteration of the Macedonian or Serbo-Croatian female given name Марија (Marija), equivalent to Mary",
-"marin": "A male given name from Serbo-Croatian.",
-"marina": "A female given name from Latin.",
-"marion": "A male given name transferred from the surname, or by folk etymology seen as a masculine form of Mary.",
-"marius": "A male given name from Latin.",
-"marjorie": "A female given name from Ancient Greek.",
-"mark": "A male given name from Latin.",
-"marlene": "A female given name from Hebrew borrowed from German in early 20th century.",
-"marsha": "A female given name from Latin, variant of Marcia.",
-"marta": "A female given name, variant of Martha.",
-"martha": "A female given name from Aramaic of biblical origin.",
-"martin": "A male given name from Latin originally given in honor of a fourth century soldier-saint.",
-"martina": "A female given name from Latin.",
-"marvin": "A male given name from Welsh.",
-"mary": "A female given name from Aramaic or Hebrew.",
-"maryam": "A female given name from Arabic.",
-"mateo": "A male given name from Spanish.",
-"matt": "A diminutive of the male given name Matthias.",
-"maurice": "A male given name from Latin, equivalent to English Morris.",
-"max": "A diminutive of the male given names Maximilian and Maxwell.",
-"maya": "A female given name A female given name from Hebrew, of modern usage, variant of Maria, equivalent to English Mary A female given name from Latin, variant of Maia, equivalent to English May A female given name from Greek",
-"megan": "A diminutive of the female given name Margaret, from Welsh.",
-"mehmed": "A male given name from Turkish, variant of Muhammad.",
-"melchior": "A male given name from Hebrew.",
-"melvin": "A male given name transferred from the surname.",
-"meryl": "A female given name from Scottish Gaelic, variant of Muriel.",
-"mia": "A female given name from German, Dutch, Swedish, Norwegian, or Danish.",
-"micah": "A unisex given name originating from the Bible [in turn from Hebrew]. A male given name from Hebrew of Biblical origin. Used since the 17th century. A female given name from Hebrew, of modern American usage.",
-"michael": "A surname transferred from the given name.",
-"michaela": "A female given name from Hebrew.",
-"michel": "A male given name from French, equivalent to English Michael.",
-"michelle": "A female given name from Hebrew, popular from the 1960s to the 1990s.",
-"mick": "A diminutive of the male given name Michael.",
-"miguel": "A middle name from the same sources as the given name.",
-"mika": "A unisex given name. A female given name from Japanese. A unisex given name from Hebrew, variant of Micah.",
-"mike": "A diminutive of the female given name Michaela.",
-"mikel": "A male given name from Basque, equivalent to English Michael.",
-"mikhail": "A transliteration of the Russian male given name Михаи́л (Mixaíl).",
-"milan": "A male given name from the Slavic languages.",
-"miles": "A male given name from an uncertain origin.",
-"millie": "A diminutive of the female given names Mildred, Millicent, Emily, Amelia, and Camilla, also used as a formal given name.",
-"milos": "A male given name of Slavic origin",
-"miriam": "A female given name from Hebrew.",
-"mitch": "A diminutive of the male given name Mitchell.",
-"mo": "A diminutive of the male given names Mohammed, Moses, Maurice, Morris, Moritz, and Mortimer.",
-"mohamed": "A male given name from Arabic, variant of Muhammad.",
-"mohammad": "A male given name from Arabic: alternative spelling of Muhammad.",
-"mohammed": "A male given name from Arabic: alternative spelling of Muhammad.",
-"monica": "A female given name from Latin.",
-"moses": "A surname transferred from the given name.",
-"nadia": "A female given name from Russian used since the twentieth century.",
-"nadine": "A female given name from French, a French diminutive form of Nadia.",
-"naomi": "A female given name from Japanese.",
-"nasir": "A male given name from Arabic.",
-"natalia": "A female given name from Latin, today more common in the French style form Natalie.",
-"natalie": "A female given name from Latin.",
-"natalya": "A female given name from Russian.",
-"nathalie": "A female given name from Latin, of rather rare usage, variant of Natalie.",
-"nathaniel": "A male given name from Hebrew.",
-"nellie": "A diminutive of the female given names Eleanor, Ellen, Helen, and Chanel; popular as a formal given name at the turn of the 20th century.",
-"nelson": "A male given name transferred from the surname.",
-"nicholas": "A male given name from Ancient Greek, notably born by St. Nicholas of Myre, on whom Father Christmas is based.",
-"nick": "A diminutive of the male given name Nicholas.",
-"nicomachus": "A male given name from Ancient Greek.",
-"nikola": "A transliteration of the Bulgarian, Macedonian, or Serbo-Croatian male given name Никола (Nikola), equivalent to Nicholas",
-"nikolai": "A transliteration of the Russian male given name Николай (Nikolaj), equivalent to Nicholas.",
-"nina": "A female given name in continuous use since the 19th century.",
-"noel": "A female given name from French.",
-"norah": "A female given name, a pseudo-Hebrew spelling of Nora, diminutive of Eleonora or Honora.",
-"norma": "A female given name originating as a coinage.",
-"ola": "A female given name used in the U.S. in the end of the nineteenth century.",
-"oleg": "A male given name from the Slavic languages.",
-"oleh": "A transliteration of the Ukrainian male given name Оле́г (Oléh), equivalent to Oleg.",
-"olga": "A female given name from Russian, Ukrainian, or Belarusian.",
-"oliver": "A male given name from the Germanic languages.",
-"olivia": "A female given name from Latin.",
-"olivier": "A male given name from French, equivalent to English Oliver.",
-"omar": "A male given name from Arabic.",
-"ons": "A female given name from Arabic.",
-"orson": "A male given name transferred from the surname.",
-"osama": "A male given name from Arabic.",
-"oscar": "A male given name from Irish or Old English.",
-"otto": "A male given name from the Germanic languages.",
-"pablo": "A male given name from Spanish, equivalent to English Paul.",
-"pamela": "A female given name originating as a coinage.",
-"paolo": "A male given name from Italian, equivalent to English Paul.",
-"pascal": "A surname transferred from the given name. The French mathematician and physicist Blaise Pascal (1623–1662).",
-"pasha": "A transliteration of the Russian or Ukrainian male given name diminutive Па́ша (Páša).",
-"pat": "A diminutive of the female given name Patricia.",
-"patience": "A female given name from English.",
-"patrice": "A female given name from Latin.",
-"patricia": "A female given name from Latin.",
-"patti": "A diminutive of the female given name Patricia; a mid-20th-century spelling of Patty.",
-"paul": "A male given name from Latin of biblical origin.",
-"paula": "A female given name from Latin.",
-"pauline": "A female given name from Latin.",
-"pedro": "A male given name from Spanish or Portuguese, equivalent to English Peter.",
-"penny": "A diminutive of the female given name Penelope.",
-"percy": "A male given name transferred from the surname or from a clipping of Percival, of Middle Ages and later usage.",
-"perry": "A unisex given name. A unisex given name transferred from the surname. A diminutive of the unisex given name Peregrine.",
-"pete": "A diminutive of the male given name Peter.",
-"peter": "A male given name from Ancient Greek.",
-"petra": "A female given name from Ancient Greek.",
-"petro": "A transliteration of the Carpathian Rusyn, Pannonian Rusyn, or Ukrainian male given name Петро (Petro), equivalent to Peter.",
-"phil": "A short form of the female given name Philomena.",
-"philibert": "A male given name from French.",
-"philip": "A male given name from Ancient Greek.",
-"phill": "A diminutive of the male given names Phillip and Phillipp, variant of Phil.",
-"phillis": "A surname transferred from the given name.",
-"phoebe": "A female given name from Ancient Greek.",
-"pierre": "A male given name from French, of occasional usage, equivalent to English Peter.",
-"plato": "A male given name from Ancient Greek. The Greek philosopher, 427–347 BC, follower of Socrates.",
-"posidonius": "A male given name of historical usage, notably borne by Posidonius, an Ancient Greek polymath of the Hellenistic period, best known for his studies of philosophy.",
-"prince": "A male given name from English in occasional use.",
-"priyanka": "A female given name from Hindi.",
-"ptolemy": "A male given name from Ancient Greek of Greek origin, borne by historical persons in ancient Egypt. Claudius Ptolemaeus (c. 90 – c. 168 AD), a Greek-speaking mathematician, geographer, astronomer, and astrologer who lived in the Hellenistic culture of Alexandria in Roman Egypt. His most important works were the Almagest and the Geography Ptolemy I Soter (\"Ptolemy the Savior\", 367 BC—283 BC), a Macedonian general under Alexander the Great who was the ruler of Egypt (323 B.C.E—283 B.C.E) and founder of the Ptolemaic Empire. In 305 BC he took the role of King. The Egyptian ruling dynasty of peoples who held the given name Ptolemy.",
-"pyotr": "A transliteration of the Russian male given name Пётр (Pjotr).",
-"pythagoras": "A male given name from Ancient Greek of mostly historical use, and a transliteration from modern Greek. Pythagoras (c. 570 – c. 495 BC), an Ancient Greek mathematician and philosopher.",
-"quincy": "A male given name transferred from the surname.",
-"rabia": "A female given name from Arabic, meaning spring, meant to symbolize the beginning of life, hope and the advent of happiness after a dark winter. The name of the first female Sufi saint, Rabia El Basri.",
-"rachel": "A female given name from Hebrew.",
-"rafael": "A male given name, variant of Raphael.",
-"rainer": "An English and American surname transferred from the given name.",
-"raj": "A diminutive of the male given name Rajiv.",
-"rashad": "A male given name from Arabic, common in African American communities since the mid-1970s.",
-"ravi": "A male given name used in India.",
-"ray": "A diminutive of the male given names Raymond, Rayane, and Rayan, also used as a formal given name.",
-"raymond": "A male given name from the Germanic languages.",
-"rebecca": "A female given name originating from the Bible [in turn from Hebrew], in regular use since the Reformation.",
-"reggie": "A diminutive of the male given name Reginald.",
-"renee": "A female given name from French.",
-"ricardo": "A male given name from Portuguese or Spanish, equivalent to English Richard.",
-"richard": "A male given name from the Germanic languages.",
-"rick": "A diminutive of the male given name Richard, as well as similar name such as Ricardo.",
-"ricky": "A diminutive of the male given name Richard.",
-"rita": "A female given name from the Romance languages, Italian, or Spanish.",
-"rob": "A surname transferred from the given name, derived from Robert.",
-"robert": "A male given name from the Germanic languages.",
-"roy": "A male given name from Scottish Gaelic.",
-"roza": "A transliteration of the Kazakh, Macedonian, Russian, or Ukrainian female given name Роза (Roza).",
-"rudi": "A diminutive of the male given name Rudolf, from German.",
-"rudolf": "A male given name from Czech or German, equivalent to English Rudolph.",
-"ruslana": "A female given name from Russian or Ukrainian, masculine equivalent Ruslan.",
-"russell": "A male given name transferred from the surname; diminutive form Russ.",
-"ruth": "A female given name from Hebrew.",
-"ryan": "A unisex given name. A male given name. A male given name transferred from the surname, popular in English-speaking countries from the 1970s to the 1990s. A male given name from Arabic رَيَّان (rayyān). Sometimes written and pronounced as Ryan in English due to the phonetic similarity with the Arabic name. A female given name. A female given name transferred from the surname, of 1970s and later usage. A female given name of 1970s and later usage, variant of Rhian.",
-"saad": "A male given name from Arabic.",
-"sabrina": "A female given name from the Celtic languages, in regular but quiet use after the release of the film Sabrina (1954).",
-"said": "A male given name from Arabic.",
-"saleh": "A male given name from Arabic, variant of Salih.",
-"salman": "A male given name from Arabic.",
-"salvador": "A male given name from Spanish or Portuguese.",
-"sam": "A diminutive of the male given names Samuel and Samson.",
-"sameera": "A male given name from Sanskrit, sometimes shortened to Sameer",
-"samuel": "A male given name from Hebrew.",
-"sara": "A female given name from Latin [in turn from Ancient Greek, in turn from Hebrew], variant of Sarah.",
-"sarah": "A female given name from Arabic, ultimately from the same source.",
-"sasha": "A female given name from Russian or Ukrainian.",
-"satyajit": "A male given name from Sanskrit.",
-"saud": "A male given name, notably borne by Saud bin Muhammad Al Muqrin, emir, founder of the House of Saud",
-"scarlett": "A female given name transferred from the surname, of general post-1936 usage.",
-"scottie": "A unisex given name, diminutive of Scott.",
-"selena": "A female given name from Ancient Greek.",
-"serena": "A female given name from Latin.",
-"sergei": "A transliteration of the Russian male given name Серге́й (Sergéj), equivalent to Sergius.",
-"sergey": "A transliteration of the Russian male given name Серге́й (Sergéj).",
-"seth": "A male given name from Hebrew.",
-"seydou": "A male given name from Arabic.",
-"shakira": "A female given name from Arabic, masculine equivalent Shakir.",
-"shane": "A female given name from Irish.",
-"shaquille": "A male given name from Arabic of modern American usage.",
-"sharon": "A female given name from Hebrew derived from the biblical place name.",
-"shaun": "A female given name from Irish.",
-"shawn": "Alternative form of Shaun, a unisex given name.",
-"sheryl": "A female given name originating as a coinage, variant of Cheryl and Shirley.",
-"shirley": "A female given name transferred from the surname, popular from the 1920s to the 1950s.",
-"shoshana": "A female given name from Hebrew.",
-"shota": "A male given name of Georgian origin.",
-"sidney": "A male or female given name transferred from the surname.",
-"sifan": "A female given name from Oromo, (that indicated am for you)",
-"sigrid": "A female given name from the Scandinavian languages, of fairly rare usage.",
-"silvio": "A male given name from Italian, equivalent to English Silvius.",
-"simeon": "A male given name from Hebrew.",
-"simona": "A female given name from Hebrew, variant of Simone.",
-"simone": "A female given name from French.",
-"socrates": "A male given name from Ancient Greek of mostly historical use, known after a Greek philosopher.",
-"sofia": "A female given name, variant of Sophia.",
-"sonia": "A female given name from Russian .",
-"sophocles": "A male given name from Ancient Greek, equivalent to Ancient Greek Σοφοκλῆς (Sophoklês) or Greek Σοφοκλής (Sofoklís).",
-"stacy": "A female given name from Ancient Greek derived from the surname, popular in the 1970s.",
-"stanley": "A male given name transferred from the surname, popular in the early 20th century.",
-"stefani": "A female given name from French, a less common spelling of Stephanie.",
-"steffi": "A diminutive of the female given name Stephanie.",
-"stella": "A female given name from Latin.",
-"stephen": "A male given name from Ancient Greek.",
-"steve": "A diminutive of the male given name Steven and Stephen; also used as a formal male given name.",
-"steven": "A male given name from Ancient Greek, variant of Stephen.",
-"stevie": "A diminutive of the male given names Stephen and Steven.",
-"stevo": "A diminutive of the male given names Steven and Stephen.",
-"susan": "A female given name from Hebrew.",
-"sylvia": "A female given name from Latin, a popular spelling variant of Silvia.",
-"sylvie": "A female given name from French.",
-"takeshi": "A male given name from Japanese.",
-"tam": "A diminutive of the female given name Tamara.",
-"tamara": "A female given name from Hebrew, regularly used in English since the mid-twentieth century.",
-"tammi": "A female given name, a spelling variant of Tammy.",
-"tate": "A male given name from Old English transferred back from the surname.",
-"taylor": "A unisex given name transferred from the surname; variant form Tayler.",
-"ted": "A nickname for the male given names Edward, Theodore, Thaddeus, and Edmund.",
-"tenzin": "A unisex given name from Tibetan.",
-"terence": "A male given name from Latin, popular in the U.K. in the mid-twentieth century.",
-"teresa": "A female given name from Ancient Greek, the Spanish and Italian form of Theresa.",
-"tom": "A diminutive of the male given name Thomas, also used as a formal male given name.",
-"toni": "A diminutive of the female given name Antonia, sometimes used as a formal given name.",
-"tony": "A male given name, a short form of Anthony/Antony",
-"tracy": "A male given name transferred from the surname, of occasional 19th century and later usage.",
-"travis": "A male given name transferred from the surname.",
-"tristan": "A male given name from the Celtic languages.",
-"twyla": "A female given name of modern usage.",
-"tyrese": "A male given name originating as a coinage, of latter 20th-century African-American usage.",
-"udit": "A male given name from Sanskrit used in India.",
-"umar": "A male given name from Arabic.",
-"unity": "A female given name from English.",
-"ursula": "A female given name from Latin.",
-"valentina": "A female given name from Latin, Italian, or Spanish, masculine equivalent Valentine, Valentinus, and Valentino.",
-"vanessa": "A female given name originating as a coinage.",
-"vedran": "A male given name from the Slavic languages.",
-"vera": "A female given name from Russian.",
-"veronica": "A female given name from Ancient Greek.",
-"vicky": "A diminutive of the female given name Victoria, also used as a formal given name.",
-"victor": "A male given name from Latin.",
-"victoria": "A female given name from Latin.",
-"viktor": "A transliteration of the Macedonian or Russian male given name Ви́ктор (Víktor).",
-"vince": "Short form of the male given name Vincent.",
-"vincent": "A male given name from Latin.",
-"viola": "A female given name from Latin.",
-"virgil": "A male given name from Latin.",
-"virginia": "A female given name from Latin.",
-"vitali": "A male given name from Russian.",
-"viviane": "A female given name from French.",
-"vivienne": "A female given name from Latin borrowed from French, a variant of Vivian.",
-"vladimir": "A male given name from Russian, but rare as a name of English-speaking persons.",
-"volodymyr": "A transliteration of the Ukrainian male given name Володи́мир (Volodýmyr), equivalent to Vladimir.",
-"vuk": "A male given name from the Slavic languages.",
-"walt": "A diminutive of the male given name Walter.",
-"walter": "A male given name from the Germanic languages.",
-"wayne": "A male given name transferred from the surname.",
-"wes": "A diminutive of the male given names Wesley and Weston.",
-"whitney": "A female given name transferred from the surname, popular in the 1980s and 1990s due to the fame of Whitney Houston.",
-"wilhelm": "A male given name from German, equivalent to English William.",
-"william": "A male given name from the Germanic languages popular since the Norman Conquest.",
-"williamina": "A female given name from the Germanic languages, a rare feminine form of William, best known in Scotland.",
-"willie": "A diminutive of the female given name Wilhelmina or a feminine diminutive of William, often in the form Willie Mae.",
-"willis": "A male given name transferred from the surname.",
-"wilson": "A male given name transferred from the surname.",
-"winston": "A male given name derived from the place name. Winston Churchill, a famous British prime minister.",
-"wolfgang": "A male given name from German.",
-"yahya": "A male given name from Arabic.",
-"yair": "A male given name from Hebrew.",
-"yan": "A transliteration of the Belarusian, Russian, or Ukrainian male given name Ян (Jan)",
-"yayoi": "A female given name from Japanese.",
-"yelena": "A transliteration of the Bulgarian, Macedonian, or Russian female given name Еле́на (Eléna), equivalent to Helen.",
-"yoko": "A female given name from Japanese.",
-"yulia": "A female given name from Russian, equivalent to English Julia.",
-"yves": "A male given name from French",
-"yvonne": "A female given name from French borrowed from France, in regular use since the twentieth century.",
-"zac": "A diminutive of the male given names Zachariah and Zachary.",
-"zaha": "A female given name from Arabic.",
-"zayd": "A male given name from Arabic.",
-"zayn": "A male given name from Arabic.",
-"zendaya": "A female given name from Shona.",
-"zeno": "A male given name from Ancient Greek.",
-"zion": "A male given name from Hebrew.",
-"zohran": "A unisex given name from Urdu, meaning “radiance, light”. Zohran Mamdani (born 1991), American politician, mayor of New York City since 2026.",
-"zola": "A female given name created from Zoë or from the surname."
+"aaron": {
+"s": "A surname transferred from the given name.",
+"t": "Aaron"
+},
+"abbas": {
+"s": "A male given name from Arabic.",
+"t": "Abbas"
+},
+"abby": {
+"s": "A diminutive of the female given name Abigail, from Hebrew, also used as a formal given name.",
+"t": "Abby"
+},
+"abdi": {
+"s": "A male given name, variant of Abdul.",
+"t": "Abdi"
+},
+"abdulaziz": {
+"s": "An Islamic male given name from Arabic.",
+"t": "Abdulaziz"
+},
+"abdullah": {
+"s": "A male given name from Arabic, feminine equivalent Amatullah; variant forms 'Abd Allah, Abd Allah, Abd' Ulah, Abd-Allah, Abdalah, Abdallah, Abdellah, Abdollah, Abdu'llah, Abdulah, Abdulla, ʻAbd Allāh.",
+"t": "Abdullah"
+},
+"abed": {
+"s": "A male given name from Arabic.",
+"t": "Abed"
+},
+"abel": {
+"s": "A male given name from Hebrew.",
+"t": "Abel"
+},
+"abraham": {
+"s": "A male given name from Hebrew.",
+"t": "Abraham"
+},
+"abram": {
+"s": "A male given name from Hebrew.",
+"t": "Abram"
+},
+"achraf": {
+"s": "A male given name from Arabic.",
+"t": "Achraf"
+},
+"ada": {
+"s": "A female given name from the Germanic languages.",
+"t": "Ada"
+},
+"adela": {
+"s": "A female given name from the Germanic languages.",
+"t": "Adela"
+},
+"adele": {
+"s": "A female given name from the Germanic languages.",
+"t": "Adele"
+},
+"adi": {
+"s": "A diminutive of the female given names Adelaide, Adrienne, and Aditi, or other names beginning with Ad-.",
+"t": "Adi"
+},
+"adonis": {
+"s": "A male given name from Ancient Greek.",
+"t": "Adonis"
+},
+"adrian": {
+"s": "A male given name from Latin or Etruscan.",
+"t": "Adrian"
+},
+"ahmad": {
+"s": "A male given name from Arabic or Persian, meaning “most praiseworthy”; variant forms Aahmed, Achmad, Achmat, Achmed, Achmet, Ahamed, Ahmed, Ahmet.",
+"t": "Ahmad"
+},
+"ahmed": {
+"s": "A male given name from Arabic, variant of Ahmad.",
+"t": "Ahmed"
+},
+"ai": {
+"s": "A female given name from Japanese.",
+"t": "Ai"
+},
+"aimee": {
+"s": "A female given name from French.",
+"t": "Aimee"
+},
+"aisha": {
+"s": "A female given name from Arabic, most famously borne by Muhammad's third wife. Daughter of first caliph Abu Bakr.",
+"t": "Aisha"
+},
+"aishwarya": {
+"s": "A female given name from Sanskrit, of Indian usage.",
+"t": "Aishwarya"
+},
+"akira": {
+"s": "A female given name from Japanese (uncommon)",
+"t": "Akira"
+},
+"alain": {
+"s": "A male given name from French, equivalent to English Alan.",
+"t": "Alain"
+},
+"alan": {
+"s": "A male given name from Hebrew, variant of Elon.",
+"t": "Alan"
+},
+"alanis": {
+"s": "A female given name from the Celtic languages.",
+"t": "Alanis"
+},
+"alba": {
+"s": "A female given name from Spanish alba (“dawn”), of modern usage.",
+"t": "Alba"
+},
+"albert": {
+"s": "A male given name from the Germanic languages.",
+"t": "Albert"
+},
+"alecia": {
+"s": "A female given name from the Germanic languages, one of the modern variants of Alicia.",
+"t": "Alecia"
+},
+"alejandro": {
+"s": "A male given name from Spanish, equivalent to English Alexander.",
+"t": "Alejandro"
+},
+"alek": {
+"s": "A diminutive of the male given name Alexander, from Ancient Greek, variant of Alec.",
+"t": "Alek"
+},
+"alex": {
+"s": "A unisex given name from Ancient Greek.",
+"t": "Alex"
+},
+"alexander": {
+"s": "A male given name from Ancient Greek, most famously held by Alexander the Great.",
+"t": "Alexander"
+},
+"alexei": {
+"s": "A transliteration of the Russian male given name Алексе́й (Alekséj), equivalent to Alexius.",
+"t": "Alexei"
+},
+"alexis": {
+"s": "A female given name from Ancient Greek, transferred from the male name and used since the 1940s.",
+"t": "Alexis"
+},
+"alfred": {
+"s": "A male given name from Old English.",
+"t": "Alfred"
+},
+"alfredo": {
+"s": "A male given name from Italian.",
+"t": "Alfredo"
+},
+"ali": {
+"s": "A diminutive of the female given name Alison or of its variants.",
+"t": "Ali"
+},
+"alia": {
+"s": "A female given name from Arabic.",
+"t": "Alia"
+},
+"alice": {
+"s": "A female given name from the Germanic languages popular in England since the Middle Ages.",
+"t": "Alice"
+},
+"alicia": {
+"s": "A female given name from the Germanic languages.",
+"t": "Alicia"
+},
+"alija": {
+"s": "A transliteration of the Macedonian male given name Алија (Alija).",
+"t": "Alija"
+},
+"alina": {
+"s": "A female given name from the Germanic languages.",
+"t": "Alina"
+},
+"aliona": {
+"s": "A transliteration of the Ukrainian female given name Альо́на (Alʹóna)",
+"t": "Aliona"
+},
+"alisson": {
+"s": "A female given name from the Germanic languages.",
+"t": "Alisson"
+},
+"allan": {
+"s": "A surname transferred from the given name derived from the given name, more often spelled Allen.",
+"t": "Allan"
+},
+"allen": {
+"s": "A male given name from the Celtic languages, a variant of Alan; in modern use often transferred from the surname.",
+"t": "Allen"
+},
+"alok": {
+"s": "A male given name from Sanskrit used in India.",
+"t": "Alok"
+},
+"alonzo": {
+"s": "A male given name from the Germanic languages, variant of Alfonso.",
+"t": "Alonzo"
+},
+"alphonso": {
+"s": "A male given name from Italian or from Spanish [in turn from the Germanic languages], of rare usage, variant of Alfonso.",
+"t": "Alphonso"
+},
+"alvin": {
+"s": "A male given name from Old English.",
+"t": "Alvin"
+},
+"alwin": {
+"s": "A male given name from Old English; always rather rare in English.",
+"t": "Alwin"
+},
+"aly": {
+"s": "A male given name from Arabic, a variant spelling of the Muslim Ali.",
+"t": "Aly"
+},
+"amala": {
+"s": "A female given name used in India.",
+"t": "Amala"
+},
+"amanda": {
+"s": "A female given name from Latin.",
+"t": "Amanda"
+},
+"amelia": {
+"s": "A female given name from the Germanic languages.",
+"t": "Amelia"
+},
+"amin": {
+"s": "A male given name from Arabic.",
+"t": "Amin"
+},
+"amina": {
+"s": "A female given name from Arabic, notably borne by: the mother of the Islamic prophet Muhammad",
+"t": "Amina"
+},
+"amos": {
+"s": "A male given name from Hebrew.",
+"t": "Amos"
+},
+"amy": {
+"s": "A female given name from Latin.",
+"t": "Amy"
+},
+"ana": {
+"s": "A female given name, equivalent to English Anna or Hannah.",
+"t": "Ana"
+},
+"ananda": {
+"s": "A unisex given name from Sanskrit.",
+"t": "Ananda"
+},
+"anatole": {
+"s": "A male given name from Ancient Greek.",
+"t": "Anatole"
+},
+"anders": {
+"s": "A male given name from Danish, Icelandic, Norwegian, or Swedish, equivalent to English Andrew.",
+"t": "Anders"
+},
+"andre": {
+"s": "A male given name from French, an anglicized form of André.",
+"t": "Andre"
+},
+"andrea": {
+"s": "A female given name from Ancient Greek.",
+"t": "Andrea"
+},
+"andrei": {
+"s": "A transliteration of the Russian male given name Андре́й (Andréj), equivalent to Andrew.",
+"t": "Andrei"
+},
+"andrew": {
+"s": "A male given name from Ancient Greek.",
+"t": "Andrew"
+},
+"andriy": {
+"s": "A transliteration of the Ukrainian male given name Андрі́й (Andríj), equivalent to Andrew.",
+"t": "Andriy"
+},
+"andy": {
+"s": "A diminutive of the female given name Andrea, from Ancient Greek.",
+"t": "Andy"
+},
+"angelina": {
+"s": "A female given name from Ancient Greek, an Italian diminutive of Angela.",
+"t": "Angelina"
+},
+"angelique": {
+"s": "A female given name from French anglicized from French Angélique, occasionally used in English since the 20th century.",
+"t": "Angelique"
+},
+"anita": {
+"s": "A female given name from Spanish.",
+"t": "Anita"
+},
+"anna": {
+"s": "A female given name from Latin.",
+"t": "Anna"
+},
+"anne": {
+"s": "A male given name from the Germanic languages, of mainly French and Frisian usage, see Anne Robert Jacques Turgot",
+"t": "Anne"
+},
+"annie": {
+"s": "A diminutive of the female given name Ann. Also, a popular given name in the 19th century.",
+"t": "Annie"
+},
+"anthony": {
+"s": "A male given name from Latin, in regular use since the Middle Ages.",
+"t": "Anthony"
+},
+"antoine": {
+"s": "A male given name from French occasionally borrowed from French, mostly in the U.S.",
+"t": "Antoine"
+},
+"anton": {
+"s": "A male given name from Latin.",
+"t": "Anton"
+},
+"antonio": {
+"s": "A male given name from Italian.",
+"t": "Antonio"
+},
+"anya": {
+"s": "A female given name from Russian or Ukrainian, of modern usage.",
+"t": "Anya"
+},
+"archibald": {
+"s": "A male given name from the Germanic languages.",
+"t": "Archibald"
+},
+"ariana": {
+"s": "A female given name from Ancient Greek.",
+"t": "Ariana"
+},
+"ariel": {
+"s": "A male given name from Hebrew, also ascribed to spirits and angels in English literature.",
+"t": "Ariel"
+},
+"aristippus": {
+"s": "A male given name from Ancient Greek, of historical usage.",
+"t": "Aristippus"
+},
+"aristotle": {
+"s": "A male given name. An ancient Greek philosopher, logician, and scientist (382–322 BCE), student of Plato and teacher of Alexander the Great.",
+"t": "Aristotle"
+},
+"arius": {
+"s": "A transliteration of the Ancient Greek male given name Ἄρειος (Áreios), Arius, notably borne by Arius, circa 250–336, a priest in Alexandria, the founder of Arianism.",
+"t": "Arius"
+},
+"arnold": {
+"s": "A male given name from the Germanic languages brought to England by Normans.",
+"t": "Arnold"
+},
+"aron": {
+"s": "A male given name from Hebrew, a less common spelling of Aaron.",
+"t": "Aron"
+},
+"arthur": {
+"s": "A male given name from the Celtic languages.",
+"t": "Arthur"
+},
+"arundhati": {
+"s": "A female given name from Sanskrit used in India.",
+"t": "Arundhati"
+},
+"ashley": {
+"s": "A female given name transferred from the surname.",
+"t": "Ashley"
+},
+"ashraf": {
+"s": "A male given name from Arabic.",
+"t": "Ashraf"
+},
+"asia": {
+"s": "A female given name transferred from the place name, of modern usage.",
+"t": "Asia"
+},
+"asif": {
+"s": "A male given name from Persian or Urdu.",
+"t": "Asif"
+},
+"audrey": {
+"s": "A female given name from Old English.",
+"t": "Audrey"
+},
+"augustine": {
+"s": "A male given name from Latin, notably borne by Saint Augustine of Hippo (354–430), a church father and a writer.",
+"t": "Augustine"
+},
+"avril": {
+"s": "A female given name from French, equivalent to English April.",
+"t": "Avril"
+},
+"aya": {
+"s": "A female given name from Japanese.",
+"t": "Aya"
+},
+"babe": {
+"s": "A male given name or nickname",
+"t": "Babe"
+},
+"baldwin": {
+"s": "A male given name from the Germanic languages; rather rare in English. Baldwin IV, king of the Latin Kingdom of Jerusalem from 1174 to 1187. Also known as the leper king.",
+"t": "Baldwin"
+},
+"barack": {
+"s": "A male given name from Arabic.",
+"t": "Barack"
+},
+"barbara": {
+"s": "A female given name from Latin.",
+"t": "Barbara"
+},
+"barbie": {
+"s": "A diminutive of the female given name Barbara.",
+"t": "Barbie"
+},
+"bashir": {
+"s": "A male given name from Arabic.",
+"t": "Bashir"
+},
+"batu": {
+"s": "A Mongolian male given name, notably borne by Batu Khan, a Mongol ruler.",
+"t": "Batu"
+},
+"belinda": {
+"s": "A female given name originating as a coinage.",
+"t": "Belinda"
+},
+"bella": {
+"s": "A female given name from Italian.",
+"t": "Bella"
+},
+"benedicta": {
+"s": "A female given name from Latin, a rare feminine form of Benedict.",
+"t": "Benedicta"
+},
+"benjamin": {
+"s": "A patrilineal surname transferred from the given name.",
+"t": "Benjamin"
+},
+"berry": {
+"s": "A male given name transferred from the surname.",
+"t": "Berry"
+},
+"berta": {
+"s": "A female given name, variant of Bertha.",
+"t": "Berta"
+},
+"bette": {
+"s": "Alternative form of Betty (“diminutive of the female given name Elizabeth”).",
+"t": "Bette"
+},
+"beyonce": {
+"s": "A female given name transferred from the surname.",
+"t": "Beyoncé"
+},
+"bianca": {
+"s": "A female given name from Italian.",
+"t": "Bianca"
+},
+"bill": {
+"s": "A diminutive of the male given name William.",
+"t": "Bill"
+},
+"billie": {
+"s": "A male or female given name from the Germanic languages derived from Bill, the diminutive of William.",
+"t": "Billie"
+},
+"billy": {
+"s": "A diminutive of the male given name William.",
+"t": "Billy"
+},
+"blake": {
+"s": "A unisex given name. A male given name transferred from the surname. A female given name transferred from the surname.",
+"t": "Blake"
+},
+"bob": {
+"s": "A diminutive of the male given name Robert.",
+"t": "Bob"
+},
+"boris": {
+"s": "A male given name from the Slavic languages.",
+"t": "Boris"
+},
+"bradley": {
+"s": "A male given name transferred from the surname.",
+"t": "Bradley"
+},
+"brandy": {
+"s": "A female given name from English derived from brandy, an alcoholic liquor. Mostly seen in American usage during the 1970s and 1980s.",
+"t": "Brandy"
+},
+"brice": {
+"s": "A male given name. A male given name from the Celtic languages, a variant of Bryce. A male given name from the Celtic languages transferred from the surname. A male given name from French transferred from the surname.",
+"t": "Brice"
+},
+"britney": {
+"s": "A female given name transferred from the place name, variant of Brittany.",
+"t": "Britney"
+},
+"bruno": {
+"s": "A male given name from the Germanic languages.",
+"t": "Bruno"
+},
+"bryan": {
+"s": "A male given name from Irish, a less common alternative spelling of Brian.",
+"t": "Bryan"
+},
+"cade": {
+"s": "A surname An English metonymic surname originating as an occupation for a cooper. A surname transferred from the given name A surname from French",
+"t": "Cade"
+},
+"cara": {
+"s": "A female given name originating as a coinage.",
+"t": "Cara"
+},
+"carl": {
+"s": "A male given name from the Germanic languages, equivalent to English Charles.",
+"t": "Carl"
+},
+"carla": {
+"s": "A female given name from the Germanic languages.",
+"t": "Carla"
+},
+"carlo": {
+"s": "A male given name from Italian, equivalent to English Charles.",
+"t": "Carlo"
+},
+"carlos": {
+"s": "A male given name from Portuguese or from Spanish [in turn from Latin, in turn from the Germanic languages], equivalent to English Charles, Carl, or Karl.",
+"t": "Carlos"
+},
+"carly": {
+"s": "A female given name from the Germanic languages.",
+"t": "Carly"
+},
+"carol": {
+"s": "A female given name from the Germanic languages, popular in the middle of the 20th century.",
+"t": "Carol"
+},
+"carole": {
+"s": "A female given name from French, variant of Carol",
+"t": "Carole"
+},
+"carolina": {
+"s": "A female given name from Latin, Latinate form of Caroline; rare in English.",
+"t": "Carolina"
+},
+"caroline": {
+"s": "A female given name from the Germanic languages.",
+"t": "Caroline"
+},
+"carrie": {
+"s": "A diminutive of the female given name Caroline, also used as a formal given name.",
+"t": "Carrie"
+},
+"casimir": {
+"s": "A male given name from Polish.",
+"t": "Casimir"
+},
+"cate": {
+"s": "A diminutive of the female given name Catherine.",
+"t": "Cate"
+},
+"catherine": {
+"s": "A female given name from Ancient Greek.",
+"t": "Catherine"
+},
+"cecilia": {
+"s": "A female given name from Latin.",
+"t": "Cecilia"
+},
+"celia": {
+"s": "A female given name from Latin.",
+"t": "Celia"
+},
+"cesar": {
+"s": "A male given name from Spanish.",
+"t": "Cesar"
+},
+"chris": {
+"s": "A diminutive of the male given names Christopher and Christian.",
+"t": "Chris"
+},
+"christian": {
+"s": "A male given name from Ancient Greek found in England since the twelfth century.",
+"t": "Christian"
+},
+"christina": {
+"s": "A female given name from Ancient Greek.",
+"t": "Christina"
+},
+"christine": {
+"s": "A female given name from Ancient Greek.",
+"t": "Christine"
+},
+"christopher": {
+"s": "A male given name from Ancient Greek.",
+"t": "Christopher"
+},
+"clara": {
+"s": "A female given name from Latin.",
+"t": "Clara"
+},
+"clarence": {
+"s": "A male given name transferred from the surname.",
+"t": "Clarence"
+},
+"claribel": {
+"s": "A female given name from Latin.",
+"t": "Claribel"
+},
+"claude": {
+"s": "A male given name from Latin.",
+"t": "Claude"
+},
+"claudia": {
+"s": "A female given name from Latin, masculine equivalent Claudius.",
+"t": "Claudia"
+},
+"clyde": {
+"s": "A male given name transferred from the place name (the River Clyde in Scotland).",
+"t": "Clyde"
+},
+"colin": {
+"s": "A male given name from Old Irish A male given name from Irish A male given name from Scottish Gaelic",
+"t": "Colin"
+},
+"collin": {
+"s": "A diminutive of the male given name Nicholas, from Ancient Greek, variant of Colin.",
+"t": "Collin"
+},
+"collins": {
+"s": "An English surname originating as a patronymic from the given name Colin.",
+"t": "Collins"
+},
+"confucius": {
+"s": "A male given name from Latin.",
+"t": "Confucius"
+},
+"connie": {
+"s": "A diminutive of the male given names Constantine, Conrad, Cornelius or, rarely, of Conway.",
+"t": "Connie"
+},
+"constantine": {
+"s": "A male given name from Latin.",
+"t": "Constantine"
+},
+"corbin": {
+"s": "A male given name transferred from the surname.",
+"t": "Corbin"
+},
+"cornelius": {
+"s": "A male given name from Latin.",
+"t": "Cornelius"
+},
+"craig": {
+"s": "A male given name transferred from the surname.",
+"t": "Craig"
+},
+"curtis": {
+"s": "A male given name transferred from the surname.",
+"t": "Curtis"
+},
+"cyndi": {
+"s": "A diminutive of the female given name Cynthia.",
+"t": "Cyndi"
+},
+"cyril": {
+"s": "A male given name from Ancient Greek; best known for a ninth century missionary to the Slavs.",
+"t": "Cyril"
+},
+"damian": {
+"s": "A male given name from Ancient Greek.",
+"t": "Damian"
+},
+"dan": {
+"s": "A diminutive of the female given name Danielle.",
+"t": "Dan"
+},
+"daniel": {
+"s": "A male given name from Hebrew in regular use since the Middle Ages.",
+"t": "Daniel"
+},
+"darlington": {
+"s": "A male given name transferred from the surname.",
+"t": "Darlington"
+},
+"darwin": {
+"s": "A male given name transferred from the surname, deriving from the Old English name Dēorwine and revived through the surname.",
+"t": "Darwin"
+},
+"david": {
+"s": "A male given name from Hebrew.",
+"t": "David"
+},
+"dean": {
+"s": "A surname A habitational surname from Middle English from Middle English dene “valley”. A surname from Irish A surname from Scottish A surname originating as an occupation A surname transferred from the given name",
+"t": "Dean"
+},
+"debbie": {
+"s": "A diminutive of the female given name Deborah.",
+"t": "Debbie"
+},
+"deepika": {
+"s": "A female given name from Sanskrit.",
+"t": "Deepika"
+},
+"demi": {
+"s": "A female given name, a diminutive of Demetria introduced into English in the 1990s by the actress Demi Moore.",
+"t": "Demi"
+},
+"denis": {
+"s": "A male given name from Ancient Greek, a mostly British and Irish spelling variant of Dennis.",
+"t": "Denis"
+},
+"denise": {
+"s": "A female given name from French, Latin, or Ancient Greek.",
+"t": "Denise"
+},
+"dennis": {
+"s": "A male given name from Ancient Greek.",
+"t": "Dennis"
+},
+"denys": {
+"s": "A male given name from Ancient Greek, an alternative spelling of Denis",
+"t": "Denys"
+},
+"denzel": {
+"s": "A male given name popularized by actor Denzel Washington",
+"t": "Denzel"
+},
+"derek": {
+"s": "A male given name from the Germanic languages.",
+"t": "Derek"
+},
+"derrick": {
+"s": "A male given name from the Germanic languages, variant of Derek.",
+"t": "Derrick"
+},
+"desmond": {
+"s": "A male given name transferred from the surname; popular in Britain in the first half of the twentieth century.",
+"t": "Desmond"
+},
+"devin": {
+"s": "A unisex given name A male given name transferred from the surname, of modern usage A male given name, variant of Devon A female given name.",
+"t": "Devin"
+},
+"diana": {
+"s": "A female given name from Latin.",
+"t": "Diana"
+},
+"diane": {
+"s": "A female given name from Latin, popular in the middle of the 20th century",
+"t": "Diane"
+},
+"diego": {
+"s": "A male given name from Spanish Diego.",
+"t": "Diego"
+},
+"dima": {
+"s": "A transliteration of the Ukrainian male given name diminutive Діма (Dima).",
+"t": "Dima"
+},
+"dimitar": {
+"s": "A male given name from the Slavic languages.",
+"t": "Dimitar"
+},
+"dionne": {
+"s": "A female given name from Ancient Greek, variant of Dione.",
+"t": "Dionne"
+},
+"dirk": {
+"s": "A male given name from German or Dutch, equivalent to English Derek.",
+"t": "Dirk"
+},
+"dolly": {
+"s": "A diminutive of the female given names Dorothy, Dolores, and Doris.",
+"t": "Dolly"
+},
+"dolores": {
+"s": "A female given name from Spanish.",
+"t": "Dolores"
+},
+"dominique": {
+"s": "A female given name from French.",
+"t": "Dominique"
+},
+"donald": {
+"s": "A male given name from Scottish Gaelic.",
+"t": "Donald"
+},
+"donovan": {
+"s": "A male given name transferred from the surname.",
+"t": "Donovan"
+},
+"doris": {
+"s": "A female given name from Ancient Greek, taken to regular use at the end of the 19th century.",
+"t": "Doris"
+},
+"dorothy": {
+"s": "A female given name from Ancient Greek.",
+"t": "Dorothy"
+},
+"dua": {
+"s": "A female given name from Albanian.",
+"t": "Dua"
+},
+"duncan": {
+"s": "A male given name from Scottish Gaelic anglicized from Scottish Gaelic Donnchadh; the name of two early saints and of two kings of Scotland.",
+"t": "Duncan"
+},
+"dwight": {
+"s": "A male given name transferred from the surname.",
+"t": "Dwight"
+},
+"eddie": {
+"s": "A diminutive of Edward, Edgar, Edwin, or other male given names beginning with Ed-.",
+"t": "Eddie"
+},
+"eddy": {
+"s": "A diminutive of Edward, Edgar, Edwin, or other male given names beginning with Ed-.",
+"t": "Eddy"
+},
+"eden": {
+"s": "A female given name from Hebrew from the biblical place name; also a medieval diminutive of Old English compound names beginning with the element ēad (“riches”).",
+"t": "Eden"
+},
+"edgar": {
+"s": "A male given name from Old English.",
+"t": "Edgar"
+},
+"edmund": {
+"s": "A male given name from Old English, borne by early English kings and saints.",
+"t": "Edmund"
+},
+"edson": {
+"s": "A male given name transferred from the surname.",
+"t": "Edson"
+},
+"eduardo": {
+"s": "A male given name from Spanish or Portuguese",
+"t": "Eduardo"
+},
+"edward": {
+"s": "A male given name from Old English.",
+"t": "Edward"
+},
+"edwin": {
+"s": "A male given name from Old English.",
+"t": "Edwin"
+},
+"eileen": {
+"s": "A female given name from Irish.",
+"t": "Eileen"
+},
+"eleanora": {
+"s": "A female given name, variant of Eleanor.",
+"t": "Eleanora"
+},
+"eleni": {
+"s": "A transliteration of the Greek female given name Ελένη (Eléni).",
+"t": "Eleni"
+},
+"elias": {
+"s": "A male given name from Hebrew.",
+"t": "Elias"
+},
+"elie": {
+"s": "A male given name from Hebrew.",
+"t": "Elie"
+},
+"elisabeth": {
+"s": "A female given name from Hebrew, a less common form of Elizabeth in English.",
+"t": "Elisabeth"
+},
+"elisha": {
+"s": "A male given name from Hebrew of biblical origin, in quiet use since the 17th century.",
+"t": "Elisha"
+},
+"elizabeth": {
+"s": "A female given name from Hebrew, popular since the 16th century.",
+"t": "Elizabeth"
+},
+"ella": {
+"s": "A diminutive of the female given names Eleanor, Ellen, Gabriella, and Daniella.",
+"t": "Ella"
+},
+"ellen": {
+"s": "A female given name from Ancient Greek.",
+"t": "Ellen"
+},
+"ellie": {
+"s": "A unisex given name. A diminutive of the female given names Eleanor, Elizabeth, and Elena. A diminutive of the male given names Elliot and Elliott.",
+"t": "Ellie"
+},
+"elliot": {
+"s": "A surname transferred from the given name, a variant of Elliott.",
+"t": "Elliot"
+},
+"elon": {
+"s": "A male given name from Hebrew. A judge in the Old Testament.",
+"t": "Elon"
+},
+"emil": {
+"s": "A male given name from Latin.",
+"t": "Emil"
+},
+"emily": {
+"s": "A female given name from Latin.",
+"t": "Emily"
+},
+"emma": {
+"s": "A female given name from the Germanic languages.",
+"t": "Emma"
+},
+"emmanuel": {
+"s": "A male given name from Hebrew of Biblical origin.",
+"t": "Emmanuel"
+},
+"emmerson": {
+"s": "A male given name transferred from the surname.",
+"t": "Emmerson"
+},
+"emmy": {
+"s": "A diminutive of Emily, Emma, Emmeline or Amelia, also used as a female given name.",
+"t": "Emmy"
+},
+"enya": {
+"s": "A female given name from Irish; the phoneticised form of the Irish Eithne.",
+"t": "Enya"
+},
+"erick": {
+"s": "A male given name from the Germanic languages, a rare spelling variant of Eric that can also be explained as a form of Frederick.",
+"t": "Erick"
+},
+"ernest": {
+"s": "A male given name from the Germanic languages; popular in the 19th century.",
+"t": "Ernest"
+},
+"ernesto": {
+"s": "A male given name from Spanish.",
+"t": "Ernesto"
+},
+"erwin": {
+"s": "A male given name from the Germanic languages, of rare usage, variant of Irwin.",
+"t": "Erwin"
+},
+"esther": {
+"s": "A female given name from Persian.",
+"t": "Esther"
+},
+"eugene": {
+"s": "A male given name from Ancient Greek.",
+"t": "Eugene"
+},
+"eunice": {
+"s": "A female given name from Ancient Greek.",
+"t": "Eunice"
+},
+"eusebius": {
+"s": "A transliteration of the Ancient Greek male given name Εὐσέβιος (Eusébios).",
+"t": "Eusebius"
+},
+"eva": {
+"s": "A female given name from Latin, ultimately from Hebrew.",
+"t": "Eva"
+},
+"fabian": {
+"s": "A male given name from Latin.",
+"t": "Fabian"
+},
+"faith": {
+"s": "A female given name from English.",
+"t": "Faith"
+},
+"francisco": {
+"s": "A surname from Spanish or from Portuguese [in turn transferred from the given name].",
+"t": "Francisco"
+},
+"francois": {
+"s": "A male given name from French, equivalent to English Francis.",
+"t": "François"
+},
+"frank": {
+"s": "A male given name from the Germanic languages.",
+"t": "Frank"
+},
+"frankie": {
+"s": "A diminutive of the surname Frankenstein, used as a given name for a similar monster or mad scientist.",
+"t": "Frankie"
+},
+"franklin": {
+"s": "A male given name transferred from the surname, partly in honor of Benjamin Franklin.",
+"t": "Franklin"
+},
+"franz": {
+"s": "A male given name from Latin, rare in English.",
+"t": "Franz"
+},
+"freddie": {
+"s": "A diminutive of the male given name Frederick.",
+"t": "Freddie"
+},
+"frederick": {
+"s": "A male given name from the Germanic languages.",
+"t": "Frederick"
+},
+"frida": {
+"s": "A female given name from the Germanic languages occasionally used in English.",
+"t": "Frida"
+},
+"friedrich": {
+"s": "A male given name from German, equivalent to English Frederick.",
+"t": "Friedrich"
+},
+"fritz": {
+"s": "A diminutive of the male given name Friedrich.",
+"t": "Fritz"
+},
+"gabriel": {
+"s": "A male given name from Latin [in turn from Ancient Greek, in turn from Hebrew]. An archangel associated in Judaism, Christianity and Islam, with carrying messages from God.",
+"t": "Gabriel"
+},
+"gabriela": {
+"s": "A female given name from Hebrew, a latinate feminine form of Gabriel.",
+"t": "Gabriela"
+},
+"gabriella": {
+"s": "A female given name from Italian [in turn from Hebrew], masculine equivalent Gabriel.",
+"t": "Gabriella"
+},
+"galen": {
+"s": "A male given name from Ancient Greek, of mostly American usage.",
+"t": "Galen"
+},
+"garry": {
+"s": "A male given name transferred from the surname, a mostly British variant of Gary.",
+"t": "Garry"
+},
+"gary": {
+"s": "A male given name from the Germanic languages, popular from the 1940s to the 1970s; variant form Garry.",
+"t": "Gary"
+},
+"george": {
+"s": "A diminutive of the female given names Georgina and Georgia; also used in the conjoined name George Ann(e).",
+"t": "George"
+},
+"georges": {
+"s": "A male given name from French, equivalent to English George.",
+"t": "Georges"
+},
+"georgia": {
+"s": "A female given name from Ancient Greek.",
+"t": "Georgia"
+},
+"geraldine": {
+"s": "A female given name from the Germanic languages.",
+"t": "Geraldine"
+},
+"giannis": {
+"s": "A transliteration of the Greek male given name Γιάννης (Giánnis).",
+"t": "Giannis"
+},
+"gideon": {
+"s": "A male given name from Hebrew, popularized by Puritans.",
+"t": "Gideon"
+},
+"gilles": {
+"s": "A male given name from French.",
+"t": "Gilles"
+},
+"giuseppe": {
+"s": "A male given name from Italian, equivalent to English Joseph.",
+"t": "Giuseppe"
+},
+"glenn": {
+"s": "A male given name transferred from the surname, fairly popular in the middle of the 20th century.",
+"t": "Glenn"
+},
+"gloria": {
+"s": "A female given name from Latin, popular during the first half of the 20th century.",
+"t": "Gloria"
+},
+"godfrey": {
+"s": "A male given name from the Germanic languages.",
+"t": "Godfrey"
+},
+"golda": {
+"s": "A female given name from Yiddish.",
+"t": "Golda"
+},
+"gonzalo": {
+"s": "A male given name from Spanish.",
+"t": "Gonzalo"
+},
+"gordie": {
+"s": "A diminutive of the male given name Gordon.",
+"t": "Gordie"
+},
+"grace": {
+"s": "A female given name from English.",
+"t": "Grace"
+},
+"grant": {
+"s": "A male given name transferred from the surname.",
+"t": "Grant"
+},
+"gregor": {
+"s": "A male given name from Ancient Greek, a Scottish form of Gregory.",
+"t": "Gregor"
+},
+"greta": {
+"s": "A female given name from Ancient Greek.",
+"t": "Greta"
+},
+"guido": {
+"s": "A male given name from Italian, equivalent to English Guy.",
+"t": "Guido"
+},
+"gustav": {
+"s": "A male given name from the Germanic languages.",
+"t": "Gustav"
+},
+"guy": {
+"s": "A male given name from the Germanic languages.",
+"t": "Guy"
+},
+"hakeem": {
+"s": "A male given name from Arabic.",
+"t": "Hakeem"
+},
+"hamad": {
+"s": "A male given name from Arabic.",
+"t": "Hamad"
+},
+"hamid": {
+"s": "A male given name from Arabic used by Muslims.",
+"t": "Hamid"
+},
+"hank": {
+"s": "A diminutive of the male given name Hankin (a medieval form of John).",
+"t": "Hank"
+},
+"hannah": {
+"s": "A place name in the United States, which could be from the given name or surname: An unincorporated community in Douglas County, Georgia. A small town in Mayfield Township, Grand Traverse County, Michigan. A minor city in Cavalier County, North Dakota. An unincorporated community in Florence County, South Carolina.",
+"t": "Hannah"
+},
+"hannibal": {
+"s": "A male given name from Punic of mostly historical use. Most notably borne by the Carthaginian general Hannibal, son of Hamilcar.",
+"t": "Hannibal"
+},
+"hans": {
+"s": "A male given name from German.",
+"t": "Hans"
+},
+"harriet": {
+"s": "A female given name from the Germanic languages.",
+"t": "Harriet"
+},
+"harry": {
+"s": "A male given name. A male given name from the Germanic languages. A male given name from French, originating as an Anglicization of Henri A diminutive of the male given name Henry, Harold.",
+"t": "Harry"
+},
+"harun": {
+"s": "An Arabic male given name from Arabic, equivalent to English Aaron.",
+"t": "Harun"
+},
+"hassan": {
+"s": "A male given name from Arabic.",
+"t": "Hassan"
+},
+"heidi": {
+"s": "A female given name from the Germanic languages.",
+"t": "Heidi"
+},
+"helen": {
+"s": "A female given name from Ancient Greek.",
+"t": "Helen"
+},
+"henny": {
+"s": "A diminutive of the female given name Henrietta.",
+"t": "Henny"
+},
+"henri": {
+"s": "A male given name from French.",
+"t": "Henri"
+},
+"henrietta": {
+"s": "A female given name from the Germanic languages.",
+"t": "Henrietta"
+},
+"henry": {
+"s": "A male given name from the Germanic languages, popular in England since the Middle Ages.",
+"t": "Henry"
+},
+"heraclitus": {
+"s": "A transliteration of the Ancient Greek male given name Ἡράκλειτος (Hērákleitos), notably borne by Heraclitus of Ephesus, a pre-Socratic Ionian philosopher.",
+"t": "Heraclitus"
+},
+"herbie": {
+"s": "A diminutive of the male given name Herbert.",
+"t": "Herbie"
+},
+"hermann": {
+"s": "A male given name from German.",
+"t": "Hermann"
+},
+"hertha": {
+"s": "A female given name from the Germanic languages occasionally borrowed from German around 1900.",
+"t": "Hertha"
+},
+"hilary": {
+"s": "A female given name from Latin.",
+"t": "Hilary"
+},
+"hildegard": {
+"s": "A female given name from German.",
+"t": "Hildegard"
+},
+"hind": {
+"s": "A female given name from Arabic.",
+"t": "Hind"
+},
+"hippocrates": {
+"s": "A transliteration of the Ancient Greek male given name Ἱπποκράτης (Hippokrátēs), notably borne by Hippocrates of Cos, an Ancient Greek physician, circa 5th century BC, sometimes called the \"father of medicine\".",
+"t": "Hippocrates"
+},
+"holden": {
+"s": "A male given name transferred from the surname.",
+"t": "Holden"
+},
+"hugo": {
+"s": "A male given name from the Germanic languages, a Latinized form of Hugh.",
+"t": "Hugo"
+},
+"humphrey": {
+"s": "A male given name from the Germanic languages.",
+"t": "Humphrey"
+},
+"hunter": {
+"s": "A male given name transferred from the surname.",
+"t": "Hunter"
+},
+"husayn": {
+"s": "A male given name from Arabic used by Muslims, diminutive of حسن (“Hasan”) meaning good or handsome.",
+"t": "Husayn"
+},
+"hypatia": {
+"s": "A female given name from Latin [in turn from Ancient Greek].",
+"t": "Hypatia"
+},
+"iamblichus": {
+"s": "A male given name from Koine Greek, of historical usage. Iamblichus (c.&nbsp;245 – c.&nbsp;325), a Syrian Neoplatonist philosopher.",
+"t": "Iamblichus"
+},
+"ibrahim": {
+"s": "A male given name from Arabic",
+"t": "Ibrahim"
+},
+"ida": {
+"s": "A female given name from the Germanic languages.",
+"t": "Ida"
+},
+"idris": {
+"s": "A surname from Arabic [in turn transferred from the given name]",
+"t": "Idris"
+},
+"iggy": {
+"s": "A diminutive of the male given name Ignatius.",
+"t": "Iggy"
+},
+"ignatius": {
+"s": "A male given name from Latin; of mostly Roman Catholic or Eastern Orthodox usage in English. A male given name of historical usage, notably borne by Saint Ignatius of Antioch (died c.&nbsp;108/140 CE) A male given name of historical usage, notably borne by Saint Ignatius of Loyola (1491–1556)",
+"t": "Ignatius"
+},
+"igor": {
+"s": "A male given name from Russian.",
+"t": "Igor"
+},
+"iman": {
+"s": "A unisex given name from Arabic.",
+"t": "Iman"
+},
+"imran": {
+"s": "A male given name from Arabic.",
+"t": "Imran"
+},
+"ingrid": {
+"s": "A female given name from Old Norse.",
+"t": "Ingrid"
+},
+"iris": {
+"s": "A female given name from Ancient Greek; a flower name used since the end of the 19th century.",
+"t": "Iris"
+},
+"isaac": {
+"s": "A male given name from Hebrew.",
+"t": "Isaac"
+},
+"isabel": {
+"s": "A female given name from Hebrew.",
+"t": "Isabel"
+},
+"isaiah": {
+"s": "A male given name from Hebrew.",
+"t": "Isaiah"
+},
+"ishmael": {
+"s": "A male given name from Hebrew.",
+"t": "Ishmael"
+},
+"jakov": {
+"s": "A transliteration of the Carpathian Rusyn or Pannonian Rusyn male given name Яков (Jakov), equivalent to Jacob",
+"t": "Jakov"
+},
+"jamal": {
+"s": "A male given name from Arabic.",
+"t": "Jamal"
+},
+"james": {
+"s": "A male given name from Hebrew popular since the Middle Ages. Also a common middle name.",
+"t": "James"
+},
+"jamie": {
+"s": "A unisex given name. A diminutive of the male given name James, from English and Scottish, also used as a formal given name. A female given name from Hebrew derived from James, of modern American usage. Alternative form of Jaime.",
+"t": "Jamie"
+},
+"jan": {
+"s": "A male given name from Hebrew.",
+"t": "Jan"
+},
+"jane": {
+"s": "A female given name from French, the standard feminine form of John since the 17th century.",
+"t": "Jane"
+},
+"jason": {
+"s": "A male given name from Ancient Greek.",
+"t": "Jason"
+},
+"javier": {
+"s": "A male given name from Spanish.",
+"t": "Javier"
+},
+"jay": {
+"s": "A diminutive of the male given names James, Jacob, Jack, John, and Jason, or for any other name beginning with ⟨J⟩; also used as a formal given name.",
+"t": "Jay"
+},
+"jean": {
+"s": "A female given name from French.",
+"t": "Jean"
+},
+"jennie": {
+"s": "A female given name, variant of Jenny.",
+"t": "Jennie"
+},
+"jennifer": {
+"s": "A female given name from Cornish.",
+"t": "Jennifer"
+},
+"jensen": {
+"s": "A unisex given name transferred from the surname. A male given name transferred from the surname. A female given name transferred from the surname.",
+"t": "Jensen"
+},
+"jerome": {
+"s": "A male given name from Ancient Greek.",
+"t": "Jerome"
+},
+"jerry": {
+"s": "A diminutive of the male given names Gerald, Gerard, Jeremy, Jeremiah, Jared, Jerome, Jermaine, Jerrold, and similar male given names.",
+"t": "Jerry"
+},
+"jessica": {
+"s": "A female given name from Hebrew.",
+"t": "Jessica"
+},
+"jewel": {
+"s": "A female given name from English from the noun jewel, used since the end of the 19th century.",
+"t": "Jewel"
+},
+"jim": {
+"s": "A diminutive of the male given name James.",
+"t": "Jim"
+},
+"jimmy": {
+"s": "A diminutive of the male given names James and Jim, also used as a formal given name.",
+"t": "Jimmy"
+},
+"joan": {
+"s": "A female given name from French, a feminine form of John.",
+"t": "Joan"
+},
+"joanna": {
+"s": "A female given name from Latin [in turn from Hebrew].",
+"t": "Joanna"
+},
+"jocelyn": {
+"s": "A female given name from the Germanic languages.",
+"t": "Jocelyn"
+},
+"joe": {
+"s": "A diminutive of the male given names Joseph, Josiah, Joel, and Josias.",
+"t": "Joe"
+},
+"joel": {
+"s": "A male given name from Hebrew.",
+"t": "Joel"
+},
+"johan": {
+"s": "A female given name from Hebrew.",
+"t": "Johan"
+},
+"johann": {
+"s": "A male given name from German Johann.",
+"t": "Johann"
+},
+"john": {
+"s": "A male given name originating from the Bible [in turn from Hebrew]; very popular since the Middle Ages. Used generically for a man whose actual name may not be known.",
+"t": "John"
+},
+"johnny": {
+"s": "A diminutive of the male given name John.",
+"t": "Johnny"
+},
+"jonathan": {
+"s": "A male given name from Hebrew of biblical origin.",
+"t": "Jonathan"
+},
+"jordana": {
+"s": "A female given name originating as a coinage.",
+"t": "Jordana"
+},
+"jorge": {
+"s": "A male given name from Spanish or Portuguese, equivalent to English George.",
+"t": "Jorge"
+},
+"jose": {
+"s": "A male given name from Spanish, variant of Jose.",
+"t": "José"
+},
+"joseph": {
+"s": "A male given name from Hebrew.",
+"t": "Joseph"
+},
+"joshua": {
+"s": "A surname, transferred from the given name",
+"t": "Joshua"
+},
+"joyce": {
+"s": "A female given name from the Celtic languages, associated by folk etymology with joy and rejoice.",
+"t": "Joyce"
+},
+"juan": {
+"s": "A male given name from Manx or Spanish, equivalent to English John.",
+"t": "Juan"
+},
+"juana": {
+"s": "A female given name from Spanish.",
+"t": "Juana"
+},
+"judy": {
+"s": "A diminutive of the female given name Judith, also used as a formal female given name.",
+"t": "Judy"
+},
+"jules": {
+"s": "A unisex given name A diminutive of the male given names Julian and Julius A diminutive of the female given names Julia, Julie, Juliann, and Julianne",
+"t": "Jules"
+},
+"julia": {
+"s": "A female given name from Latin.",
+"t": "Julia"
+},
+"julian": {
+"s": "A female given name from Latin, of medieval English usage, variant of Gillian.",
+"t": "Julian"
+},
+"juliana": {
+"s": "A female given name from Latin, Latin feminine form of Julianus, derivative of Julius.",
+"t": "Juliana"
+},
+"juliette": {
+"s": "A diminutive of the female given name Julie, from French Juliette.",
+"t": "Juliette"
+},
+"julius": {
+"s": "A male given name from Latin.",
+"t": "Julius"
+},
+"june": {
+"s": "A female given name transferred from the month name [in turn from English], for a girl born in June, used since the end of the 19th century.",
+"t": "June"
+},
+"kacey": {
+"s": "A female given name transferred from the surname.",
+"t": "Kacey"
+},
+"kareem": {
+"s": "A male given name from Arabic, variant of Karim.",
+"t": "Kareem"
+},
+"karim": {
+"s": "A male given name from Arabic.",
+"t": "Karim"
+},
+"karl": {
+"s": "A male given name from the Germanic languages, equivalent to English Charles.",
+"t": "Karl"
+},
+"karla": {
+"s": "A female given name from the Germanic languages, masculine equivalent Karl.",
+"t": "Karla"
+},
+"karolina": {
+"s": "A female given name in many languages.",
+"t": "Karolina"
+},
+"kate": {
+"s": "A diminutive of the female given name Katherine and related names, also used as a formal given name.",
+"t": "Kate"
+},
+"katharine": {
+"s": "A female given name from Ancient Greek.",
+"t": "Katharine"
+},
+"katherine": {
+"s": "A female given name from Ancient Greek, a popular spelling variant of Catherine.",
+"t": "Katherine"
+},
+"katheryn": {
+"s": "A female given name from Ancient Greek, a rare nonstandard spelling variant of Catherine.",
+"t": "Katheryn"
+},
+"katie": {
+"s": "A diminutive of the female given name Catherine or any of its variant spellings.",
+"t": "Katie"
+},
+"kayleigh": {
+"s": "A female given name transferred from the surname, variant of Kaylee.",
+"t": "Kayleigh"
+},
+"keanu": {
+"s": "A male given name from Hawaiian.",
+"t": "Keanu"
+},
+"kei": {
+"s": "A unisex given name from Japanese.",
+"t": "Kei"
+},
+"keith": {
+"s": "A male given name transferred from the surname.",
+"t": "Keith"
+},
+"kelly": {
+"s": "A unisex given name transferred from the surname. A male given name transferred from the surname. A female given name transferred from the surname, popular from the 1960s to the 1990s.",
+"t": "Kelly"
+},
+"kelvin": {
+"s": "A male given name transferred from the surname, of rather rare usage.",
+"t": "Kelvin"
+},
+"kendall": {
+"s": "A female given name transferred from the surname, of modern usage.",
+"t": "Kendall"
+},
+"kenneth": {
+"s": "A male given name from Scottish Gaelic, originally used in Scotland, popular in all English-speaking countries in the 20th century.",
+"t": "Kenneth"
+},
+"kenny": {
+"s": "A diminutive of the male given name Kenneth.",
+"t": "Kenny"
+},
+"kevin": {
+"s": "A male given name from Irish.",
+"t": "Kevin"
+},
+"khalid": {
+"s": "A male given name from Arabic.",
+"t": "Khalid"
+},
+"kim": {
+"s": "A unisex given name. A male given name transferred from the surname. A female given name transferred from the surname, of 1940s and later usage.",
+"t": "Kim"
+},
+"kira": {
+"s": "A female given name from Persian or Irish.",
+"t": "Kira"
+},
+"klaus": {
+"s": "A male given name from Ancient Greek, an alternative spelling of Claus.",
+"t": "Klaus"
+},
+"kristen": {
+"s": "A female given name from Ancient Greek.",
+"t": "Kristen"
+},
+"kumar": {
+"s": "A male given name from Sanskrit.",
+"t": "Kumar"
+},
+"kurt": {
+"s": "A male given name from the Germanic languages borrowed from German, a contracted form of Konrad.",
+"t": "Kurt"
+},
+"kwame": {
+"s": "A male given name from Akan, given to a male child born on a Saturday; variant forms Kwamé, Kouamé, Kwami, Kwamena, Kwamina.",
+"t": "Kwame"
+},
+"kylie": {
+"s": "A female given name originating as a coinage; variant forms Khylie, Kilee, Kileigh, Kiley, Kylee, Kyleigh, Kyley, Kyly.",
+"t": "Kylie"
+},
+"kyriakos": {
+"s": "A transliteration of the Greek male given name Κυριάκος (Kyriákos).",
+"t": "Kyriakos"
+},
+"lamine": {
+"s": "A male given name from Arabic, variant of Amin",
+"t": "Lamine"
+},
+"lana": {
+"s": "A female given name from Russian.",
+"t": "Lana"
+},
+"larisa": {
+"s": "A female given name from Ancient Greek, a less common spelling of Larissa.",
+"t": "Larisa"
+},
+"larry": {
+"s": "A diminutive of the male given name Laurence or Lawrence, popular as a male given name in the U.S. in the 1940s and the 1950s.",
+"t": "Larry"
+},
+"lars": {
+"s": "A male given name from Latin occasionally given to Anglophones.",
+"t": "Lars"
+},
+"laverne": {
+"s": "A female given name transferred from the surname.",
+"t": "Laverne"
+},
+"lazarus": {
+"s": "A male given name from Hebrew.",
+"t": "Lazarus"
+},
+"lewis": {
+"s": "A male given name from Frankish.",
+"t": "Lewis"
+},
+"liam": {
+"s": "A male given name from Irish, currently popular in Ireland, England, Scotland, and the United States.",
+"t": "Liam"
+},
+"lila": {
+"s": "A female given name from Sanskrit used in India.",
+"t": "Lila"
+},
+"lilly": {
+"s": "A surname. A surname transferred from the given name, based on the given name A surname transferred from the place name, variant of Lilley, from the English place name Lilley.",
+"t": "Lilly"
+},
+"lina": {
+"s": "A female given name, occasionally used in English.",
+"t": "Lina"
+},
+"linda": {
+"s": "A female given name from the Germanic languages.",
+"t": "Linda"
+},
+"linus": {
+"s": "A male given name from Latin.",
+"t": "Linus"
+},
+"lionel": {
+"s": "A male given name from Latin of mostly British usage.",
+"t": "Lionel"
+},
+"lisa": {
+"s": "A female given name from Hebrew.",
+"t": "Lisa"
+},
+"lise": {
+"s": "A diminutive of the female given name Lisa.",
+"t": "Lise"
+},
+"liv": {
+"s": "A female given name. From Norwegian, Danish, and Swedish, from Old Norse \"hlíf,\" meaning \"defense, protection; byrnie, shield\" Influenced by the modern Scandinavian word \"liv\" meaning \"life.\"",
+"t": "Liv"
+},
+"lon": {
+"s": "A male given name; diminutive form Lonnie.",
+"t": "Lon"
+},
+"loretta": {
+"s": "A female given name from Latin, variant of Lauretta, Italian diminutive of Laura; or a form of Loreto.",
+"t": "Loretta"
+},
+"lorraine": {
+"s": "A female given name transferred from the place name, associated with Laura by folk etymology.",
+"t": "Lorraine"
+},
+"lou": {
+"s": "A unisex given name. A diminutive of the male given name Louis. A diminutive of the female given names Louisa and Louise; often also used as a middle name.",
+"t": "Lou"
+},
+"louis": {
+"s": "A male given name from French.",
+"t": "Louis"
+},
+"louisa": {
+"s": "A female given name from the Germanic languages, a latinized form of Louise used since the eighteenth century.",
+"t": "Louisa"
+},
+"lucille": {
+"s": "A female given name from French Lucille [in turn from Latin Lucilla], of 1910s US usage.",
+"t": "Lucille"
+},
+"lucy": {
+"s": "A female given name from Latin.",
+"t": "Lucy"
+},
+"ludwig": {
+"s": "A male given name from German.",
+"t": "Ludwig"
+},
+"luis": {
+"s": "A male given name from Spanish.",
+"t": "Luis"
+},
+"luka": {
+"s": "A male given name from the Slavic languages, of modern usage.",
+"t": "Luka"
+},
+"lukas": {
+"s": "A male given name from Latin, of rare usage, variant of Lucas.",
+"t": "Lukas"
+},
+"lydia": {
+"s": "A female given name from Ancient Greek.",
+"t": "Lydia"
+},
+"lynne": {
+"s": "A female given name transferred from the surname, of common usage, variant of Lynn.",
+"t": "Lynne"
+},
+"mad": {
+"s": "A diminutive of the female given name Madeline (and its variants).",
+"t": "Mad"
+},
+"madeleine": {
+"s": "A female given name from French, variant of Madeline.",
+"t": "Madeleine"
+},
+"madonna": {
+"s": "A female given name from Italian.",
+"t": "Madonna"
+},
+"magdalena": {
+"s": "A female given name, variant of Magdalene.",
+"t": "Magdalena"
+},
+"magnus": {
+"s": "A male given name from Latin of mostly Scottish and Scandinavian usage.",
+"t": "Magnus"
+},
+"maia": {
+"s": "A female given name. A female given name from Latin, of recent usage. A female given name, variant of Maya.",
+"t": "Maia"
+},
+"malcolm": {
+"s": "A male given name from Scottish Gaelic or Goidelic, variant of Calum and Callum, feminine equivalent Malcolmina, equivalent to Scottish Gaelic Maol Chaluim.",
+"t": "Malcolm"
+},
+"manasseh": {
+"s": "A male given name from Hebrew.",
+"t": "Manasseh"
+},
+"manisha": {
+"s": "A female given name from Sanskrit.",
+"t": "Manisha"
+},
+"manny": {
+"s": "A male given name A diminutive of the male given name Emmanuel. A diminutive of the male given name Manfred.",
+"t": "Manny"
+},
+"manu": {
+"s": "A male given name from Sanskrit, commonly used in India.",
+"t": "Manu"
+},
+"manuel": {
+"s": "A male given name from Spanish.",
+"t": "Manuel"
+},
+"marc": {
+"s": "A male given name from French, equivalent to English Mark.",
+"t": "Marc"
+},
+"marcel": {
+"s": "A male given name from French.",
+"t": "Marcel"
+},
+"marco": {
+"s": "A male given name from the Romance languages, equivalent to English Mark. A male given name from Italian. A male given name from Portuguese. A male given name from Spanish.",
+"t": "Marco"
+},
+"marcos": {
+"s": "A male given name from Spanish or Portuguese, equivalent to English Mark.",
+"t": "Marcos"
+},
+"marcus": {
+"s": "A male given name from Latin.",
+"t": "Marcus"
+},
+"margaret": {
+"s": "A female given name from Ancient Greek.",
+"t": "Margaret"
+},
+"margot": {
+"s": "A female given name from French.",
+"t": "Margot"
+},
+"marguerite": {
+"s": "A female given name from French.",
+"t": "Marguerite"
+},
+"mari": {
+"s": "A female given name from Japanese.",
+"t": "Mari"
+},
+"maria": {
+"s": "A female given name from Hebrew.",
+"t": "Maria"
+},
+"mariah": {
+"s": "A female given name from Hebrew, variant of Maria used since the nineteenth century. Popularized by singer Mariah Carey in the 1990s",
+"t": "Mariah"
+},
+"marie": {
+"s": "A female given name from Hebrew.",
+"t": "Marie"
+},
+"marietta": {
+"s": "A female given name from Italian, a diminutive of Maria.",
+"t": "Marietta"
+},
+"marija": {
+"s": "A transliteration of the Macedonian or Serbo-Croatian female given name Марија (Marija), equivalent to Mary",
+"t": "Marija"
+},
+"marin": {
+"s": "A male given name from Serbo-Croatian.",
+"t": "Marin"
+},
+"marina": {
+"s": "A female given name from Latin.",
+"t": "Marina"
+},
+"marion": {
+"s": "A male given name transferred from the surname, or by folk etymology seen as a masculine form of Mary.",
+"t": "Marion"
+},
+"marius": {
+"s": "A male given name from Latin.",
+"t": "Marius"
+},
+"marjorie": {
+"s": "A female given name from Ancient Greek.",
+"t": "Marjorie"
+},
+"mark": {
+"s": "A male given name from Latin.",
+"t": "Mark"
+},
+"marlene": {
+"s": "A female given name from Hebrew borrowed from German in early 20th century.",
+"t": "Marlene"
+},
+"marsha": {
+"s": "A female given name from Latin, variant of Marcia.",
+"t": "Marsha"
+},
+"marta": {
+"s": "A female given name, variant of Martha.",
+"t": "Marta"
+},
+"martha": {
+"s": "A female given name from Aramaic of biblical origin.",
+"t": "Martha"
+},
+"martin": {
+"s": "A male given name from Latin originally given in honor of a fourth century soldier-saint.",
+"t": "Martin"
+},
+"martina": {
+"s": "A female given name from Latin.",
+"t": "Martina"
+},
+"marvin": {
+"s": "A male given name from Welsh.",
+"t": "Marvin"
+},
+"mary": {
+"s": "A female given name from Aramaic or Hebrew.",
+"t": "Mary"
+},
+"maryam": {
+"s": "A female given name from Arabic.",
+"t": "Maryam"
+},
+"mateo": {
+"s": "A male given name from Spanish.",
+"t": "Mateo"
+},
+"matt": {
+"s": "A diminutive of the male given name Matthias.",
+"t": "Matt"
+},
+"maurice": {
+"s": "A male given name from Latin, equivalent to English Morris.",
+"t": "Maurice"
+},
+"max": {
+"s": "A diminutive of the male given names Maximilian and Maxwell.",
+"t": "Max"
+},
+"maya": {
+"s": "A female given name A female given name from Hebrew, of modern usage, variant of Maria, equivalent to English Mary A female given name from Latin, variant of Maia, equivalent to English May A female given name from Greek",
+"t": "Maya"
+},
+"megan": {
+"s": "A diminutive of the female given name Margaret, from Welsh.",
+"t": "Megan"
+},
+"mehmed": {
+"s": "A male given name from Turkish, variant of Muhammad.",
+"t": "Mehmed"
+},
+"melchior": {
+"s": "A male given name from Hebrew.",
+"t": "Melchior"
+},
+"melvin": {
+"s": "A male given name transferred from the surname.",
+"t": "Melvin"
+},
+"meryl": {
+"s": "A female given name from Scottish Gaelic, variant of Muriel.",
+"t": "Meryl"
+},
+"mia": {
+"s": "A female given name from German, Dutch, Swedish, Norwegian, or Danish.",
+"t": "Mia"
+},
+"micah": {
+"s": "A unisex given name originating from the Bible [in turn from Hebrew]. A male given name from Hebrew of Biblical origin. Used since the 17th century. A female given name from Hebrew, of modern American usage.",
+"t": "Micah"
+},
+"michael": {
+"s": "A surname transferred from the given name.",
+"t": "Michael"
+},
+"michaela": {
+"s": "A female given name from Hebrew.",
+"t": "Michaela"
+},
+"michel": {
+"s": "A male given name from French, equivalent to English Michael.",
+"t": "Michel"
+},
+"michelle": {
+"s": "A female given name from Hebrew, popular from the 1960s to the 1990s.",
+"t": "Michelle"
+},
+"mick": {
+"s": "A diminutive of the male given name Michael.",
+"t": "Mick"
+},
+"miguel": {
+"s": "A middle name from the same sources as the given name.",
+"t": "Miguel"
+},
+"mika": {
+"s": "A unisex given name. A female given name from Japanese. A unisex given name from Hebrew, variant of Micah.",
+"t": "Mika"
+},
+"mike": {
+"s": "A diminutive of the female given name Michaela.",
+"t": "Mike"
+},
+"mikel": {
+"s": "A male given name from Basque, equivalent to English Michael.",
+"t": "Mikel"
+},
+"mikhail": {
+"s": "A transliteration of the Russian male given name Михаи́л (Mixaíl).",
+"t": "Mikhail"
+},
+"milan": {
+"s": "A male given name from the Slavic languages.",
+"t": "Milan"
+},
+"miles": {
+"s": "A male given name from an uncertain origin.",
+"t": "Miles"
+},
+"millie": {
+"s": "A diminutive of the female given names Mildred, Millicent, Emily, Amelia, and Camilla, also used as a formal given name.",
+"t": "Millie"
+},
+"milos": {
+"s": "A male given name of Slavic origin",
+"t": "Milos"
+},
+"miriam": {
+"s": "A female given name from Hebrew.",
+"t": "Miriam"
+},
+"mitch": {
+"s": "A diminutive of the male given name Mitchell.",
+"t": "Mitch"
+},
+"mo": {
+"s": "A diminutive of the male given names Mohammed, Moses, Maurice, Morris, Moritz, and Mortimer.",
+"t": "Mo"
+},
+"mohamed": {
+"s": "A male given name from Arabic, variant of Muhammad.",
+"t": "Mohamed"
+},
+"mohammad": {
+"s": "A male given name from Arabic: alternative spelling of Muhammad.",
+"t": "Mohammad"
+},
+"mohammed": {
+"s": "A male given name from Arabic: alternative spelling of Muhammad.",
+"t": "Mohammed"
+},
+"monica": {
+"s": "A female given name from Latin.",
+"t": "Monica"
+},
+"moses": {
+"s": "A surname transferred from the given name.",
+"t": "Moses"
+},
+"nadia": {
+"s": "A female given name from Russian used since the twentieth century.",
+"t": "Nadia"
+},
+"nadine": {
+"s": "A female given name from French, a French diminutive form of Nadia.",
+"t": "Nadine"
+},
+"naomi": {
+"s": "A female given name from Japanese.",
+"t": "Naomi"
+},
+"nasir": {
+"s": "A male given name from Arabic.",
+"t": "Nasir"
+},
+"natalia": {
+"s": "A female given name from Latin, today more common in the French style form Natalie.",
+"t": "Natalia"
+},
+"natalie": {
+"s": "A female given name from Latin.",
+"t": "Natalie"
+},
+"natalya": {
+"s": "A female given name from Russian.",
+"t": "Natalya"
+},
+"nathalie": {
+"s": "A female given name from Latin, of rather rare usage, variant of Natalie.",
+"t": "Nathalie"
+},
+"nathaniel": {
+"s": "A male given name from Hebrew.",
+"t": "Nathaniel"
+},
+"nellie": {
+"s": "A diminutive of the female given names Eleanor, Ellen, Helen, and Chanel; popular as a formal given name at the turn of the 20th century.",
+"t": "Nellie"
+},
+"nelson": {
+"s": "A male given name transferred from the surname.",
+"t": "Nelson"
+},
+"nicholas": {
+"s": "A male given name from Ancient Greek, notably born by St. Nicholas of Myre, on whom Father Christmas is based.",
+"t": "Nicholas"
+},
+"nick": {
+"s": "A diminutive of the male given name Nicholas.",
+"t": "Nick"
+},
+"nicomachus": {
+"s": "A male given name from Ancient Greek.",
+"t": "Nicomachus"
+},
+"nikola": {
+"s": "A transliteration of the Bulgarian, Macedonian, or Serbo-Croatian male given name Никола (Nikola), equivalent to Nicholas",
+"t": "Nikola"
+},
+"nikolai": {
+"s": "A transliteration of the Russian male given name Николай (Nikolaj), equivalent to Nicholas.",
+"t": "Nikolai"
+},
+"nina": {
+"s": "A female given name in continuous use since the 19th century.",
+"t": "Nina"
+},
+"noel": {
+"s": "A female given name from French.",
+"t": "Noel"
+},
+"norah": {
+"s": "A female given name, a pseudo-Hebrew spelling of Nora, diminutive of Eleonora or Honora.",
+"t": "Norah"
+},
+"norma": {
+"s": "A female given name originating as a coinage.",
+"t": "Norma"
+},
+"ola": {
+"s": "A female given name used in the U.S. in the end of the nineteenth century.",
+"t": "Ola"
+},
+"oleg": {
+"s": "A male given name from the Slavic languages.",
+"t": "Oleg"
+},
+"oleh": {
+"s": "A transliteration of the Ukrainian male given name Оле́г (Oléh), equivalent to Oleg.",
+"t": "Oleh"
+},
+"olga": {
+"s": "A female given name from Russian, Ukrainian, or Belarusian.",
+"t": "Olga"
+},
+"oliver": {
+"s": "A male given name from the Germanic languages.",
+"t": "Oliver"
+},
+"olivia": {
+"s": "A female given name from Latin.",
+"t": "Olivia"
+},
+"olivier": {
+"s": "A male given name from French, equivalent to English Oliver.",
+"t": "Olivier"
+},
+"omar": {
+"s": "A male given name from Arabic.",
+"t": "Omar"
+},
+"ons": {
+"s": "A female given name from Arabic.",
+"t": "Ons"
+},
+"orson": {
+"s": "A male given name transferred from the surname.",
+"t": "Orson"
+},
+"osama": {
+"s": "A male given name from Arabic.",
+"t": "Osama"
+},
+"oscar": {
+"s": "A male given name from Irish or Old English.",
+"t": "Oscar"
+},
+"otto": {
+"s": "A male given name from the Germanic languages.",
+"t": "Otto"
+},
+"pablo": {
+"s": "A male given name from Spanish, equivalent to English Paul.",
+"t": "Pablo"
+},
+"pamela": {
+"s": "A female given name originating as a coinage.",
+"t": "Pamela"
+},
+"paolo": {
+"s": "A male given name from Italian, equivalent to English Paul.",
+"t": "Paolo"
+},
+"pascal": {
+"s": "A surname transferred from the given name. The French mathematician and physicist Blaise Pascal (1623–1662).",
+"t": "Pascal"
+},
+"pasha": {
+"s": "A transliteration of the Russian or Ukrainian male given name diminutive Па́ша (Páša).",
+"t": "Pasha"
+},
+"pat": {
+"s": "A diminutive of the female given name Patricia.",
+"t": "Pat"
+},
+"patience": {
+"s": "A female given name from English.",
+"t": "Patience"
+},
+"patrice": {
+"s": "A female given name from Latin.",
+"t": "Patrice"
+},
+"patricia": {
+"s": "A female given name from Latin.",
+"t": "Patricia"
+},
+"patti": {
+"s": "A diminutive of the female given name Patricia; a mid-20th-century spelling of Patty.",
+"t": "Patti"
+},
+"paul": {
+"s": "A male given name from Latin of biblical origin.",
+"t": "Paul"
+},
+"paula": {
+"s": "A female given name from Latin.",
+"t": "Paula"
+},
+"pauline": {
+"s": "A female given name from Latin.",
+"t": "Pauline"
+},
+"pedro": {
+"s": "A male given name from Spanish or Portuguese, equivalent to English Peter.",
+"t": "Pedro"
+},
+"penny": {
+"s": "A diminutive of the female given name Penelope.",
+"t": "Penny"
+},
+"percy": {
+"s": "A male given name transferred from the surname or from a clipping of Percival, of Middle Ages and later usage.",
+"t": "Percy"
+},
+"perry": {
+"s": "A unisex given name. A unisex given name transferred from the surname. A diminutive of the unisex given name Peregrine.",
+"t": "Perry"
+},
+"pete": {
+"s": "A diminutive of the male given name Peter.",
+"t": "Pete"
+},
+"peter": {
+"s": "A male given name from Ancient Greek.",
+"t": "Peter"
+},
+"petra": {
+"s": "A female given name from Ancient Greek.",
+"t": "Petra"
+},
+"petro": {
+"s": "A transliteration of the Carpathian Rusyn, Pannonian Rusyn, or Ukrainian male given name Петро (Petro), equivalent to Peter.",
+"t": "Petro"
+},
+"phil": {
+"s": "A short form of the female given name Philomena.",
+"t": "Phil"
+},
+"philibert": {
+"s": "A male given name from French.",
+"t": "Philibert"
+},
+"philip": {
+"s": "A male given name from Ancient Greek.",
+"t": "Philip"
+},
+"phill": {
+"s": "A diminutive of the male given names Phillip and Phillipp, variant of Phil.",
+"t": "Phill"
+},
+"phillis": {
+"s": "A surname transferred from the given name.",
+"t": "Phillis"
+},
+"phoebe": {
+"s": "A female given name from Ancient Greek.",
+"t": "Phoebe"
+},
+"pierre": {
+"s": "A male given name from French, of occasional usage, equivalent to English Peter.",
+"t": "Pierre"
+},
+"plato": {
+"s": "A male given name from Ancient Greek. The Greek philosopher, 427–347 BC, follower of Socrates.",
+"t": "Plato"
+},
+"posidonius": {
+"s": "A male given name of historical usage, notably borne by Posidonius, an Ancient Greek polymath of the Hellenistic period, best known for his studies of philosophy.",
+"t": "Posidonius"
+},
+"prince": {
+"s": "A male given name from English in occasional use.",
+"t": "Prince"
+},
+"priyanka": {
+"s": "A female given name from Hindi.",
+"t": "Priyanka"
+},
+"ptolemy": {
+"s": "A male given name from Ancient Greek of Greek origin, borne by historical persons in ancient Egypt. Claudius Ptolemaeus (c. 90 – c. 168 AD), a Greek-speaking mathematician, geographer, astronomer, and astrologer who lived in the Hellenistic culture of Alexandria in Roman Egypt. His most important works were the Almagest and the Geography Ptolemy I Soter (\"Ptolemy the Savior\", 367 BC—283 BC), a Macedonian general under Alexander the Great who was the ruler of Egypt (323 B.C.E—283 B.C.E) and founder of the Ptolemaic Empire. In 305 BC he took the role of King. The Egyptian ruling dynasty of peoples who held the given name Ptolemy.",
+"t": "Ptolemy"
+},
+"pyotr": {
+"s": "A transliteration of the Russian male given name Пётр (Pjotr).",
+"t": "Pyotr"
+},
+"pythagoras": {
+"s": "A male given name from Ancient Greek of mostly historical use, and a transliteration from modern Greek. Pythagoras (c. 570 – c. 495 BC), an Ancient Greek mathematician and philosopher.",
+"t": "Pythagoras"
+},
+"quincy": {
+"s": "A male given name transferred from the surname.",
+"t": "Quincy"
+},
+"rabia": {
+"s": "A female given name from Arabic, meaning spring, meant to symbolize the beginning of life, hope and the advent of happiness after a dark winter. The name of the first female Sufi saint, Rabia El Basri.",
+"t": "Rabia"
+},
+"rachel": {
+"s": "A female given name from Hebrew.",
+"t": "Rachel"
+},
+"rafael": {
+"s": "A male given name, variant of Raphael.",
+"t": "Rafael"
+},
+"rainer": {
+"s": "An English and American surname transferred from the given name.",
+"t": "Rainer"
+},
+"raj": {
+"s": "A diminutive of the male given name Rajiv.",
+"t": "Raj"
+},
+"rashad": {
+"s": "A male given name from Arabic, common in African American communities since the mid-1970s.",
+"t": "Rashad"
+},
+"ravi": {
+"s": "A male given name used in India.",
+"t": "Ravi"
+},
+"ray": {
+"s": "A diminutive of the male given names Raymond, Rayane, and Rayan, also used as a formal given name.",
+"t": "Ray"
+},
+"raymond": {
+"s": "A male given name from the Germanic languages.",
+"t": "Raymond"
+},
+"rebecca": {
+"s": "A female given name originating from the Bible [in turn from Hebrew], in regular use since the Reformation.",
+"t": "Rebecca"
+},
+"reggie": {
+"s": "A diminutive of the male given name Reginald.",
+"t": "Reggie"
+},
+"renee": {
+"s": "A female given name from French.",
+"t": "Renée"
+},
+"ricardo": {
+"s": "A male given name from Portuguese or Spanish, equivalent to English Richard.",
+"t": "Ricardo"
+},
+"richard": {
+"s": "A male given name from the Germanic languages.",
+"t": "Richard"
+},
+"rick": {
+"s": "A diminutive of the male given name Richard, as well as similar name such as Ricardo.",
+"t": "Rick"
+},
+"ricky": {
+"s": "A diminutive of the male given name Richard.",
+"t": "Ricky"
+},
+"rita": {
+"s": "A female given name from the Romance languages, Italian, or Spanish.",
+"t": "Rita"
+},
+"rob": {
+"s": "A surname transferred from the given name, derived from Robert.",
+"t": "Rob"
+},
+"robert": {
+"s": "A male given name from the Germanic languages.",
+"t": "Robert"
+},
+"roy": {
+"s": "A male given name from Scottish Gaelic.",
+"t": "Roy"
+},
+"roza": {
+"s": "A transliteration of the Kazakh, Macedonian, Russian, or Ukrainian female given name Роза (Roza).",
+"t": "Roza"
+},
+"rudi": {
+"s": "A diminutive of the male given name Rudolf, from German.",
+"t": "Rudi"
+},
+"rudolf": {
+"s": "A male given name from Czech or German, equivalent to English Rudolph.",
+"t": "Rudolf"
+},
+"ruslana": {
+"s": "A female given name from Russian or Ukrainian, masculine equivalent Ruslan.",
+"t": "Ruslana"
+},
+"russell": {
+"s": "A male given name transferred from the surname; diminutive form Russ.",
+"t": "Russell"
+},
+"ruth": {
+"s": "A female given name from Hebrew.",
+"t": "Ruth"
+},
+"ryan": {
+"s": "A unisex given name. A male given name. A male given name transferred from the surname, popular in English-speaking countries from the 1970s to the 1990s. A male given name from Arabic رَيَّان (rayyān). Sometimes written and pronounced as Ryan in English due to the phonetic similarity with the Arabic name. A female given name. A female given name transferred from the surname, of 1970s and later usage. A female given name of 1970s and later usage, variant of Rhian.",
+"t": "Ryan"
+},
+"saad": {
+"s": "A male given name from Arabic.",
+"t": "Saad"
+},
+"sabrina": {
+"s": "A female given name from the Celtic languages, in regular but quiet use after the release of the film Sabrina (1954).",
+"t": "Sabrina"
+},
+"said": {
+"s": "A male given name from Arabic.",
+"t": "Said"
+},
+"saleh": {
+"s": "A male given name from Arabic, variant of Salih.",
+"t": "Saleh"
+},
+"salman": {
+"s": "A male given name from Arabic.",
+"t": "Salman"
+},
+"salvador": {
+"s": "A male given name from Spanish or Portuguese.",
+"t": "Salvador"
+},
+"sam": {
+"s": "A diminutive of the male given names Samuel and Samson.",
+"t": "Sam"
+},
+"sameera": {
+"s": "A male given name from Sanskrit, sometimes shortened to Sameer",
+"t": "Sameera"
+},
+"samuel": {
+"s": "A male given name from Hebrew.",
+"t": "Samuel"
+},
+"sara": {
+"s": "A female given name from Latin [in turn from Ancient Greek, in turn from Hebrew], variant of Sarah.",
+"t": "Sara"
+},
+"sarah": {
+"s": "A female given name from Arabic, ultimately from the same source.",
+"t": "Sarah"
+},
+"sasha": {
+"s": "A female given name from Russian or Ukrainian.",
+"t": "Sasha"
+},
+"satyajit": {
+"s": "A male given name from Sanskrit.",
+"t": "Satyajit"
+},
+"saud": {
+"s": "A male given name, notably borne by Saud bin Muhammad Al Muqrin, emir, founder of the House of Saud",
+"t": "Saud"
+},
+"scarlett": {
+"s": "A female given name transferred from the surname, of general post-1936 usage.",
+"t": "Scarlett"
+},
+"scottie": {
+"s": "A unisex given name, diminutive of Scott.",
+"t": "Scottie"
+},
+"selena": {
+"s": "A female given name from Ancient Greek.",
+"t": "Selena"
+},
+"serena": {
+"s": "A female given name from Latin.",
+"t": "Serena"
+},
+"sergei": {
+"s": "A transliteration of the Russian male given name Серге́й (Sergéj), equivalent to Sergius.",
+"t": "Sergei"
+},
+"sergey": {
+"s": "A transliteration of the Russian male given name Серге́й (Sergéj).",
+"t": "Sergey"
+},
+"seth": {
+"s": "A male given name from Hebrew.",
+"t": "Seth"
+},
+"seydou": {
+"s": "A male given name from Arabic.",
+"t": "Seydou"
+},
+"shakira": {
+"s": "A female given name from Arabic, masculine equivalent Shakir.",
+"t": "Shakira"
+},
+"shane": {
+"s": "A female given name from Irish.",
+"t": "Shane"
+},
+"shaquille": {
+"s": "A male given name from Arabic of modern American usage.",
+"t": "Shaquille"
+},
+"sharon": {
+"s": "A female given name from Hebrew derived from the biblical place name.",
+"t": "Sharon"
+},
+"shaun": {
+"s": "A female given name from Irish.",
+"t": "Shaun"
+},
+"shawn": {
+"s": "Alternative form of Shaun, a unisex given name.",
+"t": "Shawn"
+},
+"sheryl": {
+"s": "A female given name originating as a coinage, variant of Cheryl and Shirley.",
+"t": "Sheryl"
+},
+"shirley": {
+"s": "A female given name transferred from the surname, popular from the 1920s to the 1950s.",
+"t": "Shirley"
+},
+"shoshana": {
+"s": "A female given name from Hebrew.",
+"t": "Shoshana"
+},
+"shota": {
+"s": "A male given name of Georgian origin.",
+"t": "Shota"
+},
+"sidney": {
+"s": "A male or female given name transferred from the surname.",
+"t": "Sidney"
+},
+"sifan": {
+"s": "A female given name from Oromo, (that indicated am for you)",
+"t": "Sifan"
+},
+"sigrid": {
+"s": "A female given name from the Scandinavian languages, of fairly rare usage.",
+"t": "Sigrid"
+},
+"silvio": {
+"s": "A male given name from Italian, equivalent to English Silvius.",
+"t": "Silvio"
+},
+"simeon": {
+"s": "A male given name from Hebrew.",
+"t": "Simeon"
+},
+"simona": {
+"s": "A female given name from Hebrew, variant of Simone.",
+"t": "Simona"
+},
+"simone": {
+"s": "A female given name from French.",
+"t": "Simone"
+},
+"socrates": {
+"s": "A male given name from Ancient Greek of mostly historical use, known after a Greek philosopher.",
+"t": "Socrates"
+},
+"sofia": {
+"s": "A female given name, variant of Sophia.",
+"t": "Sofia"
+},
+"sonia": {
+"s": "A female given name from Russian .",
+"t": "Sonia"
+},
+"sophocles": {
+"s": "A male given name from Ancient Greek, equivalent to Ancient Greek Σοφοκλῆς (Sophoklês) or Greek Σοφοκλής (Sofoklís).",
+"t": "Sophocles"
+},
+"stacy": {
+"s": "A female given name from Ancient Greek derived from the surname, popular in the 1970s.",
+"t": "Stacy"
+},
+"stanley": {
+"s": "A male given name transferred from the surname, popular in the early 20th century.",
+"t": "Stanley"
+},
+"stefani": {
+"s": "A female given name from French, a less common spelling of Stephanie.",
+"t": "Stefani"
+},
+"steffi": {
+"s": "A diminutive of the female given name Stephanie.",
+"t": "Steffi"
+},
+"stella": {
+"s": "A female given name from Latin.",
+"t": "Stella"
+},
+"stephen": {
+"s": "A male given name from Ancient Greek.",
+"t": "Stephen"
+},
+"steve": {
+"s": "A diminutive of the male given name Steven and Stephen; also used as a formal male given name.",
+"t": "Steve"
+},
+"steven": {
+"s": "A male given name from Ancient Greek, variant of Stephen.",
+"t": "Steven"
+},
+"stevie": {
+"s": "A diminutive of the male given names Stephen and Steven.",
+"t": "Stevie"
+},
+"stevo": {
+"s": "A diminutive of the male given names Steven and Stephen.",
+"t": "Stevo"
+},
+"susan": {
+"s": "A female given name from Hebrew.",
+"t": "Susan"
+},
+"sylvia": {
+"s": "A female given name from Latin, a popular spelling variant of Silvia.",
+"t": "Sylvia"
+},
+"sylvie": {
+"s": "A female given name from French.",
+"t": "Sylvie"
+},
+"takeshi": {
+"s": "A male given name from Japanese.",
+"t": "Takeshi"
+},
+"tam": {
+"s": "A diminutive of the female given name Tamara.",
+"t": "Tam"
+},
+"tamara": {
+"s": "A female given name from Hebrew, regularly used in English since the mid-twentieth century.",
+"t": "Tamara"
+},
+"tammi": {
+"s": "A female given name, a spelling variant of Tammy.",
+"t": "Tammi"
+},
+"tate": {
+"s": "A male given name from Old English transferred back from the surname.",
+"t": "Tate"
+},
+"taylor": {
+"s": "A unisex given name transferred from the surname; variant form Tayler.",
+"t": "Taylor"
+},
+"ted": {
+"s": "A nickname for the male given names Edward, Theodore, Thaddeus, and Edmund.",
+"t": "Ted"
+},
+"tenzin": {
+"s": "A unisex given name from Tibetan.",
+"t": "Tenzin"
+},
+"terence": {
+"s": "A male given name from Latin, popular in the U.K. in the mid-twentieth century.",
+"t": "Terence"
+},
+"teresa": {
+"s": "A female given name from Ancient Greek, the Spanish and Italian form of Theresa.",
+"t": "Teresa"
+},
+"tom": {
+"s": "A diminutive of the male given name Thomas, also used as a formal male given name.",
+"t": "Tom"
+},
+"toni": {
+"s": "A diminutive of the female given name Antonia, sometimes used as a formal given name.",
+"t": "Toni"
+},
+"tony": {
+"s": "A male given name, a short form of Anthony/Antony",
+"t": "Tony"
+},
+"tracy": {
+"s": "A male given name transferred from the surname, of occasional 19th century and later usage.",
+"t": "Tracy"
+},
+"travis": {
+"s": "A male given name transferred from the surname.",
+"t": "Travis"
+},
+"tristan": {
+"s": "A male given name from the Celtic languages.",
+"t": "Tristan"
+},
+"twyla": {
+"s": "A female given name of modern usage.",
+"t": "Twyla"
+},
+"tyrese": {
+"s": "A male given name originating as a coinage, of latter 20th-century African-American usage.",
+"t": "Tyrese"
+},
+"udit": {
+"s": "A male given name from Sanskrit used in India.",
+"t": "Udit"
+},
+"umar": {
+"s": "A male given name from Arabic.",
+"t": "Umar"
+},
+"unity": {
+"s": "A female given name from English.",
+"t": "Unity"
+},
+"ursula": {
+"s": "A female given name from Latin.",
+"t": "Ursula"
+},
+"valentina": {
+"s": "A female given name from Latin, Italian, or Spanish, masculine equivalent Valentine, Valentinus, and Valentino.",
+"t": "Valentina"
+},
+"vanessa": {
+"s": "A female given name originating as a coinage.",
+"t": "Vanessa"
+},
+"vedran": {
+"s": "A male given name from the Slavic languages.",
+"t": "Vedran"
+},
+"vera": {
+"s": "A female given name from Russian.",
+"t": "Vera"
+},
+"veronica": {
+"s": "A female given name from Ancient Greek.",
+"t": "Veronica"
+},
+"vicky": {
+"s": "A diminutive of the female given name Victoria, also used as a formal given name.",
+"t": "Vicky"
+},
+"victor": {
+"s": "A male given name from Latin.",
+"t": "Victor"
+},
+"victoria": {
+"s": "A female given name from Latin.",
+"t": "Victoria"
+},
+"viktor": {
+"s": "A transliteration of the Macedonian or Russian male given name Ви́ктор (Víktor).",
+"t": "Viktor"
+},
+"vince": {
+"s": "Short form of the male given name Vincent.",
+"t": "Vince"
+},
+"vincent": {
+"s": "A male given name from Latin.",
+"t": "Vincent"
+},
+"viola": {
+"s": "A female given name from Latin.",
+"t": "Viola"
+},
+"virgil": {
+"s": "A male given name from Latin.",
+"t": "Virgil"
+},
+"virginia": {
+"s": "A female given name from Latin.",
+"t": "Virginia"
+},
+"vitali": {
+"s": "A male given name from Russian.",
+"t": "Vitali"
+},
+"viviane": {
+"s": "A female given name from French.",
+"t": "Viviane"
+},
+"vivienne": {
+"s": "A female given name from Latin borrowed from French, a variant of Vivian.",
+"t": "Vivienne"
+},
+"vladimir": {
+"s": "A male given name from Russian, but rare as a name of English-speaking persons.",
+"t": "Vladimir"
+},
+"volodymyr": {
+"s": "A transliteration of the Ukrainian male given name Володи́мир (Volodýmyr), equivalent to Vladimir.",
+"t": "Volodymyr"
+},
+"vuk": {
+"s": "A male given name from the Slavic languages.",
+"t": "Vuk"
+},
+"walt": {
+"s": "A diminutive of the male given name Walter.",
+"t": "Walt"
+},
+"walter": {
+"s": "A male given name from the Germanic languages.",
+"t": "Walter"
+},
+"wayne": {
+"s": "A male given name transferred from the surname.",
+"t": "Wayne"
+},
+"wes": {
+"s": "A diminutive of the male given names Wesley and Weston.",
+"t": "Wes"
+},
+"whitney": {
+"s": "A female given name transferred from the surname, popular in the 1980s and 1990s due to the fame of Whitney Houston.",
+"t": "Whitney"
+},
+"wilhelm": {
+"s": "A male given name from German, equivalent to English William.",
+"t": "Wilhelm"
+},
+"william": {
+"s": "A male given name from the Germanic languages popular since the Norman Conquest.",
+"t": "William"
+},
+"williamina": {
+"s": "A female given name from the Germanic languages, a rare feminine form of William, best known in Scotland.",
+"t": "Williamina"
+},
+"willie": {
+"s": "A diminutive of the female given name Wilhelmina or a feminine diminutive of William, often in the form Willie Mae.",
+"t": "Willie"
+},
+"willis": {
+"s": "A male given name transferred from the surname.",
+"t": "Willis"
+},
+"wilson": {
+"s": "A male given name transferred from the surname.",
+"t": "Wilson"
+},
+"winston": {
+"s": "A male given name derived from the place name. Winston Churchill, a famous British prime minister.",
+"t": "Winston"
+},
+"wolfgang": {
+"s": "A male given name from German.",
+"t": "Wolfgang"
+},
+"yahya": {
+"s": "A male given name from Arabic.",
+"t": "Yahya"
+},
+"yair": {
+"s": "A male given name from Hebrew.",
+"t": "Yair"
+},
+"yan": {
+"s": "A transliteration of the Belarusian, Russian, or Ukrainian male given name Ян (Jan)",
+"t": "Yan"
+},
+"yayoi": {
+"s": "A female given name from Japanese.",
+"t": "Yayoi"
+},
+"yelena": {
+"s": "A transliteration of the Bulgarian, Macedonian, or Russian female given name Еле́на (Eléna), equivalent to Helen.",
+"t": "Yelena"
+},
+"yoko": {
+"s": "A female given name from Japanese.",
+"t": "Yoko"
+},
+"yulia": {
+"s": "A female given name from Russian, equivalent to English Julia.",
+"t": "Yulia"
+},
+"yves": {
+"s": "A male given name from French",
+"t": "Yves"
+},
+"yvonne": {
+"s": "A female given name from French borrowed from France, in regular use since the twentieth century.",
+"t": "Yvonne"
+},
+"zac": {
+"s": "A diminutive of the male given names Zachariah and Zachary.",
+"t": "Zac"
+},
+"zaha": {
+"s": "A female given name from Arabic.",
+"t": "Zaha"
+},
+"zayd": {
+"s": "A male given name from Arabic.",
+"t": "Zayd"
+},
+"zayn": {
+"s": "A male given name from Arabic.",
+"t": "Zayn"
+},
+"zendaya": {
+"s": "A female given name from Shona.",
+"t": "Zendaya"
+},
+"zeno": {
+"s": "A male given name from Ancient Greek.",
+"t": "Zeno"
+},
+"zion": {
+"s": "A male given name from Hebrew.",
+"t": "Zion"
+},
+"zohran": {
+"s": "A unisex given name from Urdu, meaning “radiance, light”. Zohran Mamdani (born 1991), American politician, mayor of New York City since 2026.",
+"t": "Zohran"
+},
+"zola": {
+"s": "A female given name created from Zoë or from the surname.",
+"t": "Zola"
+}
 };

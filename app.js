@@ -12,6 +12,7 @@ import { HAS_PHOTO } from './photos.js';
 import { ATLAS, ATLAS_SLOT } from './atlas.js';
 import { BABY_NAMES, PET_NAMES, NAME_SOURCES } from './names.js';
 import { NAME_ORIGINS } from './name_origins.js';
+import { WIKI } from './sources.js';
 
 // ---------------------------------------------------------------------------
 // GOOGLE SIGN-IN — one line of setup, and it's this one.
@@ -2972,10 +2973,33 @@ const app = createApp({
     // Wiktionary writes these as a proper-noun sense on the name's own page —
     // "A female given name from Shona" — which is already the sentence the
     // card wants. Keyed by the same fold as the registers above.
-    const nameOrigin = computed(() => {
+    const nameOriginEntry = computed(() => {
       const p = selectedPerson.value;
-      if (!p) return '';
-      return NAME_ORIGINS[foldName(givenName(p.name))] || '';
+      if (!p) return null;
+      return NAME_ORIGINS[foldName(givenName(p.name))] || null;
+    });
+    const nameOrigin = computed(() => (nameOriginEntry.value || {}).s || '');
+    // The page the sentence was taken off, not a guess at how to spell it —
+    // the fetcher stores the title it actually resolved, so this can't land on
+    // a Wiktionary search for a name with an accent in it.
+    const nameOriginLink = computed(() => {
+      const t = (nameOriginEntry.value || {}).t;
+      return t ? 'https://en.wiktionary.org/wiki/' + encodeURIComponent(t) : '';
+    });
+
+    // ---- Where the bio came from ----
+    // Every entry here was written off Wikipedia, and until now the card took
+    // that and said nothing about it. The article was verified at build time
+    // by finding the person's birth year in its opening paragraph, so this is
+    // a link to the right article rather than a search for their name.
+    //
+    // No `noreferrer`. The point of the link is to send readers *and* the
+    // credit that comes with them — strip the referrer and Wikipedia sees the
+    // traffic arrive from nowhere. `noopener` alone is the safety part.
+    const personSource = computed(() => {
+      const p = selectedPerson.value;
+      const t = p && WIKI[p.id];
+      return t ? 'https://en.wikipedia.org/wiki/' + encodeURIComponent(t.replace(/ /g, '_')) : '';
     });
 
     const nameSeries = computed(() => {
@@ -4891,7 +4915,7 @@ const app = createApp({
       pickCountry, flyToCountry, resetGlobeView, randomGlobeView,
       petMode, togglePetMode, nameSource, nameChart, givenName, showNameChart,
       nameOpen, nameSharers,
-      nameOrigin,
+      nameOrigin, nameOriginLink, personSource,
       miniOutline, miniAdmin, miniView, miniFrame, miniMarker,
       miniCities,
       selectedBornMonths, selectedBornDays, selectedZodiacs, ZODIACS,

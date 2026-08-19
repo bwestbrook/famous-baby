@@ -187,6 +187,49 @@ That credit is a condition of using the text, not a courtesy — don't remove it
 
 ---
 
+## Sources on the card
+
+Every bio here was written off Wikipedia and every name origin off Wiktionary,
+and for a long time the card said neither. It now carries a **Sources** line
+under the bio linking to both.
+
+```bash
+python3 fetch_sources.py              # everything not already cached
+python3 fetch_sources.py --limit 25   # a sample, to check the hit rate
+python3 fetch_sources.py --force      # ignore the cache
+```
+
+Writes `sources.js` — entry id to English Wikipedia article title. Answers are
+cached in `sources_cache.json`, misses included. **Rerun it after adding
+people**, or their cards link nowhere.
+
+Matching a name to an article title is usually right and occasionally very
+wrong: names are shared, and some resolve to a band, a ship or a town. So the
+same check `fetch_photos.py` uses applies here — **the birth year has to appear
+in the article's opening paragraph.** A wrong link is worse than no link.
+
+Current run, 2,514 entries:
+
+| | |
+|---|---|
+| Linked, birth year verified | **2,227** |
+| Linked, unverifiable (born pre-1500 or undated) | 154 |
+| Rejected — disambiguation page | 11 |
+| Rejected — no article | 4 |
+| Rejected — intro never names the birth year | ~118 |
+| **Total linked** | **2,439 (97%)** |
+
+The links carry `rel="noopener"` and deliberately **not** `noreferrer`. The
+point of them is to send readers *and* the credit that comes with them; strip
+the referrer and Wikipedia sees the traffic arrive from nowhere. `noopener`
+alone is the safety part.
+
+`name_origins.js` stores the Wiktionary title beside each sentence (`{t, s}`),
+so the credit links to the page actually quoted rather than to a guess at how
+the name is spelled.
+
+---
+
 ## Themes
 
 Top-right of the masthead toggles between two aesthetics, both fully styled:

@@ -148,8 +148,11 @@ def main():
     # tells the reader only what the name already told them. Measured, 51 of
     # 788 read like that, and a row carrying one is worse than no row at all.
     bare = re.compile(r'^A (male|female|unisex) given name\.?$', re.I)
+    # Each entry carries the sentence and the Wiktionary title it came off, so
+    # the card can credit the page it is quoting with a link to it rather than
+    # a guess at the spelling.
     found = {
-        k: v for k, v in sorted(cache.items())
+        k: {'t': names[k], 's': v} for k, v in sorted(cache.items())
         if v and k in names and not bare.match(v.strip())
     }
     with open(os.path.join(ROOT, 'name_origins.js'), 'w', encoding='utf-8') as f:
@@ -157,7 +160,7 @@ def main():
         f.write('//\n')
         f.write('// What each given name in the roster is, from English Wiktionary\n')
         f.write('// (CC BY-SA 4.0). Keyed by the name folded the way app.js folds it:\n')
-        f.write('// NFKD, accents stripped, lower case.\n')
+        f.write('// NFKD, accents stripped, lower case. { t: Wiktionary title, s: sentence }.\n')
         f.write('export const NAME_ORIGINS = ')
         json.dump(found, f, ensure_ascii=False, indent=0, sort_keys=True)
         f.write(';\n')

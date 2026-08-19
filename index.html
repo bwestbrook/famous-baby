@@ -624,6 +624,17 @@
 
           <p class="kcard__bio">{{ selectedPerson.bio }}</p>
 
+          <!-- Where this came from, attached to the paragraph it belongs to
+               rather than filed in a colophon nobody opens. Both links are
+               verified rather than guessed: the article by finding the
+               person's birth year in its opening paragraph, the Wiktionary
+               page by being the one the origin sentence was taken off. -->
+          <p v-if="personSource || nameOriginLink" class="kcard__src">
+            <span class="kcard__src-l">Sources</span>
+            <a v-if="personSource" :href="personSource" target="_blank" rel="noopener">Wikipedia</a>
+            <a v-if="nameOriginLink" :href="nameOriginLink" target="_blank" rel="noopener">Wiktionary</a>
+          </p>
+
           <dl class="kdl">
             <!-- The other zodiac. It sat among the chips until it was the only
                  thing in a row labelled "Search the roster" that did not
@@ -1336,7 +1347,14 @@
                condition of quoting the sentence, not a courtesy. -->
           <p v-if="nameOrigin" class="nsheet__mean">
             {{ nameOrigin }}
-            <span class="nsheet__src">English Wiktionary · CC BY-SA</span>
+            <a
+              v-if="nameOriginLink"
+              class="nsheet__src"
+              :href="nameOriginLink"
+              target="_blank"
+              rel="noopener"
+            >English Wiktionary · CC BY-SA</a>
+            <span v-else class="nsheet__src">English Wiktionary · CC BY-SA</span>
           </p>
           <p v-else class="nsheet__none">No entry for this name yet.</p>
 
