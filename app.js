@@ -27,7 +27,7 @@ import { NAME_ORIGINS } from './name_origins.js';
 //     https://<you>.github.io        ← the live Pages origin
 // No redirect URI is needed: this flow never leaves the page.
 // ---------------------------------------------------------------------------
-const GOOGLE_CLIENT_ID = '';
+const GOOGLE_CLIENT_ID = '384912608477-aa4re8hjbp6nniqa9ds6oft2n777n82b.apps.googleusercontent.com';
 
 // State / province borders, flattened for globe.gl's path layer.
 const ADMIN1_PATHS = Object.entries(ADMIN1_LINES).flatMap(([country, lines]) =>
