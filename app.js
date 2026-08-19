@@ -1608,6 +1608,13 @@ const app = createApp({
     // whole of the contrast this layer trades on is between that and the one
     // tile currently blooming, which comes up to full.
     const MIX_REST = 0.30;
+    // What the rest of the world falls to once a country is picked. Picking
+    // used to only *raise* the chosen country, which left its faces competing
+    // with every other face on the globe at the same time — the answer to
+    // "who is from here" arrived on top of the question. Everything else now
+    // drops to a ghost of the terrain, so the country you asked about is the
+    // only thing on the map still holding pictures.
+    const MIX_MUTED = 0.07;
     const MIX_LIT = 1;
     // ---- Covering a country ----
     // Every country on the roster is laid until its own area is covered, not
@@ -2245,7 +2252,10 @@ const app = createApp({
         return (s && isFinite(s.x) && isFinite(s.y)) ? s : null;
       };
 
-      ctx.globalAlpha = MIX_REST;
+      // One country picked mutes the rest; nothing picked and the whole world
+      // sits at its usual weight.
+      const restMix = selectedCountries.value.length ? MIX_MUTED : MIX_REST;
+      ctx.globalAlpha = restMix;
       for (const t of tiles) {
         t.on = false;
         if (dot(t.v, camDir) < cosH) continue;
@@ -2278,7 +2288,7 @@ const app = createApp({
         const out = age > FLASH_HOLD_MS - FLASH_FADE_MS && !t.selected && t !== hoverTile
           ? (FLASH_HOLD_MS - age) / FLASH_FADE_MS
           : 1;
-        ctx.globalAlpha = MIX_REST + (MIX_LIT - MIX_REST) * Math.max(0, Math.min(1, out));
+        ctx.globalAlpha = restMix + (MIX_LIT - restMix) * Math.max(0, Math.min(1, out));
         blit(ctx, atlasImg, t, e1x, e1y, e2x, e2y, dpr);
       }
 
@@ -2305,6 +2315,10 @@ const app = createApp({
     // ---- The rhythm ----
     let flashCursor = 0;
     function advanceMosaic() {
+      // Nothing surfaces elsewhere while a country is picked. The whole point
+      // of picking one is that it is the only thing lit; a face blooming in
+      // Chile at full strength is the competition all over again.
+      if (selectedCountries.value.length) return;
       let n = 0;
       for (const t of tiles) if (t.on && !t.selected) n++;
       if (!n) return;
