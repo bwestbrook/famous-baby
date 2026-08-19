@@ -1573,7 +1573,15 @@ const app = createApp({
     // you can see what it has been laid on. At 1.35 the tesserae met edge to
     // edge and the globe stopped being a globe — the land had been wallpapered
     // over with photographs rather than rendered in them.
-    const TILE_BLEED = 0.86;
+    // Over one on purpose now. A tessera used to be drawn smaller than its
+    // share of the sphere so the lattice never closed and the map showed
+    // through the gaps — the grout was the space a tile declined to take. The
+    // tiles cut their own edges against each other now, so the gap is the
+    // crack between two stones that do meet, and the nominal size has to reach
+    // far enough for the cutting to bite: 2/√3 is the corner-to-centre
+    // distance of a hexagon whose flat-to-centre distance is half the spacing,
+    // which is exactly the cell the carving leaves behind.
+    const TILE_BLEED = 1.155;
     // Under this many pixels a tessera is a speck, and several hundred specks
     // are a smudge over the map rather than a mosaic on it.
     const MIN_TILE_PX = 5;
@@ -1616,6 +1624,32 @@ const app = createApp({
     // person — a face is re-dealt every few seconds, and a size that followed
     // the face would make the whole mosaic breathe.
     const SIZE_JITTER = 0.20;
+    // ---- Cracked clay ----
+    // A tessera is no longer a square. Each one is cut back against every
+    // neighbour it has — the cut runs along the line between the two, so the
+    // edge one stone gives up is the edge the next one gains and the pair
+    // meet along it exactly. Do that everywhere and the mosaic stops being
+    // tiles laid on a surface and becomes the surface, split: flagstones,
+    // or a dry lake bed.
+    //
+    // Straight cuts, because that is what clay and stone actually do. The
+    // irregularity is in where the cut falls rather than in the line being
+    // wobbly: the dividing line between two stones sits anywhere from a third
+    // to two thirds of the way across rather than always at the midpoint, so
+    // no two cells come out the same size or shape.
+    const CRACK_BIAS = 0.14;        // how far off centre a dividing line may sit
+    // Then both stones step back from every line they share, and the gap they
+    // leave between them is the crack. This is the old grout, moved from the
+    // lattice into the stone.
+    const CRACK_WIDTH = 0.08;       // as a fraction of the tessera's own size
+    // A cell starts as this many sides before the neighbours cut into it. It
+    // only survives where a tessera has no neighbour on some side — an island,
+    // a coast — and there it reads as a stone worn round by water.
+    const CELL_SIDES = 12;
+    // Under this many pixels the difference between a carved cell and a square
+    // is not visible, and the path is not worth building. Small tesserae blit
+    // as they always did.
+    const CARVE_MIN_PX = 7;
     // Not every tile at once. One face blooms somewhere on the globe, holds,
     // and fades; a moment later another does, five tiles further round. A
     // world where everything moves at once reads as noise — a world where one
@@ -1779,6 +1813,50 @@ const app = createApp({
       return best === Infinity ? Infinity : Math.sqrt(best) * RAD;
     }
 
+    // The same walk, but keeping the nearest few edges rather than only the
+    // closest distance — each one becomes a straight cut across the stone.
+    //
+    // A stone used to be *shrunk* until it fitted inside its country, which is
+    // why so few of them touched: pulled in from the coast, they were pulled
+    // away from each other too, and a mosaic of stones that meet nothing has
+    // no cracks in it. So the coast cuts them now, the way the neighbours do.
+    // Several edges rather than one, because one straight cut only fits a
+    // convex shore and would let a stone reach across a bay.
+    // Ten is where the last cell corner stops crossing an outline, measured
+    // over all 1,347 stones and every corner of each. Twelve for margin; the
+    // walk is the same either way, since finding the nearest edges costs what
+    // it costs and only the shortlist changes.
+    const COAST_CUTS = 12;
+    function coastPlanes(lat, lng, country, half) {
+      const k = Math.max(0.05, Math.cos(lat * RAD));
+      const px = lng * k, py = lat;
+      const found = [];
+      for (const p of (ringsByCountry && ringsByCountry.get(country)) || []) {
+        if (lng < p.minX - 6 || lng > p.maxX + 6 || lat < p.minY - 6 || lat > p.maxY + 6) continue;
+        const r = p.ring;
+        for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+          const ax = r[j][0] * k, ay = r[j][1], bx = r[i][0] * k, by = r[i][1];
+          const dx = bx - ax, dy = by - ay;
+          const l2 = dx * dx + dy * dy;
+          let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+          t = t < 0 ? 0 : t > 1 ? 1 : t;
+          const ex = (ax + t * dx) - px, ey = (ay + t * dy) - py;
+          const d = Math.hypot(ex, ey);
+          if (d < 1e-9) continue;
+          found.push({ d, nx: ex / d, ny: ey / d });
+        }
+      }
+      found.sort((a, b) => a.d - b.d);
+      // In the stone's own frame: east is +u, north is −v, and distances are
+      // in units of its radius.
+      const out = [];
+      for (let i = 0; i < found.length && out.length < COAST_CUTS; i++) {
+        const f = found[i];
+        out.push([f.nx, -f.ny, (f.d * RAD) / half]);
+      }
+      return out;
+    }
+
     // ---- The sprite sheet ----
     // Several hundred faces are on screen at once, every frame. As separate
     // elements that is several hundred decodes — an image costs its pixel area
@@ -1845,6 +1923,9 @@ const app = createApp({
         n: vecToLatLng(rotToward(v, north, half)),
         flashAt: -1e9, selected: false,
         on: false, cx: 0, cy: 0, r: 0,
+        // The tessera's own angular size, kept because carveTiles works in
+        // these units, and the cell it carves.
+        half, poly: null,
       };
     }
 
@@ -1865,10 +1946,17 @@ const app = createApp({
       // clamp runs one way only: `desired` is a ceiling, `clear` is a ceiling,
       // and nothing raises either. That is what keeps every tile inside its
       // own country's outline.
+      // A stone is laid at the size the lattice gives it, jittered, and keeps
+      // it. What the coast does is cut the cell, not shrink the stone — see
+      // coastPlanes. All that is asked here is that there be enough room to be
+      // worth laying one at all: below COAST_ROOM of its own radius a stone
+      // would be a shard, and the shoreline is better left as map.
+      const COAST_ROOM = 0.4;
       const cut = (lat, lng, country, desired) => {
+        const half = desired * jitterAt(lat, lng);
+        if (half < TILE_MIN_HALF) return 0;
         const clear = coastClearance(lat, lng, country);
-        const half = Math.min(desired * jitterAt(lat, lng), clear);
-        return half >= TILE_MIN_HALF ? half : 0;
+        return clear >= half * COAST_ROOM ? half : 0;
       };
 
       // ---- The global lattice ----
@@ -1941,14 +2029,127 @@ const app = createApp({
       // ---- Dealing the faces ----
       // Per country and in index order, so neighbouring tesserae hold
       // different people however many the country has.
+      // Two stones on one spot would draw two faces through each other. The
+      // lattice does not produce them, but a country re-laid at a finer step
+      // can land one on a point the global pass already used.
+      const spotsTaken = new Set();
       for (const [country, spots] of laid) {
         const people = byCountry.get(country);
         if (!people || !people.length) continue;
         let k = 0;
         for (const s of spots) {
+          const spotKey = Math.round(s.lat * 100) + ':' + Math.round(s.lng * 100);
+          // Unless it is the country's only one. A shared spot draws two faces
+          // through each other, which is ugly; dropping a country out of the
+          // mosaic to avoid it is worse, and would undo the whole point of
+          // laying every country in the first place.
+          if (spotsTaken.has(spotKey) && k > 0) continue;
+          spotsTaken.add(spotKey);
           const t = makeTile(toVec([s.lat, s.lng]), country, people, k++, s.half);
           if (t && dealFace(t, 0)) tiles.push(t);
         }
+      }
+      // Every stone is laid before any of them is cut: a cell is defined by
+      // its neighbours, so there is nothing to cut against until they all exist.
+      carveTiles();
+    }
+
+    // ---- Carving the cells ----
+    // Sutherland–Hodgman: a convex polygon clipped by a half-plane stays
+    // convex, so a cell cut by each neighbour in turn needs no more machinery
+    // than this. Coordinates are the tile's own frame — the one blit() already
+    // maps to the screen — so a cell carved once at build time follows its
+    // stone round the globe for free, turning and foreshortening with it.
+    function clipHalfPlane(poly, nu, nv, limit) {
+      const out = [];
+      const n = poly.length / 2;
+      for (let i = 0; i < n; i++) {
+        const ax = poly[i * 2], ay = poly[i * 2 + 1];
+        const j = (i + 1) % n;
+        const bx = poly[j * 2], by = poly[j * 2 + 1];
+        const da = ax * nu + ay * nv - limit;
+        const db = bx * nu + by * nv - limit;
+        if (da <= 0) { out.push(ax, ay); }
+        if ((da <= 0) !== (db <= 0)) {
+          const t = da / (da - db);
+          out.push(ax + (bx - ax) * t, ay + (by - ay) * t);
+        }
+      }
+      return out;
+    }
+
+    // Where the dividing line between two stones falls, as a fraction of the
+    // way from this one to that one. Hashed off the midpoint, which both of
+    // them compute identically, and flipped by whichever sorts first — so the
+    // two agree on one line rather than each cutting to its own taste and
+    // leaving a sliver or an overlap between them.
+    function shareLine(aLat, aLng, bLat, bLng) {
+      const h = jitterAt((aLat + bLat) / 2, (aLng + bLng) / 2);
+      const off = ((h - 1) / SIZE_JITTER) * CRACK_BIAS;      // −BIAS … +BIAS
+      const first = aLat !== bLat ? aLat < bLat : aLng < bLng;
+      return 0.5 + (first ? off : -off);
+    }
+
+    function carveTiles() {
+      // Buckets five degrees on a side: every neighbour close enough to cut
+      // into a tessera is within one of the nine around it.
+      const bucket = new Map();
+      const key = (la, lo) => (Math.floor(la / 5) + 40) * 200 + (Math.floor(lo / 5) + 40);
+      for (const t of tiles) {
+        const k = key(t.lat, t.lng);
+        if (!bucket.has(k)) bucket.set(k, []);
+        bucket.get(k).push(t);
+      }
+      for (const t of tiles) {
+        // The cell before anything cuts it: a ring at the tessera's full size.
+        let poly = [];
+        for (let i = 0; i < CELL_SIDES; i++) {
+          const a = (i + 0.5) * 2 * Math.PI / CELL_SIDES;
+          poly.push(Math.cos(a), Math.sin(a));
+        }
+        const kLat = Math.max(0.08, Math.cos(t.lat * RAD));
+        for (let dla = -5; dla <= 5; dla += 5) {
+          for (let dlo = -5; dlo <= 5; dlo += 5) {
+            const near = bucket.get(key(t.lat + dla, t.lng + dlo));
+            if (!near) continue;
+            for (const o of near) {
+              if (o === t) continue;
+              let dLng = o.lng - t.lng;
+              if (dLng > 180) dLng -= 360; else if (dLng < -180) dLng += 360;
+              // The neighbour's offset in this tile's own units: east and
+              // south, divided by the tile's own half-size.
+              const nu = (dLng * kLat * RAD) / t.half;
+              const nv = -((o.lat - t.lat) * RAD) / t.half;
+              const d2 = nu * nu + nv * nv;
+              // Too far to reach this cell even at full stretch, or sitting on
+              // top of it, which the lattice should never produce.
+              if (d2 > 16 || d2 < 1e-9) continue;
+              const share = shareLine(t.lat, t.lng, o.lat, o.lng);
+              poly = clipHalfPlane(poly, nu, nv, d2 * share);
+              if (poly.length < 6) break;
+            }
+          }
+        }
+        // And the shore, which cuts a stone exactly as a neighbour does.
+        for (const [nu, nv, limit] of coastPlanes(t.lat, t.lng, t.country, t.half)) {
+          if (limit >= 1) continue;                   // the coast is out of reach
+          poly = clipHalfPlane(poly, nu, nv, limit);
+          if (poly.length < 6) break;
+        }
+        if (poly.length < 6) { t.poly = null; continue; }
+        // Step back from every edge by half a crack, so the gap between two
+        // stones is one crack wide rather than two.
+        let cx = 0, cy = 0;
+        const n = poly.length / 2;
+        for (let i = 0; i < n; i++) { cx += poly[i * 2]; cy += poly[i * 2 + 1]; }
+        cx /= n; cy /= n;
+        const k = 1 - CRACK_WIDTH;
+        const out = new Float32Array(poly.length);
+        for (let i = 0; i < n; i++) {
+          out[i * 2] = cx + (poly[i * 2] - cx) * k;
+          out[i * 2 + 1] = cy + (poly[i * 2 + 1] - cy) * k;
+        }
+        t.poly = out;
       }
     }
 
@@ -1978,6 +2179,21 @@ const app = createApp({
     // toward the rim — instead of sitting on the glass in front of it.
     function blit(ctx, img, t, e1x, e1y, e2x, e2y, dpr) {
       ctx.setTransform(e1x * dpr, e1y * dpr, e2x * dpr, e2y * dpr, t.cx * dpr, t.cy * dpr);
+      // The cell is in the same units the transform above already maps, so the
+      // path costs nothing to place — it turns and foreshortens with the stone.
+      // Below CARVE_MIN_PX the shape cannot be seen and the path is skipped.
+      const poly = t.poly;
+      if (poly && t.r >= CARVE_MIN_PX) {
+        ctx.beginPath();
+        ctx.moveTo(poly[0], poly[1]);
+        for (let i = 2; i < poly.length; i += 2) ctx.lineTo(poly[i], poly[i + 1]);
+        ctx.closePath();
+        ctx.save();
+        ctx.clip();
+        ctx.drawImage(img, t.sx, t.sy, ATLAS.cell, ATLAS.cell, -1, -1, 2, 2);
+        ctx.restore();
+        return;
+      }
       ctx.drawImage(img, t.sx, t.sy, ATLAS.cell, ATLAS.cell, -1, -1, 2, 2);
     }
 
