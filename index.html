@@ -432,17 +432,19 @@
                 >
                   <svg class="ico ico--12"><use href="#i-trend"/></svg>Popularity
                 </button>
-                <!-- The name on its own terms: what it means, its whole run,
-                     and everyone else here who answers to it. Sits with the
-                     signs because it is the same kind of fact — something they
-                     were born with rather than something they did. -->
+                <!-- The name on its own terms: where it comes from, its whole
+                     run, and everyone else here who answers to it. Sits with
+                     the signs because it is the same kind of fact — something
+                     they were born with rather than something they did. It is
+                     the only way to the name's origin now that the detail list
+                     below no longer carries it. -->
                 <button
                   v-if="nameOrigin || nameChart"
                   class="pop__sign pop__sign--mean"
                   @click="nameOpen = true"
-                  :title="'What ' + givenName(selectedPerson.name) + ' means, and who else carries it'"
+                  :title="'Where ' + givenName(selectedPerson.name) + ' comes from, and who else carries it'"
                 >
-                  <svg class="ico ico--12"><use href="#i-book"/></svg>Meaning
+                  <svg class="ico ico--12"><use href="#i-book"/></svg>Origin
                 </button>
                 <!-- Sits with the signs because it's the same kind of fact: a
                      thing they were born as, and a way into everyone else who
@@ -586,21 +588,12 @@
           <p class="kcard__bio">{{ selectedPerson.bio }}</p>
 
           <dl class="kdl">
-            <!-- The name itself leads. This is a naming almanac: what the name
-                 *is* outranks anything the person went on to do with it, and
-                 it is the one row that belongs to the reader rather than to
-                 the subject. Keyed by the given name so there is no mistaking
-                 it for a fact about where the person is from.
-
-                 Wiktionary is CC BY-SA, so the credit is a condition of using
-                 the sentence, not a courtesy. -->
-            <template v-if="nameOrigin">
-              <dt>{{ givenName(selectedPerson.name) }}</dt>
-              <dd class="kdl__origin">
-                {{ nameOrigin }}
-                <span class="kdl__src">English Wiktionary · CC BY-SA</span>
-              </dd>
-            </template>
+            <!-- The name's own story used to lead this list. It reads better
+                 as one thing behind the Origin button with the chart beside
+                 it than as a paragraph wedged among rows of tags, so this list
+                 is back to being facts about the person. The Wiktionary credit
+                 travels with the sentence into that sheet, which is where the
+                 CC BY-SA condition is met now. -->
             <template v-if="selectedPerson.teams && selectedPerson.teams.length">
               <dt>Teams</dt>
               <dd><button
