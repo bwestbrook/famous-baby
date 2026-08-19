@@ -1190,7 +1190,11 @@ const app = createApp({
     // that the outline isn't touching the edges. Filling the screen by
     // overflowing it was worse — close enough to read the grain of a
     // photograph, and the country stopped being a shape you could recognise.
-    const FRAME_PAD = 1.06;
+    // How much room to leave around whatever is being framed. At 1.06 a country
+    // arrived filling the frame edge to edge, with nothing of its neighbours
+    // and no sense of where on the world it was — clicking a name landed you
+    // inside the place instead of taking you to it.
+    const FRAME_PAD = 1.35;
 
     function frameCountries(countries) {
       if (!globeInstance) return;
@@ -1387,7 +1391,12 @@ const app = createApp({
     // fills the canvas — near enough that a continent reads as a place rather
     // than as a curve. The sphere overflows the edges at this range, which is
     // the point: there was never meant to be sky in the corners.
-    const OPENING_ZOOM = 0.75;
+    // 1.0 is the distance at which the silhouette just covers the canvas,
+    // corners included. It used to open a quarter nearer than that, which put
+    // you close enough that the globe read as terrain rather than as a globe —
+    // and since resetGlobeView comes back to this altitude too, every way out
+    // of a country landed just as close.
+    const OPENING_ZOOM = 1.0;
     function openingAltitude() { return Math.max(0.05, fillAltitude() * OPENING_ZOOM); }
 
     function resetGlobeView() {
@@ -1655,7 +1664,7 @@ const app = createApp({
     // and fades; a moment later another does, five tiles further round. A
     // world where everything moves at once reads as noise — a world where one
     // thing catches your eye reads as a place with people in it.
-    const FLASH_EVERY_MS = 1500;     // how often a face blooms
+    const FLASH_EVERY_MS = 900;      // how often a face blooms
     const FLASH_HOLD_MS = 4200;      // how long it holds before it has gone
     const FLASH_FADE_MS = 900;       // and how long it takes to go
     const FLASH_STRIDE = 5;          // every fifth tile in view
@@ -1952,7 +1961,14 @@ const app = createApp({
       // coastPlanes. All that is asked here is that there be enough room to be
       // worth laying one at all: below COAST_ROOM of its own radius a stone
       // would be a shard, and the shoreline is better left as map.
-      const COAST_ROOM = 0.4;
+      //
+      // Down from 0.4. This is only a threshold on *laying* a stone — the
+      // coast cuts whatever is laid — so at 0.4 the shoreline was being kept
+      // clear of stones that would have been perfectly legible once trimmed,
+      // and every coast read as a bald strip a stone's width inland. Lower is
+      // simply more mosaic reaching the water's edge, not more of it in the
+      // water.
+      const COAST_ROOM = 0.2;
       const cut = (lat, lng, country, desired) => {
         const half = desired * jitterAt(lat, lng);
         if (half < TILE_MIN_HALF) return 0;
@@ -2744,8 +2760,12 @@ const app = createApp({
     // across the next country before it had slowed down. Braking is nearly
     // three times as sharp as accelerating, which is also how it reads: the
     // globe drifts up to speed over an empty ocean and catches itself on land.
-    const SPIN_EASE_UP = 0.045;
-    const SPIN_EASE_DOWN = 0.12;
+    // Softened, both ways. These are the fraction of the remaining gap closed
+    // each frame between the land speed and the ocean one, and at 0.045/0.12
+    // the globe visibly lurched as a coast went by — it read as a stutter in
+    // the animation rather than as the world easing on once the faces ran out.
+    const SPIN_EASE_UP = 0.020;
+    const SPIN_EASE_DOWN = 0.045;
     // What slows the globe down is something to look at, not land as such. The
     // first version asked the coastline, and the coastline is a poor judge:
     // one rock in the middle of the Pacific put the brakes on for a landmass
