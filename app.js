@@ -2441,6 +2441,11 @@ const app = createApp({
       if (!pos) return;
       const dist = Math.hypot(pos.x, pos.y, pos.z);
       if (!(dist > GLOBE_R)) return;
+      // Whatever is under the middle of the screen decides how fast the globe
+      // turns. Ahead of the early return below, so the speed keeps easing on a
+      // frame where nothing needs redrawing.
+      const centre = camLatLng(pos);
+      updateSpinRate(centre[0], centre[1]);
       // The globe turns on its own, so the camera is almost never still — but
       // when it is, and nothing has bloomed or been pointed at, the last frame
       // is still the right one.
@@ -2450,7 +2455,7 @@ const app = createApp({
       if (key === lastCamKey && !mosaicDirty && !fading) return;
       lastCamKey = key;
       mosaicDirty = false;
-      const camDir = toVec(camLatLng(pos));
+      const camDir = toVec(centre);
       const horizonAngle = Math.acos(Math.max(-1, Math.min(1, GLOBE_R / dist)));
       drawMosaic(camDir, horizonAngle);
     }
@@ -2719,6 +2724,33 @@ const app = createApp({
     // at that speed a country you had just flown to had visibly drifted by the
     // time you finished reading the card next to it.
     const SPIN_SPEED = 0.14;
+    // ---- Faster over water ----
+    // Everything this site is about is on the land. The Pacific is most of a
+    // hemisphere with nothing on it, and at one speed it is most of a
+    // hemisphere of waiting. So the globe hurries across the empty stretches
+    // and slows again when a coast comes under the middle of the screen.
+    //
+    // It eases rather than switches: a coastline should read as the globe
+    // slowing down to look at something, not as a gear change. Measured, this
+    // rate takes 51 frames — a little under a second — to get nine tenths of
+    // the way up to ocean speed, and the same to settle back on a coast.
+    const OCEAN_SPIN = 3;
+    const SPIN_EASE = 0.045;
+    let spinRate = 1;
+    function updateSpinRate(lat, lng) {
+      // landIndex is what says where the water is, and it does not exist until
+      // the mosaic has been built. Before that, one speed.
+      if (!globeInstance || !landIndex) return;
+      let c;
+      try { c = globeInstance.controls(); } catch { return; }
+      // Nothing to modulate while the globe is being held, or parked behind an
+      // open card — setGlobeSpin owns the speed then.
+      if (!c || !('autoRotate' in c) || !c.autoRotate) { spinRate = 1; return; }
+      const target = countryAt(lng, lat) ? 1 : OCEAN_SPIN;
+      spinRate += (target - spinRate) * SPIN_EASE;
+      c.autoRotateSpeed = SPIN_SPEED * spinRate;
+    }
+
     // Stop and start the idle spin. Through a helper because the controls
     // object is rebuilt every time the globe is, so only one place should have
     // to know how this build spells it.
