@@ -416,82 +416,6 @@
               </div>
               <!-- Line two: when they were born, under what sign, and the way in
                    to a question about them. -->
-              <div class="pop__line pop__line--sub">
-                <button
-                  class="pop__date"
-                  :disabled="!selectedPerson.birthMonth"
-                  @click="filterBirthday(selectedPerson)"
-                  :title="selectedPerson.birthMonth ? 'Show everyone born ' + MONTH_NAMES[selectedPerson.birthMonth] + (selectedPerson.birthDay ? ' ' + selectedPerson.birthDay : '') : ''"
-                >{{ formatBirthDate(selectedPerson) }}</button>
-                <button
-                  v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
-                  class="pop__sign"
-                  @click="filterZodiac(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"
-                  :title="'Show ' + zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) + ' names'"
-                >
-                  <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
-                </button>
-                <!-- The other zodiac, on the same birthday. Its own written
-                     character stands in for a glyph — nothing to filter to
-                     yet, so this one reads rather than clicks. -->
-                <span
-                  v-if="selectedChinese"
-                  class="pop__sign pop__sign--cn"
-                  :title="'Born in the year of the ' + selectedChinese.animal"
-                >
-                  <em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}
-                </span>
-                <!-- How often the given name was given. It used to read
-                     "OG · Zinedine", which nobody could be expected to take
-                     for a chart toggle — the badge looked like a remark about
-                     the person, not a way into a fact about their name. Now it
-                     says the word, and the name it belongs to is already at
-                     the top of the chart it opens. -->
-                <button
-                  v-if="nameChart"
-                  class="pop__sign pop__sign--chart"
-                  :class="{ 'is-on': showNameChart }"
-                  @click="showNameChart = !showNameChart"
-                  :title="'How often ' + givenName(selectedPerson.name) + ' was given — ' + nameSource.label"
-                >
-                  <svg class="ico ico--12"><use href="#i-trend"/></svg>Popularity
-                </button>
-                <!-- The name on its own terms: where it comes from, its whole
-                     run, and everyone else here who answers to it. Sits with
-                     the signs because it is the same kind of fact — something
-                     they were born with rather than something they did. It is
-                     the only way to the name's origin now that the detail list
-                     below no longer carries it. -->
-                <button
-                  v-if="nameOrigin || nameSharers.length"
-                  class="pop__sign pop__sign--mean"
-                  @click="nameOpen = true"
-                  :title="'Where ' + givenName(selectedPerson.name) + ' comes from, and who else carries it'"
-                >
-                  <svg class="ico ico--12"><use href="#i-book"/></svg>Origin
-                </button>
-                <!-- Sits with the signs because it's the same kind of fact: a
-                     thing they were born as, and a way into everyone else who
-                     shares it. -->
-                <button
-                  v-if="selectedPerson.gender"
-                  class="pop__sign pop__sign--g"
-                  @click="filterGender(selectedPerson)"
-                  :title="'Show ' + genderLabel(selectedPerson.gender).toLowerCase() + ' names'"
-                >
-                  <svg class="ico ico--12"><use href="#i-avatar"/></svg>{{ genderLabel(selectedPerson.gender) }}
-                </button>
-                <!-- What they did, in the field's own colour — the same colour
-                     the card is tinted with and the thumbnails use. -->
-                <button
-                  v-if="selectedPerson.field"
-                  class="pop__field"
-                  @click="filterField(selectedPerson)"
-                  :title="'Show ' + selectedPerson.field + ' names'"
-                >
-                  <svg class="ico ico--12"><use :href="'#' + iconForField(selectedPerson.field)"/></svg>{{ selectedPerson.field }}
-                </button>
-              </div>
             </div>
             <button
               class="pop__fav"
@@ -583,6 +507,105 @@
         <!-- Card body: the bio, the ask box, the tag rows, and the links out
              to other people. Lost in the header rework; restored from 223b469. -->
         <div class="pop__body">
+          <!-- ---------- WHAT THIS CARD WILL DO ----------
+               These were one row of identical pills, and they were making two
+               quite different promises: half of them throw the card away and
+               refilter the whole roster, the other half open something on top
+               of it. Losing the person you were reading about because a chip
+               looked like the chip beside it is a bad surprise, so the two
+               kinds are separated and each says which it is.
+
+               And they sit under the photograph now rather than over it. They
+               are what you do *after* looking at someone, not the caption to
+               their face. -->
+          <div class="pop__acts">
+            <div
+              class="pop__act pop__act--opens"
+              v-if="nameChart || nameOrigin || nameSharers.length"
+            >
+              <span class="pop__actlab">About the name</span>
+              <div class="pop__chips">
+                <!-- How often the given name was given. It used to read
+                     "OG · Zinedine", which nobody could be expected to take
+                     for a chart toggle — the badge looked like a remark about
+                     the person, not a way into a fact about their name. Now it
+                     says the word, and the name it belongs to is already at
+                     the top of the chart it opens. -->
+                <button
+                  v-if="nameChart"
+                  class="pop__sign pop__sign--chart"
+                  :class="{ 'is-on': showNameChart }"
+                  @click="showNameChart = !showNameChart"
+                  :title="'How often ' + givenName(selectedPerson.name) + ' was given — ' + nameSource.label"
+                >
+                  <svg class="ico ico--12"><use href="#i-trend"/></svg>Popularity
+                </button>
+                <!-- The name on its own terms: where it comes from and
+                     everyone else here who answers to it. The only way to the
+                     name's origin now that the detail list below no longer
+                     carries it. -->
+                <button
+                  v-if="nameOrigin || nameSharers.length"
+                  class="pop__sign pop__sign--mean"
+                  @click="nameOpen = true"
+                  :title="'Where ' + givenName(selectedPerson.name) + ' comes from, and who else carries it'"
+                >
+                  <svg class="ico ico--12"><use href="#i-book"/></svg>Origin
+                </button>
+              </div>
+            </div>
+            <div class="pop__act">
+              <span class="pop__actlab">Search the roster</span>
+              <div class="pop__chips">
+                <button
+                  class="pop__date"
+                  :disabled="!selectedPerson.birthMonth"
+                  @click="filterBirthday(selectedPerson)"
+                  :title="selectedPerson.birthMonth ? 'Show everyone born ' + MONTH_NAMES[selectedPerson.birthMonth] + (selectedPerson.birthDay ? ' ' + selectedPerson.birthDay : '') : ''"
+                >{{ formatBirthDate(selectedPerson) }}</button>
+                <button
+                  v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
+                  class="pop__sign"
+                  @click="filterZodiac(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"
+                  :title="'Show ' + zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) + ' names'"
+                >
+                  <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
+                </button>
+                <!-- The other zodiac, on the same birthday. Its own written
+                     character stands in for a glyph — nothing to filter to
+                     yet, so this one reads rather than clicks. -->
+                <span
+                  v-if="selectedChinese"
+                  class="pop__sign pop__sign--cn"
+                  :title="'Born in the year of the ' + selectedChinese.animal"
+                >
+                  <em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}
+                </span>
+                <!-- Sits with the signs because it's the same kind of fact: a
+                     thing they were born as, and a way into everyone else who
+                     shares it. -->
+                <button
+                  v-if="selectedPerson.gender"
+                  class="pop__sign pop__sign--g"
+                  @click="filterGender(selectedPerson)"
+                  :title="'Show ' + genderLabel(selectedPerson.gender).toLowerCase() + ' names'"
+                >
+                  <svg class="ico ico--12"><use href="#i-avatar"/></svg>{{ genderLabel(selectedPerson.gender) }}
+                </button>
+                <!-- What they did, in the field's own colour — the same colour
+                     the card is tinted with and the thumbnails use. -->
+                <button
+                  v-if="selectedPerson.field"
+                  class="pop__field"
+                  @click="filterField(selectedPerson)"
+                  :title="'Show ' + selectedPerson.field + ' names'"
+                >
+                  <svg class="ico ico--12"><use :href="'#' + iconForField(selectedPerson.field)"/></svg>{{ selectedPerson.field }}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- The name's own life, drawn from a public register. The peak is
                marked because it is the only point on the line anyone reads for.
                The source is named on the chart: this is US births or New York

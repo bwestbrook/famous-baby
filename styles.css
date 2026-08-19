@@ -1305,9 +1305,6 @@ body {
   display: flex; align-items: baseline; flex-wrap: nowrap; gap: 6px;
   min-width: 0;
 }
-/* The sub-line carries three pills now and shares its row with two buttons, so
-   this is the one line allowed to wrap rather than overflow. */
-.pop__line--sub { margin-top: 3px; align-items: center; flex-wrap: wrap; row-gap: 4px; }
 .pop__name {
   margin: 0;
   min-width: 0;
@@ -2486,3 +2483,38 @@ button.mrow--warn:hover { background: rgba(255,109,96,.14); color: #ffb3ab; }
   font-size: 13px; font-weight: 300; line-height: 1.6;
   color: rgba(255,255,255,.66);
 }
+
+/* =========================================================================
+   WHAT THE CARD WILL DO — the chips, under the photograph
+   They used to be one row of identical pills over the picture, making two
+   quite different promises: half of them throw the card away and refilter the
+   whole roster, the other half open something on top of it and leave the
+   person where they are. Losing someone you were reading about because one
+   chip looked like the chip beside it is a bad surprise.
+   ========================================================================= */
+.pop__acts {
+  display: flex; flex-direction: column; gap: 7px;
+  margin: 0 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+/* The same 70px gutter the detail list below uses, so the card reads as one
+   column of labelled rows rather than two ideas about where a label goes. */
+.pop__act {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: start;
+}
+.pop__actlab {
+  padding-top: 5px;
+  font-size: 9.5px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: rgba(255,255,255,.42);
+}
+.pop__chips { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+/* Colour is already spoken for on these chips — it says which fact each one
+   carries, amber for the date, the field's own colour for the calling — so the
+   difference between the two kinds is in the corners. A pill leaves for a new
+   search; a squared tab opens something and stays. */
+.pop__act--opens .pop__sign { border-radius: 4px; }
