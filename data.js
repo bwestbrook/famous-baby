@@ -2132,12 +2132,12 @@ export const PEOPLE = [
   { id:'maria-callas', name:'Maria Callas', middleName:'Anna Cecilia Sofia', homophones:[], similarSpellings:['Mariah','Marya','Marie','Mariya'], gender:'female', birthYear:1923, birthMonth:12, birthDay:2, birthPlace:'New York, New York', country:'Greece', field:'Music', subfield:'Classical',
     teams:[], awards:[],
     collaborators:['Tullio Serafin','Luchino Visconti'], contemporaries:[], friends:[], foes:[],
-    bio:"La Divina — Greek-American soprano whose volcanic stage presence rewired what opera could feel like." },
+    bio:"Born Maria Anna Cecilia Sophia Kalogeropoulos, and the soprano against whom opera still measures dramatic conviction. Critics praised the bel canto technique and the range; what people remember is that she acted the parts rather than standing and singing them." },
 
   { id:'luciano-pavarotti', name:'Luciano Pavarotti', middleName:'', homophones:[], similarSpellings:['Lusiano','Luchano','Lukiano','Loociano'], gender:'male', birthYear:1935, birthMonth:10, birthDay:12, birthPlace:'Modena, Italy', country:'Italy', field:'Music', subfield:'Classical',
     teams:[], awards:[{name:'Grammy Lifetime Achievement Award',year:1998}],
     collaborators:['Plácido Domingo','José Carreras'], contemporaries:[], friends:[], foes:[],
-    bio:"Modena-born tenor who handkerchief-waved his way through Nessun Dorma into the global pop charts." },
+    bio:"King of the High Cs, and the tenor who took opera to stadiums without apologising for it. He recorded complete operas and arias throughout his career and crossed into popular music late on — one of the most acclaimed voices the form has had." },
 
   { id:'enrico-caruso', name:'Enrico Caruso', middleName:'', homophones:[], similarSpellings:['Enriko','Enricco','Enrique','Henrico'], gender:'male', birthYear:1873, birthMonth:2, birthDay:25, birthPlace:'Naples, Italy', country:'Italy', field:'Music', subfield:'Classical',
     teams:[], awards:[],
@@ -2147,7 +2147,7 @@ export const PEOPLE = [
   { id:'igor-stravinsky', name:'Igor Stravinsky', middleName:'Fyodorovich', homophones:[], similarSpellings:['Igore','Egor','Ygor','Iggor'], gender:'male', birthYear:1882, birthMonth:6, birthDay:17, birthPlace:'Oranienbaum, Russia', country:'Russia', field:'Music', subfield:'Classical',
     teams:[], awards:[{name:'Grammy Award for Best Classical Composition',year:1961}],
     collaborators:['Sergei Diaghilev','George Balanchine'], contemporaries:[], friends:[], foes:[],
-    bio:"Rite of Spring composer whose 1913 ballet caused a Paris riot and reset modern music." },
+    bio:"The Rite of Spring caused a riot in 1913 and rearranged music afterwards. Born into a musical family in Saint Petersburg, the composer took French citizenship in 1934 and American in 1945, and remade his own style twice more before he was done." },
 
   { id:'dmitri-shostakovich', name:'Dmitri Shostakovich', middleName:'Dmitriyevich', homophones:[], similarSpellings:['Dimitri','Dmitry','Dmitrii','Dimitree'], gender:'male', birthYear:1906, birthMonth:9, birthDay:25, birthPlace:'Saint Petersburg, Russia', country:'Russia', field:'Music', subfield:'Classical',
     teams:[], awards:[{name:'Stalin Prize',year:1941}],
@@ -2177,17 +2177,17 @@ export const PEOPLE = [
   { id:'carl-jung', name:'Carl Jung', middleName:'Gustav', homophones:[], similarSpellings:['Karl','Carle','Cyrl','Karll'], gender:'male', birthYear:1875, birthMonth:7, birthDay:26, birthPlace:'Kesswil, Switzerland', country:'Switzerland', field:'Science', subfield:'Psychologist',
     teams:[], awards:[],
     collaborators:['Sigmund Freud'], contemporaries:[], friends:[], foes:[],
-    bio:"Swiss psychiatrist who mapped archetypes, the collective unconscious, and broke with his mentor Freud." },
+    bio:"Founder of analytical psychology, and the man who gave the century the archetype. The Swiss psychiatrist wrote over twenty books, broke with Freud over what the unconscious contains, and left behind a vocabulary — introvert, complex, collective unconscious — now common property." },
 
   { id:'albert-einstein', name:'Albert Einstein', middleName:'', homophones:[], similarSpellings:['Alburt','Albrt','Albirt','Alberte'], gender:'male', birthYear:1879, birthMonth:3, birthDay:14, birthPlace:'Ulm, Germany', country:'Germany', field:'Science', subfield:'Physicist',
     teams:[], awards:[{name:'Nobel Prize in Physics',year:1921}],
     collaborators:['Niels Bohr','Max Planck'], contemporaries:[], friends:[], foes:[],
-    bio:"E=mc² patent clerk who rewrote space-time and lent his hair to every science classroom on earth." },
+    bio:"Relativity, and the most famous equation there is. The German-born theoretical physicist also made foundational contributions to quantum theory, and won the Nobel Prize for the photoelectric effect rather than for the work everyone knows him by." },
 
   { id:'niels-bohr', name:'Niels Bohr', middleName:'Henrik David', homophones:[], similarSpellings:['Neils','Nils','Niels','Nyels'], gender:'male', birthYear:1885, birthMonth:10, birthDay:7, birthPlace:'Copenhagen, Denmark', country:'Denmark', field:'Science', subfield:'Physicist',
     teams:[], awards:[{name:'Nobel Prize in Physics',year:1922}],
     collaborators:['Werner Heisenberg','Albert Einstein'], contemporaries:[], friends:[], foes:[],
-    bio:"Father of quantum theory whose Copenhagen interpretation insisted reality only resolves when watched." },
+    bio:"The structure of the atom, and the Copenhagen institute where quantum mechanics was argued into being. The Danish physicist took the 1922 Nobel Prize for the model that put electrons in fixed orbits, and spent the following decades disputing its meaning with Einstein." },
 
   { id:'werner-heisenberg', name:'Werner Heisenberg', middleName:'Karl', homophones:[], similarSpellings:['Verner','Wermer','Wenner','Vurner'], gender:'male', birthYear:1901, birthMonth:12, birthDay:5, birthPlace:'Würzburg, Germany', country:'Germany', field:'Science', subfield:'Physicist',
     teams:[], awards:[{name:'Nobel Prize in Physics',year:1932}],
@@ -2207,7 +2207,7 @@ export const PEOPLE = [
   { id:'david-attenborough', name:'David Attenborough', middleName:'Frederick', homophones:[], similarSpellings:['Davyd','Daved','Davide','Davidd'], gender:'male', birthYear:1926, birthMonth:5, birthDay:8, birthPlace:'Isleworth, England', country:'UK', field:'Science', subfield:'Naturalist',
     teams:[], awards:[{name:'BAFTA Fellowship',year:1980}],
     collaborators:['BBC Natural History Unit'], contemporaries:[], friends:[], foes:[],
-    bio:"Hush-voiced BBC naturalist who has narrated planet earth across nine decades and every biome." },
+    bio:"Seven decades in front of a camera, from Zoo Quest in 1954 to the Planet Earth films. The English broadcaster and natural historian has narrated more of the living world to more people than anyone, and latterly has stopped being polite about what is happening to it." },
 
   { id:'maurice-strong', name:'Maurice Strong', middleName:'Frederick', homophones:[], similarSpellings:['Morris','Moris','Maurise','Mauriece'], gender:'male', birthYear:1929, birthMonth:4, birthDay:29, birthPlace:'Oak Lake, Manitoba', country:'Canada', field:'Politics', subfield:'Diplomat',
     teams:[], awards:[],
@@ -2217,7 +2217,7 @@ export const PEOPLE = [
   { id:'kofi-annan', name:'Kofi Annan', middleName:'Atta', homophones:[], similarSpellings:['Coffi','Kofy','Koffi','Cofi'], gender:'male', birthYear:1938, birthMonth:4, birthDay:8, birthPlace:'Kumasi, Ghana', country:'Ghana', field:'Politics', subfield:'Diplomat',
     teams:[], awards:[{name:'Nobel Peace Prize',year:2001}],
     collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"Ghanaian UN secretary-general who shared a Nobel and pushed humanitarian intervention from inside the Glass Tower." },
+    bio:"The seventh Secretary-General of the United Nations, from 1997 to 2006, and the first to rise to it from within the organisation's own staff. He and the UN shared the 2001 Nobel Peace Prize, and he later chaired The Elders." },
 
   { id:'haile-selassie', name:'Hailé Selassie', middleName:'', homophones:[], similarSpellings:['Hayle','Haila','Hayele','Halie'], gender:'male', birthYear:1892, birthMonth:7, birthDay:23, birthPlace:'Ejersa Goro, Ethiopia', country:'Ethiopia', field:'Politics', subfield:'Emperor',
     teams:[], awards:[],
@@ -2227,22 +2227,22 @@ export const PEOPLE = [
   { id:'julius-nyerere', name:'Julius Nyerere', middleName:'Kambarage', homophones:[], similarSpellings:['Julious','Juluis','Julyus','Yulius'], gender:'male', birthYear:1922, birthMonth:4, birthDay:13, birthPlace:'Butiama, Tanganyika', country:'Tanzania', field:'Politics', subfield:'President',
     teams:[], awards:[],
     collaborators:['Kwame Nkrumah'], contemporaries:[], friends:[], foes:[],
-    bio:"Mwalimu — Tanzania's founding president who united tribes through Swahili and African socialism." },
+    bio:"Mwalimu — the teacher. He took Tanganyika to independence as prime minister in 1961 and led Tanzania as president until 1985, arguing for African socialism and a self-reliant village economy, then did the rarest thing and stepped down." },
 
   { id:'kwame-nkrumah', name:'Kwame Nkrumah', middleName:'', homophones:[], similarSpellings:['Quame','Kwami','Quami','Kwaime'], gender:'male', birthYear:1909, birthMonth:9, birthDay:21, birthPlace:'Nkroful, Gold Coast', country:'Ghana', field:'Politics', subfield:'President',
     teams:[], awards:[],
     collaborators:['Julius Nyerere'], contemporaries:[], friends:[], foes:[],
-    bio:"Ghanaian Pan-African founding father who led the first sub-Saharan nation to independence in 1957." },
+    bio:"Born Francis Nwia Kofi Ngonloma, and the first leader of an independent Ghana. Prime Minister of the Gold Coast from 1952, he took it out of British rule in 1957 and became the great voice of Pan-Africanism before a coup removed him in 1966." },
 
   { id:'patrice-lumumba', name:'Patrice Lumumba', middleName:'Émery', homophones:['Patrick'], similarSpellings:['Patrise','Patriss','Patreece','Patris'], gender:'male', birthYear:1925, birthMonth:7, birthDay:2, birthPlace:'Onalua, Belgian Congo', country:'DR Congo', field:'Politics', subfield:'Prime Minister',
     teams:[], awards:[],
     collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"Congo's first prime minister whose seven-month tenure ended with a Belgian-backed firing squad at thirty-five." },
+    bio:"Born Isaïe Tasumbu Tawosa, and the first prime minister of an independent Congo — for ten weeks. His party won the 1960 election; by January 1961 he had been deposed and killed, with Belgian and American hands close to the deed." },
 
   { id:'thomas-sankara', name:'Thomas Sankara', middleName:'Isidore Noël', homophones:[], similarSpellings:['Tomas','Thommas','Tomaso','Thomus'], gender:'male', birthYear:1949, birthMonth:12, birthDay:21, birthPlace:'Yako, Upper Volta', country:'Burkina Faso', field:'Politics', subfield:'President',
     teams:[], awards:[],
     collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"Africa's Che — Burkinabé revolutionary who renamed his country, rejected aid, and was killed at thirty-seven." },
+    bio:"Africa's Che Guevara, and a president who cut his own salary and sold the government's Mercedes fleet. The Burkinabé officer took power in 1983, renamed Upper Volta as the land of upright people, and was assassinated four years later." },
 
   { id:'lula-da-silva', name:'Luiz Inácio Lula da Silva', middleName:'Inácio', homophones:[], similarSpellings:['Lola','Lulla','Loula'], gender:'male', birthYear:1945, birthMonth:10, birthDay:27, birthPlace:'Caetés, Brazil', country:'Brazil', field:'Politics', subfield:'President',
     teams:[], awards:[],
@@ -2252,22 +2252,22 @@ export const PEOPLE = [
   { id:'salvador-allende', name:'Salvador Allende', middleName:'Guillermo', homophones:[], similarSpellings:['Salvadore','Salbador','Selvador','Sallvador'], gender:'male', birthYear:1908, birthMonth:6, birthDay:26, birthPlace:'Valparaíso, Chile', country:'Chile', field:'Politics', subfield:'President',
     teams:[], awards:[],
     collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"Marxist Chilean president who died inside La Moneda Palace during Pinochet's 1973 coup." },
+    bio:"The first Marxist elected president in a liberal democracy in Latin America, and a socialist who kept faith with the ballot. He governed Chile from 1970 until the coup of 11 September 1973, and died in La Moneda rather than surrender it." },
 
   { id:'lionel-messi', name:'Lionel Messi', middleName:'Andrés', homophones:[], similarSpellings:['Lyonel','Leonel','Lionell','Liyonel'], gender:'male', birthYear:1987, birthMonth:6, birthDay:24, birthPlace:'Rosario, Argentina', country:'Argentina', field:'Sports', subfield:'Soccer',
     teams:[{name:'FC Barcelona',years:[2004,2021]},{name:'Inter Miami',years:[2023,9999]}], awards:[{name:'Ballon d\'Or',year:2009},{name:'FIFA World Cup',year:2022}],
     collaborators:['Andrés Iniesta','Xavi Hernández'], contemporaries:[], friends:[], foes:[],
-    bio:"Rosario-born No. 10 who hoisted the 2022 World Cup after winning every club trophy and eight Ballons d'Or." },
+    bio:"The left foot that rewrote the record books, and finally the World Cup in 2022. Eight Ballons d'Or, a career built at Barcelona from the age of thirteen, and a captaincy of Argentina that took him from blamed to beloved in his own country." },
 
   { id:'cristiano-ronaldo', name:'Cristiano Ronaldo', middleName:'dos Santos Aveiro', homophones:[], similarSpellings:['Christiano','Christian','Cristian','Kristiano'], gender:'male', birthYear:1985, birthMonth:2, birthDay:5, birthPlace:'Funchal, Madeira', country:'Portugal', field:'Sports', subfield:'Soccer',
     teams:[{name:'Manchester United',years:[2003,2009]},{name:'Real Madrid',years:[2009,2018]}], awards:[{name:'Ballon d\'Or',year:2008}],
     collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"Madeira-born Portuguese striker whose chiseled abs and 900+ goals made him soccer's first billionaire athlete." },
+    bio:"CR7 — a career of relentless self-construction across England, Spain, Italy and Saudi Arabia. Five Ballons d'Or, the leading scorer in the history of the men's international game, and captain of the Portugal side that took Euro 2016." },
 
   { id:'johan-cruyff', name:'Johan Cruyff', middleName:'Hendrik Johannes', homophones:['Yohan','Yohann'], similarSpellings:['Yohann','Johann','Joan','Joahn'], gender:'male', birthYear:1947, birthMonth:4, birthDay:25, birthPlace:'Amsterdam, Netherlands', country:'Netherlands', field:'Sports', subfield:'Soccer',
     teams:[{name:'Ajax',years:[1964,1973]},{name:'FC Barcelona',years:[1973,1978]}], awards:[{name:'Ballon d\'Or',year:1971}],
     collaborators:['Rinus Michels'], contemporaries:[], friends:[], foes:[],
-    bio:"Total football's living definition; the Cruyff turn and the philosophical foundation of modern Barcelona." },
+    bio:"Player, manager, and the argument itself. Three times Ballon d'Or in 1971, 1973 and 1974, he was Total Football's finest exponent at Ajax and the Netherlands, then went to Barcelona and built the philosophy that still runs the club." },
 
   { id:'zinedine-zidane', name:'Zinédine Zidane', middleName:'Yazid', homophones:[], similarSpellings:['Zinedine','Zenedine','Zidan','Zedane'], gender:'male', birthYear:1972, birthMonth:6, birthDay:23, birthPlace:'Marseille, France', country:'France', field:'Sports', subfield:'Soccer',
     teams:[{name:'Real Madrid',years:[2001,2006]}], awards:[{name:'FIFA World Cup',year:1998},{name:'Ballon d\'Or',year:1998}],
@@ -2297,12 +2297,12 @@ export const PEOPLE = [
   { id:'larisa-latynina', name:'Larisa Latynina', middleName:'Semyonovna', homophones:[], similarSpellings:['Larissa','Larysa','Larisah','Lareesa'], gender:'female', birthYear:1934, birthMonth:12, birthDay:27, birthPlace:'Kherson, Soviet Union', country:'Ukraine', field:'Sports', subfield:'Gymnastics',
     teams:[{name:'Soviet Union',years:[1956,1964]}], awards:[{name:'Olympic Gold Medal',year:1956}],
     collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"Soviet gymnast whose eighteen Olympic medals stood as the all-time record until Michael Phelps." },
+    bio:"Eighteen Olympic medals, nine of them gold — a haul no female gymnast has matched, and a record that stood for any athlete until 2012. She won fourteen individual medals and four team medals for the Soviet Union between 1956 and 1964." },
 
   { id:'vera-caslavska', name:'Věra Čáslavská', middleName:'', homophones:[], similarSpellings:['Vera','Veera','Wera','Vyra'], gender:'female', birthYear:1942, birthMonth:5, birthDay:3, birthPlace:'Prague, Czechoslovakia', country:'Czech Republic', field:'Sports', subfield:'Gymnastics',
     teams:[{name:'Czechoslovakia',years:[1960,1968]}], awards:[{name:'Olympic Gold Medal',year:1964}],
     collaborators:[], contemporaries:[], friends:[], foes:[],
-    bio:"Czech gymnast who turned her head during the Soviet anthem in 1968 Mexico — and won gold anyway." },
+    bio:"Twenty-two international titles between 1959 and 1968, including seven Olympic golds. The most decorated Czech gymnast there has been, she bowed her head during the Soviet anthem in Mexico City in 1968 and was frozen out at home for twenty years." },
 
   { id:'sawao-kato', name:'Sawao Katō', middleName:'', homophones:[], similarSpellings:['Sawow','Sawow','Savao','Sahwao'], gender:'male', birthYear:1946, birthMonth:10, birthDay:11, birthPlace:'Gosen, Japan', country:'Japan', field:'Sports', subfield:'Gymnastics',
     teams:[{name:'Japan',years:[1968,1976]}], awards:[{name:'Olympic Gold Medal',year:1968}],
@@ -2319,7 +2319,7 @@ export const PEOPLE = [
   //  Five canonical 19th-century women novelists and poets writing in English.
   // =====================================================================
   { id:'jane-austen', name:'Jane Austen', middleName:'', homophones:[], similarSpellings:['Austin','Awsten','Osten','Jaine','Jayne'], gender:'female', birthYear:1775, birthMonth:12, birthDay:16, birthPlace:'Steventon, England', country:'UK', field:'Literature', subfield:'Novelist',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Pride and Prejudice, Emma; English novelist whose wit dissected Regency manners with surgical precision.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Six novels that read the English landed gentry as closely as anyone ever has. She wrote about the dependence of women on marriage for any social standing at all, and did it with a comic exactness that has never gone out of print." },
 
   { id:'emily-dickinson', name:'Emily Dickinson', middleName:'Elizabeth', homophones:[], similarSpellings:['Dickenson','Dikinson','Dickinsen','Emilie','Emely'], gender:'female', birthYear:1830, birthMonth:12, birthDay:10, birthPlace:'Amherst, Massachusetts', country:'USA', field:'Literature', subfield:'Poet',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Amherst recluse whose nearly 1,800 dash-laced poems — mostly unpublished in her lifetime — reinvented American verse.' },
@@ -2344,7 +2344,7 @@ export const PEOPLE = [
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Founded the Bauhaus in 1919 and exported its art-meets-industry creed to Harvard after fleeing the Nazis.' },
 
   { id:'alvar-aalto', name:'Alvar Aalto', middleName:'Henrik', homophones:[], similarSpellings:['Alvaro','Alvah','Aalvar','Aalto'], gender:'male', birthYear:1898, birthMonth:2, birthDay:3, birthPlace:'Kuortane, Finland', country:'Finland', field:'Architecture', subfield:'Modernist',
-    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Finnish humanist of modernism — bentwood chairs, the curving Savoy vase, and buildings warm with daylight and birch.' },
+    teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:"Buildings, furniture, textiles, glassware — and a refusal to be called an artist. The Finnish architect and designer treated painting and sculpture as branches of the same tree as architecture, and bent plywood and brick into shapes the modern movement had thought impossible." },
 
   { id:'lina-bo-bardi', name:'Lina Bo Bardi', middleName:'', homophones:[], similarSpellings:['Lena','Leena','Linna','Achillina'], gender:'female', birthYear:1914, birthMonth:12, birthDay:5, birthPlace:'Rome, Italy', country:'Brazil', field:'Architecture', subfield:'Modernist',
     teams:[], awards:[], collaborators:[], contemporaries:[], friends:[], foes:[], bio:'Italian-born Brazilian modernist behind São Paulo\'s red-stilted MASP and the radical SESC Pompéia cultural center.' },
