@@ -1193,7 +1193,10 @@ const app = createApp({
     // arrived filling the frame edge to edge, with nothing of its neighbours
     // and no sense of where on the world it was — clicking a name landed you
     // inside the place instead of taking you to it.
-    const FRAME_PAD = 1.35;
+    // At 1.35 a country still arrived nearly filling the frame. 1.9 sits it in
+    // its own continent: roughly half the height, with the coastlines and
+    // neighbours around it doing the work of saying where on Earth this is.
+    const FRAME_PAD = 1.9;
 
     function frameCountries(countries) {
       if (!globeInstance) return;
