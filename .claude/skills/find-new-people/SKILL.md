@@ -15,6 +15,37 @@ query result it doesn't go in the file.
 | every country should have somebody | `node roster_missing.mjs` → `roster_candidates.py` → `roster_pick.py` → `roster_write.py` |
 | more people in particular countries | write `roster_missing.json` yourself → `roster_candidates.py 30` → `roster_deepen.py N` |
 | people born since a year | `roster_modern.py YEAR COUNT` |
+| a list somebody has already curated | `roster_from_supabase.py` → `roster_write.py` |
+
+### Candidates from Supabase
+
+```bash
+python3 roster_from_supabase.py --env ../Polyjamorous/.env --limit 200
+python3 roster_from_supabase.py --env ../Polyjamorous/.env --genre Techno
+python3 roster_from_supabase.py --names-file names.txt      # no database needed
+```
+
+The `artists` table in PolyJamerous is a curated roster of electronic
+musicians across 32 genres — which is precisely where this dataset is
+thinnest: 457 Music entries and two of them electronic.
+
+**Supabase says who is worth having; Wikidata still says who they are.** That
+table carries no birth date, no birthplace and no photograph, so nothing in it
+can be imported directly. Every name goes through the same Wikidata lookup as
+every other route, and anything Wikidata has never heard of is dropped rather
+than guessed at. Sitelinks then rank what survives, so the best-known arrive
+first.
+
+"Most popular" is approximated from that schema the only way it can be —
+artists somebody wrote a real biography for, and who carry a MusicBrainz id.
+It is a shortlist heuristic, nothing more; the real ordering happens after
+Wikidata confirms them.
+
+**Credentials never enter this repo.** Pass `--env` pointing at a file that
+holds `DATABASE_URL`, or set it in the environment; it is read and never
+echoed. `psycopg2` isn't installed here — either
+`pip3 install --user psycopg2-binary`, or export the names yourself and use
+`--names-file`, which needs no database at all.
 
 `--dry` first, always. Read the list before it's written — that is where the
 wrong person gets caught, and it has caught several.
