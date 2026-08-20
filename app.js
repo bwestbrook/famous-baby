@@ -2072,7 +2072,12 @@ const app = createApp({
           if (spotsTaken.has(spotKey) && k > 0) continue;
           spotsTaken.add(spotKey);
           const t = makeTile(toVec([s.lat, s.lng]), country, people, k++, s.half);
-          if (t && dealFace(t, 0)) tiles.push(t);
+          if (t && dealFace(t, 0)) {
+            // Its own place in the cycle, from its position rather than a
+            // random number, so a reload gives the same sea back.
+            t.phase = (t.lat * 12.9898 + t.lng * 78.233) % (Math.PI * 2);
+            tiles.push(t);
+          }
         }
       }
       // Every stone is laid before any of them is cut: a cell is defined by
@@ -2202,6 +2207,37 @@ const app = createApp({
       return mosCanvas;
     }
 
+    // ---- The faces as water ----
+    // The tesserae were straight-edged stones cut against each other. These are
+    // droplets: a closed curve whose radius breathes on two sine waves running
+    // at different rates, so no two are the same shape and none of them repeats
+    // on any interval you can see. Everything is drawn in the tile's own
+    // [-1,1] frame, which is already turning and foreshortening with the
+    // sphere — so a bubble on the far limb flattens like water on a curve
+    // rather than staying a circle pasted to the glass.
+    const BLOB_POINTS = 14;            // enough for a smooth rim, cheap enough for hundreds
+    const BLOB_WOBBLE = 0.11;          // how far the rim moves, as a share of radius
+    const BLOB_SWELL = 0.05;           // the slow breath of the whole droplet
+    let blobClock = 0;                 // seconds, advanced once a frame
+
+    function blobPath(ctx, t) {
+      const ph = t.phase;
+      // Two waves, deliberately not harmonics of each other: 2 lobes turning
+      // one way and 3 the other never line up, so the rim keeps moving.
+      const swell = 1 + BLOB_SWELL * Math.sin(blobClock * 0.6 + ph);
+      const step = (Math.PI * 2) / BLOB_POINTS;
+      for (let i = 0; i <= BLOB_POINTS; i++) {
+        const a = i * step;
+        const r = swell * (1 + BLOB_WOBBLE * (
+          Math.sin(a * 2 + blobClock * 0.9 + ph) +
+          0.6 * Math.sin(a * 3 - blobClock * 0.55 + ph * 1.7)));
+        const x = Math.cos(a) * r, y = Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    }
+
     // The unit square [-1,1]² mapped onto the tile's own screen frame. This is
     // what makes a tessera lie *on* the sphere — turning with it, foreshortening
     // toward the rim — instead of sitting on the glass in front of it.
@@ -2210,12 +2246,9 @@ const app = createApp({
       // The cell is in the same units the transform above already maps, so the
       // path costs nothing to place — it turns and foreshortens with the stone.
       // Below CARVE_MIN_PX the shape cannot be seen and the path is skipped.
-      const poly = t.poly;
-      if (poly && t.r >= CARVE_MIN_PX) {
+      if (t.r >= CARVE_MIN_PX) {
         ctx.beginPath();
-        ctx.moveTo(poly[0], poly[1]);
-        for (let i = 2; i < poly.length; i += 2) ctx.lineTo(poly[i], poly[i + 1]);
-        ctx.closePath();
+        blobPath(ctx, t);
         ctx.save();
         ctx.clip();
         ctx.drawImage(img, t.sx, t.sy, ATLAS.cell, ATLAS.cell, -1, -1, 2, 2);
@@ -2481,7 +2514,12 @@ const app = createApp({
       const key = [pos.x, pos.y, pos.z, popAlt.value, host.clientWidth, host.clientHeight]
         .map(n => n.toFixed(3)).join(',');
       const fading = tiles.some(t => performance.now() - t.flashAt < FLASH_HOLD_MS);
-      if (key === lastCamKey && !mosaicDirty && !fading) return;
+      // No still-camera shortcut any more. The droplets are always moving, so
+      // there is no frame where the last one is still the right one — the
+      // saving this used to make is simply not available once the surface
+      // itself is alive. `key` is still computed above; it costs nothing and
+      // the shortcut comes straight back if the water ever stops.
+      blobClock = performance.now() / 1000;
       lastCamKey = key;
       mosaicDirty = false;
       const camDir = toVec(centre);
