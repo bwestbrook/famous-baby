@@ -1,11 +1,11 @@
 ---
-name: augmentProfile
+name: augment-profile
 description: Deepen profiles that already have content — longer bios, contemporaries, friends and foes, more awards and collaborators. Use for "make these richer", "expand the bios", "add more detail to the good entries".
 ---
 
 # Augmenting a profile that already has something
 
-`fillInProfile` fills what's empty. This deepens what's thin: entries that
+`fill-in-profile` fills what's empty. This deepens what's thin: entries that
 already read properly and could carry more.
 
 ## What to add

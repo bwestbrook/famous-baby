@@ -1,5 +1,5 @@
 ---
-name: verifyProfile
+name: verify-profile
 description: Check that entries in data.js are actually correct — dates, birthplace, country, the photograph being the right person, and the field they're filed under. Use for "check these profiles", "is this right", "audit the roster", or after a bulk import.
 ---
 

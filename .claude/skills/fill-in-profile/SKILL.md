@@ -1,5 +1,5 @@
 ---
-name: fillInProfile
+name: fill-in-profile
 description: Fill the empty fields on stub entries in data.js — middleName, teams, awards, collaborators, and a real bio in place of the imported one-liner. Use for "flesh these out", "fill in the blanks", "these entries are bare".
 ---
 

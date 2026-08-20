@@ -1,5 +1,5 @@
 ---
-name: rosterStats
+name: roster-stats
 description: Show what is actually in the famous-baby dataset as ASCII tables — totals, photo coverage, spread by calling and decade, how full the entries are, and which countries are thinnest. Use for "show me the stats", "how big is the DB", "where is the roster thin", or before and after a bulk import.
 ---
 
@@ -37,10 +37,10 @@ import so the effect of a pass is a number rather than an impression.
   data keeps them apart. This is where a calling turns out to be one category
   wearing a field's name — Sports is mostly NBA, Music mostly Pop.
 - **HOW FULL THE ENTRIES ARE** — the honest one. Most entries are imported
-  stubs. This is the queue for `fillInProfile` and `augmentProfile`, and the
+  stubs. This is the queue for `fill-in-profile` and `augment-profile`, and the
   number to watch is bios over 120 characters.
 - **THINNEST** — countries under five photographs, which is where
-  `findNewPeople` should point next.
+  `find-new-people` should point next.
 
 ## Reading it
 

@@ -1,5 +1,5 @@
 ---
-name: cleanDb
+name: clean-db
 description: Clean the famous-baby dataset — remove duplicate people, find entries that are broken or invisible, and refresh the bios of people who are still alive and still doing things. Use for "clean the DB", "dedupe", "check for errors", "the bios are out of date".
 ---
 
@@ -34,7 +34,7 @@ surviving id or delete it, then `python3 fetch_photos.py --manifest`.
 
 ## 2. What the checker can't see
 
-Read `verifyProfile` for these — the photograph being the wrong person, a
+Read `verify-profile` for these — the photograph being the wrong person, a
 country that is a birthplace accident, a field that doesn't match what someone
 is known for. None of them are detectable mechanically.
 

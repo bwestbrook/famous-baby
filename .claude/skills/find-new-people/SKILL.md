@@ -1,5 +1,5 @@
 ---
-name: findNewPeople
+name: find-new-people
 description: Find people who should be in the famous-baby roster but aren't — by country, by era, or to raise the total — and write them into data.js with photographs. Use for "add more names", "fill in this country", "we need modern names", "get the numbers up".
 ---
 
