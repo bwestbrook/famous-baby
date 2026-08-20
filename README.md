@@ -123,19 +123,33 @@ python3 fetch_photos.py --targets photo_targets.json
 
 ### Two copies of every portrait
 
-- `photos/<id>.jpg` — the whole picture. What the person's card shows, and the one to keep.
-- `photos/faces/<id>.jpg` — a tight square crop of the face. What the globe's collage shows.
+- `photos/<id>.jpg` — the whole picture. What the person's card shows, and the one **committed**.
+- `photos/faces/<id>.jpg` — a tight square crop of the face. Build input for the sprite sheet, and **not in git**.
 
-The collage fits a portrait inside a country's outline, so a head-and-shoulders shot reads well and a full-length one leaves the face a few pixels tall. Regenerate the crops after adding photos:
+Only `atlas.jpg` reaches the browser; nothing ever requests a face crop over
+HTTP. Keeping 2,325 of them in the repository cost 58 MB and a fresh blob
+apiece every time the crop parameters moved, so they are gitignored and
+regenerated instead. **A fresh clone has no `photos/faces/`** — run `facecrop`
+before `build_atlas.py`, or the sheet falls back to uncropped portraits and the
+mosaic shows a lot of chests.
+
+The mosaic fits a portrait into a tessera, so a head-and-shoulders shot reads well and a full-length one leaves the face a few pixels tall. Regenerate the crops after adding photos:
 
 ```bash
 swiftc -O facecrop.swift -o facecrop     # once; needs Xcode command line tools
 ./facecrop photos photos/faces 512 0.72
 ```
 
-Face detection is Vision's, which ships with macOS — no pip or npm dependency. Of the current 161, it finds a face in 156; paintings and statues (Mansa Musa, Nzinga Mbande) fall back to a crop of the upper-middle, which is where a portrait's subject almost always is. The collage falls back to the uncropped original if a crop is missing, so a missing face file is never fatal.
+Face detection is Vision's, which ships with macOS — no pip or npm dependency. Of the current 2,325 it finds a face in 2,236; paintings and statues (Mansa Musa, Nzinga Mbande) account for the 89 that fall back to a crop of the upper-middle, which is where a portrait's subject almost always is. `build_atlas.py` falls back to the uncropped portrait if a crop is missing, so a missing face file is never fatal.
 
-**Always finish with `resize_photos.sh`.** Wikipedia doesn't always honour the width asked for, and the fetcher saves every file as `<id>.jpg` whatever the bytes really are, so PNGs arrive wearing a `.jpg` suffix. Re-encoding took `photos/` from 49 MB to 7 MB with no visible loss at the size the globe draws a face.
+**Always finish with `resize_photos.sh`.** Wikipedia doesn't always honour the width asked for, and the fetcher saves every file as `<id>.jpg` whatever the bytes really are, so PNGs arrive wearing a `.jpg` suffix.
+
+It only touches what needs touching: a real JPEG already inside the edge
+budget is left byte for byte, so git sees no change. It used to re-encode
+everything and keep whichever copy came out smaller, which is not the same
+thing — on a pass where four portraits were new, that rewrote 967 files to
+save one megabyte between them. Every one of those is a new blob, which is why
+history holds 711 MB of photographs against 169 MB on disk.
 
 ### The sprite sheet the globe draws from
 

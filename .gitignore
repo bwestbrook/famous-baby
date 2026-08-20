@@ -48,3 +48,9 @@ roster_picks.json
 # reason anyone had caused.
 __pycache__/
 *.pyc
+
+# Face crops are build input, not something the site serves: only
+# atlas.jpg reaches the browser. Regenerate with facecrop before
+# build_atlas.py — see README. Keeping 2,325 of them in git cost 58 MB and
+# a fresh blob every time the crop parameters changed.
+photos/faces/
