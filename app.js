@@ -1005,12 +1005,16 @@ const app = createApp({
       if (!ext && !coords) return;
       const frame = ext ? countryFrame(country) : null;
       const [lat, lng] = vecToLatLng(frame ? frame.centre : (ext ? ext.centre : toVec(coords)));
+      // Its own half-height, so the top edge lands where every other
+      // country's does. Without it this read `hh`, which is a variable in
+      // frameCountries and does not exist here.
+      const fitHH = frame ? frame.hh * tightness : null;
       const altitude = frame
-        ? altitudeToFitBox(frame.hw * tightness, frame.hh * tightness)
+        ? altitudeToFitBox(frame.hw * tightness, fitHH)
         : altitudeToFit(5 * RAD * FRAME_PAD * tightness);
       applyFramedAltitude(altitude);
       try {
-        globeInstance.pointOfView({ lat: biasedLat(lat, altitude), lng, altitude }, CAMERA_TWEEN_MS);
+        globeInstance.pointOfView({ lat: biasedLat(lat, altitude, fitHH), lng, altitude }, CAMERA_TWEEN_MS);
         syncLabelScaleTo(altitude);
       } catch {}
     }
@@ -1193,44 +1197,56 @@ const app = createApp({
     // arrived filling the frame edge to edge, with nothing of its neighbours
     // and no sense of where on the world it was — clicking a name landed you
     // inside the place instead of taking you to it.
-    // At 1.35 a country still arrived nearly filling the frame. 1.9 sits it in
-    // its own continent: roughly half the height, with the coastlines and
-    // neighbours around it doing the work of saying where on Earth this is.
-    const FRAME_PAD = 1.9;
+    // Enough of the neighbours to say where on Earth this is, and no more.
+    // 1.9 stood so far back that a country was a detail in its own continent;
+    // 1.42 fills the frame with it while leaving the surrounding coastline
+    // visible.
+    const FRAME_PAD = 1.42;
 
     // ---- Sitting a country high in the frame ----
     // Centred, a picked country sits behind whatever the dock is showing. It
-    // belongs in the upper third, which means aiming the camera at a point
-    // *south* of it: the country then rides above the middle by exactly as
-    // much as the target sits below it.
+    // wants to start near the top of the screen and fill downward — which is
+    // not the same as centring it a third of the way down. Countries are every
+    // shape there is: fit Chile and the UK to the same band and one of them
+    // ends up a sliver. So the *top edge* is what gets anchored, and the
+    // country runs down from there however tall it happens to be.
     //
-    // FRAME_BIAS is where the country's centre lands, as a share of the half
-    // -height, measured up from the middle. 0.40 lands the country's centre
-    // about a third of the way down the screen.
-    const FRAME_BIAS = 0.40;
+    // Aiming works by looking at a point south of the country: it then rides
+    // above the middle by as much as the target sits below it.
+    const FRAME_TOP = 0.07;      // where the top edge lands, as a share of screen height
 
-    // How far south to aim, given how far back we are standing. A point θ from
-    // the sub-camera point appears at atan(sinθ / (d − cosθ)) off the axis, so
-    // this is that equation solved the other way round:
-    //   sinθ + T·cosθ = T·d   with T = tan(bias · halfFov)
-    //   → θ = asin(T·d / √(1+T²)) − atan(T)
-    function biasOffset(altitude) {
+    // A point θ from the sub-camera point appears at atan(sinθ / (d − cosθ))
+    // off the axis. This is that solved the other way round —
+    //   θ = asin(T·d / √(1+T²)) − atan(T),  T = tan(bias · halfFov)
+    // — so the same bias means the same fraction of the screen at any
+    // distance, which is why Luxembourg and Russia land in the same place
+    // despite being aimed at by wildly different angles.
+    function biasOffsetFor(altitude, biasFrac) {
       const f = fovHalves();
-      const T = Math.tan(FRAME_BIAS * f.v);
+      const T = Math.tan(Math.max(0, Math.min(0.95, biasFrac)) * f.v);
       const d = 1 + altitude;
       const R = Math.hypot(1, T);
       const x = (T * d) / R;
-      // Past the horizon there is no such point; fall back to no bias rather
-      // than aiming at nothing.
       if (!(x >= -1 && x <= 1)) return 0;
       return Math.asin(x) - Math.atan(T);
     }
 
-    // Latitude only: north is up on this globe, so the bias runs along the
-    // meridian. Clamped short of the poles, where "further south" stops
-    // meaning what it means everywhere else.
-    function biasedLat(lat, altitude) {
-      const off = biasOffset(altitude) / RAD;
+    // How tall the country will be on screen, as a share of the half-height —
+    // needed before the aim can be worked out, because the taller it is the
+    // less it has to be lifted to put its top edge in the same place.
+    function screenHalfHeight(hh, altitude) {
+      const f = fovHalves();
+      const d = 1 + altitude;
+      return Math.atan(Math.sin(hh) / (d - Math.cos(hh))) / f.v;
+    }
+
+    // Latitude only: north is up, so the bias runs along the meridian. Clamped
+    // short of the poles, where "further south" stops meaning what it means
+    // everywhere else.
+    function biasedLat(lat, altitude, hh) {
+      const half = hh != null ? screenHalfHeight(hh, altitude) : 0.45;
+      const want = Math.max(0, (1 - 2 * FRAME_TOP) - half);
+      const off = biasOffsetFor(altitude, want) / RAD;
       return Math.max(-84, Math.min(84, lat - off));
     }
 
@@ -1262,7 +1278,7 @@ const app = createApp({
       const altitude = altitudeToFitBox(hw, hh);
       applyFramedAltitude(altitude);
       try {
-        globeInstance.pointOfView({ lat: biasedLat(lat, altitude), lng, altitude }, CAMERA_TWEEN_MS);
+        globeInstance.pointOfView({ lat: biasedLat(lat, altitude, hh), lng, altitude }, CAMERA_TWEEN_MS);
         syncLabelScaleTo(altitude);
       } catch {}
     }
@@ -2301,9 +2317,23 @@ const app = createApp({
       ctx.setTransform(e1x * dpr, e1y * dpr, e2x * dpr, e2y * dpr, t.cx * dpr, t.cy * dpr);
       // The cell is in the same units the transform above already maps, so the
       // path costs nothing to place — it turns and foreshortens with the stone.
+      ctx.save();
+      // Two clips, and the order doesn't matter because clip() intersects:
+      // first the carved cell, which is what holds a tessera inside its own
+      // country, then the droplet, which is what stops it being a polygon.
+      // Replacing the cell with the droplet instead of intersecting them is
+      // what let faces bleed across borders — the blob knows nothing about
+      // where the coast is.
+      const poly = t.poly;
+      if (poly) {
+        ctx.beginPath();
+        ctx.moveTo(poly[0], poly[1]);
+        for (let i = 2; i < poly.length; i += 2) ctx.lineTo(poly[i], poly[i + 1]);
+        ctx.closePath();
+        ctx.clip();
+      }
       ctx.beginPath();
       blobPath(ctx, t);
-      ctx.save();
       ctx.clip();
       ctx.drawImage(img, t.sx, t.sy, ATLAS.cell, ATLAS.cell, -1, -1, 2, 2);
       // Feather the rim so droplets melt into one another instead of meeting
