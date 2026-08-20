@@ -1669,14 +1669,10 @@ const app = createApp({
     // is not visible, and the path is not worth building. Small tesserae blit
     // as they always did.
     const CARVE_MIN_PX = 7;
-    // Not every tile at once. One face blooms somewhere on the globe, holds,
-    // and fades; a moment later another does, five tiles further round. A
-    // world where everything moves at once reads as noise — a world where one
-    // thing catches your eye reads as a place with people in it.
-    const FLASH_EVERY_MS = 900;      // how often a face blooms
-    const FLASH_HOLD_MS = 4200;      // how long it holds before it has gone
-    const FLASH_FADE_MS = 900;       // and how long it takes to go
-    const FLASH_STRIDE = 5;          // every fifth tile in view
+    // A face comes up to full colour under the pointer, and a picked country
+    // brings its own up. Nothing lights itself: faces blooming at random put
+    // movement on the globe that answered nothing, and pulled the eye off
+    // whatever was actually being looked at.
 
     const unitVec = (v) => {
       const L = Math.hypot(v[0], v[1], v[2]) || 1;
@@ -1940,7 +1936,7 @@ const app = createApp({
         // near the rim, all three at once and without a matrix of our own.
         e: vecToLatLng(rotToward(v, east, half)),
         n: vecToLatLng(rotToward(v, north, half)),
-        flashAt: -1e9, selected: false,
+        selected: false,
         on: false, cx: 0, cy: 0, r: 0,
         // The tessera's own angular size, kept because carveTiles works in
         // these units, and the cell it carves.
@@ -2309,21 +2305,17 @@ const app = createApp({
         if (size < MIN_TILE_PX) continue;
         t.on = true; t.cx = c.x; t.cy = c.y; t.r = size;
 
-        const age = now - t.flashAt;
-        if (t.selected || t === hoverTile || age < FLASH_HOLD_MS) {
-          lit.push([t, e1x, e1y, e2x, e2y, age]);
+        if (t.selected || t === hoverTile) {
+          lit.push([t, e1x, e1y, e2x, e2y]);
           continue;
         }
         blit(ctx, grey, t, e1x, e1y, e2x, e2y, dpr);
       }
 
-      // The lit ones over the top, in colour. A bloom fades back to the
-      // terrain rather than switching off, so the eye is let go of gently.
-      for (const [t, e1x, e1y, e2x, e2y, age] of lit) {
-        const out = age > FLASH_HOLD_MS - FLASH_FADE_MS && !t.selected && t !== hoverTile
-          ? (FLASH_HOLD_MS - age) / FLASH_FADE_MS
-          : 1;
-        ctx.globalAlpha = restMix + (MIX_LIT - restMix) * Math.max(0, Math.min(1, out));
+      // The lit ones over the top, in colour: whatever is under the pointer,
+      // and whatever country was picked. Nothing else.
+      for (const [t, e1x, e1y, e2x, e2y] of lit) {
+        ctx.globalAlpha = MIX_LIT;
         blit(ctx, atlasImg, t, e1x, e1y, e2x, e2y, dpr);
       }
 
@@ -2337,8 +2329,8 @@ const app = createApp({
       ctx.font = '300 12px ui-sans-serif, system-ui, -apple-system, sans-serif';
       ctx.shadowColor = 'rgba(0,0,0,.85)';
       ctx.shadowBlur = 6;
-      for (const [t, , , , , age] of lit) {
-        if (t.selected && t !== hoverTile && age >= FLASH_HOLD_MS) continue;
+      for (const [t] of lit) {
+        if (t.selected && t !== hoverTile) continue;
         if (!t.person) continue;
         ctx.fillStyle = t === hoverTile ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.72)';
         ctx.fillText(givenName(t.person.name), t.cx, t.cy + t.r + 5);
@@ -2347,31 +2339,14 @@ const app = createApp({
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
-    // ---- The rhythm ----
-    let flashCursor = 0;
-    function advanceMosaic() {
-      // Nothing surfaces elsewhere while a country is picked. The whole point
-      // of picking one is that it is the only thing lit; a face blooming in
-      // Chile at full strength is the competition all over again.
-      if (selectedCountries.value.length) return;
-      let n = 0;
-      for (const t of tiles) if (t.on && !t.selected) n++;
-      if (!n) return;
-      flashCursor = (flashCursor + FLASH_STRIDE) % n;
-      let i = 0;
-      for (const t of tiles) {
-        if (!t.on || t.selected) continue;
-        if (i++ !== flashCursor) continue;
-        t.flashAt = performance.now();
-        mosaicDirty = true;
-        return;
-      }
-    }
+    // Nothing lights itself any more. A face comes up because it is under the
+    // pointer or because its country was picked — both of which are answers to
+    // something the visitor did. Faces blooming on their own put movement on
+    // the globe that meant nothing and drew the eye away from whatever was
+    // actually being looked at.
     let mosaicTimer = null;
     function syncMosaicTimer() {
-      const wanted = tiles.length > 0;
-      if (wanted && !mosaicTimer) mosaicTimer = setInterval(advanceMosaic, FLASH_EVERY_MS);
-      if (!wanted && mosaicTimer) { clearInterval(mosaicTimer); mosaicTimer = null; }
+      if (mosaicTimer) { clearInterval(mosaicTimer); mosaicTimer = null; }
     }
 
     // A picked country re-deals its own faces every so often, so a country
@@ -2513,7 +2488,6 @@ const app = createApp({
       // is still the right one.
       const key = [pos.x, pos.y, pos.z, popAlt.value, host.clientWidth, host.clientHeight]
         .map(n => n.toFixed(3)).join(',');
-      const fading = tiles.some(t => performance.now() - t.flashAt < FLASH_HOLD_MS);
       // No still-camera shortcut any more. The droplets are always moving, so
       // there is no frame where the last one is still the right one — the
       // saving this used to make is simply not available once the surface
