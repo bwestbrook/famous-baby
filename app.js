@@ -1289,10 +1289,14 @@ const app = createApp({
       if (!country) return;
       selectGlobeCountry(country);
       const now = selectedCountries.value;
-      // Nothing to open: the country raising off the map, with its faces on
+      // Nothing to open: the country coming up in colour, with its faces on
       // it, is the whole of the feedback. There is no panel to keep in step.
+      //
+      // And putting one down leaves the camera exactly where it is. It used to
+      // fly home, which meant every deselect dragged you back to wherever the
+      // opening view happened to be pinned — you would be looking at Peru,
+      // click twice, and find yourself over Japan.
       if (now.length) frameCountries(now);
-      else resetGlobeView();
     }
 
     // Where the globe opens, picked once per load. Drawing from MAJOR_CITIES
@@ -1558,7 +1562,8 @@ const app = createApp({
     function dropCountry() {
       if (!selectedCountries.value.length) return;
       clearCountry();
-      resetGlobeView();
+      // Stay put. Clicking the sea means "I am done with that country", not
+      // "take me back to the other side of the world".
     }
     function handleGlobeClick() {
       if (faceClickHandled) { faceClickHandled = false; return; }
@@ -4348,7 +4353,10 @@ const app = createApp({
           return;
         } catch {}
       }
-      resetGlobeView();
+      // No remembered view: stay where we are. Flying home from here is the
+      // same yank — closing a card should hand the globe back as it was found,
+      // and if we don't know how it was found, leaving it alone is closer to
+      // that than crossing the world.
     }
 
     // A card up means the globe holds still. Watched rather than written into
