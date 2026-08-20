@@ -1451,9 +1451,13 @@ const app = createApp({
     // brighter than forest, never the same colour as either.
     function polyStrokeColor(d) {
       const entry = polyEntry(d);
-      if (entry && isCountryOn(entry.country)) return '#FF9B21';
-      if (!entry) return 'rgba(146,170,196,0.55)';
-      return d === hoveredPoly.value ? '#12C8DC' : '#4F94E8';
+      // Softer than they were. A solid stroke traced every corner of a
+      // simplified outline and read as chunky against a surface made of
+      // droplets — these carry the same hues at a fraction of the weight, so
+      // the border is felt rather than drawn.
+      if (entry && isCountryOn(entry.country)) return 'rgba(255,155,33,0.55)';
+      if (!entry) return 'rgba(146,170,196,0.16)';
+      return d === hoveredPoly.value ? 'rgba(18,200,220,0.45)' : 'rgba(79,148,232,0.14)';
     }
     // A picked country lifts clear of the sphere — far enough that the sides
     // read as a wall and the shape sits *on* the map rather than in it. All
@@ -1668,7 +1672,11 @@ const app = createApp({
     // Under this many pixels the difference between a carved cell and a square
     // is not visible, and the path is not worth building. Small tesserae blit
     // as they always did.
-    const CARVE_MIN_PX = 7;
+    // Every tessera is cut to its droplet, however small. There used to be a
+    // 7px floor below which the clip was skipped and the cell drawn as a raw
+    // square — and since most of the globe is small tiles, most of the globe
+    // was right angles. A path of fourteen points costs almost nothing next
+    // to the drawImage it wraps, so there is no floor now.
     // A face comes up to full colour under the pointer, and a picked country
     // brings its own up. Nothing lights itself: faces blooming at random put
     // movement on the globe that answered nothing, and pulled the eye off
@@ -2216,6 +2224,19 @@ const app = createApp({
     const BLOB_SWELL = 0.05;           // the slow breath of the whole droplet
     let blobClock = 0;                 // seconds, advanced once a frame
 
+    // Transparent in the middle, opaque at the rim — punched out of what has
+    // just been drawn, so the face fades away at its own edge.
+    let rimGrad = null;
+    function rimFade(ctx) {
+      if (!rimGrad) {
+        rimGrad = ctx.createRadialGradient(0, 0, 0.55, 0, 0, 1.12);
+        rimGrad.addColorStop(0, 'rgba(0,0,0,0)');
+        rimGrad.addColorStop(0.72, 'rgba(0,0,0,0)');
+        rimGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
+      }
+      return rimGrad;
+    }
+
     function blobPath(ctx, t) {
       const ph = t.phase;
       // Two waves, deliberately not harmonics of each other: 2 lobes turning
@@ -2241,17 +2262,20 @@ const app = createApp({
       ctx.setTransform(e1x * dpr, e1y * dpr, e2x * dpr, e2y * dpr, t.cx * dpr, t.cy * dpr);
       // The cell is in the same units the transform above already maps, so the
       // path costs nothing to place — it turns and foreshortens with the stone.
-      // Below CARVE_MIN_PX the shape cannot be seen and the path is skipped.
-      if (t.r >= CARVE_MIN_PX) {
-        ctx.beginPath();
-        blobPath(ctx, t);
-        ctx.save();
-        ctx.clip();
-        ctx.drawImage(img, t.sx, t.sy, ATLAS.cell, ATLAS.cell, -1, -1, 2, 2);
-        ctx.restore();
-        return;
-      }
+      ctx.beginPath();
+      blobPath(ctx, t);
+      ctx.save();
+      ctx.clip();
       ctx.drawImage(img, t.sx, t.sy, ATLAS.cell, ATLAS.cell, -1, -1, 2, 2);
+      // Feather the rim so droplets melt into one another instead of meeting
+      // at a cut edge. A radial fade painted over the top in the destination's
+      // own alpha costs one gradient fill and turns a hard boundary into a
+      // wet one. The gradient is built once and reused; only the transform
+      // moves, so it lands in the tile's own frame every time.
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = rimFade(ctx);
+      ctx.fill();
+      ctx.restore();
     }
 
     let hoverTile = null;
