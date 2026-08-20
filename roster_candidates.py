@@ -35,10 +35,21 @@ UA = ('famous-baby/1.0 (https://github.com/bwestbrook/famous-baby; '
       'roster expansion) Python/urllib')
 
 # ISO 3166-1 numeric (P299) -> country item, for the shapes the atlas numbers.
+# An ISO numeric outlives the state that was issued it: 112 belongs to Belarus
+# and also to the Byelorussian Soviet Socialist Republic, 704 to Vietnam and to
+# North Vietnam. Both come back, the loop below keeps whichever arrived last,
+# and asking for people born in a country that stopped existing in 1991 returns
+# nobody at all — which reads exactly like "this country has no famous people"
+# and is how Belarus, Benin, Djibouti and Vanuatu all came back empty.
+#
+# So: no item that carries a dissolution date, and where a code still has more
+# than one claimant, prefer the one that is a sovereign state today.
 ISO_TO_QID = """
 SELECT ?iso ?country ?countryLabel WHERE {
   VALUES ?iso { %s }
   ?country wdt:P299 ?iso .
+  FILTER NOT EXISTS { ?country wdt:P576 ?dissolved }
+  FILTER NOT EXISTS { ?country wdt:P582 ?ended }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }
 """
@@ -96,7 +107,11 @@ def resolve_countries(isos: list[int]) -> dict[int, tuple[str, str]]:
         values = ' '.join(f'"{n:03d}"' for n in chunk)
         for b in ask(ISO_TO_QID % values):
             qid = b['country']['value'].rsplit('/', 1)[-1]
-            out[int(b['iso']['value'])] = (qid, b['countryLabel']['value'])
+            iso = int(b['iso']['value'])
+            # First claimant wins rather than last. With the dissolved states
+            # filtered out there is normally only one, but a tie must not be
+            # settled by result order.
+            out.setdefault(iso, (qid, b['countryLabel']['value']))
         time.sleep(1)
     return out
 

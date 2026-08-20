@@ -52,6 +52,10 @@ export const NAME_ORIGINS = {
 "s": "A female given name from the Germanic languages.",
 "t": "Ada"
 },
+"adam": {
+"s": "A male given name from Hebrew.",
+"t": "Adam"
+},
 "adela": {
 "s": "A female given name from the Germanic languages.",
 "t": "Adela"
@@ -1256,6 +1260,10 @@ export const NAME_ORIGINS = {
 "s": "A male given name from Arabic used by Muslims, diminutive of حسن (“Hasan”) meaning good or handsome.",
 "t": "Husayn"
 },
+"hussein": {
+"s": "A male given name from Arabic: alternative spelling of Husayn.",
+"t": "Hussein"
+},
 "hypatia": {
 "s": "A female given name from Latin [in turn from Ancient Greek].",
 "t": "Hypatia"
@@ -1304,6 +1312,10 @@ export const NAME_ORIGINS = {
 "s": "A female given name from Ancient Greek; a flower name used since the end of the 19th century.",
 "t": "Iris"
 },
+"irving": {
+"s": "A male given name transferred from the surname, often used by English-speaking Jews to anglicize Israel.",
+"t": "Irving"
+},
 "isaac": {
 "s": "A male given name from Hebrew.",
 "t": "Isaac"
@@ -1311,6 +1323,10 @@ export const NAME_ORIGINS = {
 "isabel": {
 "s": "A female given name from Hebrew.",
 "t": "Isabel"
+},
+"isabelle": {
+"s": "A female given name from French Isabelle, ultimately a variant of Elizabeth.",
+"t": "Isabelle"
 },
 "isaiah": {
 "s": "A male given name from Hebrew.",

@@ -82,6 +82,17 @@ def main() -> int:
         print(f'  {country:26s} +{by_country[country]}')
 
     if dry:
+        # Names, not just counts. The instruction is to read the list before it
+        # is written, and a count is not a list — the wrong person is caught by
+        # seeing their name, their calling and the year against the country.
+        print()
+        last = None
+        for country, name, pid, field in added:
+            if country != last:
+                print(f'  {country}')
+                last = country
+            year = next((a['birthYear'] for a in [] ), None)
+            print(f'      {name:38s} {field}')
         print('\n(dry run)')
         return 0
 

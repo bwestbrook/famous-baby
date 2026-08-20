@@ -125,6 +125,13 @@ OCCUPATION_MAP: list[tuple[str, tuple[str, str]]] = [
     ('monarch', ('Politics', 'Monarch')),
     ('sovereign', ('Politics', 'Monarch')),
     ('diplomat', ('Politics', 'Diplomat')),
+    # Holding an office, as against the generic 'politician' that Wikidata
+    # gives everyone who ever stood for anything — so these carry full weight
+    # while 'politician' stays vague. Without them Shimon Peres, whose list
+    # reads "writer; poet; politician; minister", scored 1.35 for Literature
+    # against 0.35 for Politics and was filed as a poet.
+    ('prime minister', ('Politics', 'Prime Minister')),
+    ('minister', ('Politics', 'Minister')),
     ('head of government', ('Politics', 'Prime Minister')),
     ('head of state', ('Politics', 'President')),
     ('politician', ('Politics', 'President')),
@@ -141,6 +148,14 @@ OCCUPATION_MAP: list[tuple[str, tuple[str, str]]] = [
 VAGUE = {'writer', 'artist', 'scientist', 'politician', 'lawyer', 'model',
          'military personnel', 'military officer', 'journalist', 'engineer',
          'monk', 'preacher', 'sovereign', 'head of state', 'head of government'}
+
+# The other end of the same dial. An office actually held is the strongest
+# thing Wikidata says about someone, and it has to outweigh a pile of vague
+# ones — Shimon Peres reads "writer; poet; politician; minister", which scored
+# 1.35 for Literature against 1.35 for Politics, and the tie went to
+# Literature's higher field weight. A Nobel Peace laureate and prime minister
+# was filed as a poet.
+STRONG = {'prime minister', 'minister', 'diplomat'}
 
 # What this site is for. Heads of state are the fallback, not the first answer.
 FIELD_WEIGHT = {
@@ -250,7 +265,8 @@ def classify(occupations: str) -> tuple[str, str]:
     for needle, (field, subfield) in OCCUPATION_MAP:
         if needle in text:
             hits.setdefault(field, []).append(subfield)
-            score[field] = score.get(field, 0.0) + (0.35 if needle in VAGUE else 1.0)
+            weight = 0.35 if needle in VAGUE else (2.0 if needle in STRONG else 1.0)
+            score[field] = score.get(field, 0.0) + weight
     if not hits:
         return ('Politics', 'President')
     field = max(hits, key=lambda f: (score[f], FIELD_WEIGHT.get(f, 1.0)))
