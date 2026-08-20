@@ -1475,10 +1475,13 @@ const app = createApp({
     // have to answer a pointer.
     function polyCapColor(d) {
       const entry = polyEntry(d);
+      // A hint of fill so an outline has something to be the edge *of* — land
+      // and sea are the same grey once the mosaic covers them, and a line with
+      // nothing either side of it reads as a scratch rather than a border.
       if (!entry) return 'rgba(255,255,255,0.010)';
-      if (isCountryOn(entry.country)) return 'rgba(253,214,99,0.24)';
-      if (d === hoveredPoly.value) return 'rgba(138,180,248,0.30)';
-      return 'rgba(138,180,248,0.05)';
+      if (isCountryOn(entry.country)) return 'rgba(253,214,99,0.20)';
+      if (d === hoveredPoly.value) return 'rgba(138,180,248,0.26)';
+      return 'rgba(138,180,248,0.09)';
     }
     // Border colours have to survive the whole blue-marble texture: near-black
     // jungle at one end, blown-out Sahara/Arabian sand at the other. Pale
@@ -1487,13 +1490,15 @@ const app = createApp({
     // brighter than forest, never the same colour as either.
     function polyStrokeColor(d) {
       const entry = polyEntry(d);
-      // Softer than they were. A solid stroke traced every corner of a
-      // simplified outline and read as chunky against a surface made of
-      // droplets — these carry the same hues at a fraction of the weight, so
-      // the border is felt rather than drawn.
-      if (entry && isCountryOn(entry.country)) return 'rgba(255,155,33,0.55)';
-      if (!entry) return 'rgba(146,170,196,0.16)';
-      return d === hoveredPoly.value ? 'rgba(18,200,220,0.45)' : 'rgba(79,148,232,0.14)';
+      // These are drawn on the globe itself, *under* the droplets. Softening
+      // them to a sixth of their weight took them out of the picture
+      // altogether: the mosaic sits on top and buries anything faint, so a
+      // border that reads through it has to be bright to start with. Back up,
+      // and past where they were — what made them chunky before was the
+      // extruded wall each one sat on, and there are no walls now.
+      if (entry && isCountryOn(entry.country)) return 'rgba(255,176,74,0.95)';
+      if (!entry) return 'rgba(168,192,216,0.42)';
+      return d === hoveredPoly.value ? 'rgba(90,224,240,0.9)' : 'rgba(128,186,255,0.6)';
     }
     // Nothing stands up off the sphere any more. The plinth was there to make
     // a photograph sit *on* its country; the droplets are anchored to points
