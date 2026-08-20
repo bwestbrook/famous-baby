@@ -22,7 +22,7 @@ import pathlib
 import re
 import sys
 
-from roster_pick import BLOCKED, FIELD_WEIGHT, _fold, classify, parse_year, slug
+from roster_pick import clean_name, BLOCKED, FIELD_WEIGHT, _fold, classify, parse_year, slug
 from roster_write import entry_source, unique_id
 
 
@@ -48,7 +48,7 @@ def main() -> int:
             continue
         scored = []
         for c in entry['candidates']:
-            name = c['article'] or c['name']
+            name = clean_name(c['article'] or c['name'])
             if _fold(name) in BLOCKED or _fold(c['name']) in BLOCKED:
                 continue
             if _fold(name) in taken_names:          # already in the roster

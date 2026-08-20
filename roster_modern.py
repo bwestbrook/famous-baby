@@ -23,31 +23,58 @@ import re
 import sys
 
 from roster_candidates import ask
-from roster_pick import BLOCKED, FIELD_WEIGHT, _fold, classify, parse_year, slug
+from roster_pick import clean_name, BLOCKED, FIELD_WEIGHT, _fold, classify, parse_year, slug
 from roster_write import entry_source, unique_id
 
 MODERN = """
-SELECT ?person ?personLabel ?birth ?birthPlaceLabel ?countryLabel ?sitelinks ?article ?genderLabel
+SELECT ?person ?personLabel ?birth ?sitelinks ?article ?genderLabel
        (GROUP_CONCAT(DISTINCT ?occLabel; separator="; ") AS ?occs) WHERE {
   ?person wdt:P31 wd:Q5 ;
           wdt:P569 ?birth ;
-          wdt:P19 ?bp ;
           wikibase:sitelinks ?sitelinks .
   FILTER(?sitelinks >= %d)
   FILTER(?birth >= "%d-01-01"^^xsd:dateTime)
   FILTER(?birth < "2012-01-01"^^xsd:dateTime)
-  ?bp wdt:P17 ?country .
   ?article schema:about ?person ; schema:isPartOf <https://en.wikipedia.org/> .
   OPTIONAL { ?person wdt:P106 ?occ . ?occ rdfs:label ?occLabel FILTER(lang(?occLabel)="en") }
   OPTIONAL { ?person wdt:P21 ?g . ?g rdfs:label ?genderLabel FILTER(lang(?genderLabel)="en") }
-  OPTIONAL { ?bp rdfs:label ?birthPlaceLabel FILTER(lang(?birthPlaceLabel)="en") }
-  ?country rdfs:label ?countryLabel FILTER(lang(?countryLabel)="en")
   ?person rdfs:label ?personLabel FILTER(lang(?personLabel)="en")
 }
-GROUP BY ?person ?personLabel ?birth ?birthPlaceLabel ?countryLabel ?sitelinks ?article ?genderLabel
+GROUP BY ?person ?personLabel ?birth ?sitelinks ?article ?genderLabel
 ORDER BY DESC(?sitelinks)
 LIMIT %d
 """
+
+
+# Where each of them was born, asked separately and keyed on the people the
+# first query already found.
+#
+# It used to be one query. Joining birthplace to country across every human
+# born since 2000 is what made it too heavy to finish: at every sitelink floor
+# it offered — 70, 55, 45 — the service simply stopped answering, three tries
+# each, and the whole run ended with nothing to show. Split in two it is 13
+# seconds for the people and about one for their countries.
+WHERE_BORN = """
+SELECT ?person ?birthPlaceLabel ?countryLabel WHERE {
+  VALUES ?person { %s }
+  ?person wdt:P19 ?bp . ?bp wdt:P17 ?country .
+  ?bp rdfs:label ?birthPlaceLabel FILTER(lang(?birthPlaceLabel)="en")
+  ?country rdfs:label ?countryLabel FILTER(lang(?countryLabel)="en")
+}
+"""
+
+
+def birthplaces(qids: list[str]) -> dict[str, tuple[str, str]]:
+    """person qid -> (birthplace label, country label). Asked in chunks."""
+    out: dict[str, tuple[str, str]] = {}
+    for i in range(0, len(qids), 150):
+        chunk = qids[i:i + 150]
+        values = ' '.join('wd:' + q for q in chunk)
+        for b in ask(WHERE_BORN % values):
+            pid = b['person']['value'].rsplit('/', 1)[-1]
+            out.setdefault(pid, (b.get('birthPlaceLabel', {}).get('value', ''),
+                                 b['countryLabel']['value']))
+    return out
 
 
 def country_aliases(repo: pathlib.Path) -> dict[str, str]:
@@ -88,7 +115,12 @@ def main() -> int:
     # walks every human with a birth date and times out. Raised until it
     # returns, then the field weighting sorts what comes back.
     rows = []
-    for floor, mult in ((70, 4), (55, 3), (45, 2)):
+    # Deep enough to have a choice. At a floor of 40 the pool is 194 people
+    # and two thirds of them are footballers — capping the field there just
+    # leaves the other slots empty, because there is nobody else to put in
+    # them. At 20 it is 900, of whom ~295 are not sportspeople, and the cap
+    # below has something to fill the rest of the list with.
+    for floor, mult in ((20, 10), (14, 10), (10, 10)):
         try:
             rows = ask(MODERN % (floor, since, want * mult))
             print(f'  sitelinks floor {floor}: {len(rows)} rows')
@@ -99,14 +131,16 @@ def main() -> int:
     if not rows:
         print('the query service would not answer; try again in a minute', file=sys.stderr)
         return 1
-    print(f'  {len(rows)} candidates back\n')
+    print(f'  {len(rows)} candidates back')
+    where = birthplaces([b['person']['value'].rsplit('/', 1)[-1] for b in rows])
+    print(f'  {len(where)} of them have a birthplace with a country\n')
 
     scored = []
     seen = set()
     for b in rows:
         name = re.sub(r'_', ' ', b['article']['value'].rsplit('/', 1)[-1])
         from urllib.parse import unquote
-        name = unquote(name)
+        name = clean_name(unquote(name))
         if name in seen:
             continue
         seen.add(name)
@@ -121,7 +155,9 @@ def main() -> int:
         year = parse_year(b['birth']['value'])
         if year is None:
             continue
-        raw_country = b['countryLabel']['value']
+        place, raw_country = where.get(b['person']['value'].rsplit('/', 1)[-1], ('', ''))
+        if not raw_country:
+            continue
         country = aliases.get(raw_country, raw_country)
         # Don't invent a country the globe has never heard of.
         if country not in known_countries:
@@ -130,7 +166,7 @@ def main() -> int:
         scored.append((int(b['sitelinks']['value']) * FIELD_WEIGHT.get(field, 1.0), {
             'country': country, 'name': name,
             'birth': b['birth']['value'], 'birthYear': year,
-            'birthPlace': b.get('birthPlaceLabel', {}).get('value', ''),
+            'birthPlace': place,
             'gender': b.get('genderLabel', {}).get('value', ''),
             'field': field, 'subfield': subfield,
             'occupations': b['occs']['value'],
@@ -139,6 +175,8 @@ def main() -> int:
 
     lines, added = [], []
     per_country: dict[str, int] = {}
+    per_field: dict[str, int] = {}
+    field_cap = max(4, round(want * 0.35))
     for _, p in scored:
         if len(added) >= want:
             break
@@ -146,10 +184,18 @@ def main() -> int:
         # American pop singers and English footballers.
         if per_country.get(p['country'], 0) >= 6:
             continue
+        # And no more than a third from any one calling. The country cap does
+        # nothing about this: every country's best-known twenty-year-old is a
+        # footballer, so spreading across forty countries still returns a list
+        # that is 79% Sports — measured, on the pass that prompted this — into
+        # a roster where Sports is already the largest field by a distance.
+        if per_field.get(p['field'], 0) >= field_cap:
+            continue
         pid = unique_id(slug(p['name']), taken_ids)
         taken_ids.add(pid)
         taken_names.add(_fold(p['name']))
         per_country[p['country']] = per_country.get(p['country'], 0) + 1
+        per_field[p['field']] = per_field.get(p['field'], 0) + 1
         lines.append(entry_source(p, pid))
         added.append((p['country'], p['name'], p['birthYear'], p['field'], pid))
 
@@ -159,9 +205,12 @@ def main() -> int:
     print(f'{len(added)} to add, across {len(per_country)} countries')
     print('  ' + '  '.join(f'{f}:{n}' for f, n in sorted(by_field.items(), key=lambda kv: -kv[1])))
     print()
-    for country, name, year, field, _ in added[:8]:
+    # All of them on a dry run. The instruction is to read the list before it
+    # is written, and eight of ninety is not the list.
+    show = added if '--dry' in sys.argv else added[:8]
+    for country, name, year, field, _ in show:
         print(f'  {country:16s} {name[:26]:27} {year}  {field}')
-    if len(added) > 8:
+    if len(added) > len(show):
         print(f'  … and {len(added) - 8} more')
 
     if dry:

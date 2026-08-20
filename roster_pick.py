@@ -273,6 +273,24 @@ def classify(occupations: str) -> tuple[str, str]:
     return (field, hits[field][0])
 
 
+def clean_name(name: str) -> str:
+    """Drop Wikipedia's disambiguator from an article title.
+
+    The name is taken from the article title, and Wikipedia disambiguates in
+    the title: "Sade (singer)", "Lisa (rapper)", "Ronaldo (Brazilian
+    footballer)", "Eder (footballer, born 1987)". That suffix is a property of
+    Wikipedia's namespace, not of the person, and on a site whose entire
+    subject is names it is the one field that must not carry it. Thirty-eight
+    entries were already filed this way before this existed.
+
+    Only a trailing parenthetical, and only if something is left in front of
+    it — so a mononym like "Pelé" is untouched and a title that is nothing but
+    a bracket is left alone rather than emptied.
+    """
+    out = re.sub(r'\s*\([^()]*\)\s*$', '', name or '').strip()
+    return out or (name or '').strip()
+
+
 def parse_year(raw: str) -> int | None:
     """Wikidata timestamps, BCE included.
 

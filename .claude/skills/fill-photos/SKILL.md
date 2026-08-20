@@ -45,6 +45,12 @@ a cell *by position*. The sheet and the manifest out of step puts every face on
 the wrong person, silently, and the result looks completely fine. It is the
 worst failure in this project.
 
+**One tracked photograph per person.** `photos/faces/` is derived and is not
+in git — it was a second copy of every portrait, 60 MB of the tree and half
+the churn. `facecrop` rebuilds it locally; `build_atlas.py` reads it and
+produces `atlas.jpg`, which is what the mosaic actually draws. So the repo
+carries one picture per person plus one sheet, and nothing else.
+
 **Nothing but portraits in `photos/`.** `--manifest` globs `photos/*.jpg` and
 takes every filename stem as a person's id; a sprite sheet parked there once
 joined the roster as someone called "atlas".
