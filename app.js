@@ -975,9 +975,9 @@ const app = createApp({
       const want = altitude <= US_LABEL_ALTITUDE ? 'states' : 'world';
       if (want === labelTier) return;
       labelTier = want;
-      try {
-        globeInstance.labelsData(want === 'states' ? [...MAJOR_CITIES, ...US_STATE_CITIES] : MAJOR_CITIES);
-      } catch {}
+      // Nothing to swap: the label layer is not drawn any more. Kept as the
+      // one place that knows about the altitude threshold, in case city names
+      // come back.
     }
     function syncLabelScale(altitude) {
       if (!globeInstance) return;
@@ -985,7 +985,6 @@ const app = createApp({
       const size = labelSizeFor(altitude);
       if (Math.abs(size - labelSizeApplied) < 0.02) return;
       labelSizeApplied = size;
-      try { globeInstance.labelSize(size).labelDotRadius(size * 0.32); } catch {}
     }
     // pointOfView() tweens the camera without emitting zoom events, so callers
     // that fly somewhere hand us the altitude they're heading to.
@@ -2968,17 +2967,10 @@ const app = createApp({
         .showAtmosphere(true)
         .atmosphereColor('#7FB2F0')
         .atmosphereAltitude(0.18)
-        // Major cities, the way Earth labels the ground beneath you.
-        .labelsData(MAJOR_CITIES)
-        .labelLat('lat')
-        .labelLng('lng')
-        .labelText('name')
-        // Both are re-set by syncLabelScale() as the camera moves.
-        .labelSize(labelSizeFor(2.4))
-        .labelDotRadius(labelSizeFor(2.4) * 0.32)
-        .labelColor(() => 'rgba(255,255,255,0.82)')
-        .labelAltitude(0.012)
-        .labelResolution(2)
+        // No city labels. The land carries faces now, and a scatter of white
+        // dots and place names over the top of them is a second map competing
+        // with the first. MAJOR_CITIES stays — it still places a birthplace
+        // and still picks where the globe opens; it just isn't drawn.
         // State / province lines for the countries Natural Earth carries them
         // for — drawn fainter than national borders so the hierarchy reads.
         .pathsData(ADMIN1_PATHS)
