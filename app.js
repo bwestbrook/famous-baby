@@ -1459,30 +1459,21 @@ const app = createApp({
       if (!entry) return 'rgba(146,170,196,0.16)';
       return d === hoveredPoly.value ? 'rgba(18,200,220,0.45)' : 'rgba(79,148,232,0.14)';
     }
-    // A picked country lifts clear of the sphere — far enough that the sides
-    // read as a wall and the shape sits *on* the map rather than in it. All
-    // three heights hang off popAlt, which tracks the camera (see
-    // applyFramedAltitude), so zooming in on a small country can't leave a
-    // merely-hovered neighbour standing taller than the one that's picked.
-    // How high a country stands. The collage is clipped to the outline
-    // projected at this exact height, so the two must be worked out in one
-    // place — when they disagreed, hovering a country slid its photo off its
-    // own border until the cursor moved away.
-    function countryAltitude(country, hovered) {
-      const pop = popAlt.value;
-      if (isCountryOn(country)) return pop;
-      if (hovered) return Math.min(0.015, pop * 0.55);
-
-      // Nothing. The plinth existed to make a photograph sit *on* its country;
-      // a bubble is anchored at a point and doesn't need one, and a world of
-      // low walls read as noise behind the faces.
+    // Nothing stands up off the sphere any more. The plinth was there to make
+    // a photograph sit *on* its country; the droplets are anchored to points
+    // on the surface and don't need one, and lifting a country pushed its
+    // faces off the terrain they are meant to be part of — the shape reads
+    // from colour and border weight instead, which costs no height at all.
+    //
+    // Kept as a function rather than inlined as 0, because it is still the
+    // single place that answers "how high is this country", and the mosaic
+    // and the polygon layer must never answer it differently.
+    function countryAltitude() {
       return 0;
     }
 
-    function polyAltitude(d) {
-      const entry = polyEntry(d);
-      if (!entry) return 0;
-      return countryAltitude(entry.country, d === hoveredPoly.value);
+    function polyAltitude() {
+      return 0;
     }
     // Must match polygonsTransitionDuration below: globe.gl eases the
     // extrusion over this long, and the clip has to travel with it rather than
@@ -1490,6 +1481,8 @@ const app = createApp({
     const POLY_TWEEN_MS = 420;
     // Once a country is up on its plinth the extruded sides are most of what
     // you see of it from an angle, so they take the selection colour too.
+    // The extruded sides of a country. Nothing is extruded now, so this only
+    // still exists because globe.gl asks for it.
     function polySideColor(d) {
       const entry = polyEntry(d);
       if (entry && isCountryOn(entry.country)) return 'rgba(253,214,99,0.22)';
@@ -2298,7 +2291,6 @@ const app = createApp({
       const now = performance.now();
       const cosH = Math.cos(horizonAngle * (1 - MOSAIC_HORIZON_MARGIN));
       const grey = atlasGrey || atlasImg;
-      const pop = popAlt.value;
       const lit = [];
 
       const screenAt = (lat, lng, alt) => {
@@ -2314,12 +2306,10 @@ const app = createApp({
       for (const t of tiles) {
         t.on = false;
         if (dot(t.v, camDir) < cosH) continue;
-        // A picked country stands on a plinth, so its tesserae rise with it.
-        const alt = t.selected ? pop : 0;
-        const c = screenAt(t.lat, t.lng, alt);
+        const c = screenAt(t.lat, t.lng, 0);
         if (!c) continue;
-        const pe = screenAt(t.e[0], t.e[1], alt);
-        const pn = screenAt(t.n[0], t.n[1], alt);
+        const pe = screenAt(t.e[0], t.e[1], 0);
+        const pn = screenAt(t.n[0], t.n[1], 0);
         if (!pe || !pn) continue;
         const e1x = pe.x - c.x, e1y = pe.y - c.y;
         // South, not north: the image's own y-axis runs downward, and mapping
