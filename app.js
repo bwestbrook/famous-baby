@@ -2406,6 +2406,18 @@ const app = createApp({
       globeUntouched = false;
       faceClickHandled = false;
       pointerDownAt = { x: ev.clientX, y: ev.clientY };
+      stopSpinForGood();
+    }
+
+    // The drift is an invitation, not a behaviour. The moment anyone takes
+    // hold of the globe it stops and stays stopped: a globe that keeps
+    // creeping under your finger is fighting you, and every camera move after
+    // this is something the visitor asked for.
+    let spinRetired = false;
+    function stopSpinForGood() {
+      if (spinRetired) return;
+      spinRetired = true;
+      setGlobeSpin(false);
     }
     function onGlobePointerMove(ev) {
       if (!tiles.length) return;
@@ -2918,6 +2930,10 @@ const app = createApp({
 
     function setGlobeSpin(on) {
       if (!globeInstance) return;
+      // Once retired it stays retired, whatever else asks — closing a card or
+      // clearing a country would otherwise start it drifting again under
+      // somebody who had already taken hold of it.
+      if (on && spinRetired) return;
       try {
         const c = globeInstance.controls();
         if ('autoRotate' in c) { c.autoRotate = !!on; c.autoRotateSpeed = SPIN_SPEED; }
@@ -2991,7 +3007,7 @@ const app = createApp({
         // it starts stopped if a card is already up, since a rebuild would
         // otherwise hand the spin back behind the card's back.
         if ('autoRotate' in c) {
-          c.autoRotate = !selectedPerson.value;
+          c.autoRotate = !selectedPerson.value && !spinRetired;
           c.autoRotateSpeed = SPIN_SPEED;
         }
         c.enableZoom = true;
@@ -3017,6 +3033,8 @@ const app = createApp({
       } catch {}
       el.style.cursor = 'grab';
       el.addEventListener('pointerdown', onGlobePointerDown);
+      // Zooming is taking hold of it too, and arrives without a pointerdown.
+      el.addEventListener('wheel', stopSpinForGood, { passive: true });
       el.addEventListener('pointermove', onGlobePointerMove);
       el.addEventListener('pointerup', onGlobePointerUp);
       const ro = new ResizeObserver(() => {
@@ -3041,6 +3059,7 @@ const app = createApp({
       const el = globeInstance._el;
       if (el) {
         el.removeEventListener('pointerdown', onGlobePointerDown);
+        el.removeEventListener('wheel', stopSpinForGood);
         el.removeEventListener('pointermove', onGlobePointerMove);
         el.removeEventListener('pointerup', onGlobePointerUp);
         el.innerHTML = '';
