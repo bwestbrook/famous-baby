@@ -1010,7 +1010,7 @@ const app = createApp({
         : altitudeToFit(5 * RAD * FRAME_PAD * tightness);
       applyFramedAltitude(altitude);
       try {
-        globeInstance.pointOfView({ lat, lng, altitude }, CAMERA_TWEEN_MS);
+        globeInstance.pointOfView({ lat: biasedLat(lat, altitude), lng, altitude }, CAMERA_TWEEN_MS);
         syncLabelScaleTo(altitude);
       } catch {}
     }
@@ -1198,6 +1198,42 @@ const app = createApp({
     // neighbours around it doing the work of saying where on Earth this is.
     const FRAME_PAD = 1.9;
 
+    // ---- Sitting a country high in the frame ----
+    // Centred, a picked country sits behind whatever the dock is showing. It
+    // belongs in the upper third, which means aiming the camera at a point
+    // *south* of it: the country then rides above the middle by exactly as
+    // much as the target sits below it.
+    //
+    // FRAME_BIAS is where the country's centre lands, as a share of the half
+    // -height, measured up from the middle. 0.40 lands the country's centre
+    // about a third of the way down the screen.
+    const FRAME_BIAS = 0.40;
+
+    // How far south to aim, given how far back we are standing. A point θ from
+    // the sub-camera point appears at atan(sinθ / (d − cosθ)) off the axis, so
+    // this is that equation solved the other way round:
+    //   sinθ + T·cosθ = T·d   with T = tan(bias · halfFov)
+    //   → θ = asin(T·d / √(1+T²)) − atan(T)
+    function biasOffset(altitude) {
+      const f = fovHalves();
+      const T = Math.tan(FRAME_BIAS * f.v);
+      const d = 1 + altitude;
+      const R = Math.hypot(1, T);
+      const x = (T * d) / R;
+      // Past the horizon there is no such point; fall back to no bias rather
+      // than aiming at nothing.
+      if (!(x >= -1 && x <= 1)) return 0;
+      return Math.asin(x) - Math.atan(T);
+    }
+
+    // Latitude only: north is up on this globe, so the bias runs along the
+    // meridian. Clamped short of the poles, where "further south" stops
+    // meaning what it means everywhere else.
+    function biasedLat(lat, altitude) {
+      const off = biasOffset(altitude) / RAD;
+      return Math.max(-84, Math.min(84, lat - off));
+    }
+
     function frameCountries(countries) {
       if (!globeInstance) return;
       const pts = countries.map(c => ({ c, ext: countryExtent(c) })).filter(p => p.ext);
@@ -1226,7 +1262,7 @@ const app = createApp({
       const altitude = altitudeToFitBox(hw, hh);
       applyFramedAltitude(altitude);
       try {
-        globeInstance.pointOfView({ lat, lng, altitude }, CAMERA_TWEEN_MS);
+        globeInstance.pointOfView({ lat: biasedLat(lat, altitude), lng, altitude }, CAMERA_TWEEN_MS);
         syncLabelScaleTo(altitude);
       } catch {}
     }
