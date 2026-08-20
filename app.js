@@ -1499,7 +1499,7 @@ const app = createApp({
       // and sea are the same grey once the mosaic covers them, and a line with
       // nothing either side of it reads as a scratch rather than a border.
       if (!entry) return 'rgba(255,255,255,0.010)';
-      if (isCountryOn(entry.country)) return 'rgba(253,214,99,0.20)';
+      if (isCountryOn(entry.country)) return 'rgba(253,214,99,0.26)';
       if (d === hoveredPoly.value) return 'rgba(138,180,248,0.26)';
       return 'rgba(138,180,248,0.09)';
     }
@@ -1516,9 +1516,15 @@ const app = createApp({
       // border that reads through it has to be bright to start with. Back up,
       // and past where they were — what made them chunky before was the
       // extruded wall each one sat on, and there are no walls now.
-      if (entry && isCountryOn(entry.country)) return 'rgba(255,176,74,0.95)';
-      if (!entry) return 'rgba(168,192,216,0.42)';
-      return d === hoveredPoly.value ? 'rgba(90,224,240,0.9)' : 'rgba(128,186,255,0.6)';
+      // The picked country was outlined in near-solid amber, which against a
+      // surface of soft droplets read as a hard yellow cut. It does not need
+      // that weight to be obvious — its faces are the only ones in full
+      // colour, and the whole rest of the world is muted behind it — so the
+      // line only has to confirm the shape, not announce it. Warmer and much
+      // lighter, and the hover follows it down.
+      if (entry && isCountryOn(entry.country)) return 'rgba(255,198,120,0.42)';
+      if (!entry) return 'rgba(168,192,216,0.34)';
+      return d === hoveredPoly.value ? 'rgba(140,226,238,0.45)' : 'rgba(128,186,255,0.5)';
     }
     // Nothing stands up off the sphere any more. The plinth was there to make
     // a photograph sit *on* its country; the droplets are anchored to points
@@ -2279,6 +2285,25 @@ const app = createApp({
     const BLOB_SWELL = 0.05;           // the slow breath of the whole droplet
     let blobClock = 0;                 // seconds, advanced once a frame
 
+    // The carved cell, drawn as a curve rather than as a polygon. Each corner
+    // is used as a control point and the curve passes through the midpoints of
+    // the edges, so a cell keeps its area and its neighbours' seams still
+    // meet — it just stops arriving at every corner as a corner. Against a
+    // simplified coastline, straight-edged cells made the whole border read as
+    // a saw.
+    function cellPath(ctx, p) {
+      const n = p.length / 2;
+      if (n < 3) return;
+      const mx = (i, j) => (p[i * 2] + p[j * 2]) / 2;
+      const my = (i, j) => (p[i * 2 + 1] + p[j * 2 + 1]) / 2;
+      ctx.moveTo(mx(n - 1, 0), my(n - 1, 0));
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        ctx.quadraticCurveTo(p[i * 2], p[i * 2 + 1], mx(i, j), my(i, j));
+      }
+      ctx.closePath();
+    }
+
     // Transparent in the middle, opaque at the rim — punched out of what has
     // just been drawn, so the face fades away at its own edge.
     let rimGrad = null;
@@ -2327,9 +2352,7 @@ const app = createApp({
       const poly = t.poly;
       if (poly) {
         ctx.beginPath();
-        ctx.moveTo(poly[0], poly[1]);
-        for (let i = 2; i < poly.length; i += 2) ctx.lineTo(poly[i], poly[i + 1]);
-        ctx.closePath();
+        cellPath(ctx, poly);
         ctx.clip();
       }
       ctx.beginPath();
