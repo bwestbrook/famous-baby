@@ -2835,12 +2835,61 @@ const app = createApp({
 
     // Fetch + attach the outlines. Failure is non-fatal: the globe still
     // renders, just without borders.
+    // ---- Taking the corners off the world ----
+    // Natural Earth at 110m is a coarse polygon: every coastline is a run of
+    // straight segments meeting at hard angles, and everything downstream
+    // inherits them — the drawn border, and the cells carved against it, which
+    // is why the mosaic kept reading as a saw however the cells themselves
+    // were drawn.
+    //
+    // Chaikin's corner cutting: replace each corner with two points a quarter
+    // and three quarters along its edges, and the angle is gone. Do it twice
+    // and a polygon reads as a curve. It shrinks the shape very slightly
+    // toward its own centre — a quarter of each corner — which at this scale
+    // is far below a pixel and well under the error already in a 110m outline.
+    const CHAMFER_PASSES = 2;
+
+    function chaikin(ring) {
+      const n = ring.length;
+      if (n < 4) return ring;
+      const out = [];
+      for (let i = 0; i < n - 1; i++) {
+        const [x1, y1] = ring[i];
+        const [x2, y2] = ring[i + 1];
+        out.push([x1 + (x2 - x1) * 0.25, y1 + (y2 - y1) * 0.25]);
+        out.push([x1 + (x2 - x1) * 0.75, y1 + (y2 - y1) * 0.75]);
+      }
+      out.push(out[0].slice());          // rings must close
+      return out;
+    }
+
+    function chamferRing(ring) {
+      let r = ring;
+      // Leave the small stuff alone: an island of a dozen points has no corners
+      // to spare, and cutting them costs it its shape.
+      if (r.length < 8) return r;
+      for (let i = 0; i < CHAMFER_PASSES; i++) r = chaikin(r);
+      return r;
+    }
+
+    function chamferFeature(f) {
+      const g = f && f.geometry;
+      if (!g) return f;
+      const cut = (poly) => poly.map(chamferRing);
+      let geometry;
+      if (g.type === 'Polygon') geometry = { ...g, coordinates: cut(g.coordinates) };
+      else if (g.type === 'MultiPolygon') geometry = { ...g, coordinates: g.coordinates.map(cut) };
+      else return f;
+      return { ...f, geometry };
+    }
+
     async function loadCountryPolygons() {
       try {
         const res = await fetch(WORLD_TOPO_URL);
         const topo = await res.json();
         if (!window.topojson) throw new Error('topojson-client did not load');
-        const features = window.topojson.feature(topo, topo.objects.countries).features;
+        const raw = window.topojson.feature(topo, topo.objects.countries).features;
+        const features = raw.map(chamferFeature);
         worldFeatures.value = features;   // also feeds the card's mini-map
         if (!globeInstance) return;
         globeInstance
