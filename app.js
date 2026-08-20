@@ -2350,15 +2350,12 @@ const app = createApp({
           dealOffset++;
           for (const t of tiles) if (t.selected) dealFace(t, dealOffset);
           mosaicDirty = true;
-          runTimerBar(0);
         }, FACE_DWELL);
-        runTimerBar(0);
       }
       if (!any && dealTimer) {
         clearInterval(dealTimer); dealTimer = null;
         dealOffset = 0;
         for (const t of tiles) dealFace(t, 0);
-        stopTimerBar();
       }
     }
 
@@ -2451,30 +2448,9 @@ const app = createApp({
     // One bar across the top, under the masthead: only a picked country is
     // re-dealing, and the top edge is where a thing that applies to the whole
     // screen belongs.
-    let mosTimerBar = null;
-    function ensureMosaicTimer() {
-      if (mosTimerBar || !mosRoot) return mosTimerBar;
-      mosTimerBar = document.createElement('div');
-      mosTimerBar.className = 'mos__timer';
-      mosTimerBar.style.setProperty('--face-dwell', FACE_DWELL + 'ms');
-      mosRoot.appendChild(mosTimerBar);
-      return mosTimerBar;
-    }
     // Removing the class and forcing a reflow before re-adding it is what makes
     // the animation replay; without the reflow the browser coalesces the two
     // changes and nothing moves.
-    function runTimerBar(delayMs) {
-      const bar = ensureMosaicTimer();
-      if (!bar) return;
-      bar.classList.remove('is-running');
-      bar.style.animationDelay = '';
-      void bar.offsetWidth;
-      if (delayMs) bar.style.animationDelay = delayMs + 'ms';
-      bar.classList.add('is-running');
-    }
-    function stopTimerBar() {
-      if (mosTimerBar) mosTimerBar.classList.remove('is-running');
-    }
 
     // ---- The frame loop ----
     let mosaicRaf = null;
@@ -3055,7 +3031,7 @@ const app = createApp({
       if (dealTimer) { clearInterval(dealTimer); dealTimer = null; }
       if (mosaicRaf != null) { cancelAnimationFrame(mosaicRaf); mosaicRaf = null; }
       clearMosaic();
-      if (mosRoot) { mosRoot.remove(); mosRoot = null; mosCanvas = null; mosCtx = null; mosTimerBar = null; }
+      if (mosRoot) { mosRoot.remove(); mosRoot = null; mosCanvas = null; mosCtx = null; }
       const el = globeInstance._el;
       if (el) {
         el.removeEventListener('pointerdown', onGlobePointerDown);
