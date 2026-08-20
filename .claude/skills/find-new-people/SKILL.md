@@ -21,6 +21,9 @@ wrong person gets caught, and it has caught several.
 
 ## Then the photographs, in this order
 
+The pipeline and its ordering rules live in `fill-photos` — read that
+rather than trusting this summary, which is here for sequence only.
+
 ```bash
 python3 fetch_photos.py --targets photo_refetch.json --width 1400
 ./facecrop photos photos/faces 420 0.78
