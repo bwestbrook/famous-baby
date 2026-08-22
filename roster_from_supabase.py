@@ -32,6 +32,7 @@ import sys
 import time
 
 from roster_candidates import ask
+from country_aliases import ALIASES
 from roster_pick import BLOCKED, FIELD_WEIGHT, _fold, classify, parse_year, slug
 
 # The roster's existing Music subfields. New people map onto these; the
@@ -225,8 +226,7 @@ def main() -> int:
         print(f'  batch {i // 40 + 1}: {len(found)} confirmed so far')
         time.sleep(1.2)
 
-    aliases = {'United States of America': 'USA', 'United Kingdom': 'UK',
-               'Kingdom of the Netherlands': 'Netherlands', 'Czech Republic': 'Czechia'}
+    aliases = dict(ALIASES)
 
     # Matching a stage name against labels and aliases finds people who merely
     # share a word with one. The first run returned Antoine Busnois, a French
