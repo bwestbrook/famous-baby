@@ -625,13 +625,35 @@ function daysInMonth(month) {
   return 30;
 }
 
+// Anything this old is an estimate. Wikidata stores the Buddha as -500 and
+// the article argues about the century; Ibn Khaldun's year is firmer but his
+// day is not. Rather than carry a precision flag on every entry for the sake
+// of 154 of them, treat the deep past as approximate — which is what a reader
+// assumes anyway, and what the sources actually say.
+const APPROX_BEFORE = 1500;
+
+// A year, said the way it should be read: negative years are BC, and old ones
+// are hedged. Used by the date chip and the lifespan, so they always agree.
+function formatYear(y) {
+  if (y == null) return '';
+  if (y < 0) return `${Math.abs(y)} BC`;
+  return y < APPROX_BEFORE ? `c. ${y}` : String(y);
+}
+
+// The birth date at whatever precision the entry actually holds. 3,114 carry a
+// full date, 77 only a year — and a year on its own should read as a year, not
+// as a broken date. No "b." prefix: the lifespan beside it already says which
+// end of a life this is.
 function formatBirthDate(person) {
   if (!person) return '';
   const m = person.birthMonth, d = person.birthDay, y = person.birthYear;
-  if (m && d && y) return `${MONTH_NAMES[m]} ${d}, ${y}`;
-  if (m && y) return `${MONTH_NAMES[m]} ${y}`;
-  if (y) return `b. ${y}`;
-  return '';
+  if (y == null) return '';
+  // A precise day inside an estimated year would be claiming more than we know.
+  if (y > 0 && y >= APPROX_BEFORE) {
+    if (m && d) return `${MONTH_NAMES[m]} ${d}, ${y}`;
+    if (m) return `${MONTH_NAMES[m]} ${y}`;
+  }
+  return formatYear(y);
 }
 
 // Characters the keyboard picker supports — letters, common name punctuation,
@@ -5127,6 +5149,39 @@ const app = createApp({
     const selectedNameParts = computed(() => fullNameParts(selectedPerson.value));
     // The animal the open card was born under. Computed once rather than
     // called three times from the template — it runs an ephemeris.
+    // ---- Born to died, or born to still here ----
+    // A naming almanac is mostly people who are gone, and the ones who aren't
+    // are worth telling apart at a glance. deathYear is only present on
+    // entries the death sweep has reached; absent means "not recorded", which
+    // for anyone born within living memory is the same as still here, and for
+    // anyone older is simply unknown. So the living get "present" and the rest
+    // get nothing rather than a guess.
+    const LIVING_CUTOFF = 1915;      // born before this and an unrecorded death is missing data, not longevity
+
+    function lifespan(p) {
+      if (!p || p.birthYear == null) return '';
+      const born = formatYear(p.birthYear);
+      if (p.deathYear != null) return `${born} – ${formatYear(p.deathYear)}`;
+      if (p.birthYear >= LIVING_CUTOFF) return `${born} – present`;
+      // Born too long ago to be alive and no death recorded: say nothing
+      // rather than imply either.
+      return born;
+    }
+
+    function lifespanTitle(p) {
+      if (!p || p.birthYear == null) return '';
+      if (p.deathYear != null) {
+        const age = p.deathYear - p.birthYear;
+        // Only claim an age when both ends are firm — "aged 82" off two
+        // estimated years is a number with nothing behind it.
+        const firm = p.birthYear >= APPROX_BEFORE && p.deathYear >= APPROX_BEFORE;
+        return firm && age > 0 && age < 120
+          ? `Died ${p.deathYear}, aged ${age}`
+          : `Died ${formatYear(p.deathYear)}`;
+      }
+      return p.birthYear >= LIVING_CUTOFF ? 'Still living' : 'Date of death not recorded';
+    }
+
     const selectedChinese = computed(() => {
       const p = selectedPerson.value;
       return p ? chineseZodiacFor(p.birthYear, p.birthMonth, p.birthDay) : null;
@@ -5209,7 +5264,7 @@ const app = createApp({
       isBornMonthSelected, isBornDaySelected, isZodiacSelected,
       clearBornFilters,
       MONTH_NAMES, zodiacFor, zodiacIcon, zodiacWiki, formatBirthDate, daysInMonth,
-      selectedChinese,
+      selectedChinese, lifespan, lifespanTitle,
       // the random drawer
       randomEra, randomPlace, randomGender, randomCategory, randomEverything,
       // dock

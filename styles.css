@@ -2515,3 +2515,14 @@ a.nsheet__src:hover { color: rgba(255,255,255,.8); text-decoration: underline; }
 /* The Chinese sign in the detail list: a fact that reads, not a chip that
    clicks, so it keeps the character's weight and drops the pill around it. */
 .kdl__cn { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: rgba(255,255,255,.82); }
+
+/* Born to died, beside the birth date it extends. Quieter than the signs
+   around it: it is a fact about the person, not a way into anyone else. */
+.pop__sign--span {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+  opacity: .72;
+  cursor: default;
+}
+/* The other zodiac reads rather than clicks — there is nothing to filter to. */
+.pop__sign--cn { cursor: default; }

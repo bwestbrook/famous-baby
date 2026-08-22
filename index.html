@@ -564,6 +564,12 @@
                   @click="filterBirthday(selectedPerson)"
                   :title="selectedPerson.birthMonth ? 'Show everyone born ' + MONTH_NAMES[selectedPerson.birthMonth] + (selectedPerson.birthDay ? ' ' + selectedPerson.birthDay : '') : ''"
                 >{{ formatBirthDate(selectedPerson) }}</button>
+                <!-- Born to died, or born to still here. A naming almanac is
+                     mostly about people who are gone, and the ones who are not
+                     are worth telling apart. -->
+                <span class="pop__sign pop__sign--span" :title="lifespanTitle(selectedPerson)">
+                  {{ lifespan(selectedPerson) }}
+                </span>
                 <button
                   v-if="zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay)"
                   class="pop__sign"
@@ -572,6 +578,15 @@
                 >
                   <svg class="ico ico--12 ico--stroke"><use :href="zodiacIcon(zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay))"/></svg>{{ zodiacFor(selectedPerson.birthMonth, selectedPerson.birthDay) }}
                 </button>
+                <!-- The other zodiac, on the same birthday. It read further
+                     down the card with the biographical facts; it belongs
+                     here, beside the sign it is the counterpart to. Nothing
+                     to filter to yet, so it reads rather than clicks. -->
+                <span
+                  v-if="selectedChinese"
+                  class="pop__sign pop__sign--cn"
+                  :title="'Born in the year of the ' + selectedChinese.animal"
+                ><em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}</span>
                 <!-- Sits with the signs because it's the same kind of fact: a
                      thing they were born as, and a way into everyone else who
                      shares it. -->
@@ -643,10 +658,6 @@
                  inventing half of one would be worse than leaving it be. So it
                  reads here instead, with the other facts about the person,
                  which is what it always was. -->
-            <template v-if="selectedChinese">
-              <dt>Year of</dt>
-              <dd><span class="kdl__cn"><em class="pop__cn">{{ selectedChinese.glyph }}</em>{{ selectedChinese.animal }}</span></dd>
-            </template>
             <!-- The name's own story used to lead this list. It reads better
                  as one thing behind the Origin button with the chart beside
                  it than as a paragraph wedged among rows of tags, so this list
