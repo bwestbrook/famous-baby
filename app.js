@@ -2171,7 +2171,6 @@ const app = createApp({
       // its neighbours, so there is nothing to cut against until they all exist.
       carveTiles();
       // And where they ended up is what tells the globe when to hurry.
-      buildFaceGrid();
     }
 
     // ---- Carving the cells ----
@@ -2981,57 +2980,46 @@ const app = createApp({
     // the animation rather than as the world easing on once the faces ran out.
     const SPIN_EASE_UP = 0.020;
     const SPIN_EASE_DOWN = 0.045;
-    // What slows the globe down is something to look at, not land as such. The
-    // first version asked the coastline, and the coastline is a poor judge:
-    // one rock in the middle of the Pacific put the brakes on for a landmass
-    // with nobody on it, while a shelf of Antarctic ice counted for as much as
-    // Italy. So it asks the mosaic instead — where the faces are.
+    // ---- Where it is worth hurrying ----
+    // This used to count faces in the cells around the centre of the screen
+    // and speed up wherever there were none. It read as glitchy: the roster is
+    // patchy, so the globe would find an empty stretch over inhabited land,
+    // break into a run for a second and slow again — accelerating over Kansas
+    // because nobody in the roster is from there.
     //
-    // It asks about the five degrees under the middle of the screen, and asks
-    // for two faces in them. Both numbers were picked by simulating a lap
-    // against the real mosaic rather than guessed: looking ten degrees either
-    // way, which sounded like sensible margin, dropped a lap at the equator
-    // from 83% open water to 26% — the wide net caught something nearly
-    // everywhere and the globe hardly ever got up to speed.
+    // The two places genuinely worth skipping are the open Pacific and the
+    // open Atlantic, and those are fixed features of the Earth. So they are
+    // written down. No sampling, no grid, nothing to be patchy about, and the
+    // globe only ever hurries where there is actually nothing to see.
     //
-    // The easing is what stops a single cell boundary reading as a jolt,
-    // rather than the cell being large enough to smooth it.
-    const SPIN_CELL = 5;             // degrees to a cell
-    const SPIN_LOOK = 0;             // cells either way beyond that one
-    const SPIN_FACES_MIN = 2;        // fewer faces than this and it is open sea
-    let faceGrid = null;
-    function cellKey(lat, lng) {
-      const lo = ((lng + 180) % 360 + 360) % 360 - 180;
-      return (Math.floor(lat / SPIN_CELL) + 40) * 200 + (Math.floor(lo / SPIN_CELL) + 40);
+    // Longitudes, west-negative. The Pacific wraps the date line, so it is two
+    // spans. Latitude is ignored on purpose: at any latitude these longitudes
+    // are ocean or near enough, and a vertical stripe is the honest shape of
+    // the thing — the Atlantic does not stop being empty at 40 north.
+    const OPEN_WATER = [
+      [-175, -128],   // mid Pacific, east of the date line
+      [ 158,  180],   // and west of it
+      [ -45,  -20],   // mid Atlantic
+    ];
+
+    function overOpenWater(lng) {
+      // Longitude arrives in any range the camera happens to hand back.
+      let x = ((lng + 180) % 360 + 360) % 360 - 180;
+      for (const [a, b] of OPEN_WATER) if (x >= a && x <= b) return true;
+      return false;
     }
-    function buildFaceGrid() {
-      faceGrid = new Map();
-      for (const t of tiles) {
-        const k = cellKey(t.lat, t.lng);
-        faceGrid.set(k, (faceGrid.get(k) || 0) + 1);
-      }
-    }
-    function facesNear(lat, lng) {
-      let n = 0;
-      for (let i = -SPIN_LOOK; i <= SPIN_LOOK; i++) {
-        for (let j = -SPIN_LOOK; j <= SPIN_LOOK; j++) {
-          n += faceGrid.get(cellKey(lat + i * SPIN_CELL, lng + j * SPIN_CELL)) || 0;
-          if (n >= SPIN_FACES_MIN) return n;
-        }
-      }
-      return n;
-    }
+
     let spinRate = 1;
     function updateSpinRate(lat, lng) {
       // The grid does not exist until the mosaic has been laid. Before that,
       // one speed.
-      if (!globeInstance || !faceGrid) return;
+      if (!globeInstance) return;
       let c;
       try { c = globeInstance.controls(); } catch { return; }
       // Nothing to modulate while the globe is being held, or parked behind an
       // open card — setGlobeSpin owns the speed then.
       if (!c || !('autoRotate' in c) || !c.autoRotate) { spinRate = 1; return; }
-      const target = facesNear(lat, lng) >= SPIN_FACES_MIN ? 1 : OCEAN_SPIN;
+      const target = overOpenWater(lng) ? OCEAN_SPIN : 1;
       spinRate += (target - spinRate) * (target < spinRate ? SPIN_EASE_DOWN : SPIN_EASE_UP);
       c.autoRotateSpeed = SPIN_SPEED * spinRate;
     }
