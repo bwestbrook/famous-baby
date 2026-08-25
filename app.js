@@ -2373,8 +2373,28 @@ const app = createApp({
     // atlas holds one cell per person and a country has as many stones as it
     // has room for; before this, a country with forty people and twelve
     // tesserae showed twelve of them until a timer re-dealt the lot at once.
-    const WAVE_PERIOD = 7200;                    // ms, trough to trough
-    const WAVE_LIFT   = 0.010;                   // globe radii at the crest
+    // How high a stone rises, and this is the part that was wrong first time.
+    // Measured as a flat fraction of the globe's radius it is meaningless at
+    // both ends: with a country framed the camera sits 0.004 radii off the
+    // surface, so a 0.010 lift put the stones two and a half times the
+    // camera's own height above the ground — past the camera plane, which is
+    // what smeared a picked country into overlapping tiles with the amber cap
+    // showing through. Zoomed out the camera is ~1.5 radii up and the same
+    // 0.010 is 0.7% of that, which is nothing at all.
+    //
+    // So the lift is a fraction of the camera's height above the surface,
+    // capped. Perspective already makes a low camera magnify a small lift;
+    // tying the one to the other is what makes the swell read the same close
+    // up as far away, and keeps it below the camera at every zoom.
+    const WAVE_PERIOD   = 7200;                  // ms, trough to trough
+    const WAVE_LIFT     = 0.045;                 // globe radii, the far-field cap
+    const WAVE_LIFT_CAM = 0.30;                  // …or this much of the camera's height
+    // A sinking stone also draws in. Height alone is a parallax shift of a few
+    // pixels from a distance; shrinking is legible at any zoom, and it is what
+    // opens the map up between the stones as they go down — which is the
+    // "all map at the trough" part. At the crest the scale is exactly 1, so
+    // the tessellation still closes where it matters.
+    const WAVE_SINK     = 0.42;                  // how far in, at the trough
     const WAVE_LAMBDA = 0.62;                    // crest spacing, globe radii
     // The direction the swell travels. Nothing special about it beyond being
     // off every axis, so the wave never runs along the equator or a meridian
@@ -2475,6 +2495,10 @@ const app = createApp({
       const restMix = selectedCountries.value.length ? MIX_MUTED : MIX_REST;
       // One clock for the whole swell. Each stone reads its own place in it.
       const waveClock = TAU * (now / WAVE_PERIOD);
+      // The camera's height above the surface, in globe radii, recovered from
+      // the horizon angle it was handed: cos θ = R/d, so d/R = 1/cos θ.
+      const camAlt = Math.max(1e-4, 1 / Math.cos(horizonAngle) - 1);
+      const lift = Math.min(WAVE_LIFT, camAlt * WAVE_LIFT_CAM);
       for (const t of tiles) {
         t.on = false;
 
@@ -2504,7 +2528,7 @@ const app = createApp({
         // stays flat and rises off the sphere rather than bending away from
         // it — and getScreenCoords foreshortens the lift near the rim for
         // free, which is what makes it read as height and not as scale.
-        const alt = WAVE_LIFT * w;
+        const alt = lift * w;
         const c = screenAt(t.lat, t.lng, alt);
         if (!c) continue;
         const pe = screenAt(t.e[0], t.e[1], alt);
@@ -2514,18 +2538,23 @@ const app = createApp({
         // South, not north: the image's own y-axis runs downward, and mapping
         // it to north would stand every face on its head.
         const e2x = c.x - pn.x, e2y = c.y - pn.y;
-        const size = Math.max(Math.hypot(e1x, e1y), Math.hypot(e2x, e2y));
+        // Drawing in as it sinks. Scaling the frame scales everything drawn in
+        // it — hexagon and coastline clip together — so the stone keeps its
+        // shape and simply gets smaller.
+        const sc = 1 - WAVE_SINK * (1 - w);
+        const s1x = e1x * sc, s1y = e1y * sc, s2x = e2x * sc, s2y = e2y * sc;
+        const size = Math.max(Math.hypot(s1x, s1y), Math.hypot(s2x, s2y));
         if (size < MIN_TILE_PX) continue;
         t.cx = c.x; t.cy = c.y; t.r = size;
         // Only a stone that is up can be pressed.
         t.on = vis >= WAVE_PICKABLE;
 
         if (t.selected || t === hoverTile) {
-          lit.push([t, e1x, e1y, e2x, e2y, vis]);
+          lit.push([t, s1x, s1y, s2x, s2y, vis]);
           continue;
         }
         ctx.globalAlpha = restMix * vis;
-        blit(ctx, grey, t, e1x, e1y, e2x, e2y, dpr);
+        blit(ctx, grey, t, s1x, s1y, s2x, s2y, dpr);
       }
 
       // The lit ones over the top, in colour: whatever is under the pointer,
