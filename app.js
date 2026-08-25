@@ -1665,12 +1665,20 @@ const app = createApp({
     // would go round the whole sphere at this spacing. Tiles are sized to
     // match, so raising it makes them smaller as well as more numerous, and
     // costs three screen projections a frame for every one it adds.
-    // Larger stones, and fewer of them. At 2600 a face was small enough that
-    // the cell cut most of it away and what was left read as texture rather
-    // than as a person; at 1500 a tessera is about a third larger across, so
-    // more of each photograph survives the cutting and the faces are legible
-    // as faces. It also costs a third fewer projections a frame.
-    const MOSAIC_N = 1500;
+    // Up from 1500, because at 1500 this is not a honeycomb — it is scattered
+    // hexagons. The lattice puts ~500 sites on land there, spaced 5.2° apart
+    // and shared out over 178 countries, so most countries hold a handful of
+    // stones that never touch. A comb needs its cells adjacent, and that is a
+    // question of how many there are, not what shape they are.
+    //
+    //     N=1500  spacing 5.24°   ~502 sites on land   11.5px a stone
+    //     N=4200  spacing 3.13°  ~1406 sites on land    6.9px a stone
+    //
+    // 4200 rather than more: MIN_TILE_PX culls anything under 5px, and on the
+    // phone this is tested on (315 × 683, globe radius ~218px) a stone at 6000
+    // measures 5.8px and is one zoom step from being culled wholesale. 4200
+    // keeps a margin. The cost is projections a frame, three per stone.
+    const MOSAIC_N = 4200;
     // Tiles are drawn a little *smaller* than their share of the sphere, so the
     // lattice never closes into a continuous surface. What is left between
     // them is the map, and it is the grout: a mosaic reads as a mosaic because
@@ -2065,13 +2073,16 @@ const app = createApp({
       // worth laying one at all: below COAST_ROOM of its own radius a stone
       // would be a shard, and the shoreline is better left as map.
       //
-      // Down from 0.4. This is only a threshold on *laying* a stone — the
-      // coast cuts whatever is laid — so at 0.4 the shoreline was being kept
-      // clear of stones that would have been perfectly legible once trimmed,
-      // and every coast read as a bald strip a stone's width inland. Lower is
-      // simply more mosaic reaching the water's edge, not more of it in the
-      // water.
-      const COAST_ROOM = 0.2;
+      // Zero now, which is to say: lay a stone at every lattice site whose
+      // centre falls in the country, and let the border cut it.
+      //
+      // The threshold made sense when a coastal stone came out a shard of a
+      // smoothed cell. It doesn't now — the border crops a hexagon cleanly,
+      // and a hexagon cut by a coastline is exactly what the edge of this
+      // mosaic should look like. Any margin here punches a bald strip out of
+      // the comb one stone deep all the way round every country, and a comb
+      // with its edge cells missing does not read as a comb.
+      const COAST_ROOM = 0;
       const cut = (lat, lng, country, desired) => {
         // Every stone the same size. A hexagon a twentieth larger than the one
         // beside it cannot share an edge with it, and the whole point of the
