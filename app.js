@@ -2389,13 +2389,26 @@ const app = createApp({
     // up as far away, and keeps it below the camera at every zoom.
     const WAVE_PERIOD   = 7200;                  // ms, trough to trough
     const WAVE_LIFT     = 0.045;                 // globe radii, the far-field cap
-    const WAVE_LIFT_CAM = 0.30;                  // …or this much of the camera's height
+    // …or whatever height makes a crest stone appear this much bigger than a
+    // trough one. Perspective scale is camAlt / (camAlt − lift), so a lift of
+    // 30% of the camera's height — which is what the last attempt used —
+    // magnifies a crest by 1.43×. Set that against the 0.58 shrink at the
+    // trough and neighbouring stones differed in apparent size by two and a
+    // half times: they cannot tile, so they overlap and gap. Small.
+    const WAVE_SCALE_MAX = 1.08;
+    const WAVE_LIFT_CAM = 1 - 1 / WAVE_SCALE_MAX;
     // A sinking stone also draws in. Height alone is a parallax shift of a few
     // pixels from a distance; shrinking is legible at any zoom, and it is what
     // opens the map up between the stones as they go down — which is the
     // "all map at the trough" part. At the crest the scale is exactly 1, so
     // the tessellation still closes where it matters.
-    const WAVE_SINK     = 0.42;                  // how far in, at the trough
+    // Much less than it was. The shrink existed to open the map up between
+    // sinking stones, but a picked country's stones now fade the whole way to
+    // nothing, which opens it up completely — so the scale only has to sell
+    // the movement, not do the revealing. At 0.42 a trough stone was 0.58 of
+    // a crest one, and with the lift on top neighbours differed by 2.46×,
+    // which is not a tiling, it is a pile.
+    const WAVE_SINK     = 0.18;                  // how far in, at the trough
     const WAVE_LAMBDA = 0.62;                    // crest spacing, globe radii
     // The direction the swell travels. Nothing special about it beyond being
     // off every axis, so the wave never runs along the equator or a meridian
@@ -2409,6 +2422,19 @@ const app = createApp({
     // sends blank bands travelling across the globe. What that looks like is
     // not a wave. It looks like the photos are missing.
     const WAVE_FLOOR = 0.55;
+
+    // For now the swell runs on a picked country and nowhere else, and the
+    // resting globe is drawn exactly as it was before any of this: altitude 0,
+    // no scaling, no fade. Three attempts at tuning the wave have each come
+    // back "no photos by default", including one that put a hard floor of
+    // 0.165 alpha under every resting stone — which would have been visible.
+    // So the resting mosaic is not being dimmed, it is not being drawn, and
+    // that is a different fault from the one being tuned.
+    //
+    // Restoring the old path exactly is what separates them. If the default
+    // globe comes back, the swell is what was breaking it. If it does not,
+    // the fault was never in the swell and this rules it out for good.
+    const WAVE_ON_REST = false;
 
     // ---- The stone ----
     // A regular hexagon of circumradius 1 in the tile's own frame, which is
@@ -2467,6 +2493,7 @@ const app = createApp({
     }
 
     let hoverTile = null;
+    let mosaicThrew = false;        // the frame loop reports a throw once
 
     function drawMosaic(camDir, horizonAngle) {
       const host = globeInstance && globeInstance._el;
@@ -2503,74 +2530,84 @@ const app = createApp({
       // the horizon angle it was handed: cos θ = R/d, so d/R = 1/cos θ.
       const camAlt = Math.max(1e-4, 1 / Math.cos(horizonAngle) - 1);
       const lift = Math.min(WAVE_LIFT, camAlt * WAVE_LIFT_CAM);
-      for (const t of tiles) {
-        t.on = false;
+      try {
+          for (const t of tiles) {
+          t.on = false;
 
-        const theta = waveClock - t.wphase;
-        // Which rise this is. It ticks over exactly at the trough, because
-        // that is where the cosine below is zero — so a stone takes its next
-        // face at the one moment it isn't showing one.
-        //
-        // Ahead of the horizon cull deliberately. A stone on the far side of
-        // the globe still counts its cycles, so it comes back round the rim
-        // already holding the right face; skip this for hidden tiles and every
-        // one of them deals the moment it reappears, in plain sight.
-        const cyc = Math.floor(theta / TAU);
-        if (t.cycle !== cyc) { t.cycle = cyc; dealFace(t, cyc); }
+          const theta = waveClock - t.wphase;
+          // Which rise this is. It ticks over exactly at the trough, because
+          // that is where the cosine below is zero — so a stone takes its next
+          // face at the one moment it isn't showing one.
+          //
+          // Ahead of the horizon cull deliberately. A stone on the far side of
+          // the globe still counts its cycles, so it comes back round the rim
+          // already holding the right face; skip this for hidden tiles and every
+          // one of them deals the moment it reappears, in plain sight.
+          const cyc = Math.floor(theta / TAU);
+          if (t.cycle !== cyc) { t.cycle = cyc; dealFace(t, cyc); }
 
-        if (dot(t.v, camDir) < cosH) continue;
-        // 0 flush with the map, 1 at the top of the rise. Not `w`: that is
-        // the host width, three lines up, and shadowing it here is a trap.
-        const rise = 0.5 - 0.5 * Math.cos(theta);
-        // The face doesn't fade for the whole cycle — it holds through the
-        // crest and only gives way near the bottom. Fading on the raw cosine
-        // leaves the mosaic sitting at half strength on average, which reads
-        // as a washed-out globe rather than a moving one.
-        let vis = Math.min(1, rise * 1.6);
-        // A picked country's stones go all the way out, so the swap at the
-        // trough stays hidden. Everything else only dims.
-        if (!t.selected) vis = WAVE_FLOOR + (1 - WAVE_FLOOR) * vis;
-        if (vis < 0.012) continue;
+          if (dot(t.v, camDir) < cosH) continue;
+          const waving = t.selected || WAVE_ON_REST;
+          // 0 flush with the map, 1 at the top of the rise. Not `w`: that is
+          // the host width, three lines up, and shadowing it here is a trap.
+          const rise = waving ? 0.5 - 0.5 * Math.cos(theta) : 1;
+          // The face doesn't fade for the whole cycle — it holds through the
+          // crest and only gives way near the bottom. Fading on the raw cosine
+          // leaves the mosaic sitting at half strength on average, which reads
+          // as a washed-out globe rather than a moving one.
+          let vis = Math.min(1, rise * 1.6);
+          // A picked country's stones go all the way out, so the swap at the
+          // trough stays hidden. Anything else waving only dims.
+          if (!t.selected) vis = WAVE_FLOOR + (1 - WAVE_FLOOR) * vis;
+          if (vis < 0.012) continue;
 
-        // Centre and both frame points are lifted the same way, so the stone
-        // stays flat and rises off the sphere rather than bending away from
-        // it — and getScreenCoords foreshortens the lift near the rim for
-        // free, which is what makes it read as height and not as scale.
-        const alt = lift * rise;
-        const c = screenAt(t.lat, t.lng, alt);
-        if (!c) continue;
-        const pe = screenAt(t.e[0], t.e[1], alt);
-        const pn = screenAt(t.n[0], t.n[1], alt);
-        if (!pe || !pn) continue;
-        const e1x = pe.x - c.x, e1y = pe.y - c.y;
-        // South, not north: the image's own y-axis runs downward, and mapping
-        // it to north would stand every face on its head.
-        const e2x = c.x - pn.x, e2y = c.y - pn.y;
-        // Drawing in as it sinks. Scaling the frame scales everything drawn in
-        // it — hexagon and coastline clip together — so the stone keeps its
-        // shape and simply gets smaller.
-        const sc = 1 - WAVE_SINK * (1 - rise);
-        const s1x = e1x * sc, s1y = e1y * sc, s2x = e2x * sc, s2y = e2y * sc;
-        // Measured unscaled. A stone that is worth drawing at the crest is
-        // worth drawing all the way down — testing the shrunk size instead
-        // makes tiles wink out entirely at the bottom of the cycle, which on
-        // a phone (where a tessera is ~10px to begin with) takes out a good
-        // part of the mosaic rather than sinking it.
-        const size = Math.max(Math.hypot(e1x, e1y), Math.hypot(e2x, e2y));
-        if (size < MIN_TILE_PX) continue;
-        t.cx = c.x; t.cy = c.y; t.r = size;
-        // Anything drawn can be pressed. Gating this on the swell meant a tap
-        // that landed on a sinking stone hit nothing — and with no tile under
-        // it, the tap didn't pick the country either, so the whole press did
-        // nothing at all. A pointer gets a second go; a tap doesn't.
-        t.on = true;
+          // Centre and both frame points are lifted the same way, so the stone
+          // stays flat and rises off the sphere rather than bending away from
+          // it — and getScreenCoords foreshortens the lift near the rim for
+          // free, which is what makes it read as height and not as scale.
+          const alt = lift * rise;
+          const c = screenAt(t.lat, t.lng, alt);
+          if (!c) continue;
+          const pe = screenAt(t.e[0], t.e[1], alt);
+          const pn = screenAt(t.n[0], t.n[1], alt);
+          if (!pe || !pn) continue;
+          const e1x = pe.x - c.x, e1y = pe.y - c.y;
+          // South, not north: the image's own y-axis runs downward, and mapping
+          // it to north would stand every face on its head.
+          const e2x = c.x - pn.x, e2y = c.y - pn.y;
+          // Drawing in as it sinks. Scaling the frame scales everything drawn in
+          // it — hexagon and coastline clip together — so the stone keeps its
+          // shape and simply gets smaller.
+          const sc = 1 - WAVE_SINK * (1 - rise);
+          const s1x = e1x * sc, s1y = e1y * sc, s2x = e2x * sc, s2y = e2y * sc;
+          // Measured unscaled. A stone that is worth drawing at the crest is
+          // worth drawing all the way down — testing the shrunk size instead
+          // makes tiles wink out entirely at the bottom of the cycle, which on
+          // a phone (where a tessera is ~10px to begin with) takes out a good
+          // part of the mosaic rather than sinking it.
+          const size = Math.max(Math.hypot(e1x, e1y), Math.hypot(e2x, e2y));
+          if (size < MIN_TILE_PX) continue;
+          t.cx = c.x; t.cy = c.y; t.r = size;
+          // Anything drawn can be pressed. Gating this on the swell meant a tap
+          // that landed on a sinking stone hit nothing — and with no tile under
+          // it, the tap didn't pick the country either, so the whole press did
+          // nothing at all. A pointer gets a second go; a tap doesn't.
+          t.on = true;
 
-        if (t.selected || t === hoverTile) {
-          lit.push([t, s1x, s1y, s2x, s2y, vis]);
-          continue;
-        }
-        ctx.globalAlpha = restMix * vis;
-        blit(ctx, grey, t, s1x, s1y, s2x, s2y, dpr);
+          if (t.selected || t === hoverTile) {
+            lit.push([t, s1x, s1y, s2x, s2y, vis]);
+            continue;
+          }
+          ctx.globalAlpha = restMix * vis;
+          blit(ctx, grey, t, s1x, s1y, s2x, s2y, dpr);
+          }
+      } catch (err) {
+        // One bad stone used to cost the whole frame. The loop above draws the
+        // world; the loop below draws whatever country is picked, and it comes
+        // after — so anything thrown in here took the picked country's faces
+        // with it and left the bare amber cap on screen. Reported once, not
+        // several hundred thousand times.
+        if (!mosaicThrew) { mosaicThrew = true; console.error('[famous Baby] mosaic frame threw:', err); }
       }
 
       // The lit ones over the top, in colour: whatever is under the pointer,
