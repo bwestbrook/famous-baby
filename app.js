@@ -1628,6 +1628,7 @@ const app = createApp({
     // anything. Now every face is the same size and a large country simply
     // holds more of them, which is a fact about the country worth showing.
 
+    const FACE_DWELL = 3400;        // ms before a picked country re-deals
     const GLOBE_R = 100;            // globe.gl's sphere radius
 
     const photoPeopleByCountry = computed(() => {
@@ -2026,12 +2027,7 @@ const app = createApp({
     let mosaicDirty = true;
 
     function dealFace(t, offset) {
-      // The wave counts cycles from wherever it started, so the offset goes
-      // negative on any stone whose phase puts it ahead of the clock. JS's %
-      // keeps the sign, and a negative index is not a person.
-      const n = t.people.length;
-      if (!n) return false;
-      const p = t.people[(((t.k + offset) % n) + n) % n];
+      const p = t.people[(t.k + offset) % t.people.length];
       const slot = ATLAS_SLOT.get(p.id);
       if (slot === undefined) return false;
       t.person = p;
@@ -2051,11 +2047,6 @@ const app = createApp({
       return {
         v, lat, lng, country, people, k,
         person: null, sx: 0, sy: 0,
-        // Where this stone sits along the swell, and which rise it is on. The
-        // phase is fixed at build time because it depends only on position;
-        // the cycle counter is what notices a trough going past.
-        wphase: dot(v, WAVE_DIR) * (TAU / WAVE_LAMBDA),
-        cycle: null,
         // Two points a half-tile away, east and north. Projecting them each
         // frame gives the tile's size, its rotation and its foreshortening
         // near the rim, all three at once and without a matrix of our own.
@@ -2357,85 +2348,6 @@ const app = createApp({
       ctx.closePath();
     }
 
-    // ---- The water ----
-    // The mosaic breathes in and out of the plane of the map. Every stone
-    // rises off the sphere, hangs, and sinks back flush with the country's own
-    // fill, and the phase is a plane wave across the globe rather than a
-    // number per tile — neighbours move together, so it reads as a swell and
-    // not as several hundred things blinking.
-    //
-    // The important part is what happens at the bottom. A stone at the trough
-    // is flat and transparent: what is under it is the country, and there is
-    // no face there to see. So that is when it takes its next one. Nothing
-    // cross-fades and nothing pops, because the swap happens in the one moment
-    // there is nothing on screen to swap.
-    //
-    // It also lifts the ceiling on how many faces a country can show. The
-    // atlas holds one cell per person and a country has as many stones as it
-    // has room for; before this, a country with forty people and twelve
-    // tesserae showed twelve of them until a timer re-dealt the lot at once.
-    // How high a stone rises, and this is the part that was wrong first time.
-    // Measured as a flat fraction of the globe's radius it is meaningless at
-    // both ends: with a country framed the camera sits 0.004 radii off the
-    // surface, so a 0.010 lift put the stones two and a half times the
-    // camera's own height above the ground — past the camera plane, which is
-    // what smeared a picked country into overlapping tiles with the amber cap
-    // showing through. Zoomed out the camera is ~1.5 radii up and the same
-    // 0.010 is 0.7% of that, which is nothing at all.
-    //
-    // So the lift is a fraction of the camera's height above the surface,
-    // capped. Perspective already makes a low camera magnify a small lift;
-    // tying the one to the other is what makes the swell read the same close
-    // up as far away, and keeps it below the camera at every zoom.
-    const WAVE_PERIOD   = 7200;                  // ms, trough to trough
-    const WAVE_LIFT     = 0.045;                 // globe radii, the far-field cap
-    // …or whatever height makes a crest stone appear this much bigger than a
-    // trough one. Perspective scale is camAlt / (camAlt − lift), so a lift of
-    // 30% of the camera's height — which is what the last attempt used —
-    // magnifies a crest by 1.43×. Set that against the 0.58 shrink at the
-    // trough and neighbouring stones differed in apparent size by two and a
-    // half times: they cannot tile, so they overlap and gap. Small.
-    const WAVE_SCALE_MAX = 1.08;
-    const WAVE_LIFT_CAM = 1 - 1 / WAVE_SCALE_MAX;
-    // A sinking stone also draws in. Height alone is a parallax shift of a few
-    // pixels from a distance; shrinking is legible at any zoom, and it is what
-    // opens the map up between the stones as they go down — which is the
-    // "all map at the trough" part. At the crest the scale is exactly 1, so
-    // the tessellation still closes where it matters.
-    // Much less than it was. The shrink existed to open the map up between
-    // sinking stones, but a picked country's stones now fade the whole way to
-    // nothing, which opens it up completely — so the scale only has to sell
-    // the movement, not do the revealing. At 0.42 a trough stone was 0.58 of
-    // a crest one, and with the lift on top neighbours differed by 2.46×,
-    // which is not a tiling, it is a pile.
-    const WAVE_SINK     = 0.18;                  // how far in, at the trough
-    const WAVE_LAMBDA = 0.62;                    // crest spacing, globe radii
-    // The direction the swell travels. Nothing special about it beyond being
-    // off every axis, so the wave never runs along the equator or a meridian
-    // and never reads as the globe's own geometry.
-    const WAVE_DIR = unitVec([0.42, 0.78, -0.47]);
-    const TAU = Math.PI * 2;
-    // The resting globe dims with the swell; it does not empty. Fading the
-    // whole way down looks right on a picked country, where the faces are the
-    // content and sit at full strength — but the rest of the world is drawn at
-    // MIX_REST, so the same fade takes an already-faint mosaic to nothing and
-    // sends blank bands travelling across the globe. What that looks like is
-    // not a wave. It looks like the photos are missing.
-    const WAVE_FLOOR = 0.55;
-
-    // For now the swell runs on a picked country and nowhere else, and the
-    // resting globe is drawn exactly as it was before any of this: altitude 0,
-    // no scaling, no fade. Three attempts at tuning the wave have each come
-    // back "no photos by default", including one that put a hard floor of
-    // 0.165 alpha under every resting stone — which would have been visible.
-    // So the resting mosaic is not being dimmed, it is not being drawn, and
-    // that is a different fault from the one being tuned.
-    //
-    // Restoring the old path exactly is what separates them. If the default
-    // globe comes back, the swell is what was breaking it. If it does not,
-    // the fault was never in the swell and this rules it out for good.
-    const WAVE_ON_REST = false;
-
     // ---- The stone ----
     // A regular hexagon of circumradius 1 in the tile's own frame, which is
     // its Voronoi cell exactly. Vertices at 30°, 90°, 150° … because the
@@ -2493,7 +2405,6 @@ const app = createApp({
     }
 
     let hoverTile = null;
-    let mosaicThrew = false;        // the frame loop reports a throw once
 
     function drawMosaic(camDir, horizonAngle) {
       const host = globeInstance && globeInstance._el;
@@ -2524,96 +2435,34 @@ const app = createApp({
       // One country picked mutes the rest; nothing picked and the whole world
       // sits at its usual weight.
       const restMix = selectedCountries.value.length ? MIX_MUTED : MIX_REST;
-      // One clock for the whole swell. Each stone reads its own place in it.
-      const waveClock = TAU * (now / WAVE_PERIOD);
-      // The camera's height above the surface, in globe radii, recovered from
-      // the horizon angle it was handed: cos θ = R/d, so d/R = 1/cos θ.
-      const camAlt = Math.max(1e-4, 1 / Math.cos(horizonAngle) - 1);
-      const lift = Math.min(WAVE_LIFT, camAlt * WAVE_LIFT_CAM);
-      try {
-          for (const t of tiles) {
-          t.on = false;
+      ctx.globalAlpha = restMix;
+      for (const t of tiles) {
+        t.on = false;
+        if (dot(t.v, camDir) < cosH) continue;
+        const c = screenAt(t.lat, t.lng, 0);
+        if (!c) continue;
+        const pe = screenAt(t.e[0], t.e[1], 0);
+        const pn = screenAt(t.n[0], t.n[1], 0);
+        if (!pe || !pn) continue;
+        const e1x = pe.x - c.x, e1y = pe.y - c.y;
+        // South, not north: the image's own y-axis runs downward, and mapping
+        // it to north would stand every face on its head.
+        const e2x = c.x - pn.x, e2y = c.y - pn.y;
+        const size = Math.max(Math.hypot(e1x, e1y), Math.hypot(e2x, e2y));
+        if (size < MIN_TILE_PX) continue;
+        t.on = true; t.cx = c.x; t.cy = c.y; t.r = size;
 
-          const theta = waveClock - t.wphase;
-          // Which rise this is. It ticks over exactly at the trough, because
-          // that is where the cosine below is zero — so a stone takes its next
-          // face at the one moment it isn't showing one.
-          //
-          // Ahead of the horizon cull deliberately. A stone on the far side of
-          // the globe still counts its cycles, so it comes back round the rim
-          // already holding the right face; skip this for hidden tiles and every
-          // one of them deals the moment it reappears, in plain sight.
-          const cyc = Math.floor(theta / TAU);
-          if (t.cycle !== cyc) { t.cycle = cyc; dealFace(t, cyc); }
-
-          if (dot(t.v, camDir) < cosH) continue;
-          const waving = t.selected || WAVE_ON_REST;
-          // 0 flush with the map, 1 at the top of the rise. Not `w`: that is
-          // the host width, three lines up, and shadowing it here is a trap.
-          const rise = waving ? 0.5 - 0.5 * Math.cos(theta) : 1;
-          // The face doesn't fade for the whole cycle — it holds through the
-          // crest and only gives way near the bottom. Fading on the raw cosine
-          // leaves the mosaic sitting at half strength on average, which reads
-          // as a washed-out globe rather than a moving one.
-          let vis = Math.min(1, rise * 1.6);
-          // A picked country's stones go all the way out, so the swap at the
-          // trough stays hidden. Anything else waving only dims.
-          if (!t.selected) vis = WAVE_FLOOR + (1 - WAVE_FLOOR) * vis;
-          if (vis < 0.012) continue;
-
-          // Centre and both frame points are lifted the same way, so the stone
-          // stays flat and rises off the sphere rather than bending away from
-          // it — and getScreenCoords foreshortens the lift near the rim for
-          // free, which is what makes it read as height and not as scale.
-          const alt = lift * rise;
-          const c = screenAt(t.lat, t.lng, alt);
-          if (!c) continue;
-          const pe = screenAt(t.e[0], t.e[1], alt);
-          const pn = screenAt(t.n[0], t.n[1], alt);
-          if (!pe || !pn) continue;
-          const e1x = pe.x - c.x, e1y = pe.y - c.y;
-          // South, not north: the image's own y-axis runs downward, and mapping
-          // it to north would stand every face on its head.
-          const e2x = c.x - pn.x, e2y = c.y - pn.y;
-          // Drawing in as it sinks. Scaling the frame scales everything drawn in
-          // it — hexagon and coastline clip together — so the stone keeps its
-          // shape and simply gets smaller.
-          const sc = 1 - WAVE_SINK * (1 - rise);
-          const s1x = e1x * sc, s1y = e1y * sc, s2x = e2x * sc, s2y = e2y * sc;
-          // Measured unscaled. A stone that is worth drawing at the crest is
-          // worth drawing all the way down — testing the shrunk size instead
-          // makes tiles wink out entirely at the bottom of the cycle, which on
-          // a phone (where a tessera is ~10px to begin with) takes out a good
-          // part of the mosaic rather than sinking it.
-          const size = Math.max(Math.hypot(e1x, e1y), Math.hypot(e2x, e2y));
-          if (size < MIN_TILE_PX) continue;
-          t.cx = c.x; t.cy = c.y; t.r = size;
-          // Anything drawn can be pressed. Gating this on the swell meant a tap
-          // that landed on a sinking stone hit nothing — and with no tile under
-          // it, the tap didn't pick the country either, so the whole press did
-          // nothing at all. A pointer gets a second go; a tap doesn't.
-          t.on = true;
-
-          if (t.selected || t === hoverTile) {
-            lit.push([t, s1x, s1y, s2x, s2y, vis]);
-            continue;
-          }
-          ctx.globalAlpha = restMix * vis;
-          blit(ctx, grey, t, s1x, s1y, s2x, s2y, dpr);
-          }
-      } catch (err) {
-        // One bad stone used to cost the whole frame. The loop above draws the
-        // world; the loop below draws whatever country is picked, and it comes
-        // after — so anything thrown in here took the picked country's faces
-        // with it and left the bare amber cap on screen. Reported once, not
-        // several hundred thousand times.
-        if (!mosaicThrew) { mosaicThrew = true; console.error('[famous Baby] mosaic frame threw:', err); }
+        if (t.selected || t === hoverTile) {
+          lit.push([t, e1x, e1y, e2x, e2y]);
+          continue;
+        }
+        blit(ctx, grey, t, e1x, e1y, e2x, e2y, dpr);
       }
 
       // The lit ones over the top, in colour: whatever is under the pointer,
       // and whatever country was picked. Nothing else.
-      for (const [t, e1x, e1y, e2x, e2y, vis] of lit) {
-        ctx.globalAlpha = MIX_LIT * vis;
+      for (const [t, e1x, e1y, e2x, e2y] of lit) {
+        ctx.globalAlpha = MIX_LIT;
         blit(ctx, atlasImg, t, e1x, e1y, e2x, e2y, dpr);
       }
 
@@ -2627,12 +2476,9 @@ const app = createApp({
       ctx.font = '300 12px ui-sans-serif, system-ui, -apple-system, sans-serif';
       ctx.shadowColor = 'rgba(0,0,0,.85)';
       ctx.shadowBlur = 6;
-      for (const [t, , , , , vis] of lit) {
+      for (const [t] of lit) {
         if (t.selected && t !== hoverTile) continue;
         if (!t.person) continue;
-        // The name fades with the face. A label left at full strength over a
-        // stone that has sunk is a name attached to nothing.
-        ctx.globalAlpha = vis;
         ctx.fillStyle = t === hoverTile ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.72)';
         ctx.fillText(givenName(t.person.name), t.cx, t.cy + t.r + 5);
       }
@@ -2650,12 +2496,26 @@ const app = createApp({
       if (mosaicTimer) { clearInterval(mosaicTimer); mosaicTimer = null; }
     }
 
-    // There was a timer here that re-dealt a picked country's faces every few
-    // seconds, so a country with forty people and twelve tesserae wasn't stuck
-    // showing the same twelve. The wave does that job now and does it better:
-    // every stone takes its next face at its own trough, so the changes are
-    // staggered across the swell instead of the whole country cutting at once,
-    // and none of them happens while there is a face on screen to see change.
+    // A picked country re-deals its own faces every so often, so a country
+    // with a dozen people in the roster and a hundred tesserae shows all of
+    // them rather than the same twelve.
+    let dealOffset = 0;
+    let dealTimer = null;
+    function syncDealTimer() {
+      const any = tiles.some(t => t.selected);
+      if (any && !dealTimer) {
+        dealTimer = setInterval(() => {
+          dealOffset++;
+          for (const t of tiles) if (t.selected) dealFace(t, dealOffset);
+          mosaicDirty = true;
+        }, FACE_DWELL);
+      }
+      if (!any && dealTimer) {
+        clearInterval(dealTimer); dealTimer = null;
+        dealOffset = 0;
+        for (const t of tiles) dealFace(t, 0);
+      }
+    }
 
     // ---- Camera → the lat/lng it is over ----
     // Inverting three-globe's own placement formula (x = s·sin(90−lat)·cos(90−lng),
@@ -2810,6 +2670,7 @@ const app = createApp({
       buildTiles();
       for (const t of tiles) t.selected = isCountryOn(t.country);
       syncMosaicTimer();
+      syncDealTimer();
       mosaicDirty = true;
       lastCamKey = '';        // force a draw on the next frame
       startMosaicLoop();
@@ -2819,6 +2680,7 @@ const app = createApp({
     // so flip the flags rather than re-laying the whole mosaic on every click.
     function syncMosaicSelection() {
       for (const t of tiles) t.selected = isCountryOn(t.country);
+      syncDealTimer();
       mosaicDirty = true;
     }
 
@@ -3374,6 +3236,7 @@ const app = createApp({
       if (!globeInstance) return;
       globeInstance._ro && globeInstance._ro.disconnect();
       if (mosaicTimer) { clearInterval(mosaicTimer); mosaicTimer = null; }
+      if (dealTimer) { clearInterval(dealTimer); dealTimer = null; }
       if (mosaicRaf != null) { cancelAnimationFrame(mosaicRaf); mosaicRaf = null; }
       clearMosaic();
       if (mosRoot) { mosRoot.remove(); mosRoot = null; mosCanvas = null; mosCtx = null; }
