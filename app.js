@@ -2030,6 +2030,7 @@ const app = createApp({
       // negative on any stone whose phase puts it ahead of the clock. JS's %
       // keeps the sign, and a negative index is not a person.
       const n = t.people.length;
+      if (!n) return false;
       const p = t.people[(((t.k + offset) % n) + n) % n];
       const slot = ATLAS_SLOT.get(p.id);
       if (slot === undefined) return false;
@@ -2401,10 +2402,13 @@ const app = createApp({
     // and never reads as the globe's own geometry.
     const WAVE_DIR = unitVec([0.42, 0.78, -0.47]);
     const TAU = Math.PI * 2;
-    // Below this a stone is too far down to be worth clicking. It is still
-    // drawn — it's fading, not gone — but a face you can barely see is not a
-    // face you meant to press.
-    const WAVE_PICKABLE = 0.34;
+    // The resting globe dims with the swell; it does not empty. Fading the
+    // whole way down looks right on a picked country, where the faces are the
+    // content and sit at full strength — but the rest of the world is drawn at
+    // MIX_REST, so the same fade takes an already-faint mosaic to nothing and
+    // sends blank bands travelling across the globe. What that looks like is
+    // not a wave. It looks like the photos are missing.
+    const WAVE_FLOOR = 0.55;
 
     // ---- The stone ----
     // A regular hexagon of circumradius 1 in the tile's own frame, which is
@@ -2515,20 +2519,24 @@ const app = createApp({
         if (t.cycle !== cyc) { t.cycle = cyc; dealFace(t, cyc); }
 
         if (dot(t.v, camDir) < cosH) continue;
-        // 0 flush with the map, 1 at the top of the rise.
-        const w = 0.5 - 0.5 * Math.cos(theta);
+        // 0 flush with the map, 1 at the top of the rise. Not `w`: that is
+        // the host width, three lines up, and shadowing it here is a trap.
+        const rise = 0.5 - 0.5 * Math.cos(theta);
         // The face doesn't fade for the whole cycle — it holds through the
         // crest and only gives way near the bottom. Fading on the raw cosine
         // leaves the mosaic sitting at half strength on average, which reads
         // as a washed-out globe rather than a moving one.
-        const vis = Math.min(1, w * 1.6);
+        let vis = Math.min(1, rise * 1.6);
+        // A picked country's stones go all the way out, so the swap at the
+        // trough stays hidden. Everything else only dims.
+        if (!t.selected) vis = WAVE_FLOOR + (1 - WAVE_FLOOR) * vis;
         if (vis < 0.012) continue;
 
         // Centre and both frame points are lifted the same way, so the stone
         // stays flat and rises off the sphere rather than bending away from
         // it — and getScreenCoords foreshortens the lift near the rim for
         // free, which is what makes it read as height and not as scale.
-        const alt = lift * w;
+        const alt = lift * rise;
         const c = screenAt(t.lat, t.lng, alt);
         if (!c) continue;
         const pe = screenAt(t.e[0], t.e[1], alt);
@@ -2541,13 +2549,21 @@ const app = createApp({
         // Drawing in as it sinks. Scaling the frame scales everything drawn in
         // it — hexagon and coastline clip together — so the stone keeps its
         // shape and simply gets smaller.
-        const sc = 1 - WAVE_SINK * (1 - w);
+        const sc = 1 - WAVE_SINK * (1 - rise);
         const s1x = e1x * sc, s1y = e1y * sc, s2x = e2x * sc, s2y = e2y * sc;
-        const size = Math.max(Math.hypot(s1x, s1y), Math.hypot(s2x, s2y));
+        // Measured unscaled. A stone that is worth drawing at the crest is
+        // worth drawing all the way down — testing the shrunk size instead
+        // makes tiles wink out entirely at the bottom of the cycle, which on
+        // a phone (where a tessera is ~10px to begin with) takes out a good
+        // part of the mosaic rather than sinking it.
+        const size = Math.max(Math.hypot(e1x, e1y), Math.hypot(e2x, e2y));
         if (size < MIN_TILE_PX) continue;
         t.cx = c.x; t.cy = c.y; t.r = size;
-        // Only a stone that is up can be pressed.
-        t.on = vis >= WAVE_PICKABLE;
+        // Anything drawn can be pressed. Gating this on the swell meant a tap
+        // that landed on a sinking stone hit nothing — and with no tile under
+        // it, the tap didn't pick the country either, so the whole press did
+        // nothing at all. A pointer gets a second go; a tap doesn't.
+        t.on = true;
 
         if (t.selected || t === hoverTile) {
           lit.push([t, s1x, s1y, s2x, s2y, vis]);
