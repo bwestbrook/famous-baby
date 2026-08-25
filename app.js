@@ -2869,7 +2869,15 @@ const app = createApp({
     // and a polygon reads as a curve. It shrinks the shape very slightly
     // toward its own centre — a quarter of each corner — which at this scale
     // is far below a pixel and well under the error already in a 110m outline.
-    const CHAMFER_PASSES = 2;
+    // Off for now. Two passes quadrupled the vertex count — 10,587 to 41,802
+    // — and the globe went glitchy with it: that many more points to project
+    // every frame, on a layer that also carries the mosaic. Rounding the
+    // coastline was never worth what it cost to draw.
+    //
+    // 0 leaves the outlines exactly as Natural Earth ships them. 1 halves the
+    // cost of 2 and still takes every hard angle off, if it is worth trying
+    // again once the frame budget has room.
+    const CHAMFER_PASSES = 0;
 
     function chaikin(ring) {
       const n = ring.length;
@@ -2886,6 +2894,7 @@ const app = createApp({
     }
 
     function chamferRing(ring) {
+      if (CHAMFER_PASSES < 1) return ring;
       let r = ring;
       // Leave the small stuff alone: an island of a dozen points has no corners
       // to spare, and cutting them costs it its shape.
