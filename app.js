@@ -1760,11 +1760,9 @@ const app = createApp({
     // only thing that cuts a face is the border itself — which is the point:
     // fill the country, then crop to it. A gap between stones let the map
     // through and made the coverage look accidental.
-    const CRACK_WIDTH = 0;          // as a fraction of the tessera's own size
     // A cell starts as this many sides before the neighbours cut into it. It
     // only survives where a tessera has no neighbour on some side — an island,
     // a coast — and there it reads as a stone worn round by water.
-    const CELL_SIDES = 12;
     // Under this many pixels the difference between a carved cell and a square
     // is not visible, and the path is not worth building. Small tesserae blit
     // as they always did.
@@ -2037,8 +2035,9 @@ const app = createApp({
         n: vecToLatLng(rotToward(v, north, half)),
         selected: false,
         on: false, cx: 0, cy: 0, r: 0,
-        // The tessera's own angular size, kept because carveTiles works in
-        // these units, and the cell it carves.
+        // The tessera's own angular size — the units the coast planes are
+        // measured in — and the hexagon once the border has cut it, or null
+        // for a stone the border never reaches.
         half, poly: null,
       };
     }
@@ -2180,7 +2179,7 @@ const app = createApp({
       }
       // Every stone is laid before any of them is cut: a cell is defined by
       // its neighbours, so there is nothing to cut against until they all exist.
-      carveTiles();
+      cutTilesToCoast();
       // And where they ended up is what tells the globe when to hurry.
     }
 
@@ -2208,83 +2207,46 @@ const app = createApp({
       return out;
     }
 
-    // Where the dividing line between two stones falls, as a fraction of the
-    // way from this one to that one. Exactly halfway, and it has to be: the
-    // stones are all one size now, so their Voronoi cells are regular hexagons
-    // and a hexagon's edge is the perpendicular bisector to its neighbour. Any
-    // other fraction and they stop tiling.
+    // Cut every stone to the shore, and to nothing else.
     //
-    // It used to be hashed off the midpoint and nudged, so a bigger stone took
-    // more of the gap than a smaller one — which mattered when stones came in
-    // different sizes. When the jitter went flat for the hexagons, the size
-    // constant was renamed out from under this line and the reference here was
-    // missed. The nudge was already zero, since the hash returns 1 flat; all
-    // the expression did was throw. And it threw inside buildTiles, which is
-    // why there were no tesserae at all — no mosaic on the resting globe, and
-    // a picked country showing nothing but its own amber cap.
-    const SHARE_LINE = 0.5;
-
-    function carveTiles() {
-      // Buckets five degrees on a side: every neighbour close enough to cut
-      // into a tessera is within one of the nine around it.
-      const bucket = new Map();
-      const key = (la, lo) => (Math.floor(la / 5) + 40) * 200 + (Math.floor(lo / 5) + 40);
+    // This used to carve each tessera against its neighbours as well, which
+    // was necessary when stones came in different sizes: the dividing line had
+    // to be worked out pair by pair. It is redundant now and worse than
+    // redundant. With every stone the same size on a triangular lattice, the
+    // cell a tile would be carved into *is* the regular hexagon — so the carve
+    // recomputed a shape already known, from a 12-gon, through a dozen
+    // half-plane clips, and then handed it to a smoother that rounded the
+    // corners off. Measured: the smoothed cell keeps 91.7% of the hexagon's
+    // area, and every bit of what it loses is at the six corners — which is
+    // precisely where hexagons meet. That was the gap in the tiling.
+    //
+    // So: the hexagon is the stone, and the country's border is the only thing
+    // that cuts it.
+    function cutTilesToCoast() {
+      const kept = [];
       for (const t of tiles) {
-        const k = key(t.lat, t.lng);
-        if (!bucket.has(k)) bucket.set(k, []);
-        bucket.get(k).push(t);
-      }
-      for (const t of tiles) {
-        // The cell before anything cuts it: a ring at the tessera's full size.
-        let poly = [];
-        for (let i = 0; i < CELL_SIDES; i++) {
-          const a = (i + 0.5) * 2 * Math.PI / CELL_SIDES;
-          poly.push(Math.cos(a), Math.sin(a));
-        }
-        const kLat = Math.max(0.08, Math.cos(t.lat * RAD));
-        for (let dla = -5; dla <= 5; dla += 5) {
-          for (let dlo = -5; dlo <= 5; dlo += 5) {
-            const near = bucket.get(key(t.lat + dla, t.lng + dlo));
-            if (!near) continue;
-            for (const o of near) {
-              if (o === t) continue;
-              let dLng = o.lng - t.lng;
-              if (dLng > 180) dLng -= 360; else if (dLng < -180) dLng += 360;
-              // The neighbour's offset in this tile's own units: east and
-              // south, divided by the tile's own half-size.
-              const nu = (dLng * kLat * RAD) / t.half;
-              const nv = -((o.lat - t.lat) * RAD) / t.half;
-              const d2 = nu * nu + nv * nv;
-              // Too far to reach this cell even at full stretch, or sitting on
-              // top of it, which the lattice should never produce.
-              if (d2 > 16 || d2 < 1e-9) continue;
-              poly = clipHalfPlane(poly, nu, nv, d2 * SHARE_LINE);
-              if (poly.length < 6) break;
-            }
-          }
-        }
-        // And the shore, which cuts a stone exactly as a neighbour does.
+        let poly = Array.from(HEX);
+        let cut = false;
         for (const [nu, nv, limit] of coastPlanes(t.lat, t.lng, t.country, t.half)) {
           if (limit >= 1) continue;                   // the coast is out of reach
           poly = clipHalfPlane(poly, nu, nv, limit);
+          cut = true;
           if (poly.length < 6) break;
         }
-        if (poly.length < 6) { t.poly = null; continue; }
-        // Step back from every edge by half a crack, so the gap between two
-        // stones is one crack wide rather than two.
-        let cx = 0, cy = 0;
-        const n = poly.length / 2;
-        for (let i = 0; i < n; i++) { cx += poly[i * 2]; cy += poly[i * 2 + 1]; }
-        cx /= n; cy /= n;
-        // 1 while CRACK_WIDTH is 0: the stones meet rather than stepping
-        // back from the line they share.
-        const k = 1 - CRACK_WIDTH;
-        const out = new Float32Array(poly.length);
-        for (let i = 0; i < n; i++) {
-          out[i * 2] = cx + (poly[i * 2] - cx) * k;
-          out[i * 2 + 1] = cy + (poly[i * 2 + 1] - cy) * k;
-        }
-        t.poly = out;
+        // Cut away to nothing means the stone sits entirely offshore. The
+        // clearance test when it was laid should make that impossible; if it
+        // ever happens, dropping it is right, and leaving `poly` null would be
+        // wrong — null means "uncut", so the stone would draw whole, in the
+        // sea.
+        if (poly.length < 6) continue;
+        // Null for an inland stone: nothing to intersect, so nothing to spend
+        // a second clip on. Most of the mosaic takes this path.
+        t.poly = cut ? Float32Array.from(poly) : null;
+        kept.push(t);
+      }
+      if (kept.length !== tiles.length) {
+        tiles.length = 0;
+        for (const t of kept) tiles.push(t);
       }
     }
 
@@ -2318,22 +2280,16 @@ const app = createApp({
     // sphere — so a bubble on the far limb flattens like water on a curve
     // rather than staying a circle pasted to the glass.
 
-    // The carved cell, drawn as a curve rather than as a polygon. Each corner
-    // is used as a control point and the curve passes through the midpoints of
-    // the edges, so a cell keeps its area and its neighbours' seams still
-    // meet — it just stops arriving at every corner as a corner. Against a
-    // simplified coastline, straight-edged cells made the whole border read as
-    // a saw.
-    function cellPath(ctx, p) {
+    // The shore, drawn as the polygon it is. It used to be smoothed — each
+    // corner a control point, the curve through the edge midpoints — which
+    // softened a simplified coastline but also pulled every corner inward.
+    // Applied to a hexagon that costs 8.3% of its area at exactly the six
+    // points where it has to touch its neighbours, so the smoothing is gone.
+    function coastPath(ctx, p) {
       const n = p.length / 2;
       if (n < 3) return;
-      const mx = (i, j) => (p[i * 2] + p[j * 2]) / 2;
-      const my = (i, j) => (p[i * 2 + 1] + p[j * 2 + 1]) / 2;
-      ctx.moveTo(mx(n - 1, 0), my(n - 1, 0));
-      for (let i = 0; i < n; i++) {
-        const j = (i + 1) % n;
-        ctx.quadraticCurveTo(p[i * 2], p[i * 2 + 1], mx(i, j), my(i, j));
-      }
+      ctx.moveTo(p[0], p[1]);
+      for (let i = 1; i < n; i++) ctx.lineTo(p[i * 2], p[i * 2 + 1]);
       ctx.closePath();
     }
 
@@ -2374,16 +2330,12 @@ const app = createApp({
       // The hexagon is in the same units the transform already maps, so it
       // turns and foreshortens with the stone for free.
       ctx.save();
-      // The country's own edge still cuts a stone — a hexagon tiles the plane,
-      // it knows nothing about where the coast is — but nothing else does.
-      const poly = t.poly;
-      if (poly) {
-        ctx.beginPath();
-        cellPath(ctx, poly);
-        ctx.clip();
-      }
+      // Inland this is the whole hexagon. On a coast `poly` is that same
+      // hexagon already clipped to the border, so it replaces the hex path
+      // rather than being intersected with it — the country's edge is the one
+      // thing that cuts a stone, and it has done its cutting already.
       ctx.beginPath();
-      hexPath(ctx);
+      if (t.poly) coastPath(ctx, t.poly); else hexPath(ctx);
       ctx.clip();
       // Drawn over [-1,1], which contains the circumradius-1 hexagon — so the
       // photograph covers the stone completely and the hexagon decides what is
