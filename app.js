@@ -1740,7 +1740,6 @@ const app = createApp({
     // either way of the nominal size, fixed per position rather than per
     // person — a face is re-dealt every few seconds, and a size that followed
     // the face would make the whole mosaic breathe.
-    const SIZE_JITTER_UNUSED = 0.20;
     // ---- Cracked clay ----
     // A tessera is no longer a square. Each one is cut back against every
     // neighbour it has — the cut runs along the line between the two, so the
@@ -1754,7 +1753,6 @@ const app = createApp({
     // wobbly: the dividing line between two stones sits anywhere from a third
     // to two thirds of the way across rather than always at the midpoint, so
     // no two cells come out the same size or shape.
-    const CRACK_BIAS = 0.14;        // how far off centre a dividing line may sit
     // Then both stones step back from every line they share, and the gap they
     // leave between them is the crack. This is the old grout, moved from the
     // lattice into the stone.
@@ -1817,21 +1815,6 @@ const app = createApp({
           yield [lat, lng];
         }
       }
-    }
-    // How much bigger or smaller than nominal this particular tessera is cut.
-    // Hashed from its own position, so it is the same on every load and its
-    // neighbours are all different — a mosaic, not a grid of stamps.
-    // Flat 1. A hexagon that is a twentieth larger than the one beside it
-    // cannot share an edge with it, and the whole point of the arrangement now
-    // is that they do. The variation this used to give is gone, and it is the
-    // price of a tiling that closes.
-    function jitterAt() { return 1; }
-
-    function jitterAtUnused(lat, lng) {
-      let h = Math.imul(Math.round((lat + 90) * 1024) | 0, 0x27d4eb2d)
-            ^ Math.imul(Math.round((lng + 180) * 1024) | 0, 0x165667b1);
-      h ^= h >>> 15; h = Math.imul(h, 0x2545f491); h ^= h >>> 13;
-      return 1 + (((h >>> 0) / 4294967296) * 2 - 1) * SIZE_JITTER;
     }
 
     // Which country a point falls in. Every outer ring in the world with its
@@ -2091,7 +2074,10 @@ const app = createApp({
       // water.
       const COAST_ROOM = 0.2;
       const cut = (lat, lng, country, desired) => {
-        const half = desired * jitterAt(lat, lng);
+        // Every stone the same size. A hexagon a twentieth larger than the one
+        // beside it cannot share an edge with it, and the whole point of the
+        // arrangement is that they do.
+        const half = desired;
         if (half < TILE_MIN_HALF) return 0;
         const clear = coastClearance(lat, lng, country);
         return clear >= half * COAST_ROOM ? half : 0;
@@ -2161,7 +2147,7 @@ const app = createApp({
         if (ringsByCountry.has(country)) continue;
         const c = COUNTRY_COORDS[country];
         if (!c) continue;
-        laid.set(country, [{ lat: c[0], lng: c[1], half: tileHalf * jitterAt(c[0], c[1]) }]);
+        laid.set(country, [{ lat: c[0], lng: c[1], half: tileHalf }]);
       }
 
       // ---- Dealing the faces ----
@@ -2223,16 +2209,20 @@ const app = createApp({
     }
 
     // Where the dividing line between two stones falls, as a fraction of the
-    // way from this one to that one. Hashed off the midpoint, which both of
-    // them compute identically, and flipped by whichever sorts first — so the
-    // two agree on one line rather than each cutting to its own taste and
-    // leaving a sliver or an overlap between them.
-    function shareLine(aLat, aLng, bLat, bLng) {
-      const h = jitterAt((aLat + bLat) / 2, (aLng + bLng) / 2);
-      const off = ((h - 1) / SIZE_JITTER) * CRACK_BIAS;      // −BIAS … +BIAS
-      const first = aLat !== bLat ? aLat < bLat : aLng < bLng;
-      return 0.5 + (first ? off : -off);
-    }
+    // way from this one to that one. Exactly halfway, and it has to be: the
+    // stones are all one size now, so their Voronoi cells are regular hexagons
+    // and a hexagon's edge is the perpendicular bisector to its neighbour. Any
+    // other fraction and they stop tiling.
+    //
+    // It used to be hashed off the midpoint and nudged, so a bigger stone took
+    // more of the gap than a smaller one — which mattered when stones came in
+    // different sizes. When the jitter went flat for the hexagons, the size
+    // constant was renamed out from under this line and the reference here was
+    // missed. The nudge was already zero, since the hash returns 1 flat; all
+    // the expression did was throw. And it threw inside buildTiles, which is
+    // why there were no tesserae at all — no mosaic on the resting globe, and
+    // a picked country showing nothing but its own amber cap.
+    const SHARE_LINE = 0.5;
 
     function carveTiles() {
       // Buckets five degrees on a side: every neighbour close enough to cut
@@ -2268,8 +2258,7 @@ const app = createApp({
               // Too far to reach this cell even at full stretch, or sitting on
               // top of it, which the lattice should never produce.
               if (d2 > 16 || d2 < 1e-9) continue;
-              const share = shareLine(t.lat, t.lng, o.lat, o.lng);
-              poly = clipHalfPlane(poly, nu, nv, d2 * share);
+              poly = clipHalfPlane(poly, nu, nv, d2 * SHARE_LINE);
               if (poly.length < 6) break;
             }
           }
@@ -2956,12 +2945,23 @@ const app = createApp({
             repaintPolygons();
           });
         console.log('[famous Baby] country outlines loaded:', features.length);
-        // Outlines are what the lattice is sorted against, so this is the
-        // earliest the mosaic can be laid — the land becomes faces here,
-        // before anyone touches anything.
-        syncMosaic();
       } catch (err) {
         console.error('[famous Baby] country outlines failed:', err);
+        return;
+      }
+      // Outlines are what the lattice is sorted against, so this is the
+      // earliest the mosaic can be laid — the land becomes faces here, before
+      // anyone touches anything.
+      //
+      // Outside the catch above, and this matters. It used to be inside it, so
+      // when buildTiles threw the console said "country outlines failed" on a
+      // line directly after "country outlines loaded: 177". The outlines were
+      // fine. The mosaic was not, and the message sent the search to the wrong
+      // half of the function.
+      try {
+        syncMosaic();
+      } catch (err) {
+        console.error('[famous Baby] mosaic failed to build:', err);
       }
     }
 
