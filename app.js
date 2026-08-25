@@ -1628,7 +1628,6 @@ const app = createApp({
     // anything. Now every face is the same size and a large country simply
     // holds more of them, which is a fact about the country worth showing.
 
-    const FACE_DWELL = 3400;        // ms before a picked country re-deals
     const GLOBE_R = 100;            // globe.gl's sphere radius
 
     const photoPeopleByCountry = computed(() => {
@@ -2027,7 +2026,11 @@ const app = createApp({
     let mosaicDirty = true;
 
     function dealFace(t, offset) {
-      const p = t.people[(t.k + offset) % t.people.length];
+      // The wave counts cycles from wherever it started, so the offset goes
+      // negative on any stone whose phase puts it ahead of the clock. JS's %
+      // keeps the sign, and a negative index is not a person.
+      const n = t.people.length;
+      const p = t.people[(((t.k + offset) % n) + n) % n];
       const slot = ATLAS_SLOT.get(p.id);
       if (slot === undefined) return false;
       t.person = p;
@@ -2047,6 +2050,11 @@ const app = createApp({
       return {
         v, lat, lng, country, people, k,
         person: null, sx: 0, sy: 0,
+        // Where this stone sits along the swell, and which rise it is on. The
+        // phase is fixed at build time because it depends only on position;
+        // the cycle counter is what notices a trough going past.
+        wphase: dot(v, WAVE_DIR) * (TAU / WAVE_LAMBDA),
+        cycle: null,
         // Two points a half-tile away, east and north. Projecting them each
         // frame gives the tile's size, its rotation and its foreshortening
         // near the rim, all three at once and without a matrix of our own.
@@ -2348,6 +2356,36 @@ const app = createApp({
       ctx.closePath();
     }
 
+    // ---- The water ----
+    // The mosaic breathes in and out of the plane of the map. Every stone
+    // rises off the sphere, hangs, and sinks back flush with the country's own
+    // fill, and the phase is a plane wave across the globe rather than a
+    // number per tile — neighbours move together, so it reads as a swell and
+    // not as several hundred things blinking.
+    //
+    // The important part is what happens at the bottom. A stone at the trough
+    // is flat and transparent: what is under it is the country, and there is
+    // no face there to see. So that is when it takes its next one. Nothing
+    // cross-fades and nothing pops, because the swap happens in the one moment
+    // there is nothing on screen to swap.
+    //
+    // It also lifts the ceiling on how many faces a country can show. The
+    // atlas holds one cell per person and a country has as many stones as it
+    // has room for; before this, a country with forty people and twelve
+    // tesserae showed twelve of them until a timer re-dealt the lot at once.
+    const WAVE_PERIOD = 7200;                    // ms, trough to trough
+    const WAVE_LIFT   = 0.010;                   // globe radii at the crest
+    const WAVE_LAMBDA = 0.62;                    // crest spacing, globe radii
+    // The direction the swell travels. Nothing special about it beyond being
+    // off every axis, so the wave never runs along the equator or a meridian
+    // and never reads as the globe's own geometry.
+    const WAVE_DIR = unitVec([0.42, 0.78, -0.47]);
+    const TAU = Math.PI * 2;
+    // Below this a stone is too far down to be worth clicking. It is still
+    // drawn — it's fading, not gone — but a face you can barely see is not a
+    // face you meant to press.
+    const WAVE_PICKABLE = 0.34;
+
     // ---- The stone ----
     // A regular hexagon of circumradius 1 in the tile's own frame, which is
     // its Voronoi cell exactly. Vertices at 30°, 90°, 150° … because the
@@ -2435,14 +2473,42 @@ const app = createApp({
       // One country picked mutes the rest; nothing picked and the whole world
       // sits at its usual weight.
       const restMix = selectedCountries.value.length ? MIX_MUTED : MIX_REST;
-      ctx.globalAlpha = restMix;
+      // One clock for the whole swell. Each stone reads its own place in it.
+      const waveClock = TAU * (now / WAVE_PERIOD);
       for (const t of tiles) {
         t.on = false;
+
+        const theta = waveClock - t.wphase;
+        // Which rise this is. It ticks over exactly at the trough, because
+        // that is where the cosine below is zero — so a stone takes its next
+        // face at the one moment it isn't showing one.
+        //
+        // Ahead of the horizon cull deliberately. A stone on the far side of
+        // the globe still counts its cycles, so it comes back round the rim
+        // already holding the right face; skip this for hidden tiles and every
+        // one of them deals the moment it reappears, in plain sight.
+        const cyc = Math.floor(theta / TAU);
+        if (t.cycle !== cyc) { t.cycle = cyc; dealFace(t, cyc); }
+
         if (dot(t.v, camDir) < cosH) continue;
-        const c = screenAt(t.lat, t.lng, 0);
+        // 0 flush with the map, 1 at the top of the rise.
+        const w = 0.5 - 0.5 * Math.cos(theta);
+        // The face doesn't fade for the whole cycle — it holds through the
+        // crest and only gives way near the bottom. Fading on the raw cosine
+        // leaves the mosaic sitting at half strength on average, which reads
+        // as a washed-out globe rather than a moving one.
+        const vis = Math.min(1, w * 1.6);
+        if (vis < 0.012) continue;
+
+        // Centre and both frame points are lifted the same way, so the stone
+        // stays flat and rises off the sphere rather than bending away from
+        // it — and getScreenCoords foreshortens the lift near the rim for
+        // free, which is what makes it read as height and not as scale.
+        const alt = WAVE_LIFT * w;
+        const c = screenAt(t.lat, t.lng, alt);
         if (!c) continue;
-        const pe = screenAt(t.e[0], t.e[1], 0);
-        const pn = screenAt(t.n[0], t.n[1], 0);
+        const pe = screenAt(t.e[0], t.e[1], alt);
+        const pn = screenAt(t.n[0], t.n[1], alt);
         if (!pe || !pn) continue;
         const e1x = pe.x - c.x, e1y = pe.y - c.y;
         // South, not north: the image's own y-axis runs downward, and mapping
@@ -2450,19 +2516,22 @@ const app = createApp({
         const e2x = c.x - pn.x, e2y = c.y - pn.y;
         const size = Math.max(Math.hypot(e1x, e1y), Math.hypot(e2x, e2y));
         if (size < MIN_TILE_PX) continue;
-        t.on = true; t.cx = c.x; t.cy = c.y; t.r = size;
+        t.cx = c.x; t.cy = c.y; t.r = size;
+        // Only a stone that is up can be pressed.
+        t.on = vis >= WAVE_PICKABLE;
 
         if (t.selected || t === hoverTile) {
-          lit.push([t, e1x, e1y, e2x, e2y]);
+          lit.push([t, e1x, e1y, e2x, e2y, vis]);
           continue;
         }
+        ctx.globalAlpha = restMix * vis;
         blit(ctx, grey, t, e1x, e1y, e2x, e2y, dpr);
       }
 
       // The lit ones over the top, in colour: whatever is under the pointer,
       // and whatever country was picked. Nothing else.
-      for (const [t, e1x, e1y, e2x, e2y] of lit) {
-        ctx.globalAlpha = MIX_LIT;
+      for (const [t, e1x, e1y, e2x, e2y, vis] of lit) {
+        ctx.globalAlpha = MIX_LIT * vis;
         blit(ctx, atlasImg, t, e1x, e1y, e2x, e2y, dpr);
       }
 
@@ -2476,9 +2545,12 @@ const app = createApp({
       ctx.font = '300 12px ui-sans-serif, system-ui, -apple-system, sans-serif';
       ctx.shadowColor = 'rgba(0,0,0,.85)';
       ctx.shadowBlur = 6;
-      for (const [t] of lit) {
+      for (const [t, , , , , vis] of lit) {
         if (t.selected && t !== hoverTile) continue;
         if (!t.person) continue;
+        // The name fades with the face. A label left at full strength over a
+        // stone that has sunk is a name attached to nothing.
+        ctx.globalAlpha = vis;
         ctx.fillStyle = t === hoverTile ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.72)';
         ctx.fillText(givenName(t.person.name), t.cx, t.cy + t.r + 5);
       }
@@ -2496,26 +2568,12 @@ const app = createApp({
       if (mosaicTimer) { clearInterval(mosaicTimer); mosaicTimer = null; }
     }
 
-    // A picked country re-deals its own faces every so often, so a country
-    // with a dozen people in the roster and a hundred tesserae shows all of
-    // them rather than the same twelve.
-    let dealOffset = 0;
-    let dealTimer = null;
-    function syncDealTimer() {
-      const any = tiles.some(t => t.selected);
-      if (any && !dealTimer) {
-        dealTimer = setInterval(() => {
-          dealOffset++;
-          for (const t of tiles) if (t.selected) dealFace(t, dealOffset);
-          mosaicDirty = true;
-        }, FACE_DWELL);
-      }
-      if (!any && dealTimer) {
-        clearInterval(dealTimer); dealTimer = null;
-        dealOffset = 0;
-        for (const t of tiles) dealFace(t, 0);
-      }
-    }
+    // There was a timer here that re-dealt a picked country's faces every few
+    // seconds, so a country with forty people and twelve tesserae wasn't stuck
+    // showing the same twelve. The wave does that job now and does it better:
+    // every stone takes its next face at its own trough, so the changes are
+    // staggered across the swell instead of the whole country cutting at once,
+    // and none of them happens while there is a face on screen to see change.
 
     // ---- Camera → the lat/lng it is over ----
     // Inverting three-globe's own placement formula (x = s·sin(90−lat)·cos(90−lng),
@@ -2670,7 +2728,6 @@ const app = createApp({
       buildTiles();
       for (const t of tiles) t.selected = isCountryOn(t.country);
       syncMosaicTimer();
-      syncDealTimer();
       mosaicDirty = true;
       lastCamKey = '';        // force a draw on the next frame
       startMosaicLoop();
@@ -2680,7 +2737,6 @@ const app = createApp({
     // so flip the flags rather than re-laying the whole mosaic on every click.
     function syncMosaicSelection() {
       for (const t of tiles) t.selected = isCountryOn(t.country);
-      syncDealTimer();
       mosaicDirty = true;
     }
 
@@ -3236,7 +3292,6 @@ const app = createApp({
       if (!globeInstance) return;
       globeInstance._ro && globeInstance._ro.disconnect();
       if (mosaicTimer) { clearInterval(mosaicTimer); mosaicTimer = null; }
-      if (dealTimer) { clearInterval(dealTimer); dealTimer = null; }
       if (mosaicRaf != null) { cancelAnimationFrame(mosaicRaf); mosaicRaf = null; }
       clearMosaic();
       if (mosRoot) { mosRoot.remove(); mosRoot = null; mosCanvas = null; mosCtx = null; }
