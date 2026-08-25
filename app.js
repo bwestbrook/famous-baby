@@ -1665,7 +1665,12 @@ const app = createApp({
     // would go round the whole sphere at this spacing. Tiles are sized to
     // match, so raising it makes them smaller as well as more numerous, and
     // costs three screen projections a frame for every one it adds.
-    const MOSAIC_N = 2600;
+    // Larger stones, and fewer of them. At 2600 a face was small enough that
+    // the cell cut most of it away and what was left read as texture rather
+    // than as a person; at 1500 a tessera is about a third larger across, so
+    // more of each photograph survives the cutting and the faces are legible
+    // as faces. It also costs a third fewer projections a frame.
+    const MOSAIC_N = 1500;
     // Tiles are drawn a little *smaller* than their share of the sphere, so the
     // lattice never closes into a continuous surface. What is left between
     // them is the map, and it is the grout: a mosaic reads as a mosaic because
@@ -1680,7 +1685,13 @@ const app = createApp({
     // far enough for the cutting to bite: 2/√3 is the corner-to-centre
     // distance of a hexagon whose flat-to-centre distance is half the spacing,
     // which is exactly the cell the carving leaves behind.
-    const TILE_BLEED = 1.155;
+    // 2/√3 is exactly the corner-to-centre distance of the cell the carving
+    // leaves behind — which covers the cell only if the drawn shape is a
+    // circle. It is not: the droplet breathes inwards by up to BLOB_WOBBLE +
+    // BLOB_SWELL, and wherever it does, the corner of its own cell shows
+    // through as bare map. Reach far enough that the *narrowest* the droplet
+    // ever gets still covers the cell.
+    const TILE_BLEED = 1.155 * 1.20;
     // Under this many pixels a tessera is a speck, and several hundred specks
     // are a smudge over the map rather than a mosaic on it.
     const MIN_TILE_PX = 5;
@@ -1747,7 +1758,11 @@ const app = createApp({
     // Then both stones step back from every line they share, and the gap they
     // leave between them is the crack. This is the old grout, moved from the
     // lattice into the stone.
-    const CRACK_WIDTH = 0.08;       // as a fraction of the tessera's own size
+    // No crack. The stones meet, so a country is covered edge to edge and the
+    // only thing that cuts a face is the border itself — which is the point:
+    // fill the country, then crop to it. A gap between stones let the map
+    // through and made the coverage look accidental.
+    const CRACK_WIDTH = 0;          // as a fraction of the tessera's own size
     // A cell starts as this many sides before the neighbours cut into it. It
     // only survives where a tessera has no neighbour on some side — an island,
     // a coast — and there it reads as a stone worn round by water.
@@ -2262,6 +2277,8 @@ const app = createApp({
         const n = poly.length / 2;
         for (let i = 0; i < n; i++) { cx += poly[i * 2]; cy += poly[i * 2 + 1]; }
         cx /= n; cy /= n;
+        // 1 while CRACK_WIDTH is 0: the stones meet rather than stepping
+        // back from the line they share.
         const k = 1 - CRACK_WIDTH;
         const out = new Float32Array(poly.length);
         for (let i = 0; i < n; i++) {
