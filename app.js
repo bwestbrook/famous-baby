@@ -1685,13 +1685,13 @@ const app = createApp({
     // far enough for the cutting to bite: 2/√3 is the corner-to-centre
     // distance of a hexagon whose flat-to-centre distance is half the spacing,
     // which is exactly the cell the carving leaves behind.
-    // 2/√3 is exactly the corner-to-centre distance of the cell the carving
-    // leaves behind — which covers the cell only if the drawn shape is a
-    // circle. It is not: the droplet breathes inwards by up to BLOB_WOBBLE +
-    // BLOB_SWELL, and wherever it does, the corner of its own cell shows
-    // through as bare map. Reach far enough that the *narrowest* the droplet
-    // ever gets still covers the cell.
-    const TILE_BLEED = 1.155 * 1.20;
+    // Exactly 2/√3, and it has to be exact. The lattice is triangular — six
+    // neighbours at 60° apart — so its Voronoi cells are regular hexagons
+    // whose corner-to-centre distance is the spacing over √3. Setting the
+    // tile's radius to that makes the drawn hexagon *be* that cell, which is
+    // what lets the mosaic tile with no gap and no overlap, indefinitely.
+    // Any other value and the hexagons either leave slivers or fight.
+    const TILE_BLEED = 2 / Math.sqrt(3);
     // Under this many pixels a tessera is a speck, and several hundred specks
     // are a smudge over the map rather than a mosaic on it.
     const MIN_TILE_PX = 5;
@@ -1740,7 +1740,7 @@ const app = createApp({
     // either way of the nominal size, fixed per position rather than per
     // person — a face is re-dealt every few seconds, and a size that followed
     // the face would make the whole mosaic breathe.
-    const SIZE_JITTER = 0.20;
+    const SIZE_JITTER_UNUSED = 0.20;
     // ---- Cracked clay ----
     // A tessera is no longer a square. Each one is cut back against every
     // neighbour it has — the cut runs along the line between the two, so the
@@ -1797,7 +1797,11 @@ const app = createApp({
     // do not meet at a seam between two differently-phased grids.
     function* hexPoints(step, minLat, maxLat, minLng, maxLng) {
       const stepDeg = step / RAD;
-      const rowDeg = stepDeg * 0.866;                 // √3/2: triangular packing
+      // √3/2 exactly, not 0.866. The rounding is only 4e-5 of a row, but the
+      // hexagons are now cut to meet along these rows — an approximate row
+      // height means an accumulating sliver, and a tiling that closes is the
+      // whole point.
+      const rowDeg = stepDeg * (Math.sqrt(3) / 2);
       for (let row = Math.floor((minLat + 90) / rowDeg); ; row++) {
         const lat = row * rowDeg - 90;
         if (lat > maxLat) break;
@@ -1817,7 +1821,13 @@ const app = createApp({
     // How much bigger or smaller than nominal this particular tessera is cut.
     // Hashed from its own position, so it is the same on every load and its
     // neighbours are all different — a mosaic, not a grid of stamps.
-    function jitterAt(lat, lng) {
+    // Flat 1. A hexagon that is a twentieth larger than the one beside it
+    // cannot share an edge with it, and the whole point of the arrangement now
+    // is that they do. The variation this used to give is gone, and it is the
+    // price of a tiling that closes.
+    function jitterAt() { return 1; }
+
+    function jitterAtUnused(lat, lng) {
       let h = Math.imul(Math.round((lat + 90) * 1024) | 0, 0x27d4eb2d)
             ^ Math.imul(Math.round((lng + 180) * 1024) | 0, 0x165667b1);
       h ^= h >>> 15; h = Math.imul(h, 0x2545f491); h ^= h >>> 13;
@@ -2318,10 +2328,6 @@ const app = createApp({
     // [-1,1] frame, which is already turning and foreshortening with the
     // sphere — so a bubble on the far limb flattens like water on a curve
     // rather than staying a circle pasted to the glass.
-    const BLOB_POINTS = 14;            // enough for a smooth rim, cheap enough for hundreds
-    const BLOB_WOBBLE = 0.11;          // how far the rim moves, as a share of radius
-    const BLOB_SWELL = 0.05;           // the slow breath of the whole droplet
-    let blobClock = 0;                 // seconds, advanced once a frame
 
     // The carved cell, drawn as a curve rather than as a polygon. Each corner
     // is used as a control point and the curve passes through the midpoints of
@@ -2342,34 +2348,32 @@ const app = createApp({
       ctx.closePath();
     }
 
-    // Transparent in the middle, opaque at the rim — punched out of what has
-    // just been drawn, so the face fades away at its own edge.
-    let rimGrad = null;
-    function rimFade(ctx) {
-      if (!rimGrad) {
-        rimGrad = ctx.createRadialGradient(0, 0, 0.55, 0, 0, 1.12);
-        rimGrad.addColorStop(0, 'rgba(0,0,0,0)');
-        rimGrad.addColorStop(0.72, 'rgba(0,0,0,0)');
-        rimGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
+    // ---- The stone ----
+    // A regular hexagon of circumradius 1 in the tile's own frame, which is
+    // its Voronoi cell exactly. Vertices at 30°, 90°, 150° … because the
+    // lattice offsets alternate rows by half a column: the six neighbours sit
+    // at 0° and ±60°, so the edges between them are perpendicular to those and
+    // the corners fall halfway between. Pointy-top, and the set of angles is
+    // symmetric about the horizontal, so it reads the same whether the frame's
+    // y runs up or down.
+    //
+    // No wobble, no feathered rim, no carved cell. Every one of those was a
+    // way of not quite meeting the stone beside it. Hexagons are the shape
+    // that tiles the plane with no gap, no overlap and one repeating cell, and
+    // that is the whole of what is wanted here — the photograph is cropped to
+    // the hexagon however much of it that throws away.
+    const HEX = (() => {
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const a = (30 + i * 60) * Math.PI / 180;
+        pts.push(Math.cos(a), Math.sin(a));
       }
-      return rimGrad;
-    }
+      return pts;
+    })();
 
-    function blobPath(ctx, t) {
-      const ph = t.phase;
-      // Two waves, deliberately not harmonics of each other: 2 lobes turning
-      // one way and 3 the other never line up, so the rim keeps moving.
-      const swell = 1 + BLOB_SWELL * Math.sin(blobClock * 0.6 + ph);
-      const step = (Math.PI * 2) / BLOB_POINTS;
-      for (let i = 0; i <= BLOB_POINTS; i++) {
-        const a = i * step;
-        const r = swell * (1 + BLOB_WOBBLE * (
-          Math.sin(a * 2 + blobClock * 0.9 + ph) +
-          0.6 * Math.sin(a * 3 - blobClock * 0.55 + ph * 1.7)));
-        const x = Math.cos(a) * r, y = Math.sin(a) * r;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
+    function hexPath(ctx) {
+      ctx.moveTo(HEX[0], HEX[1]);
+      for (let i = 2; i < 12; i += 2) ctx.lineTo(HEX[i], HEX[i + 1]);
       ctx.closePath();
     }
 
@@ -2378,15 +2382,11 @@ const app = createApp({
     // toward the rim — instead of sitting on the glass in front of it.
     function blit(ctx, img, t, e1x, e1y, e2x, e2y, dpr) {
       ctx.setTransform(e1x * dpr, e1y * dpr, e2x * dpr, e2y * dpr, t.cx * dpr, t.cy * dpr);
-      // The cell is in the same units the transform above already maps, so the
-      // path costs nothing to place — it turns and foreshortens with the stone.
+      // The hexagon is in the same units the transform already maps, so it
+      // turns and foreshortens with the stone for free.
       ctx.save();
-      // Two clips, and the order doesn't matter because clip() intersects:
-      // first the carved cell, which is what holds a tessera inside its own
-      // country, then the droplet, which is what stops it being a polygon.
-      // Replacing the cell with the droplet instead of intersecting them is
-      // what let faces bleed across borders — the blob knows nothing about
-      // where the coast is.
+      // The country's own edge still cuts a stone — a hexagon tiles the plane,
+      // it knows nothing about where the coast is — but nothing else does.
       const poly = t.poly;
       if (poly) {
         ctx.beginPath();
@@ -2394,17 +2394,13 @@ const app = createApp({
         ctx.clip();
       }
       ctx.beginPath();
-      blobPath(ctx, t);
+      hexPath(ctx);
       ctx.clip();
+      // Drawn over [-1,1], which contains the circumradius-1 hexagon — so the
+      // photograph covers the stone completely and the hexagon decides what is
+      // kept. Most of a face lands outside it, and that is the trade: stones
+      // that meet.
       ctx.drawImage(img, t.sx, t.sy, ATLAS.cell, ATLAS.cell, -1, -1, 2, 2);
-      // Feather the rim so droplets melt into one another instead of meeting
-      // at a cut edge. A radial fade painted over the top in the destination's
-      // own alpha costs one gradient fill and turns a hard boundary into a
-      // wet one. The gradient is built once and reused; only the transform
-      // moves, so it lands in the tile's own frame every time.
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.fillStyle = rimFade(ctx);
-      ctx.fill();
       ctx.restore();
     }
 
@@ -2644,7 +2640,6 @@ const app = createApp({
       // saving this used to make is simply not available once the surface
       // itself is alive. `key` is still computed above; it costs nothing and
       // the shortcut comes straight back if the water ever stops.
-      blobClock = performance.now() / 1000;
       lastCamKey = key;
       mosaicDirty = false;
       const camDir = toVec(centre);
