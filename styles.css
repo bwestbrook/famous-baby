@@ -34,7 +34,6 @@
   --glass-blur:  blur(3px) saturate(120%);
   /* How far the spine column reaches in from the left edge. Everything that
      stacks beside it clears exactly this much, so the two never overlap. */
-  --rail-w:      10%;
   /* The top band and the search line are the two fixed edges the left-hand
      column runs between, so both are measurements rather than magic numbers. */
   --band-h:      53px;
@@ -207,77 +206,61 @@ body {
 /* The column owns the left edge outright: it starts under the band and ends on
    top of the search line, however tall the screen is. Absolute rather than in
    the dock's flow, so opening a drawer no longer shortens it. */
+/* The categories used to run down the left-hand edge as a column of spines,
+   which cost 10% of the screen the globe was drawing on and set every other
+   thing in the dock in from the edge. They read left to right under the search
+   line now, one icon each. */
 .railwrap {
-  position: absolute;
-  left: 0;
-  top: calc(var(--band-h) + 8px);
-  /* Down to the bottom edge: the categories span the whole side now, and the
-     search line steps aside for them rather than passing beneath. */
-  bottom: var(--dock-pad);
-  width: var(--rail-w);
-  z-index: 2;
-  display: flex; flex-direction: column; align-items: stretch; gap: 4px;
+  display: flex; align-items: center; gap: 4px;
   min-width: 0;
 }
 .rail__step {
   display: flex; align-items: center; justify-content: center;
-  height: 22px;
-  border-radius: 0 10px 10px 0;
+  flex: none;
+  width: 22px; height: 34px;
+  border-radius: 10px;
   background: rgba(52,55,62,.46);
   backdrop-filter: blur(3px) saturate(120%);
   -webkit-backdrop-filter: blur(3px) saturate(120%);
   border: 1px solid rgba(255,255,255,.3);
-  border-left: none;
   color: rgba(255,255,255,.8);
-  box-shadow: 2px 0 10px rgba(0,0,0,.4);
+  box-shadow: 0 2px 10px rgba(0,0,0,.4);
   transition: background .12s var(--ease), color .12s var(--ease), opacity .12s var(--ease);
 }
 .rail__step:hover:not(:disabled) { background: rgba(58,61,69,.62); color: #fff; }
 .rail__step:disabled { opacity: .3; cursor: default; }
 
 .rail {
-  flex: 1; min-height: 0;
-  display: flex; flex-direction: column; align-items: stretch; gap: 4px;
-  /* Every calling has a spine now, which is more than any screen holds: the
-     column scrolls on its own and nothing else on the dock moves with it. The
-     bar is hidden — the tabs running off the top and bottom edges say plainly
-     enough that there's more, and a scrollbar down the left edge of the globe
-     would read as chrome. */
-  overflow-y: auto; overscroll-behavior: contain;
-  padding: 2px 0;
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 4px;
+  /* Every calling has a tab, which is more than any screen holds: the bar
+     scrolls on its own and nothing else on the dock moves with it. The
+     scrollbar is hidden — the tabs running off each end say plainly enough
+     that there's more, and a scrollbar under the search line would read as
+     chrome. */
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain;
+  padding: 0 2px;
   scrollbar-width: none; -ms-overflow-style: none;
 }
 .rail::-webkit-scrollbar { width: 0; height: 0; }
 .rail__tab {
-  display: flex; flex-direction: column-reverse; align-items: center;
-  /* The word sets the height and nothing else does: no minimum to stretch the
-     short ones, no maximum to clip the long ones, and flex-shrink off so a
-     crowded column can't squeeze a label out of its own tab. */
+  display: flex; align-items: center; justify-content: center;
+  /* Square, and the same square whatever the calling is called. A column of
+     words had to size itself to the longest one; a row of icons doesn't. */
   flex: none;
-  height: auto;
-  padding: 10px 3px;
-  border-radius: 0 12px 12px 0;
+  width: 34px; height: 34px;
+  border-radius: 10px;
   /* Same tinted glass as the search line, so the tabs read as chrome. */
   background: rgba(52,55,62,.46);
   backdrop-filter: blur(3px) saturate(120%);
   -webkit-backdrop-filter: blur(3px) saturate(120%);
   border: 1px solid rgba(255,255,255,.3);
-  border-left: none;
   color: rgba(255,255,255,.8);
-  box-shadow: 2px 0 10px rgba(0,0,0,.4);
+  box-shadow: 0 2px 10px rgba(0,0,0,.4);
   transition: background .14s var(--ease), color .14s var(--ease), border-color .14s var(--ease);
 }
 .rail__tab:hover { background: rgba(58,61,69,.62); color: #fff; border-color: rgba(255,255,255,.55); }
 .rail__tab.is-on { background: rgba(96,101,112,.62); border-color: rgba(255,255,255,.85); color: #fff; }
-/* The label runs down the tab — that's what buys the width back. */
-.rail__txt {
-  writing-mode: vertical-rl;
-  font-size: 9.5px; font-weight: 400; letter-spacing: .09em; text-transform: uppercase;
-  white-space: nowrap;
-  /* Vertical text still measures as a line box; this stops a long calling from
-     being cut off at the tab's edge. */
-  overflow: visible;
-}
 /* The pinned head of the column: brighter than the spines below it, and it
    doesn't move with them. Filled while its page is open. */
 /* Words only on the spines — a dozen glyphs down one edge read as decoration
@@ -547,24 +530,19 @@ body {
 /* Everything in the dock keeps its size; only the drawer stack gives ground,
    so a wall of open callings never squeezes the names or the search line. */
 .dock > * { flex: none; pointer-events: auto; }
-/* The rail owns the whole left-hand edge, top band to bottom, so everything
-   in the dock clears it — the search line included, which used to duck under
-   its foot and take the full width.
-   Order, top to bottom: the open filters, then the search line, then the
-   names it found. Results read downward from the line you typed into, the
-   way a search is read. DOM order is hits, drawers, sbar; `order` puts them
-   right without moving the markup. */
-.drawers, .hits, .chiprow, .sbar { margin-left: calc(var(--rail-w) + 6px); }
+/* Order, top to bottom: the open filters, then the search line, then the
+   categories, then the names it found. Results still read downward from the
+   line you typed into; the categories sit between because that is where they
+   were asked to sit. `order` puts them right without moving the markup. */
 /* The names belong to the line you typed into, so they hang off it rather
    than floating below it: the gap closes, the search line squares off its
    bottom corners and the panel squares off its top ones, and the two read as
    one object. */
-.hits { margin-top: -6px; border-top-left-radius: 6px; border-top-right-radius: 6px; }
-.sbar { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
 .drawers { order: 1; }
 .chiprow { order: 2; }
 .sbar    { order: 3; }
-.hits    { order: 4; }
+.railwrap { order: 4; }
+.hits    { order: 5; }
 
 /* Every open drawer lives in this one stack, and the stack is bounded: it can
    reach up to just short of the top band and no further, whatever is open.
@@ -775,7 +753,6 @@ body {
 /* What's left of the callings while the names have the screen: one bar, the
    count of what's open, and the way back. */
 .foldbar {
-  margin-left: calc(var(--rail-w) + 6px);
   display: flex; align-items: center; gap: 8px;
   padding: 0 10px 0 12px;
   height: 34px;

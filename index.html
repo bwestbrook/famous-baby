@@ -257,14 +257,17 @@
       <!-- Every filter as a spine: the timeline, gender, and then each calling
            on its own. More than fit the edge of a phone, so the column scrolls
            on its own without moving anything else. -->
+      <!-- ---------- CATEGORIES — one icon each, under the search line ---------- -->
       <div class="railwrap" v-if="!selectedPerson">
-        <!-- An arrow at each end, so the column reads as something that moves.
+        <!-- An arrow at each end, so the bar reads as something that moves.
              They grey out at the ends rather than disappearing — a step that
              comes and goes is a step you can't aim for. -->
-        <button class="rail__step" @click="railStep(-1)" :disabled="!canRailUp" title="Scroll up">
-          <svg class="ico ico--14"><use href="#i-chev-up"/></svg>
+        <button class="rail__step" @click="railStep(-1)" :disabled="!canRailPrev" title="Scroll left">
+          <svg class="ico ico--14"><use href="#i-chev-left"/></svg>
         </button>
         <div class="rail" ref="railTrack" @scroll.passive="syncRailArrows">
+          <!-- The label is gone and the icon carries it. `title` is what says
+               the word now, so every tab keeps one whether or not it opens. -->
           <button
             v-for="d in railTabs"
             :key="d.id"
@@ -272,12 +275,13 @@
             :class="{ 'is-on': isDrawerOpen(d.id) }"
             @click="toggleDrawer(d.id)"
             :title="(isDrawerOpen(d.id) ? 'Close ' : 'Open ') + d.label"
+            :aria-label="d.label"
           >
-            <span class="rail__txt">{{ d.label }}</span>
+            <svg class="ico ico--18"><use :href="'#' + d.icon"/></svg>
           </button>
         </div>
-        <button class="rail__step" @click="railStep(1)" :disabled="!canRailDown" title="Scroll down">
-          <svg class="ico ico--14"><use href="#i-chev-down"/></svg>
+        <button class="rail__step" @click="railStep(1)" :disabled="!canRailNext" title="Scroll right">
+          <svg class="ico ico--14"><use href="#i-chev-right"/></svg>
         </button>
       </div>
 

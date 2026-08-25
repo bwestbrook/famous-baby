@@ -4222,18 +4222,18 @@ const app = createApp({
     // the globe. Each press moves most of a screenful, the way the letter dial
     // steps.
     const railTrack = ref(null);
-    const canRailUp = ref(false);
-    const canRailDown = ref(false);
+    const canRailPrev = ref(false);
+    const canRailNext = ref(false);
     function syncRailArrows() {
       const el = railTrack.value;
-      if (!el) { canRailUp.value = false; canRailDown.value = false; return; }
-      canRailUp.value = el.scrollTop > 2;
-      canRailDown.value = el.scrollTop + el.clientHeight < el.scrollHeight - 2;
+      if (!el) { canRailPrev.value = false; canRailNext.value = false; return; }
+      canRailPrev.value = el.scrollLeft > 2;
+      canRailNext.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 2;
     }
     function railStep(dir) {
       const el = railTrack.value;
       if (!el) return;
-      el.scrollBy({ top: dir * Math.max(120, el.clientHeight * 0.62), behavior: 'smooth' });
+      el.scrollBy({ left: dir * Math.max(120, el.clientWidth * 0.62), behavior: 'smooth' });
     }
     // The rail unmounts whenever a card is open, so the arrows are re-measured
     // off the element itself coming and going rather than off what opened it.
@@ -5237,7 +5237,7 @@ const app = createApp({
       railTabs, openDrawers, isDrawerOpen, toggleDrawer, closeDrawer,
       queryFor, setDrawerQuery, narrow, SEARCH_FROM,
       openFields, subfieldsFor,
-      railTrack, railStep, canRailUp, canRailDown, syncRailArrows,
+      railTrack, railStep, canRailPrev, canRailNext, syncRailArrows,
       randomOpen,
       catTrack, canCatPrev, canCatNext, catPage, quickPick, syncCatArrows,
       setSubTrack, canSubPrev, canSubNext, subPage, syncSubRow, syncSubArrows,
