@@ -50,9 +50,13 @@
     // carries crossorigin above precisely so its errors come through whole.
     // Anything else goes to the console and no further — and if the app really
     // has failed, the mount watchdog below is what says so.
-    function __famousBabyOurs(file) {
-      if (!file) return false;
-      return file.indexOf(location.origin) === 0 || file.indexOf('https://unpkg.com/') === 0;
+    // Takes a filename for a thrown error, or a whole stack for a rejected
+    // promise — a rejection carries no filename, so the stack is the only
+    // thing there is to attribute it by. Hence indexOf >= 0 rather than === 0:
+    // in a stack our origin appears partway along a frame, not at the front.
+    function __famousBabyOurs(where) {
+      if (!where) return false;
+      return where.indexOf(location.origin) >= 0 || where.indexOf('https://unpkg.com/') >= 0;
     }
     window.addEventListener('error', function (e) {
       var where = (e.filename || '') + ':' + (e.lineno || '');
@@ -63,9 +67,26 @@
       }
       __famousBabyShowError('error', where + '\n' + what);
     });
+    // The same test, and it should have been here the first time. Filtering
+    // the 'error' listener fixed the panel for a browser script that throws;
+    // it did nothing for one that rejects. Firefox for iOS reaches for
+    // window.__firefox__ from inside its own promise chains, so "Can't find
+    // variable: __firefox__" arrives here, unattributable, and the panel
+    // covered a working app with it — the identical bug through the one door
+    // that was left open.
+    //
+    // A rejection with no stack cannot be attributed to anyone, so it is not
+    // ours either. Nothing that matters is lost: if the app has actually
+    // failed to start, the mount watchdog below is what says so.
     window.addEventListener('unhandledrejection', function (e) {
       var r = e.reason;
-      __famousBabyShowError('unhandled promise rejection', (r && r.stack) ? r.stack : String(r));
+      var stack = (r && r.stack) ? String(r.stack) : '';
+      var msg = (r && r.message) ? String(r.message) : String(r);
+      if (!__famousBabyOurs(stack)) {
+        console.warn('[famous Baby] ignoring a rejection from outside this page:', msg);
+        return;
+      }
+      __famousBabyShowError('unhandled promise rejection', stack);
     });
     window.addEventListener('load', function () {
       setTimeout(function () {
