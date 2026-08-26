@@ -1947,7 +1947,15 @@ const app = createApp({
     // walk is the same either way, since finding the nearest edges costs what
     // it costs and only the shortlist changes.
     const COAST_CUTS = 12;
-    function coastPlanes(lat, lng, country, half) {
+    // `inside` is not a nicety. Each plane is built from the point towards the
+    // nearest border segment and keeps the side the point is on — which is the
+    // country only while the point is in it. For a stone laid outside the
+    // border the same construction keeps the sea, and the stone draws in the
+    // water instead of being cut back to the coast. Outside, the nearest
+    // segment is flipped and it alone does the cutting: one border line, keep
+    // the far side. Several flipped planes on a convex headland would clip a
+    // stone away to nothing between them.
+    function coastPlanes(lat, lng, country, half, inside) {
       const k = Math.max(0.05, Math.cos(lat * RAD));
       const px = lng * k, py = lat;
       const found = [];
@@ -1969,6 +1977,10 @@ const app = createApp({
       found.sort((a, b) => a.d - b.d);
       // In the stone's own frame: east is +u, north is −v, and distances are
       // in units of its radius.
+      if (!inside) {
+        const f = found[0];
+        return f ? [[-f.nx, f.ny, -(f.d * RAD) / half]] : [];
+      }
       const out = [];
       for (let i = 0; i < found.length && out.length < COAST_CUTS; i++) {
         const f = found[i];
@@ -2025,7 +2037,7 @@ const app = createApp({
       return true;
     }
 
-    function makeTile(v, country, people, k, half) {
+    function makeTile(v, country, people, k, half, inside) {
       const [lat, lng] = vecToLatLng(v);
       // The frame the tessera is drawn on, built off the sphere's own axis, so
       // tiles line up with the meridians and the mosaic reads as a weave
@@ -2044,9 +2056,10 @@ const app = createApp({
         selected: false,
         on: false, cx: 0, cy: 0, r: 0,
         // The tessera's own angular size — the units the coast planes are
-        // measured in — and the hexagon once the border has cut it, or null
-        // for a stone the border never reaches.
-        half, poly: null,
+        // measured in — whether its centre is in the country, and the hexagon
+        // once the border has cut it (null for a stone the border never
+        // reaches, which is most of them).
+        half, inside, poly: null,
       };
     }
 
@@ -2160,6 +2173,71 @@ const app = createApp({
         laid.set(country, [{ lat: c[0], lng: c[1], half: tileHalf }]);
       }
 
+      // ---- The fringe: stones whose centre is outside, whose hexagon isn't
+      // Everything above asks whether a lattice site falls *inside* a country.
+      // That leaves a bald band just within every border, up to a stone's
+      // radius across: a point in that band is nearest to a lattice site out
+      // in the water, no stone was ever laid on that site, and so the map
+      // showed through exactly where the mosaic should have been running up
+      // to the coastline.
+      //
+      // The comb is meant to be larger than the country and cut by the border.
+      // So a site within reach of the border gets a stone whichever side of
+      // the line it sits on, and cutTilesToCoast keeps whatever the border
+      // leaves of it — which for a site well out to sea is nothing, and it is
+      // dropped.
+      //
+      // Found from the border rather than by sweeping a bounding box: taking
+      // the nine lattice sites around each of a ring's own vertices is bounded
+      // by how detailed the coastline is, not by how far the country spreads,
+      // and Russia's bounding box is mostly not Russia.
+      const spotKeyOf = (la, lo) => Math.round(la * 100) + ':' + Math.round(lo * 100);
+      for (const [country, spots] of laid) {
+        const rings = ringsByCountry.get(country);
+        if (!rings || !rings.length || !spots.length) continue;
+        // Recovered from the stones already laid rather than assumed: a
+        // country the coarse pass under-served was re-laid on a finer lattice,
+        // and its fringe has to sit on that one. half = step/√3 both ways.
+        const half = spots[0].half;
+        const stepDeg = (half * Math.sqrt(3)) / RAD;
+        const rowDeg = stepDeg * (Math.sqrt(3) / 2);
+        const seen = new Set(spots.map(sp => spotKeyOf(sp.lat, sp.lng)));
+        const fringe = [];
+        for (const p of rings) {
+          for (const v of p.ring) {
+            const row0 = Math.round((v[1] + 90) / rowDeg);
+            for (let dr = -1; dr <= 1; dr++) {
+              const row = row0 + dr;
+              if (row < 0) continue;
+              const lat = row * rowDeg - 90;
+              if (lat > 89 || lat < -89) continue;
+              // The same column width and the same half-column stagger as
+              // hexPoints, so a fringe stone lands on the lattice the rest of
+              // the country is already on rather than beside it.
+              const colDeg = stepDeg / Math.max(0.08, Math.cos(lat * RAD));
+              const off = (row % 2) * colDeg * 0.5;
+              const col0 = Math.round((v[0] - off + 180) / colDeg);
+              for (let dc = -1; dc <= 1; dc++) {
+                const lng = (col0 + dc) * colDeg - 180 + off;
+                const key = spotKeyOf(lat, lng);
+                if (seen.has(key)) continue;
+                seen.add(key);
+                fringe.push({ lat, lng, half });
+              }
+            }
+          }
+        }
+        // Inside-ness decides which way the border cuts, so it is worth the
+        // one test — but only once per site, after the dedupe above has taken
+        // nine-per-vertex down to one per lattice cell.
+        for (const f of fringe) {
+          f.inside = rings.some(p =>
+            f.lng >= p.minX && f.lng <= p.maxX && f.lat >= p.minY && f.lat <= p.maxY &&
+            pointInRing(f.lng, f.lat, p.ring));
+        }
+        if (fringe.length) laid.set(country, spots.concat(fringe));
+      }
+
       // ---- Dealing the faces ----
       // Per country and in index order, so neighbouring tesserae hold
       // different people however many the country has.
@@ -2179,7 +2257,7 @@ const app = createApp({
           // laying every country in the first place.
           if (spotsTaken.has(spotKey) && k > 0) continue;
           spotsTaken.add(spotKey);
-          const t = makeTile(toVec([s.lat, s.lng]), country, people, k++, s.half);
+          const t = makeTile(toVec([s.lat, s.lng]), country, people, k++, s.half, s.inside !== false);
           if (t && dealFace(t, 0)) {
             // Its own place in the cycle, from its position rather than a
             // random number, so a reload gives the same sea back.
@@ -2238,7 +2316,7 @@ const app = createApp({
       for (const t of tiles) {
         let poly = Array.from(HEX);
         let cut = false;
-        for (const [nu, nv, limit] of coastPlanes(t.lat, t.lng, t.country, t.half)) {
+        for (const [nu, nv, limit] of coastPlanes(t.lat, t.lng, t.country, t.half, t.inside)) {
           if (limit >= 1) continue;                   // the coast is out of reach
           poly = clipHalfPlane(poly, nu, nv, limit);
           cut = true;
@@ -2250,6 +2328,10 @@ const app = createApp({
         // wrong — null means "uncut", so the stone would draw whole, in the
         // sea.
         if (poly.length < 6) continue;
+        // A stone laid outside the border exists only for the part of it the
+        // border keeps. If nothing cut it, nothing about it is in the country,
+        // and it is not a stone.
+        if (!cut && !t.inside) continue;
         // Null for an inland stone: nothing to intersect, so nothing to spend
         // a second clip on. Most of the mosaic takes this path.
         t.poly = cut ? Float32Array.from(poly) : null;
